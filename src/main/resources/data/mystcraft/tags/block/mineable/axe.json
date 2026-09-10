@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mystcraft:ink_mixer",
+    "mystcraft:book_binder",
+    "mystcraft:bookstand",
+    "mystcraft:lectern",
+    "mystcraft:writing_desk"
+  ]
+}

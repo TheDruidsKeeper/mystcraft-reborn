@@ -1,0 +1,128 @@
+package com.techbucketdivision.mystcraft.client;
+
+import com.techbucketdivision.mystcraft.age.AgeController;
+import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
+import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
+import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
+import com.techbucketdivision.mystcraft.client.render.AgeSkyMath;
+import com.techbucketdivision.mystcraft.util.Colors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.client.renderer.state.level.SkyRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.MoonPhase;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+
+/**
+ * Game-bus listeners: Phase-1 sky (vanilla renderer fed from the Age controller), fog colour, local Age clock and
+ * weather strengths, cache clearing on logout.
+ */
+public final class ClientGameEvents {
+    private ClientGameEvents() {}
+
+    public static void register(IEventBus gameBus) {
+        gameBus.addListener(ClientGameEvents::onExtractLevelRenderState);
+        gameBus.addListener(ClientGameEvents::onComputeFogColor);
+        gameBus.addListener(ClientGameEvents::onClientTickPost);
+        gameBus.addListener(ClientGameEvents::onLoggingOut);
+    }
+
+    // --- sky (Phase 1) -------------------------------------------------------------------------------------------
+
+    private static void onExtractLevelRenderState(ExtractLevelRenderStateEvent event) {
+        ClientLevel level = event.getLevel();
+        AgeController controller = ClientAgeData.controllerFor(level);
+        if (controller == null) return;
+        float partial = event.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        long time = ClientAgeData.ageTime(level);
+        float angle = controller.celestialAngle(time, partial);
+        float rain = level.getRainLevel(partial);
+        float biomeTemp = biomeTemperature(level, event.getCamera().getPosition());
+
+        LevelRenderState state = event.getRenderState();
+        SkyRenderState sky = state.skyRenderState;
+
+        Celestial sun = AgeSkyMath.first(controller, Celestial.Kind.SUN);
+        Celestial moon = AgeSkyMath.first(controller, Celestial.Kind.MOON);
+        Celestial stars = AgeSkyMath.firstStars(controller);
+
+        sky.sunAngle = AgeSkyMath.angleDegrees(sun, time, partial, angle);
+        sky.moonAngle = AgeSkyMath.angleDegrees(moon, time, partial, angle + 0.5f);
+        sky.starAngle = AgeSkyMath.angleDegrees(stars, time, partial, angle);
+        sky.starBrightness = stars == null ? 0f : AgeSkyMath.starBrightness(angle, rain);
+        sky.rainBrightness = 1.0f - rain * 0.5f; // UNVERIFIED: semantic of rainBrightness (vanilla dims celestials while raining)
+        sky.moonPhase = moonPhase(moon == null ? 0 : moon.phase(time));
+        sky.sunriseAndSunsetColor = AgeSkyMath.sunriseColor(sun, angle);
+
+        Colors.RGB skyColor = AgeSkyMath.color(controller, ColorKind.SKY, time, partial, angle, biomeTemp);
+        if (skyColor != null) sky.skyColor = AgeSkyMath.rgb(skyColor);
+        Colors.RGB cloudColor = AgeSkyMath.color(controller, ColorKind.CLOUD, time, partial, angle, biomeTemp);
+        if (cloudColor != null) state.cloudColor = AgeSkyMath.rgb(cloudColor);
+        state.cloudHeight = controller.sky().cloudHeight;
+        sky.shouldRenderDarkDisc = controller.sky().drawVoid && sky.shouldRenderDarkDisc;
+    }
+
+    /** Vanilla phase index 0 (full) .. 7 → {@link MoonPhase}. */
+    private static MoonPhase moonPhase(int phase) {
+        MoonPhase[] values = MoonPhase.values(); // UNVERIFIED: ordinal order FULL_MOON .. WAXING_GIBBOUS (matches moon.json track)
+        if (values.length == 0) return MoonPhase.values()[0];
+        return values[Math.floorMod(phase, values.length)];
+    }
+
+    private static float biomeTemperature(ClientLevel level, Vec3 pos) {
+        try {
+            BlockPos bp = BlockPos.containing(pos);
+            return level.getBiome(bp).value().getBaseTemperature(); // API_CHEATSHEET I2: Biome#getBaseTemperature() verified
+        } catch (RuntimeException e) {
+            return 0.5f;
+        }
+    }
+
+    // --- fog -----------------------------------------------------------------------------------------------------
+
+    private static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        AgeController controller = ClientAgeData.controllerFor(level);
+        if (controller == null) return;
+        float partial = (float) event.getPartialTick();
+        long time = ClientAgeData.ageTime(level);
+        float angle = controller.celestialAngle(time, partial);
+        Colors.RGB fog = AgeSkyMath.color(controller, ColorKind.FOG, time, partial, angle, biomeTemperature(level, event.getCamera().getPosition()));
+        if (fog == null) return;
+        // UNVERIFIED: ComputeFogColor accessors (setRed/setGreen/setBlue, 1.21 names)
+        event.setRed(fog.r());
+        event.setGreen(fog.g());
+        event.setBlue(fog.b());
+    }
+
+    // --- ticking ---------------------------------------------------------------------------------------------------
+
+    private static void onClientTickPost(ClientTickEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+        ClientLevel level = mc.level;
+        if (level == null || mc.isPaused()) return;
+        ClientAgeData.tick(level);
+        AgeController controller = ClientAgeData.controllerFor(level);
+        if (controller == null) return;
+        WeatherController weather = controller.weather();
+        if (weather == null) return;
+        try {
+            weather.updateRaining(level);
+            level.setRainLevel(weather.getRainStrength());
+            level.setThunderLevel(weather.getThunderStrength());
+        } catch (RuntimeException ignored) {
+            // never let a weather bug kill the client tick
+        }
+    }
+
+    private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientAgeData.clear();
+    }
+}

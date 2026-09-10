@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:black_dye",
+    "minecraft:black_dye",
+    "minecraft:glass_bottle",
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "id": "mystcraft:ink_vial",
+    "count": 1
+  }
+}

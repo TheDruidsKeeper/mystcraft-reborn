@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mystcraft:block/linkmodifier_side1",
+    "up": "mystcraft:block/linkmodifier_top",
+    "down": "mystcraft:block/linkmodifier_bottom",
+    "north": "mystcraft:block/linkmodifier_side1",
+    "south": "mystcraft:block/linkmodifier_side1",
+    "east": "mystcraft:block/linkmodifier_side2",
+    "west": "mystcraft:block/linkmodifier_side2"
+  }
+}

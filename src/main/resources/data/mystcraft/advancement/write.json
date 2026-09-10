@@ -1,0 +1,25 @@
+{
+  "parent": "mystcraft:symbol",
+  "display": {
+    "icon": {
+      "id": "mystcraft:symbol_portfolio"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.write.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.write.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "write_in_desk": {
+      "trigger": "mystcraft:writing_desk_write"
+    }
+  },
+  "requirements": [
+    [
+      "write_in_desk"
+    ]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mystcraft:block/bookbinder_top",
+    "side": "mystcraft:block/bookbinder_side",
+    "bottom": "mystcraft:block/bookbinder_bottom"
+  }
+}

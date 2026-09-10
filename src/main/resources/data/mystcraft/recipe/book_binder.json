@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "iii",
+    "ppp",
+    "pp "
+  ],
+  "key": {
+    "i": "minecraft:iron_ingot",
+    "p": "#minecraft:planks"
+  },
+  "result": {
+    "id": "mystcraft:book_binder",
+    "count": 1
+  }
+}

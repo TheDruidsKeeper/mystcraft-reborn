@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "l",
+    "s",
+    "l"
+  ],
+  "key": {
+    "l": "minecraft:leather",
+    "s": "minecraft:string"
+  },
+  "result": {
+    "id": "mystcraft:collation_folder",
+    "count": 1
+  }
+}

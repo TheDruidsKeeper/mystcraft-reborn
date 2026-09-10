@@ -1,0 +1,25 @@
+{
+  "parent": "mystcraft:linkbook",
+  "display": {
+    "icon": {
+      "id": "mystcraft:linking_book"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.dimension.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.dimension.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "enter_safe": {
+      "trigger": "mystcraft:enter_myst_dimension_safe"
+    }
+  },
+  "requirements": [
+    [
+      "enter_safe"
+    ]
+  ]
+}

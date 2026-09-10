@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "cc ",
+    "ccc"
+  ],
+  "key": {
+    "c": "mystcraft:crystal"
+  },
+  "result": {
+    "id": "mystcraft:book_receptacle",
+    "count": 1
+  }
+}

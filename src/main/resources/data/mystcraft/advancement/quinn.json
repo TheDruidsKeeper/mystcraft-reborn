@@ -1,0 +1,26 @@
+{
+  "parent": "mystcraft:agebook",
+  "display": {
+    "icon": {
+      "id": "mystcraft:unlinked_book"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.quinn.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.quinn.description"
+    },
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "enter_quinn": {
+      "trigger": "mystcraft:enter_myst_dimension_quinn"
+    }
+  },
+  "requirements": [
+    [
+      "enter_quinn"
+    ]
+  ]
+}

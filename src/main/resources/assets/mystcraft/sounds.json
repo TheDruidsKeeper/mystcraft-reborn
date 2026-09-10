@@ -1,0 +1,76 @@
+{
+  "linking.pop": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.pop",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/pop"
+      }
+    ]
+  },
+  "linking.link": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link"
+      }
+    ]
+  },
+  "linking.link_disarm": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link_disarm",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link_disarm"
+      }
+    ]
+  },
+  "linking.link_following": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link_following",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link_following"
+      }
+    ]
+  },
+  "linking.link_intra": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link_intra",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link_intra"
+      }
+    ]
+  },
+  "linking.link_fissure": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link_fissure",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link_fissure"
+      }
+    ]
+  },
+  "linking.link_portal": {
+    "category": "player",
+    "subtitle": "subtitles.mystcraft.linking.link_portal",
+    "sounds": [
+      {
+        "name": "mystcraft:linking/link_portal"
+      }
+    ]
+  },
+  "entity.meteor.roar": {
+    "category": "hostile",
+    "subtitle": "subtitles.mystcraft.entity.meteor.roar",
+    "sounds": [
+      {
+        "name": "mystcraft:entity/meteor/roar",
+        "stream": true,
+        "attenuation_distance": 192
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "mystcraft:descriptive_book",
+    "mystcraft:linking_book",
+    "mystcraft:unlinked_book"
+  ]
+}

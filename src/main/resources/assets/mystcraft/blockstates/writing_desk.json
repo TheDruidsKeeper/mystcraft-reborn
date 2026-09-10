@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,foot=false,top=false": {
+      "model": "mystcraft:block/writing_desk"
+    },
+    "facing=north,foot=true,top=false": {
+      "model": "mystcraft:block/writing_desk"
+    },
+    "facing=north,foot=false,top=true": {
+      "model": "mystcraft:block/writing_desk_top"
+    },
+    "facing=north,foot=true,top=true": {
+      "model": "mystcraft:block/writing_desk_top"
+    },
+    "facing=east,foot=false,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 90
+    },
+    "facing=east,foot=true,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 90
+    },
+    "facing=east,foot=false,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 90
+    },
+    "facing=east,foot=true,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 90
+    },
+    "facing=south,foot=false,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 180
+    },
+    "facing=south,foot=true,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 180
+    },
+    "facing=south,foot=false,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 180
+    },
+    "facing=south,foot=true,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 180
+    },
+    "facing=west,foot=false,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 270
+    },
+    "facing=west,foot=true,top=false": {
+      "model": "mystcraft:block/writing_desk",
+      "y": 270
+    },
+    "facing=west,foot=false,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 270
+    },
+    "facing=west,foot=true,top=true": {
+      "model": "mystcraft:block/writing_desk_top",
+      "y": 270
+    }
+  }
+}

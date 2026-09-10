@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ss ",
+    "p  "
+  ],
+  "key": {
+    "s": "minecraft:stick",
+    "p": "#minecraft:planks"
+  },
+  "result": {
+    "id": "mystcraft:bookstand",
+    "count": 1
+  }
+}

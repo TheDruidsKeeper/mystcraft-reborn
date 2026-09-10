@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mystcraft:block/ink_mixer"
+    },
+    "facing=east": {
+      "model": "mystcraft:block/ink_mixer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mystcraft:block/ink_mixer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mystcraft:block/ink_mixer",
+      "y": 270
+    }
+  }
+}

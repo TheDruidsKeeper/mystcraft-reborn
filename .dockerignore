@@ -1,0 +1,13 @@
+.git
+.gradle
+.idea
+.vscode
+build
+out
+run
+run-*
+repo
+docs
+*.iml
+*.md
+!README.md

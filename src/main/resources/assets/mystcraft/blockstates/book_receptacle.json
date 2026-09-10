@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "rotation=south": {
+      "model": "mystcraft:block/book_receptacle"
+    },
+    "rotation=west": {
+      "model": "mystcraft:block/book_receptacle",
+      "y": 90
+    },
+    "rotation=north": {
+      "model": "mystcraft:block/book_receptacle",
+      "y": 180
+    },
+    "rotation=east": {
+      "model": "mystcraft:block/book_receptacle",
+      "y": 270
+    },
+    "rotation=up": {
+      "model": "mystcraft:block/book_receptacle",
+      "x": 90
+    },
+    "rotation=down": {
+      "model": "mystcraft:block/book_receptacle",
+      "x": 270
+    }
+  }
+}

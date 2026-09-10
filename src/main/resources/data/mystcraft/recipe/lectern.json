@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "p  ",
+    "pps",
+    "ppp"
+  ],
+  "key": {
+    "p": "#minecraft:planks",
+    "s": "minecraft:stick"
+  },
+  "result": {
+    "id": "mystcraft:lectern",
+    "count": 2
+  }
+}

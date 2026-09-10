@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "v f",
+    "ppp",
+    "p p"
+  ],
+  "key": {
+    "v": "minecraft:glass_bottle",
+    "f": "minecraft:feather",
+    "p": "#minecraft:planks"
+  },
+  "result": {
+    "id": "mystcraft:writing_desk",
+    "count": 1
+  }
+}

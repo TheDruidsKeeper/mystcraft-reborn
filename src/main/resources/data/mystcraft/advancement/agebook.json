@@ -1,0 +1,32 @@
+{
+  "parent": "mystcraft:write",
+  "display": {
+    "icon": {
+      "id": "mystcraft:descriptive_book"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.agebook.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.agebook.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_agebook": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mystcraft:descriptive_book"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_agebook"
+    ]
+  ]
+}

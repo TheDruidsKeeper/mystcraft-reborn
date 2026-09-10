@@ -1,0 +1,32 @@
+{
+  "parent": "mystcraft:agebook",
+  "display": {
+    "icon": {
+      "id": "mystcraft:linking_book"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.linkbook.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.linkbook.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_unlinked_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mystcraft:unlinked_book"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_unlinked_book"
+    ]
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mystcraft:block/link_modifier"
+    },
+    "facing=east": {
+      "model": "mystcraft:block/link_modifier",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mystcraft:block/link_modifier",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mystcraft:block/link_modifier",
+      "y": 270
+    }
+  }
+}

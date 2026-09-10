@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "mystcraft:decay_black",
+    "mystcraft:decay_red",
+    "mystcraft:decay_green",
+    "mystcraft:decay_blue",
+    "mystcraft:decay_purple",
+    "mystcraft:decay_yellow",
+    "mystcraft:decay_white"
+  ]
+}

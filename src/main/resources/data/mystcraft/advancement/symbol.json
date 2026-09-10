@@ -1,0 +1,32 @@
+{
+  "parent": "mystcraft:root",
+  "display": {
+    "icon": {
+      "id": "mystcraft:page"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.symbol.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.symbol.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_page": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mystcraft:page"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_page"
+    ]
+  ]
+}

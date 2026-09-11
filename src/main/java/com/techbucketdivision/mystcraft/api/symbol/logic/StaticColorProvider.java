@@ -7,5 +7,5 @@ import org.jspecify.annotations.Nullable;
 public interface StaticColorProvider {
     ColorKind kind();
 
-    @Nullable Colors.RGB getStaticColor();
+    Colors.@Nullable RGB getStaticColor();
 }

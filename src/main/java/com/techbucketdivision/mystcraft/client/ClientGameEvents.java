@@ -43,7 +43,7 @@ public final class ClientGameEvents {
         long time = ClientAgeData.ageTime(level);
         float angle = controller.celestialAngle(time, partial);
         float rain = level.getRainLevel(partial);
-        float biomeTemp = biomeTemperature(level, event.getCamera().getPosition());
+        float biomeTemp = biomeTemperature(level, event.getCamera().position());
 
         LevelRenderState state = event.getRenderState();
         SkyRenderState sky = state.skyRenderState;
@@ -56,7 +56,7 @@ public final class ClientGameEvents {
         sky.moonAngle = AgeSkyMath.angleDegrees(moon, time, partial, angle + 0.5f);
         sky.starAngle = AgeSkyMath.angleDegrees(stars, time, partial, angle);
         sky.starBrightness = stars == null ? 0f : AgeSkyMath.starBrightness(angle, rain);
-        sky.rainBrightness = 1.0f - rain * 0.5f; // UNVERIFIED: semantic of rainBrightness (vanilla dims celestials while raining)
+        sky.rainBrightness = 1.0f - rain * 0.5f; // rainBrightness: 1.0 = clear; vanilla dims celestials while raining
         sky.moonPhase = moonPhase(moon == null ? 0 : moon.phase(time));
         sky.sunriseAndSunsetColor = AgeSkyMath.sunriseColor(sun, angle);
 
@@ -70,7 +70,7 @@ public final class ClientGameEvents {
 
     /** Vanilla phase index 0 (full) .. 7 → {@link MoonPhase}. */
     private static MoonPhase moonPhase(int phase) {
-        MoonPhase[] values = MoonPhase.values(); // UNVERIFIED: ordinal order FULL_MOON .. WAXING_GIBBOUS (matches moon.json track)
+        MoonPhase[] values = MoonPhase.values();
         if (values.length == 0) return MoonPhase.values()[0];
         return values[Math.floorMod(phase, values.length)];
     }
@@ -94,9 +94,8 @@ public final class ClientGameEvents {
         float partial = (float) event.getPartialTick();
         long time = ClientAgeData.ageTime(level);
         float angle = controller.celestialAngle(time, partial);
-        Colors.RGB fog = AgeSkyMath.color(controller, ColorKind.FOG, time, partial, angle, biomeTemperature(level, event.getCamera().getPosition()));
+        Colors.RGB fog = AgeSkyMath.color(controller, ColorKind.FOG, time, partial, angle, biomeTemperature(level, event.getCamera().position()));
         if (fog == null) return;
-        // UNVERIFIED: ComputeFogColor accessors (setRed/setGreen/setBlue, 1.21 names)
         event.setRed(fog.r());
         event.setGreen(fog.g());
         event.setBlue(fog.b());

@@ -71,8 +71,8 @@ public final class SurfaceBlocks {
             default -> {
                 try {
                     if (biome.is(BiomeTags.IS_NETHER)) return NETHER;
-                    if (biome.is(BiomeTags.IS_END)) return END;       // UNVERIFIED: BiomeTags.IS_END constant name
-                    if (biome.is(BiomeTags.IS_BEACH) || biome.is(BiomeTags.IS_OCEAN)) return SAND; // UNVERIFIED: tag names
+                    if (biome.is(BiomeTags.IS_END)) return END;
+                    if (biome.is(BiomeTags.IS_BEACH) || biome.is(BiomeTags.IS_OCEAN)) return SAND;
                 } catch (RuntimeException ignored) {
                     // unbound holder
                 }

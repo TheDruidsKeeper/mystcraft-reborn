@@ -90,6 +90,10 @@ public final class CommonEvents {
         MinecraftServer server = event.getServer();
         BaselineProfiler.initialize(server);
         AgeManager.restoreAll(server);
+        // Headless end-to-end verification for the Docker smoke test / CI. Never runs in normal play.
+        if (com.techbucketdivision.mystcraft.SelfCheck.enabled()) {
+            com.techbucketdivision.mystcraft.SelfCheck.run(server);
+        }
     }
 
     @SubscribeEvent
@@ -111,7 +115,7 @@ public final class CommonEvents {
         }
         MinecraftServer server = event.getServer();
         for (UUID uuid : pending) {
-            ServerPlayer player = server.getPlayerList().getPlayer(uuid); // UNVERIFIED: PlayerList#getPlayer(UUID)
+            ServerPlayer player = server.getPlayerList().getPlayer(uuid);
             if (player != null) ejectToHome(player);
         }
     }

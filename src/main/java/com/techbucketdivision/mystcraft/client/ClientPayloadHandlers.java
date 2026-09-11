@@ -117,7 +117,7 @@ public final class ClientPayloadHandlers {
         bolt.snapTo(payload.x(), payload.y(), payload.z());
         bolt.setColor(payload.color());
         bolt.setVisualOnly(true);
-        level.addEntity(bolt); // UNVERIFIED: ClientLevel#addEntity(Entity) (public in 1.21.x)
+        level.addEntity(bolt);
     }
 
     private static void handleProfilingState(ProfilingStatePayload payload, IPayloadContext ctx) {

@@ -17,7 +17,8 @@ public record SlotPages(Map<Integer, ItemStack> slots) {
             Codec.STRING.xmap(Integer::parseInt, String::valueOf), ItemStack.OPTIONAL_CODEC);
     public static final Codec<SlotPages> CODEC = MAP_CODEC.xmap(SlotPages::new, SlotPages::slots);
     public static final StreamCodec<RegistryFriendlyByteBuf, SlotPages> STREAM_CODEC =
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.VAR_INT, ItemStack.OPTIONAL_STREAM_CODEC).map(SlotPages::new, SlotPages::slots);
+            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.VAR_INT, ItemStack.OPTIONAL_STREAM_CODEC)
+                    .map(SlotPages::new, s -> new HashMap<>(s.slots()));
 
     public SlotPages {
         slots = Map.copyOf(slots);

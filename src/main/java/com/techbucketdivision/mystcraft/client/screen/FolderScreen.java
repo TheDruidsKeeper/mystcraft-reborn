@@ -83,7 +83,7 @@ public class FolderScreen extends AbstractMystcraftScreen<FolderMenu> {
             if (entry.count <= 0) return;
             if (surface != null && surface.isCollection()) {
                 ItemStack page = entry.stack.copy();
-                page.setCount(Screen.hasShiftDown() ? Math.min(64, entry.count) : 1);
+                page.setCount(shiftDown() ? Math.min(64, entry.count) : 1);
                 CompoundTag tag = new CompoundTag();
                 tag.store("Page", ItemStack.OPTIONAL_CODEC, ops(), page);
                 send(FolderMenu.MSG_REMOVE_FROM_COLLECTION, tag);

@@ -8,6 +8,6 @@ import net.minecraft.world.level.block.LiquidBlock;
  */
 public class InkFluidBlock extends LiquidBlock {
     public InkFluidBlock(Properties properties) {
-        super(ModFluids.BLACK_INK.get(), properties); // UNVERIFIED: LiquidBlock(FlowingFluid, Properties) ctor arity in 26.1 (see TOOLCHAIN §4.12)
+        super(ModFluids.BLACK_INK.get(), properties);
     }
 }

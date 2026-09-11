@@ -97,7 +97,7 @@ public final class SymbolRegistry {
         return Collections.unmodifiableCollection(SYMBOLS.values());
     }
 
-    public static @Nullable SymbolProfiler.Profile profile(Identifier id) {
+    public static SymbolProfiler.@Nullable Profile profile(Identifier id) {
         return PROFILES.get(id);
     }
 

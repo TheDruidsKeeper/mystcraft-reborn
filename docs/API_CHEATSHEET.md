@@ -1922,7 +1922,9 @@ Clock lookup: `Holder.Reference<WorldClock> clock = level.registryAccess().getOr
  "minecraft:audio/background_music":{"creative":{"max_delay":24000,"min_delay":12000,"sound":"minecraft:music.creative"},"default":{"max_delay":24000,"min_delay":12000,"sound":"minecraft:music.game"}},
  "minecraft:gameplay/bed_rule":{"can_set_spawn":"always","can_sleep":"when_dark","error_message":{"translate":"block.minecraft.bed.no_sleep"}},
  "minecraft:gameplay/nether_portal_spawns_piglin":true,"minecraft:gameplay/respawn_anchor_works":false,
- "minecraft:gameplay/straw_bed_rule":{"can_set_spawn":"never","can_sleep":"when_dark","destroy_on_leave":true,"error_message":{"translate":"block.minecraft.bed.no_sleep"}},
+ // NOTE: this dump came from a NEWER branch than 26.1.2 — "minecraft:gameplay/straw_bed_rule" (straw beds
+ // are a 26.3 feature) does NOT exist in 26.1.2 and makes the dimension type fail to parse with
+ // "Unknown registry key in ResourceKey[minecraft:root / minecraft:environment_attribute]". Removed here.
  "minecraft:visual/ambient_light_color":"#0a0a0a","minecraft:visual/cloud_color":"#ccffffff","minecraft:visual/cloud_height":192.33,
  "minecraft:visual/fog_color":"#c0d8ff","minecraft:visual/sky_color":"#78a7ff"},
  "coordinate_scale":1.0,"default_clock":"minecraft:overworld","has_ceiling":false,"has_ender_dragon_fight":false,"has_skylight":true,"height":384,
@@ -2752,3 +2754,35 @@ EntityRenderersEvent.RegisterRenderers / RegisterLayerDefinitions / AddLayers / 
 - `ServerLevel#explode` gained `WeightedList<ExplosionParticleInfo> blockParticles`; `ServerExplosion` has no public `getToBlow()`.
 - `AddReloadListenerEvent` -> `AddServerReloadListenersEvent(Identifier, listener)`; `RegisterClientReloadListenersEvent` -> `AddClientReloadListenersEvent`; `ModelEvent.RegisterAdditional` -> `RegisterStandalone`; `RegisterShadersEvent` -> `RegisterRenderPipelinesEvent`; `RenderLevelStageEvent` split into per-stage subclasses; `GuiLayer#render(GuiGraphicsExtractor, DeltaTracker)`.
 - `@EventBusSubscriber` has NO `bus` param (only `value` Dist[] and `modid`).
+
+## M. Verified during build round 1
+
+All 28 `// UNVERIFIED:` sites checked against the NeoForge 26.1.2.76 javadoc mirror
+(`https://lexxie.dev/neoforge/26.1/`) and NeoForge `26.1.x` raw sources. **Every guess was
+correct**; markers removed. Do not re-guess these.
+
+| Class | Verified signature | Status |
+| --- | --- | --- |
+| `LiquidBlock` | `LiquidBlock(FlowingFluid fluid, BlockBehaviour.Properties properties)` — sole ctor; `public final FlowingFluid fluid` | verified, marker removed |
+| `BlockBehaviour.BlockStateBase` | `public VoxelShape getInteractionShape(BlockGetter, BlockPos)` (no `CollisionContext` overload). Block-side `protected getInteractionShape(BlockState, BlockGetter, BlockPos)` is not in the `-public` javadoc; NeoForge's `BlockBehaviour.java.patch` has no hunk for it, so it is unchanged vanilla. | verified, note kept |
+| `SkyRenderState` | public fields: `skybox, shouldRenderDarkDisc, sunAngle, moonAngle, starAngle, rainBrightness, starBrightness, sunriseAndSunsetColor, moonPhase, skyColor, endFlashIntensity, endFlashXAngle, endFlashYAngle`; `void reset()` | verified, marker removed |
+| `net.minecraft.world.level.MoonPhase` | enum, declaration order `FULL_MOON, WANING_GIBBOUS, THIRD_QUARTER, WANING_CRESCENT, NEW_MOON, WAXING_CRESCENT, FIRST_QUARTER, WAXING_GIBBOUS`; `int index()`, `int startTick()`, `String getSerializedName()`; `COUNT`, `PHASE_LENGTH`, `CODEC` | verified, marker removed |
+| `ViewportEvent.ComputeFogColor` | `float getRed()/getGreen()/getBlue()`, `void setRed(float)/setGreen(float)/setBlue(float)`. Backing field is a **private `Vector4f`** — no `getColor`/`setColor`, no alpha accessor. Not cancellable. | verified, marker removed |
+| `ClientLevel` | `public void addEntity(Entity entity)` (void; no `putNonPlayerEntity`) | verified, marker removed |
+| `SmokeParticle.Provider` | `public Provider(SpriteSet sprites)`, `implements ParticleProvider<SimpleParticleType>`; only nested class of `SmokeParticle` | verified, marker removed |
+| `OrderedSubmitNodeCollector` | **one** overload: `void submitNameTag(PoseStack, @Nullable Vec3 nameTagAttachment, int offset, Component name, boolean seeThrough, int lightCoords, double distanceToCameraSq, CameraRenderState camera)` — attachment is `@Nullable` | verified, marker removed |
+| `EditBox` | `public boolean canConsumeInput()` — declared directly on `EditBox` | verified, marker removed |
+| `PlayerList` | `public int getViewDistance()`; `public @Nullable ServerPlayer getPlayer(UUID)` (sibling `getPlayer(String)`) | verified, marker removed |
+| `Player` | `public boolean isSleepingLongEnough()`; `public void stopSleepInBed(boolean forcefulWakeUp, boolean updateLevelList)`. `isSleeping()` is inherited from `LivingEntity` (26.1: `Player extends Avatar extends LivingEntity`) | verified, marker removed |
+| `EntityDimensions` | record; `public static EntityDimensions scalable(float width, float height)` (also `fixed(float, float)`) | verified, marker removed |
+| `CollisionGetter` | `default boolean noCollision(@Nullable Entity, AABB)`; also `noCollision(AABB)`, `noCollision(Entity)`, `noCollision(@Nullable Entity, AABB, boolean alwaysCollideWithFluids)` | verified, marker removed |
+| `Block` | `public MutableComponent getName()` (returns `MutableComponent`, not `Component`) | verified, marker removed |
+| `FluidState` | `public BlockState createLegacyBlock()` | verified, marker removed |
+| NeoForge `FluidType` | `public final boolean isLighterThanAir() { return this.getDensity() <= 0; }` — **final**, cannot be overridden; control via `Properties#density(int)` (default 1000) | verified, marker removed |
+| `BiomeTags` | `IS_DEEP_OCEAN, IS_OCEAN, IS_RIVER, IS_BEACH, IS_MOUNTAIN, IS_HILL, IS_END` all exist verbatim as `public static final TagKey<Biome>` (siblings incl. `IS_BADLANDS, IS_TAIGA, IS_JUNGLE, IS_FOREST, IS_SAVANNA, IS_OVERWORLD, IS_NETHER`) | verified, markers removed |
+| `BiomeResolver` | single abstract method `Holder<Biome> getNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler)`; interface is **not** annotated `@FunctionalInterface` but is still lambda-compatible | verified, marker removed |
+| `LeavesBlock` | `public static final BooleanProperty PERSISTENT` declared directly on `LeavesBlock` (siblings `DISTANCE`, `WATERLOGGED`); 26.1: `public abstract class LeavesBlock extends Block implements SimpleWaterloggedBlock, IShearable` | verified, marker removed |
+
+Incidental finding: NeoForge `FluidType#move(FluidState, LivingEntity, Vec3, double)` is
+`@Deprecated(forRemoval = true, since = "26.1")` — replaced by
+`public boolean move(LivingEntity entity, Vec3 movementVector, double gravity)`.

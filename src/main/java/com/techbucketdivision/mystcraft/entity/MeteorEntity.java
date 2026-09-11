@@ -91,7 +91,13 @@ public final class MeteorEntity extends Entity {
     @Override
     public EntityDimensions getDimensions(Pose pose) {
         float scale = Math.max(0.1f, getScale());
-        return EntityDimensions.scalable(scale, scale); // UNVERIFIED: EntityDimensions.scalable(float, float)
+        return EntityDimensions.scalable(scale, scale);
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        // A meteor cannot be damaged or destroyed; it only ends on impact.
+        return false;
     }
 
     @Override

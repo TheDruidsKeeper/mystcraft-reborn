@@ -57,14 +57,14 @@ public final class FluidSymbols {
             if (!state.isSource()) continue; // skip flowing variants
             BlockState block;
             try {
-                block = state.createLegacyBlock(); // UNVERIFIED: FluidState#createLegacyBlock() (unchanged since 1.13)
+                block = state.createLegacyBlock();
             } catch (RuntimeException e) {
                 continue;
             }
             if (block.isAir()) continue;
             boolean gaseous = false;
             try {
-                gaseous = fluid.getFluidType().isLighterThanAir(); // UNVERIFIED: NeoForge FluidType#isLighterThanAir()
+                gaseous = fluid.getFluidType().isLighterThanAir(); // FluidType#isLighterThanAir() is final: density <= 0
             } catch (RuntimeException ignored) {
             }
             boolean seaBanned = SEA_BANNED.contains(fluidId);

@@ -115,7 +115,7 @@ public final class LinkController {
         destination.getChunk(spawn.getX() >> 4, spawn.getZ() >> 4);
         BlockPos pos = spawn;
         int limit = destination.getMaxY();
-        while (pos.getY() < limit && !destination.noCollision(entity, entity.getBoundingBox())) { // UNVERIFIED: CollisionGetter#noCollision(Entity, AABB)
+        while (pos.getY() < limit && !destination.noCollision(entity, entity.getBoundingBox())) {
             pos = pos.above();
             entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         }

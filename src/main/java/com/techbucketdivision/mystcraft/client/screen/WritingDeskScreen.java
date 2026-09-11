@@ -146,7 +146,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
             if (entry.count <= 0) return;
             if (surface != null && surface.isCollection()) {
                 ItemStack page = entry.stack.copy();
-                if (Screen.hasShiftDown()) page.setCount(Math.min(64, entry.count)); else page.setCount(1);
+                if (shiftDown()) page.setCount(Math.min(64, entry.count)); else page.setCount(1);
                 CompoundTag tag = new CompoundTag();
                 tag.store("Page", ItemStack.OPTIONAL_CODEC, ops(), page);
                 send(WritingDeskMenu.MSG_REMOVE_FROM_COLLECTION, tag);

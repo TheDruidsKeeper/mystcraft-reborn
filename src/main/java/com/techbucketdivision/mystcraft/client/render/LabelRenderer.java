@@ -32,7 +32,7 @@ public final class LabelRenderer {
      */
     public static void submit(PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera, @Nullable String text, int light, double distSq) {
         if (text == null || text.isEmpty() || distSq > MAX_DISTANCE_SQ) return;
-        // UNVERIFIED: submitNameTag with a null attachment uses the current pose as the anchor (vanilla EntityRenderer pattern)
+        // nameTagAttachment is @Nullable; null anchors the label at the current pose (vanilla EntityRenderer pattern)
         collector.submitNameTag(poseStack, null, 0, Component.literal(text), false, light, distSq, camera);
     }
 }

@@ -61,7 +61,7 @@ public class BookstandBlock extends BookDisplayBlock {
     }
 
     @Override
-    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) { // UNVERIFIED: protected getInteractionShape(BlockState, BlockGetter, BlockPos) override (wrapper getInteractionShape(BlockGetter, BlockPos) is verified on BlockState)
+    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) { // getInteractionShape(BlockState, BlockGetter, BlockPos) is protected (not in the -public javadoc); BlockState.getInteractionShape(BlockGetter, BlockPos) is the verified public wrapper that delegates here.
         return INTERACTION_SHAPE;
     }
 }

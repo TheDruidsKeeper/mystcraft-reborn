@@ -125,7 +125,7 @@ public final class BlockSymbols {
 
     /** Translated block name used inside the wrapper. */
     public static Component blockName(BlockState state) {
-        return state.getBlock().getName(); // UNVERIFIED: Block#getName() -> MutableComponent (present since 1.13)
+        return state.getBlock().getName();
     }
 
     // --- built-in table (§4.3.13) ------------------------------------------------------------------------------------

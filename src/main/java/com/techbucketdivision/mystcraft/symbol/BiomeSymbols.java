@@ -40,7 +40,7 @@ public final class BiomeSymbols {
     private static final Set<String> END_BIOME_PATHS = Set.of("the_end", "end_highlands", "end_midlands", "end_barrens",
             "small_end_islands", "the_void");
 
-    private static @Nullable HolderLookup.Provider registeredFor;
+    private static HolderLookup.@Nullable Provider registeredFor;
     private static Set<ResourceKey<Biome>> registeredKeys = Set.of();
     private static List<Holder<Biome>> selectable = List.of();
 

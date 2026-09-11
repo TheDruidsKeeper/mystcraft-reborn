@@ -29,6 +29,23 @@ scripts/build.sh
 Without Docker (JDK 25 required): `./gradlew build`, `./gradlew runClient`, `./gradlew runServer`,
 `./gradlew runData` (regenerates `src/generated/resources`), `./gradlew runGameTestServer`.
 
+### Smoke test
+
+Boots the NeoForge dedicated server with the mod installed and fails if it does not finish loading —
+this covers mod construction, every registry, the access transformer, datapack parsing and the
+server-start hooks. CI runs the same target on every push.
+
+```powershell
+.\scripts\smoke.ps1          # -> out\smoke.log, smoke-docker.log
+```
+
+```bash
+scripts/smoke.sh
+```
+
+Client rendering (screens, block-entity renderers, sky) is not covered; run `./gradlew runClient`
+locally for that.
+
 ## Repository layout
 
 ```

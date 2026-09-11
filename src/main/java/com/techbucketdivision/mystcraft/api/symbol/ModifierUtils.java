@@ -69,7 +69,7 @@ public final class ModifierUtils {
         d.setModifier(Modifier.COLOR, new Modifier(existing == null ? color : existing.average(color)));
     }
 
-    public static @Nullable Colors.RGB popColor(AgeDirector d) {
+    public static Colors.@Nullable RGB popColor(AgeDirector d) {
         return d.popModifier(Modifier.COLOR).as(Colors.RGB.class);
     }
 

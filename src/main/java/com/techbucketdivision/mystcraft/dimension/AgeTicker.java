@@ -101,7 +101,7 @@ public final class AgeTicker {
         MinecraftServer server = level.getServer();
         int radius = MAX_TICK_RADIUS;
         if (server != null) {
-            radius = Math.min(MAX_TICK_RADIUS, server.getPlayerList().getViewDistance()); // UNVERIFIED: PlayerList#getViewDistance()
+            radius = Math.min(MAX_TICK_RADIUS, server.getPlayerList().getViewDistance());
         }
         LongSet seen = new LongOpenHashSet();
         List<LevelChunk> chunks = new ArrayList<>();
@@ -135,7 +135,7 @@ public final class AgeTicker {
         boolean allSleeping = true;
         for (ServerPlayer player : players) {
             if (player.isSpectator()) continue;
-            if (!player.isSleepingLongEnough()) { // UNVERIFIED: Player#isSleepingLongEnough()
+            if (!player.isSleepingLongEnough()) {
                 allSleeping = false;
                 break;
             }
@@ -145,7 +145,7 @@ public final class AgeTicker {
         data.setWorldTime(time + controller.timeToSunrise(time));
         data.markDirty();
         for (ServerPlayer player : players) {
-            if (player.isSleeping()) player.stopSleepInBed(false, false); // UNVERIFIED: Player#stopSleepInBed(boolean, boolean)
+            if (player.isSleeping()) player.stopSleepInBed(false, false);
         }
     }
 

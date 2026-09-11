@@ -41,6 +41,33 @@ jobs:
           path: out/*.jar
           if-no-files-found: error
 
+  smoke:
+    name: Smoke test (dedicated server)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Boots the NeoForge dedicated server with the mod and fails if it does not finish loading.
+      - name: Boot server with the mod
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: smoke-export
+          outputs: type=local,dest=out
+          build-args: SMOKE_SECONDS=420
+          cache-from: type=gha,scope=mystcraft-build
+          cache-to: type=gha,mode=max,scope=mystcraft-build
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: smoke-log
+          path: out/smoke.log
+          if-no-files-found: warn
+
   release:
     name: GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')

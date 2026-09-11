@@ -31,7 +31,7 @@ public final class HugeTreesAlteration extends AbstractMapGen implements Terrain
     public HugeTreesAlteration(long seed) {
         super(seed, Blocks.OAK_LOG.defaultBlockState(), 8);
         this.log = Blocks.OAK_LOG.defaultBlockState();
-        this.leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true); // UNVERIFIED: LeavesBlock.PERSISTENT
+        this.leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
     }
 
     @Override

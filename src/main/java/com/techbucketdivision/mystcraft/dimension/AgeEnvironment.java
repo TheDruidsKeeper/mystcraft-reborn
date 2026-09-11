@@ -39,7 +39,7 @@ public final class AgeEnvironment {
         return controller.celestialAngle(time, 0f) * 360f;
     }
 
-    private static @Nullable Colors.RGB color(AgeController controller, ColorKind kind) {
+    private static Colors.@Nullable RGB color(AgeController controller, ColorKind kind) {
         long time = controller.ageData().worldTime();
         float angle = controller.celestialAngle(time, 0f);
         return controller.dynamicColor(kind, time, 0f, angle, 0.5f);

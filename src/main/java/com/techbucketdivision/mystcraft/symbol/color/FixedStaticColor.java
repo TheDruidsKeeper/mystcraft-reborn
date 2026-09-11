@@ -12,9 +12,9 @@ import org.jspecify.annotations.Nullable;
  */
 public final class FixedStaticColor implements StaticColorProvider {
     private final ColorKind kind;
-    private final @Nullable Colors.RGB color;
+    private final Colors.@Nullable RGB color;
 
-    public FixedStaticColor(ColorKind kind, @Nullable Colors.RGB color) {
+    public FixedStaticColor(ColorKind kind, Colors.@Nullable RGB color) {
         if (kind.isDynamic()) throw new IllegalArgumentException("Not a static colour kind: " + kind);
         this.kind = kind;
         this.color = color;
@@ -31,7 +31,7 @@ public final class FixedStaticColor implements StaticColorProvider {
     }
 
     @Override
-    public @Nullable Colors.RGB getStaticColor() {
+    public Colors.@Nullable RGB getStaticColor() {
         return color;
     }
 

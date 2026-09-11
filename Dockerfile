@@ -35,3 +35,18 @@ RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home \
 # Stage 2: export only the built jars.
 FROM scratch AS export
 COPY --from=build /out/ /
+
+# Stage 3 (optional): headless smoke test. Boots the NeoForge dedicated server with the mod
+# installed and requires it to finish loading. This exercises mod construction, every registry,
+# the access transformer, datapack parsing (dimension type, recipes, loot, trades, tags,
+# advancements) and the server-start hooks — everything except client rendering.
+#   scripts/smoke.ps1   /   scripts/smoke.sh
+FROM build AS smoke
+ARG SMOKE_SECONDS=420
+ENV SMOKE_SECONDS=${SMOKE_SECONDS}
+COPY scripts/smoke-entry.sh /usr/local/bin/smoke-entry.sh
+RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/smoke-entry.sh
+
+# Stage 4: export the jar and the smoke log together.
+FROM scratch AS smoke-export
+COPY --from=smoke /out/ /

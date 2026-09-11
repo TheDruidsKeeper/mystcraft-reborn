@@ -228,7 +228,7 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
 
     @Override
     public void setDisplayName(Player player, ItemStack stack, String name) {
-        rename(stack, player.getServer(), name);
+        rename(stack, player.level().getServer(), name);
     }
 
     // --- behaviours --------------------------------------------------------------------------------------------
@@ -236,7 +236,7 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
     @Override
     public boolean writeSymbol(Player player, ItemStack stack, AgeSymbol symbol) {
         if (player.level().isClientSide()) return false;
-        if (isVisited(player.getServer(), stack)) return false;
+        if (isVisited(player.level().getServer(), stack)) return false;
         if (!hasLinkInfo(stack)) return false;
         List<ItemStack> pages = getPages(stack);
         for (int i = 0; i < pages.size(); i++) {

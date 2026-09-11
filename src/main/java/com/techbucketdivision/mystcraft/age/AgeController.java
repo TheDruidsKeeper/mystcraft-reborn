@@ -377,7 +377,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
     public boolean isPvPEnabled() { return sky.pvpEnabled; }
 
     /** Averaged dynamic colour or {@code null} when no provider exists (caller falls back to vanilla). */
-    public @Nullable Colors.RGB dynamicColor(ColorKind kind, long time, float partialTick, float celestialAngle, float biomeTemp) {
+    public Colors.@Nullable RGB dynamicColor(ColorKind kind, long time, float partialTick, float celestialAngle, float biomeTemp) {
         List<DynamicColorProvider> list = dynamicColors.get(kind);
         if (list == null || list.isEmpty()) return null;
         float r = 0, g = 0, b = 0;
@@ -390,7 +390,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
     }
 
     /** Averaged static colour or {@code null}. */
-    public @Nullable Colors.RGB staticColor(ColorKind kind) {
+    public Colors.@Nullable RGB staticColor(ColorKind kind) {
         List<StaticColorProvider> list = staticColors.get(kind);
         if (list == null || list.isEmpty()) return null;
         float r = 0, g = 0, b = 0;

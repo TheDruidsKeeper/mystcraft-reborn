@@ -109,7 +109,7 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
         for (GuiElement e : elements) {
             List<Component> tooltip = e.isVisible() ? e.tooltip() : null;
             if (tooltip != null && !tooltip.isEmpty()) {
-                graphics.setTooltipForNextFrame(font, tooltip, mouseX, mouseY);
+                graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
                 break;
             }
         }
@@ -131,8 +131,20 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
 
     // --- input ----------------------------------------------------------------------------------------------------
 
+    /**
+     * Shift state of the most recent input event. 26.1 removed the static {@code Screen.hasShiftDown()}; modifiers now
+     * travel with the input event, so we latch them here for callbacks that run outside the event (page pickup etc.).
+     */
+    private boolean shiftDown;
+
+    /** Whether shift was held during the most recent mouse/key event. */
+    protected boolean shiftDown() {
+        return shiftDown;
+    }
+
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        shiftDown = event.hasShiftDown();
         double mx = event.x(), my = event.y();
         for (GuiElement e : elements) {
             if (e.isEnabled() && e.mouseClicked(mx, my, event.button())) return true;
@@ -166,7 +178,7 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
         }
         for (EditBox box : editBoxes) {
             // Anvil-screen pattern: a focused text box swallows keys so the inventory key does not close the screen.
-            if (box.isFocused() && (box.keyPressed(event) || box.canConsumeInput())) return true; // UNVERIFIED: EditBox#canConsumeInput
+            if (box.isFocused() && (box.keyPressed(event) || box.canConsumeInput())) return true;
         }
         for (GuiElement e : elements) {
             if (e.isEnabled() && e.keyPressed(event)) return true;

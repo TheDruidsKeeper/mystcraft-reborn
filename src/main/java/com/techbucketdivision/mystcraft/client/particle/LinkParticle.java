@@ -15,6 +15,6 @@ public final class LinkParticle {
 
     /** {@code ParticleResources.SpriteParticleRegistration} factory. */
     public static ParticleProvider<SimpleParticleType> provider(SpriteSet sprites) {
-        return new SmokeParticle.Provider(sprites); // UNVERIFIED: SmokeParticle.Provider(SpriteSet) unchanged in 26.1
+        return new SmokeParticle.Provider(sprites);
     }
 }

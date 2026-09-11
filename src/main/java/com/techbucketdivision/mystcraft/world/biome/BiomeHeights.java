@@ -71,12 +71,12 @@ public final class BiomeHeights {
         }
         // Tag fallbacks for modded / unknown biomes. Tag constants are stable since 1.19.
         try {
-            if (biome.is(BiomeTags.IS_DEEP_OCEAN)) return DEEP_OCEAN;   // UNVERIFIED: BiomeTags.IS_DEEP_OCEAN constant name
-            if (biome.is(BiomeTags.IS_OCEAN)) return OCEAN;             // UNVERIFIED: BiomeTags.IS_OCEAN
-            if (biome.is(BiomeTags.IS_RIVER)) return RIVER;             // UNVERIFIED: BiomeTags.IS_RIVER
-            if (biome.is(BiomeTags.IS_BEACH)) return BEACH;             // UNVERIFIED: BiomeTags.IS_BEACH
-            if (biome.is(BiomeTags.IS_MOUNTAIN)) return MOUNTAINS;      // UNVERIFIED: BiomeTags.IS_MOUNTAIN
-            if (biome.is(BiomeTags.IS_HILL)) return HILLS;              // UNVERIFIED: BiomeTags.IS_HILL
+            if (biome.is(BiomeTags.IS_DEEP_OCEAN)) return DEEP_OCEAN;
+            if (biome.is(BiomeTags.IS_OCEAN)) return OCEAN;
+            if (biome.is(BiomeTags.IS_RIVER)) return RIVER;
+            if (biome.is(BiomeTags.IS_BEACH)) return BEACH;
+            if (biome.is(BiomeTags.IS_MOUNTAIN)) return MOUNTAINS;
+            if (biome.is(BiomeTags.IS_HILL)) return HILLS;
         } catch (RuntimeException ignored) {
             // unbound holder (e.g. during datagen) — fall through
         }

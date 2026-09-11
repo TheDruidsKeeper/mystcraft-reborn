@@ -40,10 +40,10 @@ public final class LinkProperty {
     public static final StreamCodec<ByteBuf, LinkProperty> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(LinkProperty::getOrCreate, LinkProperty::name);
 
     private final String name;
-    private final @Nullable Colors.RGB color;
+    private final Colors.@Nullable RGB color;
     private final boolean inkable;
 
-    private LinkProperty(String name, @Nullable Colors.RGB color, boolean inkable) {
+    private LinkProperty(String name, Colors.@Nullable RGB color, boolean inkable) {
         this.name = name;
         this.color = color;
         this.inkable = inkable;
@@ -54,7 +54,7 @@ public final class LinkProperty {
      * @param inkable whether the Ink Mixer can produce this property (relative is inkable but not craftable — see
      *                {@code InkEffects})
      */
-    public static synchronized LinkProperty register(String name, @Nullable Colors.RGB color, boolean inkable) {
+    public static synchronized LinkProperty register(String name, Colors.@Nullable RGB color, boolean inkable) {
         String key = name.toLowerCase(Locale.ROOT);
         LinkProperty existing = REGISTRY.get(key);
         if (existing != null) return existing;
@@ -80,7 +80,7 @@ public final class LinkProperty {
         return name;
     }
 
-    public @Nullable Colors.RGB color() {
+    public Colors.@Nullable RGB color() {
         return color;
     }
 

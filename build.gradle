@@ -45,6 +45,8 @@ neoForge {
         server {
             server()
             programArgument '--nogui'
+            // Pinned so the Docker smoke test knows where to write eula.txt / server.properties.
+            gameDirectory = project.file('run/server')
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 

@@ -3,3 +3,19 @@
 # are changed when only line endings change.
 src/generated/**/.cache/* text eol=lf
 src/generated/**/*.json text eol=lf
+
+# Files consumed by Linux shells (Docker build, CI, Gradle wrapper) must stay LF:
+# a CRLF here makes /bin/sh fail with "Illegal option -".
+Dockerfile      text eol=lf
+.dockerignore   text eol=lf
+*.sh            text eol=lf
+gradlew         text eol=lf
+*.gradle        text eol=lf
+*.properties    text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+.github/**      text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat           text eol=crlf
+*.ps1           text eol=crlf

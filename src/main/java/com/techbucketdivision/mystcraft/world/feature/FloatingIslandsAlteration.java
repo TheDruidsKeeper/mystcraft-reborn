@@ -138,7 +138,7 @@ public final class FloatingIslandsAlteration extends AbstractTunnelGen implement
                 if (modified[x | z << 4]) quartModified[(x >> 2) | (z >> 2) << 2] = true;
             }
         }
-        BiomeResolver resolver = (x, y, z, sampler) -> {  // UNVERIFIED: BiomeResolver functional shape (int,int,int,Climate.Sampler)
+        BiomeResolver resolver = (x, y, z, sampler) -> { // BiomeResolver#getNoiseBiome(int, int, int, Climate.Sampler)
             int lx = x - qMinX;
             int lz = z - qMinZ;
             int ly = y - qMinY;

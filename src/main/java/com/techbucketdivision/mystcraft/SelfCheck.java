@@ -132,6 +132,16 @@ public final class SelfCheck {
         }
         check("every generated symbol resolves", unresolved.isEmpty());
         if (!unresolved.isEmpty()) fail("unresolved symbols: " + unresolved);
+
+        // Regression band, not a spec value: a full random Age drags in 3-5 modifier symbols per visual/feature
+        // symbol, so ~60-100 is the expected shape. A grammar change that collapses expansion (a handful of
+        // symbols) or runs away (hundreds) is the thing this catches.
+        check("generated Age symbol count is in the expected 30..200 band (" + generated.size() + ")",
+                generated.size() >= 30 && generated.size() <= 200);
+
+        // Determinism: the same seed must yield the same Age, or saved Ages would not survive a restart.
+        List<Identifier> again = Grammar.generateFromToken(GrammarRules.AGE, RandomSource.create(1234L));
+        check("grammar generation is deterministic for a given seed", generated.equals(again));
     }
 
     private static void checkDimensionType(MinecraftServer server) {
@@ -171,22 +181,59 @@ public final class SelfCheck {
         // Generate a chunk: exercises AgeChunkGenerator, the terrain generator, alterations and populators.
         long start = System.currentTimeMillis();
         ChunkAccess chunk = level.getChunk(0, 0);
-        long ms = System.currentTimeMillis() - start;
-        check("chunk (0,0) generated in " + ms + " ms", chunk != null);
+        long first = System.currentTimeMillis() - start;
+        check("chunk (0,0) generated in " + first + " ms", chunk != null);
 
-        if (chunk != null) {
-            int solid = 0;
-            for (int y = level.getMinY(); y < level.getMinY() + level.getHeight(); y += 4) {
-                BlockState state = chunk.getBlockState(new BlockPos(8, y, 8));
-                if (!state.isAir()) solid++;
+        // Time a warm batch: the first chunk includes noise-field allocation and JIT warm-up, so it says
+        // nothing about steady-state cost. Chunk generation has to be viable for the Age to be playable.
+        start = System.currentTimeMillis();
+        int generated = 0;
+        for (int cx = 1; cx <= 3; cx++) {
+            for (int cz = 1; cz <= 3; cz++) {
+                if (level.getChunk(cx, cz) != null) generated++;
             }
-            // A Void Age legitimately has none, so this is informational rather than fatal.
-            Mystcraft.LOGGER.info("[selfcheck] column (8,8) of the generated chunk has {} non-air samples", solid);
         }
+        long batch = System.currentTimeMillis() - start;
+        long per = generated == 0 ? -1 : batch / generated;
+        Mystcraft.LOGGER.info("[selfcheck] generated {} more chunks in {} ms ({} ms/chunk)", generated, batch, per);
+        check("warm chunk generation under 500 ms/chunk (was " + per + ")", per >= 0 && per < 500);
+
+        if (chunk != null) describeTerrain(level, chunk);
 
         // Leave no trace: retire the test Age so it can be recycled.
         AgeManager.markDead(server, data.levelKey());
         check("test age retired", true);
+    }
+
+    /**
+     * Informational terrain sample. A Void Age legitimately has no blocks at all, so nothing here is fatal; the point
+     * is to make "the generator ran but produced nothing sensible" visible in the CI log.
+     */
+    private static void describeTerrain(ServerLevel level, ChunkAccess chunk) {
+        int minY = level.getMinY();
+        int maxY = minY + level.getHeight();
+        int solid = 0;
+        int topSolid = Integer.MIN_VALUE;
+        int columnsWithTerrain = 0;
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+
+        for (int x = 0; x < 16; x += 4) {
+            for (int z = 0; z < 16; z += 4) {
+                boolean any = false;
+                for (int y = minY; y < maxY; y++) {
+                    pos.set(x, y, z);
+                    BlockState state = chunk.getBlockState(pos);
+                    if (!state.isAir()) {
+                        solid++;
+                        any = true;
+                        if (y > topSolid) topSolid = y;
+                    }
+                }
+                if (any) columnsWithTerrain++;
+            }
+        }
+        Mystcraft.LOGGER.info("[selfcheck] terrain sample: {}/16 columns have blocks, {} non-air blocks, highest y={}",
+                columnsWithTerrain, solid, topSolid == Integer.MIN_VALUE ? "none" : topSolid);
     }
 
     // --- helpers -----------------------------------------------------------------------------------------------

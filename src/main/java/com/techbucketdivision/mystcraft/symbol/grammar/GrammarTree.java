@@ -75,9 +75,13 @@ public final class GrammarTree {
                         if (i > 0) {
                             rightPos = parent.children.get(--i).getRightPosition();
                         }
-                    } else {
+                    } else if (rightPos != null) {
+                        // The `rightPos != null` test MUST be evaluated before recursing into the sibling: this
+                        // node has no position until the branch above sets one, and two unpositioned siblings
+                        // would otherwise call each other's getRightPosition() until the stack overflows. The
+                        // original relies on && short-circuiting here for exactly this reason.
                         Integer sp = sibling.getRightPosition();
-                        if (rightPos != null && sp != null && rightPos < sp) rightPos = sp;
+                        if (sp != null && rightPos < sp) rightPos = sp;
                     }
                 }
             }

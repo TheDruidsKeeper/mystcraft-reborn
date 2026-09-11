@@ -50,7 +50,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@v4
 
-      # Boots the NeoForge dedicated server with the mod and fails if it does not finish loading.
+      # Boots the NeoForge dedicated server with the mod and runs the in-game self check.
+      # The stage always exits 0 so the log is exported; the status file decides pass/fail below.
       - name: Boot server with the mod
         uses: docker/build-push-action@v7
         with:
@@ -67,6 +68,16 @@ jobs:
           name: smoke-log
           path: out/smoke.log
           if-no-files-found: warn
+
+      - name: Check self-check result
+        run: |
+          result="$(tr -d '[:space:]' < out/smoke-status.txt 2>/dev/null || echo MISSING)"
+          echo "self check: $result"
+          if [ "$result" != "PASSED" ]; then
+            echo "::error::Smoke test failed ($result) - see the smoke-log artifact"
+            grep -E "\[selfcheck\]|SELFCHECK" out/smoke.log | tail -40 || true
+            exit 1
+          fi
 
   release:
     name: GitHub Release

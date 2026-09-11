@@ -107,6 +107,7 @@ public final class Grammar {
         buildShortestPaths();
         buildRankWeights();
         dirty = false;
+        warnUnexpandableTokens();
     }
 
     private static void flushPending() {
@@ -203,23 +204,74 @@ public final class Grammar {
         return rules == null ? null : Collections.unmodifiableList(rules);
     }
 
+    /**
+     * Picks a rule for random expansion, or {@code null} if the token has no rule that may be chosen randomly.
+     * <p>
+     * Unlike {@link #pickWeighted} this never falls back to an even pick. A {@code null} rank means weight 0 —
+     * "never chosen when expanding randomly" (REQUIREMENTS §4.4.1) — and those connector rules are deliberately
+     * cyclic ({@code Angle -> Angle_Ext AngleBasic}, {@code Angle_Ext -> Angle}), so picking one here recurses
+     * until the stack overflows.
+     */
     public static synchronized @Nullable Rule randomRule(String token, RandomSource rand) {
         ensureBuilt();
         List<Rule> rules = MAPPINGS.get(token);
         if (rules == null || rules.isEmpty()) return null;
-        return pickWeighted(rand, rules, Rule::weight);
+        return pickWeightedStrict(rand, rules, Rule::weight);
     }
+
+    /**
+     * Depth limit for {@link #explore}. The grammar is intentionally left-recursive ({@code BiomesAdv -> BiomesAdv
+     * Biome}), so expansion terminates only probabilistically; this caps the tail instead of overflowing the stack.
+     */
+    private static final int MAX_EXPLORE_DEPTH = 128;
 
     /** Recursively expands {@code token} with weighted random rules until only terminals remain. */
     public static synchronized List<String> explore(String token, RandomSource rand) {
+        return explore(token, rand, 0);
+    }
+
+    private static List<String> explore(String token, RandomSource rand, int depth) {
         List<String> out = new ArrayList<>();
-        Rule rule = randomRule(token, rand);
-        if (rule == null) {
-            out.add(token);
+        if (depth >= MAX_EXPLORE_DEPTH) {
+            Mystcraft.LOGGER.warn("Grammar expansion reached the depth limit at token '{}'; stopping this branch", token);
             return out;
         }
-        for (String t : rule.values()) out.addAll(explore(t, rand));
+        Rule rule = randomRule(token, rand);
+        if (rule == null) {
+            List<Rule> all = MAPPINGS.get(token);
+            if (all == null || all.isEmpty()) {
+                // A genuine terminal: a symbol id.
+                out.add(token);
+            } else {
+                // Only connect-only (rank null) rules exist, so there is nothing to generate here.
+                Mystcraft.LOGGER.debug("Grammar token '{}' has no randomly selectable rule; expanding to nothing", token);
+            }
+            return out;
+        }
+        for (String t : rule.values()) out.addAll(explore(t, rand, depth + 1));
         return out;
+    }
+
+    /**
+     * Logs any non-terminal whose rules are all weight 0. Such a token can never be expanded randomly, which usually
+     * means a rule was registered with a {@code null} rank by mistake.
+     */
+    private static void warnUnexpandableTokens() {
+        for (Map.Entry<String, List<Rule>> entry : MAPPINGS.entrySet()) {
+            List<Rule> rules = entry.getValue();
+            if (rules.isEmpty()) continue;
+            boolean any = false;
+            for (Rule r : rules) {
+                if (r.weight() > 0f) {
+                    any = true;
+                    break;
+                }
+            }
+            if (!any) {
+                Mystcraft.LOGGER.warn("Grammar token '{}' has {} rule(s) but none can be chosen randomly (all rank null)",
+                        entry.getKey(), rules.size());
+            }
+        }
     }
 
     /**
@@ -315,6 +367,24 @@ public final class Grammar {
         if (items.isEmpty()) return null;
         float max = totalWeight(items, weight);
         if (max <= 0f) return pickEvenly(rand, items);
+        T last = null;
+        float selection = rand.nextFloat() * max;
+        for (T item : items) {
+            float w = (float) weight.applyAsDouble(item);
+            selection -= w;
+            if (w > 0f) {
+                if (selection <= 0f) return item;
+                last = item;
+            }
+        }
+        return last;
+    }
+
+    /** Like {@link #pickWeighted} but returns {@code null} instead of falling back to an even pick. */
+    public static <T> @Nullable T pickWeightedStrict(RandomSource rand, List<T> items, ToDoubleFunction<T> weight) {
+        if (items.isEmpty()) return null;
+        float max = totalWeight(items, weight);
+        if (max <= 0f) return null;
         T last = null;
         float selection = rand.nextFloat() * max;
         for (T item : items) {

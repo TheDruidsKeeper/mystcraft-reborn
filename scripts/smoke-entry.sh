@@ -11,7 +11,9 @@ set -u
 
 SMOKE_SECONDS="${SMOKE_SECONDS:-420}"
 LOG=/out/smoke.log
+STATUS=/out/smoke-status.txt
 mkdir -p /out run/server
+echo "DID_NOT_RUN" > "${STATUS}"
 
 echo "eula=true" > run/server/eula.txt
 {
@@ -37,18 +39,26 @@ grep -E "\[selfcheck\]|SELFCHECK" "${LOG}" | sed 's/^\[[0-9:]*\] //' || true
 if grep -q 'Done (' "${LOG}"; then
     if grep -q 'SELFCHECK FAILED' "${LOG}"; then
         echo "----- SMOKE FAILED: server loaded but the self check failed -----"
-        exit 1
+        echo "SELFCHECK_FAILED" > "${STATUS}"
+        exit 0
     fi
     if ! grep -q 'SELFCHECK PASSED' "${LOG}"; then
         echo "----- SMOKE FAILED: server loaded but the self check did not run -----"
-        exit 1
+        echo "SELFCHECK_MISSING" > "${STATUS}"
+        exit 0
     fi
+    echo "PASSED" > "${STATUS}"
     echo "----- SMOKE PASSED: server loaded and the self check passed -----"
     echo "warnings/errors mentioning mystcraft:"
     grep -icE "(WARN|ERROR).*mystcraft" "${LOG}" || true
     grep -iE "(WARN|ERROR).*mystcraft" "${LOG}" | head -40 || true
     exit 0
 fi
+
+echo "----- mod stack traces -----"
+grep -B2 -A25 -E "co\.te\.my|com\.techbucketdivision" "${LOG}" \
+    | grep -E "Exception|Error|at (com\.techbucketdivision|net\.minecraft|net\.neoforged)|\.\.\. [0-9]+ more" \
+    | head -60 || true
 
 echo "----- SMOKE FAILED: server never finished loading -----"
 
@@ -63,4 +73,7 @@ grep -nE "ERROR|Exception|Caused by|Failed to|Missing|Unknown registry|No key|Su
 # The tail of the raw log is mostly Gradle stack frames; drop those so the game output is visible.
 echo "----- last 80 lines of game output -----"
 grep -vE "^\s+at (org\.gradle|java\.base|jdk\.internal|worker\.org)" "${LOG}" | tail -80
-exit 1
+echo "SERVER_DID_NOT_LOAD" > "${STATUS}"
+# Exit 0 so the export stage still runs: the PowerShell/bash wrapper reads smoke-status.txt and reports
+# the failure. Otherwise a failed RUN aborts the build and out/smoke.log is never written out.
+exit 0

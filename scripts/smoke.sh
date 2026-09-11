@@ -12,13 +12,21 @@ docker buildx build \
   --target smoke-export \
   --output type=local,dest=out \
   . 2>&1 | tee smoke-docker.log
-status=${PIPESTATUS[0]}
-if [ "$status" -eq 0 ]; then
+build_status=${PIPESTATUS[0]}
+if [ "$build_status" -ne 0 ]; then
   echo
-  echo "SMOKE PASSED - server loaded the mod successfully. Full server log: out/smoke.log"
-else
-  echo
-  echo "SMOKE FAILED (exit $status) - see smoke-docker.log for the extracted errors."
+  echo "SMOKE FAILED before the server ran - see smoke-docker.log"
+  exit "$build_status"
 fi
+
+result="$(tr -d '[:space:]' < out/smoke-status.txt 2>/dev/null || echo MISSING)"
+if [ "$result" = "PASSED" ]; then
+  echo
+  echo "SMOKE PASSED - server loaded and the self check passed. Full server log: out/smoke.log"
+  ls -la out
+  exit 0
+fi
+echo
+echo "SMOKE FAILED ($result) - full server log: out/smoke.log, build output: smoke-docker.log"
 ls -la out
-exit "$status"
+exit 1

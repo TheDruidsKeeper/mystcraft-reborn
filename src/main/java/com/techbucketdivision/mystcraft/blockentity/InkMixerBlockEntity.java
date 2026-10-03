@@ -100,30 +100,23 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
         if (hasInk) return;
         ItemStack container = inventory.getStack(SLOT_INK_IN);
         if (container.isEmpty()) return;
-        ItemStack single = container.copyWithCount(1);
-        FluidStack contained = FluidUtil.getFirstStackContained(single);
+        FluidStack contained = FluidUtil.getFirstStackContained(container);
         if (contained.isEmpty() || !ModFluids.isInk(contained.getFluid()) || contained.getAmount() != FluidType.BUCKET_VOLUME) return;
 
-        ItemAccess access = ItemAccess.forStack(single);
-        ResourceHandler<FluidResource> source = access.getCapability(Capabilities.Fluid.ITEM);
-        if (source == null) return;
-        ItemStack emptied;
-        try (Transaction tx = Transaction.openRoot()) {
-            int drained = source.extract(FluidResource.of(contained), FluidType.BUCKET_VOLUME, tx);
-            if (drained != FluidType.BUCKET_VOLUME) return;
-            emptied = access.getResource().toStack(access.getAmount());
-            ItemStack out = inventory.getStack(SLOT_INK_OUT);
-            if (!emptied.isEmpty() && !out.isEmpty()
-                    && (!ItemStack.isSameItemSameComponents(out, emptied) || out.getCount() + emptied.getCount() > out.getMaxStackSize())) {
-                return; // empty container would not fit in the output slot
-            }
-            tx.commit();
+        // Drain into a throw-away tank: the basin is a boolean, the container exchange is what matters.
+        net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler sink = new net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler(1, FluidType.BUCKET_VOLUME);
+        ItemStack out = inventory.getStack(SLOT_INK_OUT);
+        InkContainers.Result moved = InkContainers.drainInto(container, FluidResource.of(contained), FluidType.BUCKET_VOLUME, sink, 0);
+        if (moved == null) return;
+        ItemStack emptied = moved.container();
+        if (!emptied.isEmpty() && !out.isEmpty()
+                && (!ItemStack.isSameItemSameComponents(out, emptied) || out.getCount() + emptied.getCount() > out.getMaxStackSize())) {
+            return; // empty container would not fit in the output slot (nothing was consumed: the scratch sink is discarded)
         }
         hasInk = true;
         container.shrink(1);
         inventory.setStack(SLOT_INK_IN, container);
         if (!emptied.isEmpty()) {
-            ItemStack out = inventory.getStack(SLOT_INK_OUT);
             if (out.isEmpty()) inventory.setStack(SLOT_INK_OUT, emptied);
             else inventory.setStack(SLOT_INK_OUT, out.copyWithCount(out.getCount() + emptied.getCount()));
         }

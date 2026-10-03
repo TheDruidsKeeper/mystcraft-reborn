@@ -152,39 +152,24 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
     public void serverTick() {
         ItemStack container = main.getStack(SLOT_CONTAINER_IN);
         if (container.isEmpty()) return;
-        ItemStack single = container.copyWithCount(1);
-        ItemAccess access = ItemAccess.forStack(single);
-        ResourceHandler<FluidResource> handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null) return;
-
-        FluidStack contained = FluidUtil.getFirstStackContained(single);
-        ItemStack result = ItemStack.EMPTY;
+        FluidStack contained = FluidUtil.getFirstStackContained(container);
+        InkContainers.Result moved;
         if (!contained.isEmpty()) {
             // container -> tank: the whole container amount must fit
             if (!ModFluids.isInk(contained.getFluid())) return;
             if (getInkAmount() + contained.getAmount() > TANK_CAPACITY) return;
-            try (Transaction tx = Transaction.openRoot()) {
-                FluidResource res = FluidResource.of(contained);
-                int drained = handler.extract(res, contained.getAmount(), tx);
-                int filled = inkwell.insert(0, res, drained, tx);
-                if (drained <= 0 || filled != drained) return;
-                result = access.getResource().toStack(access.getAmount());
-                if (!fitsOutput(result)) return;
-                tx.commit();
-            }
+            moved = InkContainers.drainInto(container, FluidResource.of(contained), contained.getAmount(), inkwell, 0);
         } else {
             // tank -> container (one bucket)
             if (getInkAmount() < FluidType.BUCKET_VOLUME) return;
-            try (Transaction tx = Transaction.openRoot()) {
-                FluidResource res = inkwell.getResource(0);
-                int inserted = handler.insert(res, FluidType.BUCKET_VOLUME, tx);
-                if (inserted != FluidType.BUCKET_VOLUME) return;
-                int drained = inkwell.extract(0, res, inserted, tx);
-                if (drained != inserted) return;
-                result = access.getResource().toStack(access.getAmount());
-                if (!fitsOutput(result)) return;
-                tx.commit();
-            }
+            moved = InkContainers.fillFrom(container, inkwell, 0, FluidType.BUCKET_VOLUME);
+        }
+        if (moved == null) return;
+        ItemStack result = moved.container();
+        if (!fitsOutput(result)) {
+            // undo: the tank already changed; put the fluid back the way it was
+            revert(moved, contained);
+            return;
         }
         container.shrink(1);
         main.setStack(SLOT_CONTAINER_IN, container);
@@ -193,6 +178,15 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
             main.setStack(SLOT_CONTAINER_OUT, out.isEmpty() ? result : out.copyWithCount(out.getCount() + result.getCount()));
         }
         markForUpdate();
+    }
+
+    /** Reverses a transfer whose empty container did not fit the output slot. */
+    private void revert(InkContainers.Result moved, FluidStack contained) {
+        try (Transaction tx = Transaction.openRoot()) {
+            if (!contained.isEmpty()) inkwell.extract(0, FluidResource.of(contained), moved.amount(), tx);
+            else inkwell.insert(0, FluidResource.of(ModFluids.BLACK_INK.get()), moved.amount(), tx);
+            tx.commit();
+        }
     }
 
     private boolean fitsOutput(ItemStack stack) {

@@ -44,12 +44,22 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         public boolean backboard;
         public int paperCount;
         public boolean targetIsBook;
+        /** Tint colour per occupied notebook tab (first {@link #MAX_SHELF_BOOKS}), 0 = empty tab. */
+        public final int[] shelfBooks = new int[MAX_SHELF_BOOKS];
+        /** Inkwell fill 0..1 (-1 = no inkwell shown: nothing in the tank). */
+        public float inkLevel = -1f;
     }
+
+    /** Book spines that fit in the open shelf of the backboard (16 units wide, 2 units per book + gaps). */
+    public static final int MAX_SHELF_BOOKS = 7;
+    private static final int TINT_NOTEBOOK = 0xFF9A6A3A, TINT_PORTFOLIO = 0xFF4A6A9A, TINT_FOLDER = 0xFFD8C08A;
 
     private final Model.Simple desk;
     private final SpriteGetter sprites;
     private final ModelPart[] backing;
     private final ModelPart paper1, paper2, paper3, paperStack1, paperStack2;
+    private final Model.Simple shelfBook, inkwellCup;
+    private final Model.Simple[] inkFill = new Model.Simple[4];
 
     public WritingDeskRenderer(BlockEntityRendererProvider.Context context) {
         ModelPart root = context.bakeLayer(LegacyModels.WRITING_DESK);
@@ -62,6 +72,9 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         this.paper3 = root.getChild("paper3");
         this.paperStack1 = root.getChild("paperStack1");
         this.paperStack2 = root.getChild("paperStack2");
+        this.shelfBook = LegacyModels.deskShelfBook();
+        this.inkwellCup = LegacyModels.inkwellCup();
+        for (int i = 0; i < inkFill.length; i++) inkFill[i] = LegacyModels.inkwellInk(1 + i);
     }
 
     @Override
@@ -82,6 +95,16 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         ItemStack target = be.getDisplayItem();
         state.targetIsBook = BookUtil.isLinkingItem(target);
         ItemRenderHelper.extract(state.target, target, ItemDisplayContext.FIXED, be.getLevel(), 0);
+        int shown = 0;
+        java.util.Arrays.fill(state.shelfBooks, 0);
+        for (int tab = 0; tab < be.getMaxSurfaceTabCount() && shown < MAX_SHELF_BOOKS; tab++) {
+            ItemStack notebook = be.getTabItem(tab);
+            if (notebook.isEmpty()) continue;
+            state.shelfBooks[shown++] = notebook.getItem() instanceof com.techbucketdivision.mystcraft.item.PortfolioItem ? TINT_PORTFOLIO
+                    : notebook.getItem() instanceof com.techbucketdivision.mystcraft.item.FolderItem ? TINT_FOLDER : TINT_NOTEBOOK;
+        }
+        int ink = be.getInkAmount();
+        state.inkLevel = ink <= 0 ? -1f : Math.min(1f, ink / (float) WritingDeskBlockEntity.TANK_CAPACITY);
     }
 
     @Override
@@ -103,6 +126,38 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         poseStack.mulPose(Axis.YP.rotationDegrees(90f * state.facingIndex));
         collector.submitModel(desk, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
                 LegacyModels.DESK_TEXTURE, sprites, 0, state.breakProgress);
+        poseStack.popPose();
+
+        // Local frame for the extras: origin at the head block's centre, +Z towards the foot (FACING), +X towards the
+        // backboard (derived numerically from the model chain above: the back wall sits at facing.getCounterClockWise()).
+        poseStack.pushPose();
+        poseStack.translate(0.5, 0.0, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-Direction.from2DDataValue(state.facingIndex).toYRot()));
+        // Notebooks in the open shelf of the backboard (cavity: y 1.0..1.69, x 0.06..0.44, z 0..1 across the seam).
+        if (state.backboard) {
+            for (int i = 0; i < MAX_SHELF_BOOKS; i++) {
+                int tint = state.shelfBooks[i];
+                if (tint == 0) continue;
+                poseStack.pushPose();
+                poseStack.translate(0.12, 1.0, 0.08 + i * 2.15 / 16.0);
+                collector.submitModel(shelfBook, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, tint,
+                        LegacyModels.BOOK_SPINE_TEXTURE, sprites, 0, state.breakProgress);
+                poseStack.popPose();
+            }
+        }
+        // Inkwell on the desk top, head half, against the backboard.
+        if (state.inkLevel >= 0f) {
+            poseStack.pushPose();
+            poseStack.translate(0.3, 0.97, -0.28);
+            collector.submitModel(inkwellCup, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
+                    LegacyModels.INKWELL_CUP_TEXTURE, sprites, 0, state.breakProgress);
+            int step = Math.max(0, Math.min(3, Math.round(state.inkLevel * 3f)));
+            if (state.inkLevel > 0f) {
+                collector.submitModel(inkFill[step], Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
+                        LegacyModels.INKWELL_INK_TEXTURE, sprites, 0, state.breakProgress);
+            }
+            poseStack.popPose();
+        }
         poseStack.popPose();
 
         // target item lying open on the head half (local frame: head block, foot toward FACING)

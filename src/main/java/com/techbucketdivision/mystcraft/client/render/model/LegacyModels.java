@@ -34,6 +34,13 @@ public final class LegacyModels {
     public static final SpriteId BOOKSTAND_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("bookstand"));
     public static final SpriteId LECTERN_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("lectern"));
     public static final SpriteId DESK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("desk"));
+    /** Open-book covers for the vanilla {@code BookModel} (legacy agebook / linkbook textures, 64x32). */
+    public static final SpriteId AGEBOOK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("agebook"));
+    public static final SpriteId LINKBOOK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("linkbook"));
+    /** Writing desk extras: notebook spines in the backboard shelf and the inkwell on the desk top. */
+    public static final SpriteId BOOK_SPINE_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("book_spine"));
+    public static final SpriteId INKWELL_CUP_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("inkwell/inkwell_cup"));
+    public static final SpriteId INKWELL_INK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("inkwell/ink"));
 
     /** Desk parts only drawn when the desk has its backboard ({@code hasTop} in the original). */
     public static final String[] DESK_BACKING = {"deskTopBack", "deskTopLeft", "deskTopRight", "deskTopTop", "angleLeft", "angleRight",
@@ -119,5 +126,27 @@ public final class LegacyModels {
         root.addOrReplaceChild("cupboardLeft", CubeListBuilder.create().texOffs(160, 40).addBox(0.0F, 0.0F, 0.0F, 7F, 11F, 4F),
                 PartPose.offsetAndRotation(-7.0F, -3.0F, 3.0F, 0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 256, 128);
+    }
+
+    /** A standing notebook for the desk's backboard shelf: 5 deep (x), 10 tall, 2 wide (z) in 1/16 block units, tinted per kind. */
+    public static Model.Simple deskShelfBook() {
+        List<ModelPart.Cube> cubes = List.of(
+                new ModelPart.Cube(0, 0, 0f, 0f, 0f, 5f, 10f, 2f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+        return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityCutout);
+    }
+
+    /** The inkwell cup on the desk top: a 4x4x4 cube (legacy inkwell_cup texture). */
+    public static Model.Simple inkwellCup() {
+        List<ModelPart.Cube> cubes = List.of(
+                new ModelPart.Cube(0, 0, -2f, 0f, -2f, 4f, 4f, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+        return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityCutout);
+    }
+
+    /** The ink inside the cup, {@code height} units tall (1..4), translucent (legacy ink texture). */
+    public static Model.Simple inkwellInk(int height) {
+        float h = Math.max(1, Math.min(4, height)) - 0.5f;
+        List<ModelPart.Cube> cubes = List.of(
+                new ModelPart.Cube(0, 0, -1.5f, 0.5f, -1.5f, 3f, h, 3f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+        return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityTranslucent);
     }
 }

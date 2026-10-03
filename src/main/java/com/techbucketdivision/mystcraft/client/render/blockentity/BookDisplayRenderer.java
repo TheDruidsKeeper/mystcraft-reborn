@@ -6,7 +6,11 @@ import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.techbucketdivision.mystcraft.block.BookstandBlock;
 import com.techbucketdivision.mystcraft.block.LecternBlock;
 import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
+import com.techbucketdivision.mystcraft.item.LinkingBookItem;
+import com.techbucketdivision.mystcraft.item.LinkingItem;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.object.book.BookModel;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -29,8 +33,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Bookstand / lectern renderer: the displayed item lies flat on the top surface, rotated by the block entity's yaw and
- * tilted by its pitch (bookstand book scale 1.05, lectern 1.22 per REQUIREMENTS §17; here relative item scales).
+ * Bookstand / lectern renderer. Books (descriptive / linking) are shown as an open book (vanilla {@link BookModel}
+ * with the legacy agebook / linkbook covers) lying on the stand's surface - flat on the bookstand, on the slope of
+ * the lectern - the way the vanilla lectern shows its book. Any other displayed item (a page, say) lies flat as an
+ * item icon rotated by the block entity's yaw and tilted by its pitch.
  */
 public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements BlockEntityRenderer<T, BookDisplayRenderer.State> {
 
@@ -46,15 +52,28 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         public float scale = 1.05f;
         public @Nullable String label;
         public double distanceSq;
+        /** 0 = not a book (render the item icon), 1 = descriptive book, 2 = linking book. */
+        public int book;
     }
+
+    /** Open-book pose: the vanilla lectern's (openness ~1.5 rad, pages held still). */
+    private static final BookModel.State OPEN_BOOK = BookModel.State.forAnimation(0f, 0.1f, 0.9f, 1.2f);
+    /** The bookstand's arms form a 15 degree V, so its book opens to match (lids 15 degrees above flat). */
+    private static final BookModel.State STAND_BOOK = new BookModel.State((float) Math.toRadians(75), 0.1f, 0.9f);
+    /** The bookstand's arms are pitched 30 degrees (music-stand style): the book's far edge is raised by that much. */
+    private static final float STAND_TILT = 30f;
+    private static final float STAND_SPINE_HEIGHT = 0.56f;
+    private static final float BOOK_SCALE = 0.75f;
 
     private final Model.Simple bookstand;
     private final Model.Simple lectern;
+    private final BookModel book;
     private final SpriteGetter sprites;
 
     public BookDisplayRenderer(BlockEntityRendererProvider.Context context) {
         this.bookstand = new Model.Simple(context.bakeLayer(LegacyModels.BOOKSTAND), RenderTypes::entityCutout);
         this.lectern = LegacyModels.lecternModel();
+        this.book = new BookModel(context.bakeLayer(ModelLayers.BOOK));
         this.sprites = context.sprites();
     }
 
@@ -68,6 +87,7 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         BlockEntityRenderState.extractBase(be, state, breakProgress);
         ItemStack item = be.getDisplayItem();
         ItemRenderHelper.extract(state.item, item, ItemDisplayContext.FIXED, be.getLevel(), 0);
+        state.book = item.getItem() instanceof LinkingBookItem ? 2 : item.getItem() instanceof LinkingItem ? 1 : 0;
         state.yaw = be.getYaw();
         state.pitch = be.getPitch();
         BlockState bs = be.getBlockState();
@@ -112,7 +132,9 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
                     LegacyModels.LECTERN_TEXTURE, sprites, 0, state.breakProgress);
             poseStack.popPose();
         }
-        if (!state.item.isEmpty()) {
+        if (state.book != 0 && !state.item.isEmpty()) {
+            submitOpenBook(state, poseStack, collector);
+        } else if (!state.item.isEmpty()) {
             poseStack.pushPose();
             if (state.kind == 2) {
                 // Original RenderLectern.renderItem: translate(0, 0.255, 0) then rotate 110 about Z in the model's
@@ -139,5 +161,39 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
             LabelRenderer.submit(poseStack, collector, camera, state.label, state.lightCoords, state.distanceSq);
             poseStack.popPose();
         }
+    }
+
+    /**
+     * The vanilla lectern's book pose, adapted to the stand: spine runs away from the reader, pages left and right.
+     * Lectern: the spine follows the wedge's slope (rises towards the model's +X, the reader stands at -X).
+     * Bookstand / plain display: flat on the surface, turned by the entity's yaw and tipped by its pitch.
+     */
+    private void submitOpenBook(State state, PoseStack poseStack, SubmitNodeCollector collector) {
+        poseStack.pushPose();
+        // BookModel geometry: spine along model +Y, the open pages fan out around it with their bisector along +X.
+        // Z(90 + tilt) therefore lays the spine along the X axis with the pages facing up, tilted by 'tilt' so the
+        // reader-side (-X) end of the spine is the low one; X(180) first flips the spine so the page tops end up at
+        // the far (high) end. 2 units of lid thickness sit below the spine, hence the small lift.
+        if (state.kind == 2) {
+            poseStack.translate(0.5, LegacyModels.LECTERN_SURFACE_CENTER + 0.04, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(state.modelYaw));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(90f + LegacyModels.LECTERN_SLOPE_DEGREES));
+        } else if (state.kind == 1) {
+            // in the stand's V: spine along the arms' crease (the stand's Z, turned with the stand), raised 30 degrees
+            poseStack.translate(0.5, STAND_SPINE_HEIGHT, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-45f * state.rotationIndex));
+            poseStack.mulPose(Axis.XP.rotationDegrees(STAND_TILT));
+            poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(90f));
+        } else {
+            poseStack.translate(0.5, state.surfaceHeight + 0.04, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-state.yaw));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(90f + state.pitch));
+        }
+        poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        poseStack.scale(BOOK_SCALE, BOOK_SCALE, BOOK_SCALE);
+        collector.submitModel(book, state.kind == 1 ? STAND_BOOK : OPEN_BOOK, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
+                state.book == 2 ? LegacyModels.LINKBOOK_TEXTURE : LegacyModels.AGEBOOK_TEXTURE, sprites, 0, state.breakProgress);
+        poseStack.popPose();
     }
 }

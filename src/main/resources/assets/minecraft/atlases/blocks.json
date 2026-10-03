@@ -2,6 +2,11 @@
   "sources": [
     { "type": "single", "resource": "mystcraft:entity/bookstand" },
     { "type": "single", "resource": "mystcraft:entity/lectern" },
-    { "type": "single", "resource": "mystcraft:entity/desk" }
+    { "type": "single", "resource": "mystcraft:entity/desk" },
+    { "type": "single", "resource": "mystcraft:entity/agebook" },
+    { "type": "single", "resource": "mystcraft:entity/linkbook" },
+    { "type": "single", "resource": "mystcraft:entity/book_spine" },
+    { "type": "single", "resource": "mystcraft:entity/inkwell/inkwell_cup" },
+    { "type": "single", "resource": "mystcraft:entity/inkwell/ink" }
   ]
 }

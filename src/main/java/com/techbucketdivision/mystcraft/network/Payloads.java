@@ -23,6 +23,11 @@ public final class Payloads {
         r.playToClient(ExplosionEffectsPayload.TYPE, ExplosionEffectsPayload.STREAM_CODEC);
         r.playToClient(LightningPayload.TYPE, LightningPayload.STREAM_CODEC);
         r.playToClient(ProfilingStatePayload.TYPE, ProfilingStatePayload.STREAM_CODEC);
+        r.playToClient(PanelImagePayloads.CaptureRequest.TYPE, PanelImagePayloads.CaptureRequest.STREAM_CODEC);
+        r.playToClient(PanelImagePayloads.Images.TYPE, PanelImagePayloads.Images.STREAM_CODEC);
+        // client -> server
+        r.playToServer(PanelImagePayloads.Upload.TYPE, PanelImagePayloads.Upload.STREAM_CODEC, PanelImagePayloads.Upload::handleServer);
+        r.playToServer(PanelImagePayloads.Request.TYPE, PanelImagePayloads.Request.STREAM_CODEC, PanelImagePayloads.Request::handleServer);
         // bidirectional GUI messages
         r.playBidirectional(MenuMessagePayload.TYPE, MenuMessagePayload.STREAM_CODEC, MenuMessagePayload::handleServer);
     }

@@ -116,6 +116,7 @@ public final class ClientGameEvents {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null || mc.isPaused()) return;
+        PanelImages.tick(mc);
         ClientAgeData.tick(level);
         AgeBiomeTints.update(level);
         AgeController controller = ClientAgeData.controllerFor(level);
@@ -134,5 +135,6 @@ public final class ClientGameEvents {
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientAgeData.clear();
         AgeBiomeTints.clear();
+        PanelImages.clear();
     }
 }

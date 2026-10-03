@@ -43,6 +43,8 @@ public final class ClientPayloadHandlers {
         event.register(LightningPayload.TYPE, ClientPayloadHandlers::handleLightning);
         event.register(ProfilingStatePayload.TYPE, ClientPayloadHandlers::handleProfilingState);
         event.register(MenuMessagePayload.TYPE, ClientPayloadHandlers::handleMenuMessage);
+        event.register(com.techbucketdivision.mystcraft.network.PanelImagePayloads.CaptureRequest.TYPE, (p, ctx) -> PanelImages.onCaptureRequest(p.key()));
+        event.register(com.techbucketdivision.mystcraft.network.PanelImagePayloads.Images.TYPE, (p, ctx) -> PanelImages.onImages(p.key(), p.frames()));
     }
 
     private static void handleAgeData(AgeDataSyncPayload payload, IPayloadContext ctx) {

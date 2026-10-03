@@ -13,6 +13,7 @@ import com.techbucketdivision.mystcraft.client.render.entity.ColoredLightningRen
 import com.techbucketdivision.mystcraft.client.render.entity.LinkbookRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MeteorRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MystFallingBlockRenderer;
+import com.techbucketdivision.mystcraft.client.render.item.SymbolPageSpecialRenderer;
 import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
 import com.techbucketdivision.mystcraft.client.render.tint.AgeBiomeTintSource;
 import com.techbucketdivision.mystcraft.client.render.tint.InkTintSource;
@@ -46,6 +47,7 @@ import net.neoforged.neoforge.client.event.RegisterCustomEnvironmentEffectRender
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -70,6 +72,7 @@ public final class ClientSetup {
         modBus.addListener(ClientSetup::registerParticles);
         modBus.addListener(ClientSetup::registerBlockTints);
         modBus.addListener(ClientSetup::registerFluidModels);
+        modBus.addListener(ClientSetup::registerSpecialModels);
 
         ClientGameEvents.register(NeoForge.EVENT_BUS);
         ClientSelfCheck.register(NeoForge.EVENT_BUS);
@@ -99,7 +102,6 @@ public final class ClientSetup {
 
     private static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(LegacyModels.BOOKSTAND, LegacyModels::bookstand);
-        event.registerLayerDefinition(LegacyModels.LECTERN, LegacyModels::lectern);
         event.registerLayerDefinition(LegacyModels.WRITING_DESK, LegacyModels::writingDesk);
     }
 
@@ -107,6 +109,11 @@ public final class ClientSetup {
         event.registerSkyboxRenderer(AGE_ENVIRONMENT, new AgeSkyRenderer());
         event.registerCloudRenderer(AGE_ENVIRONMENT, new AgeCloudRenderer());
         event.registerWeatherEffectRenderer(AGE_ENVIRONMENT, new AgeWeatherRenderer());
+    }
+
+    /** Page icons are drawn from the symbol glyph sheet (see {@link SymbolPageSpecialRenderer}). */
+    private static void registerSpecialModels(RegisterSpecialModelRendererEvent event) {
+        event.register(SymbolPageSpecialRenderer.ID, SymbolPageSpecialRenderer.Unbaked.MAP_CODEC);
     }
 
     private static void registerParticles(RegisterParticleProvidersEvent event) {

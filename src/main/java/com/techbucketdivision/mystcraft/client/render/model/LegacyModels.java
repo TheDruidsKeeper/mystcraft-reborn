@@ -1,7 +1,15 @@
 package com.techbucketdivision.mystcraft.client.render.model;
 
 import com.techbucketdivision.mystcraft.util.MystIds;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.core.Direction;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -46,22 +54,22 @@ public final class LegacyModels {
         return LayerDefinition.create(mesh, 64, 32);
     }
 
+    /** Lectern slope angle (the wedge rises 6 px over 16 px), used to lay the displayed item on the slope. */
+    public static final float LECTERN_SLOPE_DEGREES = (float) Math.toDegrees(Math.atan2(6.0, 16.0));
+    /** Height of the lectern wedge at its centre (model pixels / 16). */
+    public static final float LECTERN_SURFACE_CENTER = 4f / 16f;
+
     /**
-     * Ported from the original ModelLectern. The original body is a {@code ModelPrism} (a wedge rising from 1 to 7
-     * px across its width); {@link CubeListBuilder} has no wedge, so it is approximated by a flat 16x1x16 base and a
-     * 17x1x16 slab rotated to the wedge's slope. The ledge box is exact.
+     * Ported from the original ModelLectern: one solid wedge ({@code ModelPrism}: 16 wide, 1 px tall at x=-8 rising
+     * to 7 px at x=+8, 16 deep) plus a 1x2x14 ledge along the low edge, rotation point y=0.5 so the wedge sits on
+     * the block's bottom face. Built directly (no {@link LayerDefinition}) because the mesh builders only make boxes.
      */
-    public static LayerDefinition lectern() {
-        MeshDefinition mesh = new MeshDefinition();
-        PartDefinition root = mesh.getRoot();
-        root.addOrReplaceChild("base", CubeListBuilder.create().texOffs(0, 0).addBox(-8F, -0.5F, -8F, 16F, 1F, 16F),
-                PartPose.offset(0F, 0.5F, 0F));
-        // slope: from y=0.5 at x=-8 to y=6.5 at x=+8 -> angle atan(6/16) about Z, length sqrt(16^2+6^2) ~ 17.1
-        root.addOrReplaceChild("slope", CubeListBuilder.create().texOffs(0, 0).addBox(0F, -1F, -8F, 17F, 1F, 16F),
-                PartPose.offsetAndRotation(-8F, 1.0F, 0F, 0F, 0F, (float) Math.atan2(6.0, 16.0)));
-        root.addOrReplaceChild("ledge", CubeListBuilder.create().texOffs(32, 2).addBox(-8F, -0.5F, -7F, 1F, 2F, 14F),
-                PartPose.offset(0F, 0.5F, 0F));
-        return LayerDefinition.create(mesh, 64, 32);
+    public static Model.Simple lecternModel() {
+        List<ModelPart.Cube> cubes = List.of(
+                new PrismCube(0, 0, -8f, 0f, -8f, 16, 1, 7, 16, 64f, 32f),
+                new ModelPart.Cube(32, 2, -8f, 0f, -7f, 1f, 2f, 14f, 0f, 0f, 0f, false, 64f, 32f, EnumSet.allOf(Direction.class)));
+        ModelPart root = new ModelPart(cubes, Map.of());
+        return new Model.Simple(root, RenderTypes::entityCutout);
     }
 
     /** Ported from the original ModelWritingDesk (Techne export); books omitted (never drawn in the original). */

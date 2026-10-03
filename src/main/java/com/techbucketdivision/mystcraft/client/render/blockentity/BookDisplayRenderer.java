@@ -54,7 +54,7 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
 
     public BookDisplayRenderer(BlockEntityRendererProvider.Context context) {
         this.bookstand = new Model.Simple(context.bakeLayer(LegacyModels.BOOKSTAND), RenderTypes::entityCutout);
-        this.lectern = new Model.Simple(context.bakeLayer(LegacyModels.LECTERN), RenderTypes::entityCutout);
+        this.lectern = LegacyModels.lecternModel();
         this.sprites = context.sprites();
     }
 
@@ -74,10 +74,10 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         boolean lectern = bs.is(ModBlocks.LECTERN.get());
         if (lectern) {
             state.kind = 2;
-            // Original RenderLectern: facings on the Z axis are flipped, then rotate by (horizontal angle + 90).
-            Direction facing = bs.hasProperty(LecternBlock.FACING) ? bs.getValue(LecternBlock.FACING) : Direction.NORTH;
-            if (facing.getAxis() == Direction.Axis.Z) facing = facing.getOpposite();
-            state.modelYaw = facing.toYRot() + 90f;
+            // FACING is the reading side (towards the player who placed it). The wedge's low edge / ledge is the
+            // model's -X, so rotate -X onto FACING: yaw = 90 - toYRot (south 90, west 0, north -90, east 180).
+            Direction facing = bs.hasProperty(LecternBlock.FACING) ? bs.getValue(LecternBlock.FACING) : Direction.SOUTH;
+            state.modelYaw = 90f - facing.toYRot();
         } else if (bs.is(ModBlocks.BOOKSTAND.get())) {
             state.kind = 1;
             state.rotationIndex = bs.hasProperty(BookstandBlock.ROTATION) ? bs.getValue(BookstandBlock.ROTATION) : 0;
@@ -114,9 +114,21 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         }
         if (!state.item.isEmpty()) {
             poseStack.pushPose();
-            poseStack.translate(0.5, state.surfaceHeight + 0.03, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(-state.yaw));
-            poseStack.mulPose(Axis.XP.rotationDegrees(90f - state.pitch)); // lay the item flat, tilt by pitch
+            if (state.kind == 2) {
+                // Original RenderLectern.renderItem: translate(0, 0.255, 0) then rotate 110 about Z in the model's
+                // frame = lie on the wedge's slope (the wedge rises towards the model's +X).
+                poseStack.translate(0.5, LegacyModels.LECTERN_SURFACE_CENTER + 0.02, 0.5);
+                poseStack.mulPose(Axis.YP.rotationDegrees(state.modelYaw));
+                poseStack.mulPose(Axis.ZP.rotationDegrees(LegacyModels.LECTERN_SLOPE_DEGREES));
+                // FIXED display transforms turn the icon 180 about Y, so after X+90 its front faces up and Y+90 puts
+                // the icon's top at the wedge's high side (+X): the page reads upright from the ledge.
+                poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+                poseStack.mulPose(Axis.XP.rotationDegrees(90f));
+            } else {
+                poseStack.translate(0.5, state.surfaceHeight + 0.03, 0.5);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-state.yaw));
+                poseStack.mulPose(Axis.XP.rotationDegrees(90f - state.pitch)); // lay the item flat, tilt by pitch
+            }
             poseStack.scale(state.scale, state.scale, state.scale);
             ItemRenderHelper.submit(state.item, poseStack, collector, state.lightCoords);
             poseStack.popPose();

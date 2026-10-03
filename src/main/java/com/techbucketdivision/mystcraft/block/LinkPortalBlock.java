@@ -133,10 +133,15 @@ public class LinkPortalBlock extends Block {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
             return;
         }
-        ItemStack book = receptacle.getBook();
+        ItemStack book = receptacle.getBook(); // a copy: the receptacle inventory is resource based
         if (book.getItem() instanceof ItemBehaviours.PortalActivator activator) {
             activator.onPortalCollision(book, level, entity, pos);
-            receptacle.setChanged(); // a Descriptive Book binds to its Age on first portal use
+            // A Descriptive Book binds to its Age on first portal use; persist the bound copy or every traveller would
+            // create a new Age (and the first one silently failed with "book is not bound").
+            if (!ItemStack.matches(book, receptacle.getBook())) {
+                receptacle.updateBook(book);
+                receptacle.setChanged();
+            }
         }
     }
 }

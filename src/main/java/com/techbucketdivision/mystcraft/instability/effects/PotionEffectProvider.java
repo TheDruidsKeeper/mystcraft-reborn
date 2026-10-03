@@ -35,6 +35,15 @@ public final class PotionEffectProvider implements InstabilityProvider {
         director.registerEffect(new PotionEffect(level));
     }
 
+    /**
+     * Only (re)apply when the effect is absent, weaker, or past half its duration: re-adding every chunk tick resets the
+     * timer each tick, which spams effect-update packets and makes the HUD timer flicker.
+     */
+    public static boolean shouldApply(LivingEntity living, Holder<MobEffect> effect, int duration, int amplifier) {
+        MobEffectInstance existing = living.getEffect(effect);
+        return existing == null || existing.getAmplifier() < amplifier || existing.getDuration() <= duration / 2;
+    }
+
     /** The environmental effect instance. */
     public final class PotionEffect implements EnvironmentalEffect {
         private final int amplifier;
@@ -49,10 +58,7 @@ public final class PotionEffectProvider implements InstabilityProvider {
             if (!(entity instanceof LivingEntity living)) return;
             if (enemiesOnly && entity instanceof Player) return;
             if (!global && !world.canSeeSky(entity.blockPosition())) return;
-            // Only (re)apply when the effect is absent, weaker, or past half its duration: re-adding every chunk tick
-            // resets the timer each tick, which spams effect-update packets and makes the HUD timer flicker.
-            MobEffectInstance existing = living.getEffect(effect);
-            if (existing != null && existing.getAmplifier() >= amplifier && existing.getDuration() > duration / 2) return;
+            if (!shouldApply(living, effect, duration, amplifier)) return;
             living.addEffect(new MobEffectInstance(effect, duration, amplifier));
         }
     }

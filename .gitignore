@@ -8,6 +8,8 @@ build/
 out/
 build-docker.log
 smoke-docker.log
+gametest-docker.log
+client-smoke-docker.log
 
 ### IntelliJ IDEA ###
 .idea/

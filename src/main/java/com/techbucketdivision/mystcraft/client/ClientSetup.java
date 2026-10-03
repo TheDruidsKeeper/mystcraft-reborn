@@ -70,6 +70,7 @@ public final class ClientSetup {
         modBus.addListener(ClientSetup::registerFluidModels);
 
         ClientGameEvents.register(NeoForge.EVENT_BUS);
+        ClientSelfCheck.register(NeoForge.EVENT_BUS);
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

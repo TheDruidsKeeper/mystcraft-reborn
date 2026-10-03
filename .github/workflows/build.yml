@@ -79,6 +79,83 @@ jobs:
             exit 1
           fi
 
+  gametest:
+    name: In-game tests (GameTest server)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Boots the GameTest server with the mod + the dev-only mystcraft_tests mod and runs every @GameTest.
+      - name: Run game tests
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: gametest-export
+          outputs: type=local,dest=out
+          cache-from: type=gha,scope=mystcraft-build
+          cache-to: type=gha,mode=max,scope=mystcraft-build
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: gametest-log
+          path: |
+            out/gametest.log
+            out/gametest-results
+          if-no-files-found: warn
+
+      - name: Check game test result
+        run: |
+          result="$(tr -d '[:space:]' < out/gametest-status.txt 2>/dev/null || echo MISSING)"
+          echo "game tests: $result"
+          if [ "$result" != "PASSED" ]; then
+            echo "::error::Game tests failed ($result) - see the gametest-log artifact"
+            grep -iE "failed|GameTestException" out/gametest.log | tail -40 || true
+            exit 1
+          fi
+
+  client-smoke:
+    name: Client smoke (Xvfb + Mesa)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Headless dev client driven by ClientSelfCheck; exports screenshots for review.
+      - name: Run client
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: client-smoke-export
+          outputs: type=local,dest=out
+          build-args: CLIENT_SMOKE_SECONDS=600
+          cache-from: type=gha,scope=mystcraft-build
+          cache-to: type=gha,mode=max,scope=mystcraft-build
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: client-smoke
+          path: |
+            out/client-smoke.log
+            out/screenshots
+          if-no-files-found: warn
+
+      - name: Check client result
+        run: |
+          result="$(tr -d '[:space:]' < out/client-smoke-status.txt 2>/dev/null || echo MISSING)"
+          echo "client smoke: $result"
+          if [ "$result" != "PASSED" ]; then
+            echo "::error::Client smoke failed ($result) - see the client-smoke artifact"
+            grep -E "\[clientcheck\]|CLIENT SELFCHECK|Missing textures|Missing FluidModel" out/client-smoke.log | tail -40 || true
+            exit 1
+          fi
+
   release:
     name: GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')

@@ -50,3 +50,40 @@ RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/loca
 # Stage 4: export the jar and the smoke log together.
 FROM scratch AS smoke-export
 COPY --from=smoke /out/ /
+
+# Stage 5 (optional): headless in-game tests. Runs the NeoForge GameTest server with the mod plus the dev-only
+# `mystcraft_tests` mod (src/gametest, NeoForge test framework): Age creation and arrival, portals, Disarm, fluids,
+# instability. Everything server-side that a player would otherwise have to verify by hand.
+#   scripts/gametest.sh
+FROM build AS gametest
+COPY scripts/gametest-entry.sh /usr/local/bin/gametest-entry.sh
+RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/gametest-entry.sh
+
+FROM scratch AS gametest-export
+COPY --from=gametest /out/ /
+
+# Stage 6 (optional): headless CLIENT smoke test. Xvfb + Mesa llvmpipe give the dev client a real OpenGL context, and
+# ClientSelfCheck (MYSTCRAFT_CLIENT_SELFCHECK=1) drives it: fresh flat world -> /myst-scene -> /myst-visit into a
+# new Age -> night, with screenshots. Covers model baking, screens, BERs, Age sky/tints - what the server smoke
+# cannot. The X11/Mesa layer is independent of the sources so it stays cached.
+#   scripts/client-smoke.sh
+FROM eclipse-temurin:25-jdk AS client-tools
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        xvfb mesa-utils libgl1 libglx-mesa0 libgl1-mesa-dri libegl1 \
+        libx11-6 libxext6 libxrender1 libxrandr2 libxinerama1 libxcursor1 libxi6 libxxf86vm1 libxkbcommon0 \
+        libopenal1 libasound2t64 fontconfig ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM client-tools AS client-smoke
+ENV CI=true \
+    GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.console=plain -Dorg.gradle.configuration-cache=false" \
+    GRADLE_USER_HOME=/gradle-home
+WORKDIR /src
+COPY --from=build /src /src
+ARG CLIENT_SMOKE_SECONDS=600
+ENV CLIENT_SMOKE_SECONDS=${CLIENT_SMOKE_SECONDS}
+COPY scripts/client-smoke-entry.sh /usr/local/bin/client-smoke-entry.sh
+RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/client-smoke-entry.sh
+
+FROM scratch AS client-smoke-export
+COPY --from=client-smoke /out/ /

@@ -23,6 +23,8 @@ import com.techbucketdivision.mystcraft.entity.MeteorEntity;
 import com.techbucketdivision.mystcraft.instability.ChunkProfiler;
 import com.techbucketdivision.mystcraft.instability.InstabilityController;
 import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
+import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.linking.LinkController;
 import com.techbucketdivision.mystcraft.linking.LinkPermissions;
@@ -81,6 +83,55 @@ public final class MystcraftCommands {
         dispatcher.register(debug());
         dispatcher.register(time());
         dispatcher.register(toggleDownfall());
+        dispatcher.register(scene());
+        dispatcher.register(visit());
+    }
+
+    // --- /myst-scene (debug showcase) ----------------------------------------------------------------------------
+
+    private static LiteralArgumentBuilder<CommandSourceStack> scene() {
+        return Commands.literal("myst-scene")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .executes(ctx -> {
+                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                    ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();
+                    BlockPos origin = player.blockPosition().offset(-DebugScene.WIDTH / 2, 0, -3);
+                    BlockPos view = DebugScene.build(level, origin, player);
+                    ctx.getSource().sendSuccess(() -> Component.literal("Debug scene built; viewer at " + view.toShortString()
+                            + " (see [scene] in the log)"), true);
+                    return 1;
+                });
+    }
+
+    // --- /myst-visit [name] (create an Age and link the player into it through the normal link path) --------------
+
+    private static LiteralArgumentBuilder<CommandSourceStack> visit() {
+        return Commands.literal("myst-visit")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .executes(ctx -> visitAge(ctx, null))
+                .then(Commands.argument("name", StringArgumentType.greedyString())
+                        .executes(ctx -> visitAge(ctx, StringArgumentType.getString(ctx, "name"))));
+    }
+
+    private static int visitAge(CommandContext<CommandSourceStack> ctx, @Nullable String name) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        MinecraftServer server = ctx.getSource().getServer();
+        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
+        LinkingItem.setLinkInfo(book, LinkInfo.EMPTY.withDisplayName(name == null || name.isBlank() ? LinkInfo.DEFAULT_NAME : name)
+                .withFlag(LinkProperty.GENERATE_PLATFORM, true));
+        DescriptiveBookItem.setPages(book, List.of(PageItem.createLinkPanel(Set.of())));
+        DescriptiveBookItem.checkFirstLink(book, server);
+        LinkInfo info = LinkingItem.getLinkInfo(book);
+        AgeData data = DescriptiveBookItem.getAgeData(server, book);
+        if (data == null) throw NOT_AN_AGE.create();
+        player.getInventory().placeItemBackInInventory(book.copy());
+        boolean ok = LinkController.travelEntity(player, info.withProp(LinkProperty.PROP_SOUND, LinkingItem.SOUND_PORTAL_LINK));
+        if (!ok) {
+            ctx.getSource().sendFailure(Component.literal("Link refused - see [link] in the log"));
+            return 0;
+        }
+        success(ctx.getSource(), "commands.mystcraft.create.success", data.name(), data.levelKey().identifier().toString());
+        return 1;
     }
 
     // --- helpers -----------------------------------------------------------------------------------------------

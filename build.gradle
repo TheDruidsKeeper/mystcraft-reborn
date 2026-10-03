@@ -30,8 +30,15 @@ base {
 // Minecraft 26.1 ships Java 25 to end users; mods must target Java 25.
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+// In-game tests (NeoForge test framework + vanilla GameTest). Separate source set and mod id so nothing of it
+// ships in the mod jar; only the gameTestServer run loads it. scripts/gametest.sh runs it headless in Docker.
+sourceSets {
+    gametest
+}
+
 neoForge {
     version = project.neo_version
+    addModdingDependenciesTo sourceSets.gametest
 
     // src/main/resources/META-INF/accesstransformer.cfg is auto-detected.
     validateAccessTransformers = true
@@ -40,6 +47,7 @@ neoForge {
         client {
             client()
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            jvmArgument '-Xmx3G'
         }
 
         server {
@@ -52,7 +60,10 @@ neoForge {
 
         gameTestServer {
             type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', "${project.mod_id},${project.mod_id}_tests"
+            systemProperty 'net.neoforged.testframework.sourceFileRoots', project.file('src/gametest/java').toPath().toAbsolutePath().toString()
+            gameDirectory = project.file('run/gametest')
+            sourceSet = sourceSets.gametest // runtime classpath incl. the test framework mod
         }
 
         data {
@@ -72,11 +83,22 @@ neoForge {
         "${mod_id}" {
             sourceSet(sourceSets.main)
         }
+        "${mod_id}_tests" {
+            sourceSet(sourceSets.gametest)
+        }
     }
+
+    // Client / server / data runs load only the real mod; the game-test server also loads the test mod.
+    // (Configured after the mods block so the mod models exist.)
+    runs.named('client') { loadedMods = [mods."${mod_id}"] }
+    runs.named('server') { loadedMods = [mods."${mod_id}"] }
+    runs.named('data') { loadedMods = [mods."${mod_id}"] }
+    runs.named('gameTestServer') { loadedMods = [mods."${mod_id}", mods."${mod_id}_tests"] }
 
     unitTest {
         enable()
         testedMod = mods."${mod_id}"
+        loadedMods = [mods."${mod_id}"] // the gametest mod needs the test framework, which is not on the unit test classpath
     }
 }
 
@@ -87,6 +109,11 @@ configurations {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // In-game tests: the test framework is itself a mod; it is only on the gametest source set's classpath, which
+    // only the gameTestServer run uses.
+    gametestImplementation sourceSets.main.output
+    gametestImplementation "net.neoforged:testframework:${project.neo_version}"
 }
 
 test {

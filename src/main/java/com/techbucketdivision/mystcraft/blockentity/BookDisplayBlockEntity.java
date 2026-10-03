@@ -75,6 +75,15 @@ public class BookDisplayBlockEntity extends MystBlockEntity {
         inventory.set(0, ItemResource.of(stack), stack.isEmpty() ? 0 : stack.getCount());
     }
 
+    /**
+     * Writes back a modified copy of the held book (e.g. a Descriptive Book that just bound to its Age). The resource
+     * based inventory hands out copies from {@link #getBook()}, so mutations must be stored explicitly; unlike
+     * {@link #setBook} nothing is dropped.
+     */
+    public void updateBook(ItemStack stack) {
+        inventory.set(0, ItemResource.of(stack), stack.isEmpty() ? 0 : stack.getCount());
+    }
+
     public @Nullable String getBookTitle() {
         ItemStack book = getBook();
         LinkInfo info = BookUtil.linkInfo(book);

@@ -45,6 +45,33 @@ public final class DebugScene {
     public static final int WIDTH = 23;
     public static final int DEPTH = 12;
 
+    /** Last scene origin per level (for {@code /myst-scene closeup}). */
+    private static final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, BlockPos> ORIGINS = new java.util.HashMap<>();
+
+    /** Elements of the scene a close-up can target: offset of the element from the origin. */
+    public enum Element {
+        DESK(1.5, 0, -6, 180f, 35f), BOOKSTAND(5, 0, -6, 180f, 35f), LECTERN(8, 0, -6, 180f, 35f), INK_MIXER(11, 0, -6, 180f, 35f),
+        BOOK_BINDER(14, 0, -6, 180f, 35f), LINK_MODIFIER(17, 0, -6, 180f, 35f), PORTAL(5, 1, -9, 180f, 10f), INK(2, -1, -3, 180f, 50f),
+        FISSURE(12.5, -1, -9.5, 180f, 45f), DECAY(12, 0, -3, 180f, 30f);
+
+        public final double dx, dy, dz;
+        public final float yaw, pitch;
+
+        Element(double dx, double dy, double dz, float yaw, float pitch) {
+            this.dx = dx; this.dy = dy; this.dz = dz; this.yaw = yaw; this.pitch = pitch;
+        }
+    }
+
+    /** Teleports the viewer 3 blocks south of and 2 above the element, looking at it. Returns false without a scene. */
+    public static boolean closeup(ServerLevel level, ServerPlayer viewer, Element element) {
+        BlockPos origin = ORIGINS.get(level.dimension());
+        if (origin == null) return false;
+        double x = origin.getX() + element.dx + 0.5, y = origin.getY() + element.dy, z = origin.getZ() + element.dz + 0.5;
+        viewer.teleportTo(level, x, y + 2.0, z + 3.0, Set.of(), element.yaw, element.pitch, true);
+        Mystcraft.LOGGER.info("[scene] close-up of {} at {}, {}, {}", element, x, y, z);
+        return true;
+    }
+
     /** Builds the scene with its south-west corner at {@code origin} (pad surface = origin.y - 1). */
     public static BlockPos build(ServerLevel level, BlockPos origin, ServerPlayer viewer) {
         MinecraftServer server = level.getServer();
@@ -92,14 +119,15 @@ public final class DebugScene {
         level.setBlock(new BlockPos(x0 + 17, y, z0 - 6), ModBlocks.LINK_MODIFIER.get().defaultBlockState(), 3);
 
         // Row C (z0-9): portal frame in the x/y plane (visible face towards the player) + star fissure.
-        int px = x0 + 3;
-        for (int fx = 0; fx < 3; fx++) {
-            for (int fy = 0; fy < 3; fy++) {
-                if (fx == 1 && fy == 1) continue;
+        int px = x0 + 3; // 4 wide x 5 tall ring -> walkable 2x3 field
+        for (int fx = 0; fx < 4; fx++) {
+            for (int fy = 0; fy < 5; fy++) {
+                boolean interior = fx >= 1 && fx <= 2 && fy >= 1 && fy <= 3;
+                if (interior) continue;
                 level.setBlock(new BlockPos(px + fx, y + fy, z0 - 9), ModBlocks.CRYSTAL.get().defaultBlockState(), 3);
             }
         }
-        BlockPos receptacle = new BlockPos(px + 1, y + 3, z0 - 9);
+        BlockPos receptacle = new BlockPos(px + 1, y + 5, z0 - 9);
         level.setBlock(receptacle, ModBlocks.BOOK_RECEPTACLE.get().defaultBlockState().setValue(BookReceptacleBlock.ROTATION, Direction.UP), 3);
         putBook(level, receptacle, descriptiveBook(server, "Portal Scene")); // fires the portal
 
@@ -115,8 +143,9 @@ public final class DebugScene {
             for (int vz = -1; vz <= 1; vz++) level.setBlock(view.offset(vx, -1, vz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
         }
         viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 18f, true);
+        ORIGINS.put(level.dimension(), origin);
         Mystcraft.LOGGER.info("[scene] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
-                origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString());
+                origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString() + " (2x3)");
         return view;
     }
 

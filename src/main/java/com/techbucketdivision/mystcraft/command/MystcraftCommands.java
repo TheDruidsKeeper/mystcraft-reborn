@@ -90,8 +90,21 @@ public final class MystcraftCommands {
     // --- /myst-scene (debug showcase) ----------------------------------------------------------------------------
 
     private static LiteralArgumentBuilder<CommandSourceStack> scene() {
+        LiteralArgumentBuilder<CommandSourceStack> closeup = Commands.literal("closeup");
+        for (DebugScene.Element element : DebugScene.Element.values()) {
+            closeup.then(Commands.literal(element.name().toLowerCase(java.util.Locale.ROOT)).executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();
+                if (!DebugScene.closeup(level, player, element)) {
+                    ctx.getSource().sendFailure(Component.literal("No debug scene in this dimension yet - run /myst-scene first"));
+                    return 0;
+                }
+                return 1;
+            }));
+        }
         return Commands.literal("myst-scene")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(closeup)
                 .executes(ctx -> {
                     ServerPlayer player = ctx.getSource().getPlayerOrException();
                     ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();

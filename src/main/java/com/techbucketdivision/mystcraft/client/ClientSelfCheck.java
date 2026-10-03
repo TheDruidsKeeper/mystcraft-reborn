@@ -47,13 +47,15 @@ public final class ClientSelfCheck {
         gameBus.addListener(ClientSelfCheck::onClientTick);
     }
 
-    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, DONE }
+    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, DONE }
 
     private static final int OVERALL_BUDGET_TICKS = 20 * 60 * 6; // 6 minutes
     private static Step step = Step.TITLE;
     private static int ticks;          // total ticks since start
     private static int stepTicks;      // ticks in the current step
     private static int screenshots;
+    private static int closeupIndex;
+    private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "ink", "fissure"};
     private static final List<String> failures = new ArrayList<>();
 
     private static void onClientTick(ClientTickEvent.Post event) {
@@ -97,8 +99,22 @@ public final class ClientSelfCheck {
                 case SCENE_OVERWORLD -> {
                     if (stepTicks == 60) screenshot(mc, "02_scene_overworld");
                     if (stepTicks > 70) {
+                        closeupIndex = 0;
+                        next(Step.CLOSEUPS);
+                    }
+                }
+                case CLOSEUPS -> {
+                    // one close-up per element: teleport, wait 30 ticks, screenshot
+                    if (closeupIndex >= CLOSEUPS.length) {
                         command(mc, "myst-visit Selfcheck Age");
                         next(Step.VISIT_AGE);
+                    } else if (stepTicks == 1) {
+                        command(mc, "myst-scene closeup " + CLOSEUPS[closeupIndex]);
+                    } else if (stepTicks == 30) {
+                        screenshot(mc, String.format("02%c_closeup_%s", (char) ('a' + closeupIndex), CLOSEUPS[closeupIndex]));
+                    } else if (stepTicks > 32) {
+                        closeupIndex++;
+                        stepTicks = 0;
                     }
                 }
                 case VISIT_AGE -> {

@@ -29,7 +29,8 @@ public final class LinkProperty {
     public static final LinkProperty EXTERNAL = register("external", null, false);
     public static final LinkProperty OFFENSIVE = register("offensive", null, false);
     public static final LinkProperty OP_TP = register("op_tp", null, false);
-    public static final LinkProperty FOLLOWING = register("following", null, false);
+    /** Reborn: inkable (gold colour) so the Link Modifier and Ink Mixer can set it; the book travels with the linker. */
+    public static final LinkProperty FOLLOWING = register("following", new Colors.RGB(0.9f, 0.75f, 0.1f), true);
 
     /** Property key used for the "Sound" link prop. */
     public static final String PROP_SOUND = "sound";

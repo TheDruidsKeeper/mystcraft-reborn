@@ -39,7 +39,8 @@ import java.util.Set;
 
 /**
  * Ink Mixer (REQUIREMENTS §3.2). Slots: 0 ink container in, 1 paper, 2 empty container out. Holds one basin of ink
- * and a map of link-property probabilities; crafting turns a paper into a Link Panel page.
+ * the set of link effects mixed into it (stored as a property -> 1.0 map); crafting turns a paper into a Link Panel
+ * page carrying exactly those effects. Reborn: deterministic, one ingredient per effect, refilling the ink resets.
  */
 public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider {
     public static final int SLOT_INK_IN = 0;
@@ -114,6 +115,7 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
             return; // empty container would not fit in the output slot (nothing was consumed: the scratch sink is discarded)
         }
         hasInk = true;
+        probabilities.clear(); // fresh ink: all effects reset
         container.shrink(1);
         inventory.setStack(SLOT_INK_IN, container);
         if (!emptied.isEmpty()) {
@@ -126,33 +128,37 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
     // --- ink modifiers ------------------------------------------------------------------------------------------------
 
     /**
-     * Consumes up to {@code amount} items from the stack, blending their property probabilities into the basin.
+     * Consumes exactly one item from the stack and adds its link effects to the basin (Reborn: deterministic — one
+     * ingredient switches its effects on; there is no probability). An item that only dilutes (black dye) clears the
+     * basin's effects. Effects already present are not consumed again.
      *
      * @return the remaining stack
      */
     public ItemStack addItems(ItemStack stack, int amount) {
-        if (!hasInk || stack.isEmpty()) return stack;
-        Map<LinkProperty, Float> itemProbs = InkEffects.getItemEffects(stack);
-        if (itemProbs == null || itemProbs.isEmpty()) return stack;
-        LinkProperty dilution = InkEffects.DILUTION;
-
-        float total = 0f;
-        for (Map.Entry<LinkProperty, Float> e : itemProbs.entrySet()) {
-            if (e.getKey() == dilution || !isPropertyAllowed(e.getKey())) continue;
-            total += e.getValue();
-        }
-        float inverse = 1f - total;
-        amount = Math.min(amount, stack.getCount());
-        for (int i = 0; i < amount; i++) {
-            stack.shrink(1);
-            probabilities.replaceAll((k, v) -> v * inverse);
-            for (Map.Entry<LinkProperty, Float> e : itemProbs.entrySet()) {
-                if (e.getKey() == dilution || !isPropertyAllowed(e.getKey())) continue;
-                probabilities.merge(e.getKey(), e.getValue(), Float::sum);
+        if (!hasInk || stack.isEmpty() || amount <= 0) return stack;
+        Map<LinkProperty, Float> itemEffects = InkEffects.getItemEffects(stack);
+        if (itemEffects == null || itemEffects.isEmpty()) return stack;
+        boolean changed = false;
+        for (LinkProperty property : itemEffects.keySet()) {
+            if (property == InkEffects.DILUTION) {
+                if (!probabilities.isEmpty()) {
+                    probabilities.clear();
+                    changed = true;
+                }
+                continue;
             }
+            if (!isPropertyAllowed(property)) continue;
+            if (probabilities.put(property, 1f) == null) changed = true;
         }
+        if (!changed) return stack; // nothing new to add: keep the item
+        stack.shrink(1);
         markForUpdate();
         return stack.isEmpty() ? ItemStack.EMPTY : stack;
+    }
+
+    /** Whether the basin currently carries the effect. */
+    public boolean hasEffect(LinkProperty property) {
+        return probabilities.getOrDefault(property, 0f) >= 0.5f;
     }
 
     private static boolean isPropertyAllowed(LinkProperty property) {
@@ -178,15 +184,14 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
             result.setCount(0);
             return;
         }
-        Random rand = new Random(nextSeed);
+        // Deterministic: every effect in the basin goes onto the panel.
         Set<LinkProperty> props = new LinkedHashSet<>();
         for (Map.Entry<LinkProperty, Float> e : probabilities.entrySet()) {
-            float f = e.getValue() * 100f;
-            if (rand.nextInt(100) < f) props.add(e.getKey());
+            if (e.getValue() >= 0.5f) props.add(e.getKey());
         }
         ItemStack panel = PageItem.createLinkPanel(props);
         result.applyComponents(panel.getComponentsPatch());
-        nextSeed = rand.nextLong();
+        nextSeed = new Random(nextSeed).nextLong();
         hasInk = false;
         probabilities.clear();
         ItemStack paper = inventory.getStack(SLOT_PAPER);

@@ -196,6 +196,8 @@ public final class InkEffects {
         addPropertyToItem(Items.ENDER_PEARL, LinkProperty.DISARM, 0.15f);
         addPropertyToItem(Items.FEATHER, LinkProperty.MAINTAIN_MOMENTUM, 0.15f);
         addPropertyToItem(Items.FIRE_CHARGE, LinkProperty.DISARM, 0.25f);
+        // Reborn addition: a lead keeps the book tethered to the linker (Following).
+        addPropertyToItem(Items.LEAD, LinkProperty.FOLLOWING, 1.0f);
         // Reborn addition: vanilla nuggets stand in for the metal dusts of the original (which only other mods
         // provide), at roughly half the dust's odds so a nugget is not worth more than a dust.
         addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.INTRA_LINKING, 0.12f);

@@ -146,8 +146,8 @@ public class InkMixerMenu extends AbstractMystcraftMenu {
             case MSG_CONSUME -> {
                 ItemStack held = cursor();
                 if (held.isEmpty() || !mixer.hasInk()) return;
-                int amount = data.getBooleanOr("Single", false) ? 1 : held.getCount();
-                setCursor(player, mixer.addItems(held, amount));
+                // one ingredient per click, whatever the stack size (Reborn: effects are switches, not probabilities)
+                setCursor(player, mixer.addItems(held, 1));
             }
             default -> {
             }

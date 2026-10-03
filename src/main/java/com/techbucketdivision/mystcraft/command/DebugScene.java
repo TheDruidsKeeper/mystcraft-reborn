@@ -151,6 +151,16 @@ public final class DebugScene {
         level.setBlock(desk.east(), deskHead.setValue(WritingDeskBlock.FOOT, true), 3);
         level.setBlock(desk.above(), deskHead.setValue(WritingDeskBlock.TOP, true), 3);
         level.setBlock(desk.east().above(), deskHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
+        // stock the desk so the renderer's shelf books and inkwell show up in screenshots
+        if (level.getBlockEntity(desk) instanceof com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity deskBe) {
+            deskBe.tabs.setStack(0, com.techbucketdivision.mystcraft.item.FolderItem.create("Scene folder", List.of(
+                    PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")))));
+            var portfolios = com.techbucketdivision.mystcraft.symbol.grammar.CreativeCollections.portfolios();
+            for (int i = 0; i < Math.min(8, portfolios.size()); i++) deskBe.tabs.setStack(1 + i, portfolios.get(i));
+            deskBe.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 700));
+            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_TARGET, descriptiveBook(server, "Desk Scene"));
+            deskBe.markForUpdate();
+        }
 
         BlockPos stand = new BlockPos(x0 + 5, y, z0 - 6);
         level.setBlock(stand, ModBlocks.BOOKSTAND.get().defaultBlockState(), 3);

@@ -50,8 +50,9 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         public float inkLevel = -1f;
     }
 
-    /** Book spines that fit in the open shelf of the backboard (16 units wide, 2 units per book + gaps). */
-    public static final int MAX_SHELF_BOOKS = 7;
+    /** Book spines that fit on the two shelves under the head half of the desk top (14 units wide each, 2 per book). */
+    public static final int BOOKS_PER_SHELF = 6;
+    public static final int MAX_SHELF_BOOKS = BOOKS_PER_SHELF * 2;
     private static final int TINT_NOTEBOOK = 0xFF9A6A3A, TINT_PORTFOLIO = 0xFF4A6A9A, TINT_FOLDER = 0xFFD8C08A;
 
     private final Model.Simple desk;
@@ -133,22 +134,23 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         poseStack.pushPose();
         poseStack.translate(0.5, 0.0, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(-Direction.from2DDataValue(state.facingIndex).toYRot()));
-        // Notebooks in the open shelf of the backboard (cavity: y 1.0..1.69, x 0.06..0.44, z 0..1 across the seam).
-        if (state.backboard) {
-            for (int i = 0; i < MAX_SHELF_BOOKS; i++) {
-                int tint = state.shelfBooks[i];
-                if (tint == 0) continue;
-                poseStack.pushPose();
-                poseStack.translate(0.12, 1.0, 0.08 + i * 2.15 / 16.0);
-                collector.submitModel(shelfBook, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, tint,
-                        LegacyModels.BOOK_SPINE_TEXTURE, sprites, 0, state.breakProgress);
-                poseStack.popPose();
-            }
+        // Notebooks on the two shelves under the head half of the desk top (model: middleShelf y15..17 and
+        // bottomShelf y23..24 between deskLeft and deskMiddle -> world y 0.56..0.94 and 0.06..0.44, local z -0.44..0.44,
+        // depth the whole block). Spines stand with their backs to the reader (-X side), 5 tall, 2 wide.
+        for (int i = 0; i < MAX_SHELF_BOOKS; i++) {
+            int tint = state.shelfBooks[i];
+            if (tint == 0) continue;
+            int shelf = i / BOOKS_PER_SHELF, slot = i % BOOKS_PER_SHELF;
+            poseStack.pushPose();
+            poseStack.translate(-0.42, shelf == 0 ? 0.565 : 0.065, -0.40 + slot * 2.3 / 16.0);
+            collector.submitModel(shelfBook, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, tint,
+                    LegacyModels.BOOK_SPINE_TEXTURE, sprites, 0, state.breakProgress);
+            poseStack.popPose();
         }
-        // Inkwell on the desk top, head half, against the backboard.
+        // Inkwell on the desk top (surface y = 1.0), front corner of the head half, clear of the backboard (+X side).
         if (state.inkLevel >= 0f) {
             poseStack.pushPose();
-            poseStack.translate(0.3, 0.97, -0.28);
+            poseStack.translate(-0.3, 1.0, -0.33);
             collector.submitModel(inkwellCup, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
                     LegacyModels.INKWELL_CUP_TEXTURE, sprites, 0, state.breakProgress);
             int step = Math.max(0, Math.min(3, Math.round(state.inkLevel * 3f)));

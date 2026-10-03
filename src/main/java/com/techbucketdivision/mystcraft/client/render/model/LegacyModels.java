@@ -128,10 +128,10 @@ public final class LegacyModels {
         return LayerDefinition.create(mesh, 256, 128);
     }
 
-    /** A standing notebook for the desk's backboard shelf: 5 deep (x), 10 tall, 2 wide (z) in 1/16 block units, tinted per kind. */
+    /** A standing notebook for the shelves under the desk top: 5 deep (x), 5 tall, 2 wide (z) in 1/16 block units, tinted per kind. */
     public static Model.Simple deskShelfBook() {
         List<ModelPart.Cube> cubes = List.of(
-                new ModelPart.Cube(0, 0, 0f, 0f, 0f, 5f, 10f, 2f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+                new ModelPart.Cube(0, 0, 0f, 0f, 0f, 5f, 5f, 2f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
         return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityCutout);
     }
 

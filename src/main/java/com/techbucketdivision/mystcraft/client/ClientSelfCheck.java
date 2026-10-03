@@ -178,7 +178,7 @@ public final class ClientSelfCheck {
                                 java.util.Optional.empty(), 0f, "", java.util.Set.of(), java.util.Map.of());
                         int frames = PanelImages.frameCount(info);
                         Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {}", frames);
-                        if (frames == 0) failures.add("no link panel picture was captured/received for the visited Age (see [panel] lines)");
+                        if (frames < 4) failures.add("expected four link panel pictures (N/E/S/W) for the visited Age, got " + frames + " (see [panel] lines)");
                         screenshot(mc, "04b_age_book");
                     }
                     if (stepTicks == 100 && mc.screen != null) mc.screen.onClose();

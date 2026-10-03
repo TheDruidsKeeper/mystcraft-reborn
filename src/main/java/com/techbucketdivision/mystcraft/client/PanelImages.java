@@ -7,6 +7,7 @@ import com.techbucketdivision.mystcraft.linking.PanelImageStorage;
 import com.techbucketdivision.mystcraft.network.PanelImagePayloads;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
@@ -48,48 +49,94 @@ public final class PanelImages {
     private static @Nullable String pendingKey;
     private static int pendingTicks;
     private static boolean hidGui;
+    /** Index of the next compass direction to photograph (0..3 = S, W, N, E in {@link Direction#from2DDataValue}); -1 = not started. */
+    private static int pendingDirection = -1;
+    private static float savedYaw, savedPitch;
+    /** The four level views are taken in this order so the slideshow turns clockwise: north, east, south, west. */
+    private static final Direction[] SHOT_ORDER = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
 
     // --- capture ------------------------------------------------------------------------------------------------
 
     public static void onCaptureRequest(String key) {
         pendingKey = key;
         pendingTicks = CAPTURE_DELAY;
-        Mystcraft.LOGGER.info("[panel] will photograph {} in {} ticks", key, CAPTURE_DELAY);
+        pendingDirection = -1;
+        Mystcraft.LOGGER.info("[panel] will photograph {} in {} ticks (four level views from the arrival point)", key, CAPTURE_DELAY);
     }
 
-    /** Called every client tick (after the level ticked). */
+    /**
+     * Called every client tick (after the level ticked). Once the delay is over the HUD is hidden and the player is
+     * turned to face north, east, south and west in turn (level, one tick each so the frame gets rendered); each
+     * view is photographed and uploaded, then the original view direction is restored. The server keeps exactly
+     * four frames per key, so the four views replace the previous arrival's set.
+     */
     public static void tick(Minecraft mc) {
         if (pendingKey == null) return;
         if (mc.level == null || mc.player == null) {
-            pendingKey = null;
+            abort(mc);
             return;
         }
-        if (mc.screen != null) return; // wait until no GUI covers the view
-        if (--pendingTicks > 0) return;
+        if (mc.screen != null && pendingDirection < 0) return; // wait until no GUI covers the view
+        if (pendingDirection < 0 && --pendingTicks > 0) return;
         if (!hidGui) {
-            // hide the HUD for the capture frame, grab on the next tick
+            // hide the HUD and face the first direction; grab on the next tick once that frame has been drawn
             hidGui = true;
             mc.options.hideGui = true;
-            pendingTicks = 1;
+            savedYaw = mc.player.getYRot();
+            savedPitch = mc.player.getXRot();
+            pendingDirection = 0;
+            face(mc, SHOT_ORDER[0]);
             return;
         }
         String key = pendingKey;
-        pendingKey = null;
-        hidGui = false;
+        int shot = pendingDirection;
         try {
             Screenshot.takeScreenshot(mc.getMainRenderTarget(), image -> {
-                mc.options.hideGui = false;
                 try (image) {
-                    upload(key, image);
+                    upload(key, image, shot == 0);
                 }
             });
         } catch (RuntimeException e) {
-            mc.options.hideGui = false;
-            Mystcraft.LOGGER.warn("[panel] screenshot failed for {}", key, e);
+            Mystcraft.LOGGER.warn("[panel] screenshot {} failed for {}", shot, key, e);
+        }
+        if (shot + 1 < SHOT_ORDER.length) {
+            pendingDirection = shot + 1;
+            face(mc, SHOT_ORDER[pendingDirection]);
+        } else {
+            finish(mc);
         }
     }
 
-    private static void upload(String key, NativeImage full) {
+    private static void face(Minecraft mc, Direction direction) {
+        float yaw = direction.toYRot();
+        mc.player.setYRot(yaw);
+        mc.player.yRotO = yaw;
+        mc.player.setYHeadRot(yaw);
+        mc.player.yHeadRotO = yaw;
+        mc.player.setXRot(0f);
+        mc.player.xRotO = 0f;
+    }
+
+    private static void finish(Minecraft mc) {
+        if (mc.player != null && hidGui) {
+            mc.player.setYRot(savedYaw);
+            mc.player.yRotO = savedYaw;
+            mc.player.setYHeadRot(savedYaw);
+            mc.player.yHeadRotO = savedYaw;
+            mc.player.setXRot(savedPitch);
+            mc.player.xRotO = savedPitch;
+        }
+        abort(mc);
+    }
+
+    private static void abort(Minecraft mc) {
+        if (hidGui) mc.options.hideGui = false;
+        hidGui = false;
+        pendingKey = null;
+        pendingDirection = -1;
+    }
+
+    private static void upload(String key, NativeImage full, boolean firstOfSet) {
         try (NativeImage small = new NativeImage(WIDTH, HEIGHT, false)) {
             // crop to the panel's aspect ratio around the centre, then downscale
             int w = full.getWidth(), h = full.getHeight();
@@ -109,8 +156,9 @@ public final class PanelImages {
                 }
                 ClientNetwork.sendToServer(new PanelImagePayloads.Upload(key, png));
                 Mystcraft.LOGGER.info("[panel] uploaded picture of {} ({} bytes)", key, png.length);
-                // show it locally right away
+                // show it locally right away (a new set of views replaces the old frames)
                 Cached cached = CACHE.computeIfAbsent(key, k -> new Cached());
+                if (firstOfSet) release(cached);
                 Identifier mine = register(png);
                 if (mine != null) cached.frames.add(mine);
                 cached.received = true;
@@ -184,6 +232,7 @@ public final class PanelImages {
         for (Cached cached : CACHE.values()) release(cached);
         CACHE.clear();
         pendingKey = null;
+        pendingDirection = -1;
         hidGui = false;
     }
 }

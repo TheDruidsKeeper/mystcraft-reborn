@@ -45,3 +45,5 @@ run-*/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+client-docker.log
+*-docker.log

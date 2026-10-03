@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * it are linked with the book in the powering receptacle. Colour is provided client-side from
  * {@link BookReceptacleBlockEntity#getPortalColor()} of {@link PortalUtils#getReceptacle}.
  */
-public class LinkPortalBlock extends Block {
+public class LinkPortalBlock extends Block implements FluidProof {
     public static final EnumProperty<Direction> SOURCE = EnumProperty.create("source", Direction.class);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
  * Star Fissure (REQUIREMENTS §3.11): unbreakable, non-collidable; touching entities are linked home. Rendered by a
  * block entity renderer (end-portal style planes).
  */
-public class StarFissureBlock extends Block implements EntityBlock {
+public class StarFissureBlock extends Block implements EntityBlock, FluidProof {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 1.6, 16);
 
     public StarFissureBlock(Properties properties) {

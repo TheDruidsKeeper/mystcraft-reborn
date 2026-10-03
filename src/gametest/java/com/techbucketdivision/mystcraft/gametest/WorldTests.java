@@ -63,6 +63,38 @@ public class WorldTests {
 
     @GameTest(timeoutTicks = 20 * 60)
     @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Random Ages are not all born at midnight: starting celestial angles vary and most have daylight (playtest: every world dark)")
+    static void randomAgesStartAtVaryingTimes(ExtendedGameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        int samples = 12;
+        int lit = 0;
+        float minAngle = 1f, maxAngle = 0f;
+        for (int i = 0; i < samples; i++) {
+            ItemStack book = TestBooks.unboundDescriptiveBook("Daylight " + i);
+            AgeData data = TestBooks.bind(book, server);
+            AgeController controller = new AgeController(data, server.registryAccess(), false);
+            controller.ensureCurrent();
+            boolean anyLight = controller.celestials().stream().anyMatch(c -> c.providesLight());
+            float angle = controller.celestialAngle(data.worldTime(), 0f);
+            float brightness = com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.brightness(angle);
+            String celestialSymbols = data.symbols().stream().map(id -> id.getPath())
+                    .filter(p -> p.startsWith("sun") || p.startsWith("moon") || p.startsWith("stars") || p.startsWith("mod_"))
+                    .toList().toString();
+            Mystcraft.LOGGER.info("[gametest] Age '{}' time {} light={} angle={} brightness={} {}", data.name(), data.worldTime(),
+                    anyLight, angle, brightness, celestialSymbols);
+            if (anyLight) {
+                minAngle = Math.min(minAngle, angle);
+                maxAngle = Math.max(maxAngle, angle);
+            }
+            if (brightness > 0.5f) lit++;
+        }
+        helper.assertTrue(lit >= samples / 3, "at least a third of random Ages start in daylight (" + lit + "/" + samples + ")");
+        helper.assertTrue(maxAngle - minAngle > 0.1f, "starting celestial angles vary (" + minAngle + ".." + maxAngle + ")");
+        helper.succeed();
+    }
+
+    @GameTest(timeoutTicks = 20 * 60)
+    @EmptyTemplate(value = "3x3x3", floor = true)
     @TestHolder(description = "Age time advances on the server and is persisted (playtest: worlds dark, time frozen)")
     static void ageTimeAdvances(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
@@ -90,6 +122,24 @@ public class WorldTests {
         Mystcraft.LOGGER.info("[gametest] heightmap at 8,8 in Age '{}': {} (minY {})", data.name(), h, age.getMinY());
         helper.assertTrue(h > age.getMinY(), "MOTION_BLOCKING_NO_LEAVES heightmap is primed in generated Age chunks (got " + h + ")");
         helper.succeed();
+    }
+
+    @GameTest(timeoutTicks = 20 * 15)
+    @EmptyTemplate(value = "5x5x5", floor = true)
+    @TestHolder(description = "Water flowing onto a star fissure does not wash the block away (playtest: fissure vanished when water reached it)")
+    static void fissureSurvivesWater(ExtendedGameTestHelper helper) {
+        helper.setBlock(1, 1, 1, ModBlocks.STAR_FISSURE.get().defaultBlockState());
+        // water sources above and beside the fissure; everything else open so it flows freely (the link portal
+        // shares the FluidProof fix but validates its frame on neighbour updates, so it is not placed bare here)
+        helper.setBlock(1, 3, 1, Blocks.WATER);
+        helper.setBlock(2, 1, 2, Blocks.WATER);
+        helper.startSequence()
+                .thenExecuteAfter(120, () -> {
+                    helper.assertBlockPresent(ModBlocks.STAR_FISSURE.get(), new BlockPos(1, 1, 1));
+                    helper.assertTrue(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(1, 2, 1))).isEmpty(),
+                            "water flowed down onto the fissure");
+                })
+                .thenSucceed();
     }
 
     @GameTest(timeoutTicks = 100)

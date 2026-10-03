@@ -356,6 +356,20 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
         return WritingDeskBlockEntity.TANK_CAPACITY;
     }
 
+    /**
+     * Whether a click on a surface symbol can currently write a copy (mirrors {@code WritingDeskBlockEntity.writeSymbol}):
+     * enough ink, and either a writable target, a page-accepting target with paper, or paper alone (makes a new page).
+     * Used by the screen to decide between "write" and "take the page" on a plain click.
+     */
+    public boolean canWriteSymbol() {
+        if (getInk().getAmount() < WritingDeskBlockEntity.INK_COST) return false;
+        ItemStack target = getTarget();
+        boolean paper = !getSlot(SLOT_PAPER).getItem().isEmpty();
+        if (target.isEmpty()) return paper;
+        if (target.getItem() instanceof ItemBehaviours.Writable) return true;
+        return paper && target.getItem() instanceof ItemBehaviours.PageAcceptor;
+    }
+
     public boolean hasBookSlot() {
         return false;
     }

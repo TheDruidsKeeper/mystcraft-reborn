@@ -162,11 +162,29 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         }
 
         @Override
+        public boolean writesOnClick() {
+            return menu.canWriteSymbol();
+        }
+
+        @Override
+        public List<Component> actionHints() {
+            var grey = net.minecraft.ChatFormatting.GRAY;
+            if (menu.canWriteSymbol()) {
+                return List.of(Component.translatable("gui.mystcraft.writing_desk.page.write").withStyle(grey),
+                        Component.translatable("gui.mystcraft.writing_desk.page.take_shift").withStyle(grey));
+            }
+            return List.of(Component.translatable("gui.mystcraft.writing_desk.page.take").withStyle(grey),
+                    Component.translatable("gui.mystcraft.writing_desk.page.cannot_write").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
+
+        @Override
         public void pickup(PageSurface.Entry entry) {
             if (entry.count <= 0) return;
             if (surface != null && surface.isCollection()) {
                 ItemStack page = entry.stack.copy();
-                if (shiftDown()) page.setCount(Math.min(64, entry.count)); else page.setCount(1);
+                // shift-click takes one page (plain click writes a copy); ctrl+shift takes the whole stack
+                boolean wholeStack = com.techbucketdivision.mystcraft.client.screen.gui.GuiElement.isControlHeld(); // latched from the click event
+                page.setCount(wholeStack ? Math.min(64, entry.count) : 1);
                 CompoundTag tag = new CompoundTag();
                 tag.store("Page", ItemStack.OPTIONAL_CODEC, ops(), page);
                 send(WritingDeskMenu.MSG_REMOVE_FROM_COLLECTION, tag);

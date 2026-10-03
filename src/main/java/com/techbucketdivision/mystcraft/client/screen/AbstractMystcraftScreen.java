@@ -218,6 +218,7 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         shiftDown = event.hasShiftDown();
+        GuiElement.setModifiers(event.hasShiftDown(), event.hasControlDown());
         double mx = event.x(), my = event.y();
         for (GuiElement e : elements) {
             if (e.isEnabled() && e.mouseClicked(mx, my, event.button())) return true;

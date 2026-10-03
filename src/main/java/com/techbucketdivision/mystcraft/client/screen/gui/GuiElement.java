@@ -34,6 +34,20 @@ public abstract class GuiElement {
         this.y = y;
     }
 
+    /**
+     * Modifier keys of the input event currently being dispatched. 26.1 removed {@code Screen.hasShiftDown()}
+     * (modifiers travel with the event), so the owning screen latches them here before forwarding mouse events.
+     */
+    private static boolean shiftHeld, controlHeld;
+
+    public static void setModifiers(boolean shift, boolean control) {
+        shiftHeld = shift;
+        controlHeld = control;
+    }
+
+    public static boolean isShiftHeld() { return shiftHeld; }
+    public static boolean isControlHeld() { return controlHeld; }
+
     public boolean isVisible() { return visible; }
     public void setVisible(boolean visible) { this.visible = visible; }
     public boolean isEnabled() { return enabled && isVisible(); }

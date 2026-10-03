@@ -36,11 +36,24 @@ public class PageSurface extends GuiElement {
         /** Place the cursor stack at {@code index} (folders) / into the collection (portfolios). */
         void place(int index, boolean single);
 
-        /** Pick up a page (left click). */
+        /** Pick up a page (left click, or shift + left click when {@link #writesOnClick()}). */
         void pickup(Entry entry);
 
-        /** Copy a symbol page (right click + release) — writing desk only. */
+        /** Copy a symbol page (plain left click when {@link #writesOnClick()}, or right click + release) — writing desk only. */
         default void copy(Entry entry) {}
+
+        /**
+         * Whether a plain left click should {@link #copy} instead of {@link #pickup}. The writing desk answers true
+         * while it has ink and something to write on, so pages are only pulled out of a notebook on purpose (shift).
+         */
+        default boolean writesOnClick() {
+            return false;
+        }
+
+        /** Extra tooltip lines under a hovered page explaining what the mouse buttons do here. */
+        default List<Component> actionHints() {
+            return List.of();
+        }
     }
 
     public static final class Entry {
@@ -270,7 +283,10 @@ public class PageSurface extends GuiElement {
             return true;
         }
         if (hover != null && button == 0) {
-            if (hover.count > 0) handler.pickup(hover);
+            if (hover.count > 0) {
+                if (!GuiElement.isShiftHeld() && handler.writesOnClick()) handler.copy(hover);
+                else handler.pickup(hover);
+            }
             return true;
         }
         if (hover != null && button == 1) {
@@ -310,6 +326,11 @@ public class PageSurface extends GuiElement {
 
     @Override
     public @Nullable List<Component> tooltip() {
-        return hover != null && !tooltip.isEmpty() ? tooltip : null;
+        if (hover == null || tooltip.isEmpty()) return null;
+        List<Component> hints = hover.count > 0 ? handler.actionHints() : List.of();
+        if (hints.isEmpty()) return tooltip;
+        List<Component> out = new ArrayList<>(tooltip);
+        out.addAll(hints);
+        return out;
     }
 }

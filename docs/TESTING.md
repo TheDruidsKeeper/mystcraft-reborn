@@ -112,15 +112,17 @@ block in front of you), then play through the mechanics below. Report one line p
 ### 1. Pages and ink (Ink Mixer)
 
 - [ ] Fill the mixer: ink vial or Bucket of Black Ink into the **Ink in** slot; the basin shows ink, the emptied container appears in **Out**.
-- [ ] Hover the basin: tooltip lists the current link effects; hold an ingredient (e.g. feather, gold nugget) over it: tooltip says what it adds; click adds it, the basin colour changes.
+- [ ] Hover the basin: tooltip lists the usable ingredients with their effects and the current link effects; hold an ingredient (e.g. feather, gunpowder, gold nugget) over it: tooltip says what it adds (or that it has no effect); click adds it, the basin colour changes.
 - [ ] Paper in the **Paper** slot produces a Link Panel page in the output slot; the panel page carries the mixed effects (hover it).
-- [ ] Pour a bucket of ink into the world: it forms a pool you can swim in and climb out of; you cannot scoop it back up (by design: ink is consumed, not collected).
+- [ ] Pour a bucket of ink into the world: it forms a pool you can swim in and climb out of.
+- [ ] Right-click a still (source) ink block with an empty bucket: you get a Black Ink Bucket and the block is gone; with a glass bottle: you get an Ink Vial. Flowing (non-source) ink cannot be scooped. Both containers work in the desk and mixer afterwards.
 
 ### 2. Writing (Writing Desk)
 
 - [ ] Put a notebook / symbol portfolio / folder in a tab: its symbols appear on the writing surface with readable glyphs; search and AZ/ALL filters work.
 - [ ] Put paper, an ink container and a blank Descriptive Book (from the binder) in the slots; click symbols: pages are written into the book (paper and ink are consumed; ink well level drops).
-- [ ] Shift-click a symbol takes the page itself out of the notebook.
+- [ ] Hover a symbol on the surface: the tooltip ends with what a click does ("Click: write a copy…" when ink + target are present, otherwise "Click: take this page" plus what is missing).
+- [ ] Shift-click a symbol takes one page out of the notebook; Ctrl+Shift-click takes the whole stack; right-click also writes a copy. With no ink or target, a plain click takes the page.
 - [ ] Rename the book in the name field; the title shows on the item and later on lecterns.
 - [ ] Empty slots show faded example items and a tooltip saying what goes there; the empty surface and target area explain themselves.
 
@@ -161,6 +163,7 @@ block in front of you), then play through the mechanics below. Report one line p
 
 - [ ] Pages show their symbol glyph as the item icon (inventory, hand, item frame, dropped); link panel pages show the dark panel; blank pages the plain parchment.
 - [ ] Books show the right cover; Bucket of Black Ink shows a dark fluid overlay; folders/portfolios show their contents when opened.
+- [ ] Ink Vial icon reads as a full vial everywhere: on the dark hotbar (grey glass outline + cork visible around the ink), in inventories and in hand.
 - [ ] Notebook / folder screens: page grid, search, shift-click moves pages.
 
 ### 9. Persistence and multiplayer

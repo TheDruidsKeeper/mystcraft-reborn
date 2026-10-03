@@ -70,6 +70,11 @@ public final class BlockSymbols {
         }
 
         @Override
+        public Component description() {
+            return Component.translatable(WRAPPER_KEY + ".desc", blockName(descriptor.state()));
+        }
+
+        @Override
         public void registerLogic(AgeDirector director, long seed) {
             director.pushBlock(descriptor);
         }

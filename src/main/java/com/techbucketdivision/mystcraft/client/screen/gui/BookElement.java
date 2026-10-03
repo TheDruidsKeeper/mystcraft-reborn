@@ -61,6 +61,11 @@ public class BookElement extends GuiElement {
 
         /** Link panel clicked on page 0. */
         void onLink();
+
+        /** Whether the page at this index is a draft (written at a desk, not yet permanent). */
+        default boolean isDraftPage(int index) {
+            return false;
+        }
     }
 
     private final Container container;
@@ -125,7 +130,20 @@ public class BookElement extends GuiElement {
             AgeSymbol symbol = PageItem.getSymbol(current);
             if (symbol != null || PageItem.getSymbolId(current) != null) {
                 int sx = 171, sy = 25, size = 140;
-                SymbolGlyphs.drawSymbol(g, symbol == null ? null : symbol.poem(), sx, sy, size, 0xFF000000);
+                boolean draft = container.isDraftPage(page);
+                // drafts are pencilled in grey; the ink only dries once the book leaves the desk
+                SymbolGlyphs.drawSymbol(g, symbol == null ? null : symbol.poem(), sx, sy, size, draft ? 0xFF8A8A8A : 0xFF000000);
+                if (draft) {
+                    Component note = Component.translatable("gui.mystcraft.book.draft");
+                    g.text(font, note, 240 - font.width(note) / 2, 170, 0xFF8A4A1A, false);
+                }
+                // left page: the symbol's name and what it does (the glyph stays on the right)
+                if (symbol != null) {
+                    drawSymbolNotes(g, font, symbol);
+                } else {
+                    Identifier missing = PageItem.getSymbolId(current);
+                    drawWrapped(g, font, Component.translatable("gui.mystcraft.book.unknown_symbol", String.valueOf(missing)), 24, 30, 118, 0xFF5A1A1A);
+                }
                 if (contains(mouseX, mouseY, (int) (x + sx * xScale), (int) (y + sy * yScale), (int) (size * xScale), (int) (size * yScale))) {
                     hoverSymbol = true;
                     hoverText.addAll(Screen.getTooltipFromItem(Minecraft.getInstance(), current));
@@ -169,6 +187,28 @@ public class BookElement extends GuiElement {
         if (!container.isLinkPermitted()) {
             g.fill(0, 0, w, h, 0xBB888888);
         }
+    }
+
+    /** Left page notes for a symbol page: name, a thin rule, then the description word-wrapped to the page. */
+    private void drawSymbolNotes(GuiGraphicsExtractor g, Font font, AgeSymbol symbol) {
+        int px = 24, py = 28, pw = 118;
+        int y = drawWrapped(g, font, symbol.displayName(), px, py, pw, 0xFF1A1A1A);
+        g.fill(px, y + 1, px + pw, y + 2, 0x60000000);
+        y += 6;
+        Component description = symbol.description();
+        // a symbol without a written description shows nothing rather than a raw key
+        if (net.minecraft.client.resources.language.I18n.exists(symbol.descriptionId() + ".desc")) {
+            drawWrapped(g, font, description, px, y, pw, 0xFF3A3A3A);
+        }
+    }
+
+    /** Draws word-wrapped text, returns the y below the last line (design-space units). */
+    private static int drawWrapped(GuiGraphicsExtractor g, Font font, Component text, int x, int y, int width, int color) {
+        for (var line : font.split(text, width)) {
+            g.text(font, line, x, y, color, false);
+            y += font.lineHeight + 1;
+        }
+        return y;
     }
 
     private static void blit(GuiGraphicsExtractor g, Identifier tex, int x, int y, int u, int v, int w, int h) {

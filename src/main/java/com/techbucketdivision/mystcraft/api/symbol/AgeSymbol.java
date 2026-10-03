@@ -51,6 +51,11 @@ public abstract class AgeSymbol {
         return Component.translatable(descriptionId());
     }
 
+    /** What the symbol does, for the book view and tooltips ({@code <descriptionId>.desc}); override for computed symbols. */
+    public Component description() {
+        return Component.translatable(descriptionId() + ".desc");
+    }
+
     /**
      * Register this symbol's logic with the director. Called once per occurrence of the symbol in an Age, in page order.
      *

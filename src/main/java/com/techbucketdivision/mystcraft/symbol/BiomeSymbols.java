@@ -75,6 +75,12 @@ public final class BiomeSymbols {
         }
 
         @Override
+        public Component description() {
+            Identifier id = key.identifier();
+            return Component.translatable(WRAPPER_KEY + ".desc", Component.translatable("biome." + id.getNamespace() + "." + id.getPath()));
+        }
+
+        @Override
         public void registerLogic(AgeDirector director, long seed) {
             Holder<Biome> biome = holder;
             if (!director.isProfiling()) {

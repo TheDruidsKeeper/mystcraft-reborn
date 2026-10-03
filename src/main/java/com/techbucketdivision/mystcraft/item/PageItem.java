@@ -177,7 +177,23 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
             for (LinkProperty property : getLinkProperties(stack)) {
                 builder.accept(Component.translatable(property.descriptionId()));
             }
+            return;
         }
+        // what the symbol does (same text as the left page of the book view); tooltips do not wrap, so split here
+        AgeSymbol symbol = getSymbol(stack);
+        if (symbol == null) return;
+        String text = symbol.description().getString();
+        if (text.endsWith(".desc")) return; // no description written for this symbol
+        StringBuilder line = new StringBuilder();
+        for (String word : text.split(" ")) {
+            if (line.length() + word.length() > 42 && !line.isEmpty()) {
+                builder.accept(Component.literal(line.toString()).withStyle(net.minecraft.ChatFormatting.GRAY));
+                line.setLength(0);
+            }
+            if (!line.isEmpty()) line.append(' ');
+            line.append(word);
+        }
+        if (!line.isEmpty()) builder.accept(Component.literal(line.toString()).withStyle(net.minecraft.ChatFormatting.GRAY));
     }
 
     @Override

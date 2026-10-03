@@ -141,7 +141,11 @@ order, `ViewportEvent.ComputeFogColor#setRed/Green/Blue`, `ClientLevel#addEntity
    nested name only) and `net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState`.
 7. `MoonPhase.values()` ordering / `SkyRenderState.rainBrightness` semantics — visual only.
 8. `submitNameTag(poseStack, null, …)` anchoring for BE labels — visual only.
-9. **Functional gap (not a compile error): the black ink fluid has no client fluid model.** 26.1 moved fluid textures
+9. **RESOLVED** (`ClientSetup.registerFluidModels`, signatures verified against NeoForge `26.1.x` source and the
+   patched `FluidModel.java`): `RegisterFluidModelsEvent#register(FluidModel.Unbaked, Supplier<? extends Fluid>,
+   Supplier<? extends Fluid>)`; `FluidModel.Unbaked(Material still, Material flowing, @Nullable Material overlay,
+   @Nullable FluidTintSource)`; `Material(Identifier sprite)` in `net.minecraft.client.resources.model.sprite`.
+   Original note kept for history: the black ink fluid had no client fluid model. 26.1 moved fluid textures
    off `IClientFluidTypeExtensions` onto `RegisterFluidModelsEvent` (TOOLCHAIN §4.12); nothing registers one, so the
    placed `black_ink` block will render with the missing texture even though `textures/block/fluid.png` /
    `fluid_flow.png` (+ `.mcmeta`) exist. The `FluidModel.Unbaked`/sprite-id constructor shapes are unverified, so no
@@ -149,4 +153,4 @@ order, `ViewportEvent.ComputeFogColor#setRed/Green/Blue`, `ClientLevel#addEntity
    confirmed (and pass `InkTintSource` there instead of / in addition to the block tint registration).
 10. `advancement/root.json` background sprite id (`minecraft:gui/advancements/backgrounds/stone`) — data format,
     unverified for 26.1 (already flagged in `resources.md`).
-11. `black_ink_bucket` item texture placeholder (vanilla bucket, untinted).
+11. **RESOLVED**: `items/black_ink_bucket.json` is now `neoforge:fluid_container` (base `minecraft:item/bucket`, fluid mask `neoforge:item/mask/bucket_fluid_drip`), tinted by the ink `FluidModel`'s `FluidTintSource`.

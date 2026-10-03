@@ -163,7 +163,12 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
 
         AgeData data = AgeManager.createAge(server);
         info = info.withDimension(data.levelKey()).withTargetUuid(data.uuid());
-        data.setName(info.displayName());
+        if (LinkInfo.DEFAULT_NAME.equals(info.displayName()) || info.displayName().isBlank()) {
+            // Untitled book: the book takes the Age's generated name ("Age N") instead of naming the Age "???".
+            info = info.withDisplayName(data.name());
+        } else {
+            data.setName(info.displayName());
+        }
 
         String seedProp = info.prop(LinkProperty.PROP_SEED);
         if (seedProp != null) {

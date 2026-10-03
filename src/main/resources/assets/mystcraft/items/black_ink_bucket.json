@@ -1,6 +1,10 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "mystcraft:item/black_ink_bucket"
+    "type": "neoforge:fluid_container",
+    "fluid": "mystcraft:black_ink",
+    "textures": {
+      "base": "minecraft:item/bucket",
+      "fluid": "neoforge:item/mask/bucket_fluid_drip"
+    }
   }
 }

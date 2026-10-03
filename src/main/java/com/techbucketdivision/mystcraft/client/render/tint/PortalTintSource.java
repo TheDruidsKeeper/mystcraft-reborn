@@ -9,18 +9,21 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Link portal blocks are tinted with the colour of the book in the receptacle powering them (REQUIREMENTS §7.6). */
 public final class PortalTintSource implements BlockTintSource {
+    private static final int WHITE = 0xFFFFFFFF;
+
     @Override
     public int color(BlockState state) {
-        return 0xFFFFFF;
+        return WHITE;
     }
 
     @Override
     public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
         try {
             BookReceptacleBlockEntity receptacle = PortalUtils.getReceptacle(level, pos);
-            return receptacle == null ? 0xFFFFFF : receptacle.getPortalColor();
+            // getPortalColor() is 0xRRGGBB (original packing); force opaque alpha, see InkTintSource.
+            return receptacle == null ? WHITE : (receptacle.getPortalColor() | 0xFF000000);
         } catch (RuntimeException e) {
-            return 0xFFFFFF;
+            return WHITE;
         }
     }
 }

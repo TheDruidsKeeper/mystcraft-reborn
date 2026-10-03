@@ -162,9 +162,17 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
                 : Component.translatable("gui.mystcraft.link_modifier.no_book");
         g.text(font, target, px, topPos + 106, hasBook ? 0xFF202020 : 0xFF8A8A8A, false);
         if (menu.isLinkDead()) {
-            g.text(font, Component.translatable("gui.mystcraft.link_modifier.dead"), px, topPos + 136, 0xFFAA0000, false);
+            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.dead"), px, topPos + 136, 0xFFAA0000);
         } else if (hasBook && !menu.hasItemSeed()) {
-            g.text(font, Component.translatable("gui.mystcraft.link_modifier.linking_book_note"), px, topPos + 120, 0xFF8A8A8A, false);
+            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.linking_book_note"), px, topPos + 118, 0xFF8A8A8A);
+        }
+    }
+
+    /** Draws text word-wrapped to the side panel's usable width so long translations never run past its edge. */
+    private void wrapped(GuiGraphicsExtractor g, Component text, int x, int y, int color) {
+        for (var line : font.split(text, PANEL_W - 14)) {
+            g.text(font, line, x, y, color, false);
+            y += font.lineHeight + 1;
         }
     }
 

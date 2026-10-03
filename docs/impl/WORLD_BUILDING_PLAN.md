@@ -132,3 +132,27 @@ Order: A → B → D → C (C is the largest UI piece and depends on A/B's data 
 8. **Page sources stay**: Archivist trades, library lecterns, Sealed Notebook → all feed the import slot. Confirm; or
    should the Archivist sell "unlock" directly?
 9. **Biome count** 1–4 and celestial ranges above — adjust?
+
+## 8. Ink Mixer: one ingredient per effect (proposal, awaiting confirmation)
+
+Price scales with how much the effect gives. No item grants two effects, no effect has two sources; mapping goes in
+config (`inkmixer.ingredients = ["intra_linking=minecraft:ender_pearl", ...]`), `crafting.linkeffects.disabled` stays.
+
+| Effect | Ingredient | Reasoning |
+|---|---|---|
+| Generate Platform | Clay Ball | safety feature, nearly free (original) |
+| Maintain Momentum | Feather | niche, cheap (original) |
+| Disarm | Gunpowder | a restriction used for traps / server rules, cheap (original) |
+| Intra-Linking Only | Compass | a restriction ("only points home"), cheap and thematic |
+| Intra-Linking | Ender Pearl | teleport anywhere in the same world: strong, mid-game, renewable |
+| Relative Link | Amethyst Shard | niche advanced effect, mid-game, renewable |
+| Following | Eye of Ender | strongest QoL (book never left behind): Nether-gated; alternative if that is too steep: Lead |
+| *Clear all effects* | Black Dye | original dilution role |
+
+Removed: mushroom stew, bottle o' enchanting, fire charge, `c:dusts/*` tag bindings, gold/iron nuggets, lead.
+
+## 9. Session hand-off
+
+Next session: read this document, ask the decisions in §7 and confirm §8 (one message, numbered, with the proposals
+as defaults), then implement in the phase order of §6 following the usual cycle (Docker pipeline green per phase,
+gametests + selfcheck coverage, TESTING.md / REQUIREMENTS.md updated, logical commits, jar copied to the instance).

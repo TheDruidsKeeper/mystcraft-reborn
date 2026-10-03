@@ -1,0 +1,7 @@
+{
+  "sources": [
+    { "type": "single", "resource": "mystcraft:entity/bookstand" },
+    { "type": "single", "resource": "mystcraft:entity/lectern" },
+    { "type": "single", "resource": "mystcraft:entity/desk" }
+  ]
+}

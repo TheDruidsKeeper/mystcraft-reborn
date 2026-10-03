@@ -5,6 +5,7 @@ import com.techbucketdivision.mystcraft.age.AgeController;
 import com.techbucketdivision.mystcraft.age.AgeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -67,6 +68,9 @@ public final class ClientSelfCheck {
         try {
             switch (step) {
                 case TITLE -> {
+                    if (mc.screen instanceof AccessibilityOnboardingScreen) {
+                        mc.setScreen(new TitleScreen()); // first-run onboarding; options.txt may not have been seeded
+                    }
                     if (mc.screen instanceof TitleScreen && stepTicks > 40) {
                         Mystcraft.LOGGER.info("[clientcheck] title screen reached after {} ticks; creating world", ticks);
                         createWorld(mc);

@@ -147,9 +147,11 @@ class AssetIntegrityTest {
     }
 
     private void checkModels(Set<String> atlasSprites) throws IOException {
+        Set<String> itemAtlas = atlasSingles("items.json");
         for (Path p : list("models")) {
             JsonObject root = parse(p).getAsJsonObject();
             String where = rel(p);
+            boolean itemModel = where.startsWith("models/item/");
             if (root.has("parent")) {
                 String parent = root.get("parent").getAsString();
                 if (ours(parent) && !Files.exists(ASSETS.resolve("models/" + path(parent) + ".json"))) {
@@ -160,6 +162,14 @@ class AssetIntegrityTest {
                 for (Map.Entry<String, JsonElement> t : root.getAsJsonObject("textures").entrySet()) {
                     String v = t.getValue().getAsString();
                     if (v.startsWith("#")) continue; // variable, resolved by the parent/child chain
+                    if (itemModel) {
+                        String id = t.getValue().getAsString();
+                        if (ours(id) && !path(id).startsWith("item/") && !path(id).startsWith("block/") && !itemAtlas.contains(path(id))) {
+                            problems.add(where + ": " + id + " is not in the item atlas (textures/item|block or minecraft/atlases/items.json)");
+                        }
+                        requireTexture(t.getValue(), where + " texture '" + t.getKey() + "'", Set.of());
+                        continue;
+                    }
                     requireTexture(t.getValue(), where + " texture '" + t.getKey() + "'", atlasSprites);
                 }
             }
@@ -222,10 +232,17 @@ class AssetIntegrityTest {
         }
     }
 
-    /** Extra sprites the mod adds to the block atlas: exact paths for {@code single}, {@code dir/} for {@code directory}. */
+    /**
+     * Extra sprites the mod adds to the block atlas: exact paths for {@code single}, {@code dir/} for {@code directory}.
+     * Atlas definitions are looked up by the atlas id's namespace, so a mod's additions live in
+     * {@code assets/minecraft/atlases/blocks.json} (stacked with vanilla's), not under the mod namespace.
+     */
     private Set<String> blockAtlasSprites() throws IOException {
         Set<String> out = new TreeSet<>();
-        Path atlas = ASSETS.resolve("atlases/blocks.json");
+        Path atlas = ASSETS.resolveSibling("minecraft").resolve("atlases/blocks.json");
+        if (Files.exists(ASSETS.resolve("atlases/blocks.json"))) {
+            problems.add("atlases/blocks.json is under assets/" + NS + " - vanilla only reads assets/minecraft/atlases/*.json");
+        }
         if (!Files.exists(atlas)) return out;
         for (JsonElement src : parse(atlas).getAsJsonObject().getAsJsonArray("sources")) {
             JsonObject o = src.getAsJsonObject();
@@ -235,12 +252,24 @@ class AssetIntegrityTest {
                 if (ours(res)) {
                     out.add(path(res));
                     if (!Files.exists(ASSETS.resolve("textures/" + path(res) + ".png"))) {
-                        problems.add("atlases/blocks.json: single source " + res + " has no texture file");
+                        problems.add("minecraft/atlases/blocks.json: single source " + res + " has no texture file");
                     }
                 }
             } else if (type.endsWith("directory")) {
                 out.add(o.get("source").getAsString() + "/");
             }
+        }
+        return out;
+    }
+
+    /** {@code single} sources of {@code assets/minecraft/atlases/<file>} in this mod's namespace. */
+    private Set<String> atlasSingles(String file) throws IOException {
+        Set<String> out = new TreeSet<>();
+        Path atlas = ASSETS.resolveSibling("minecraft").resolve("atlases/" + file);
+        if (!Files.exists(atlas)) return out;
+        for (JsonElement src : parse(atlas).getAsJsonObject().getAsJsonArray("sources")) {
+            JsonObject o = src.getAsJsonObject();
+            if (o.get("type").getAsString().endsWith("single") && ours(o.get("resource").getAsString())) out.add(path(o.get("resource").getAsString()));
         }
         return out;
     }

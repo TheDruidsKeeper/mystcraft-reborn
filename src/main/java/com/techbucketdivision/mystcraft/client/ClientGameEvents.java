@@ -1,6 +1,7 @@
 package com.techbucketdivision.mystcraft.client;
 
 import com.techbucketdivision.mystcraft.age.AgeController;
+import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
 import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
 import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
@@ -33,6 +34,7 @@ public final class ClientGameEvents {
         gameBus.addListener(ClientGameEvents::onComputeFogColor);
         gameBus.addListener(ClientGameEvents::onClientTickPost);
         gameBus.addListener(ClientGameEvents::onLoggingOut);
+        gameBus.addListener(AgeClientEnvironment::onLevelLoad);
     }
 
     // --- sky (Phase 1) -------------------------------------------------------------------------------------------
@@ -66,9 +68,9 @@ public final class ClientGameEvents {
         sky.sunriseAndSunsetColor = AgeSkyMath.sunriseColor(sun, angle);
 
         Colors.RGB skyColor = AgeSkyMath.color(controller, ColorKind.SKY, time, partial, angle, biomeTemp);
-        if (skyColor != null) sky.skyColor = AgeSkyMath.rgb(skyColor);
+        if (skyColor != null) sky.skyColor = AgeDayCurves.skyColor(AgeSkyMath.rgb(skyColor), angle);
         Colors.RGB cloudColor = AgeSkyMath.color(controller, ColorKind.CLOUD, time, partial, angle, biomeTemp);
-        if (cloudColor != null) state.cloudColor = AgeSkyMath.rgb(cloudColor);
+        if (cloudColor != null) state.cloudColor = AgeDayCurves.cloudColor(AgeSkyMath.rgb(cloudColor), angle);
         state.cloudHeight = controller.sky().cloudHeight;
         sky.shouldRenderDarkDisc = controller.sky().drawVoid && sky.shouldRenderDarkDisc;
     }
@@ -101,6 +103,8 @@ public final class ClientGameEvents {
         float angle = controller.celestialAngle(time, partial);
         Colors.RGB fog = AgeSkyMath.color(controller, ColorKind.FOG, time, partial, angle, biomeTemperature(level, event.getCamera().position()));
         if (fog == null) return;
+        int darkened = AgeDayCurves.fogColor(AgeSkyMath.rgb(fog), angle);
+        fog = new Colors.RGB(net.minecraft.util.ARGB.redFloat(darkened), net.minecraft.util.ARGB.greenFloat(darkened), net.minecraft.util.ARGB.blueFloat(darkened));
         event.setRed(fog.r());
         event.setGreen(fog.g());
         event.setBlue(fog.b());

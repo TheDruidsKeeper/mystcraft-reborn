@@ -5,8 +5,14 @@ import com.mojang.math.Axis;
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
 import com.techbucketdivision.mystcraft.blockentity.BookUtil;
 import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
-import com.techbucketdivision.mystcraft.client.render.BoxRenderer;
 import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
+import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.util.Unit;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -25,24 +31,38 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Writing Desk renderer. The desk blocks are {@code RenderShape.INVISIBLE}, so this renderer (attached to the head
- * block) draws the whole desk: table top + legs across head and foot, optional backboard, the paper stack and the
- * target item lying open on the head. Geometry is built from stretched block cubes (see {@link BoxRenderer}); the
- * original {@code ModelWritingDesk}/{@code desk.png} port is a Phase 2 task.
+ * Writing Desk renderer. The desk blocks are {@code RenderShape.INVISIBLE}; this renderer (attached to the head
+ * block) draws the original {@code ModelWritingDesk} ({@link LegacyModels#writingDesk()}) over head and foot, with
+ * the backboard parts when the desk has its top blocks and the paper stack sized by the paper count, plus the target
+ * item lying open on the head half. The original GL transform chain is replayed exactly (see {@link #submit}).
  */
 public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlockEntity, WritingDeskRenderer.State> {
 
     public static class State extends BlockEntityRenderState {
-        public final ItemStackRenderState wood = new ItemStackRenderState();
-        public final ItemStackRenderState paper = new ItemStackRenderState();
         public final ItemStackRenderState target = new ItemStackRenderState();
-        public float yRot;
+        public int facingIndex;
         public boolean backboard;
         public int paperCount;
         public boolean targetIsBook;
     }
 
-    public WritingDeskRenderer(BlockEntityRendererProvider.Context context) {}
+    private final Model.Simple desk;
+    private final SpriteGetter sprites;
+    private final ModelPart[] backing;
+    private final ModelPart paper1, paper2, paper3, paperStack1, paperStack2;
+
+    public WritingDeskRenderer(BlockEntityRendererProvider.Context context) {
+        ModelPart root = context.bakeLayer(LegacyModels.WRITING_DESK);
+        this.desk = new Model.Simple(root, RenderTypes::entityCutout);
+        this.sprites = context.sprites();
+        this.backing = new ModelPart[LegacyModels.DESK_BACKING.length];
+        for (int i = 0; i < backing.length; i++) backing[i] = root.getChild(LegacyModels.DESK_BACKING[i]);
+        this.paper1 = root.getChild("paper1");
+        this.paper2 = root.getChild("paper2");
+        this.paper3 = root.getChild("paper3");
+        this.paperStack1 = root.getChild("paperStack1");
+        this.paperStack2 = root.getChild("paperStack2");
+    }
 
     @Override
     public State createRenderState() {
@@ -54,11 +74,11 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         BlockEntityRenderState.extractBase(be, state, breakProgress);
         BlockState bs = be.getBlockState();
         Direction facing = bs.hasProperty(WritingDeskBlock.FACING) ? bs.getValue(WritingDeskBlock.FACING) : Direction.NORTH;
-        state.yRot = facing.toYRot();
+        // Rotation about the model's y axis by 90*k maps the foot direction (+Z at k=0) onto S, W, N, E for k=0..3,
+        // which is exactly Direction#get2DDataValue.
+        state.facingIndex = facing.get2DDataValue();
         state.backboard = be.hasBackboard();
         state.paperCount = be.getPaperCount();
-        BoxRenderer.extractBlock(state.wood, Blocks.DARK_OAK_PLANKS, be.getLevel());
-        BoxRenderer.extractBlock(state.paper, Blocks.WHITE_CONCRETE, be.getLevel());
         ItemStack target = be.getDisplayItem();
         state.targetIsBook = BookUtil.isLinkingItem(target);
         ItemRenderHelper.extract(state.target, target, ItemDisplayContext.FIXED, be.getLevel(), 0);
@@ -67,33 +87,29 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         int light = state.lightCoords;
-        poseStack.pushPose();
-        // Local frame: head block at (0..1, 0..1, 0..1), foot block toward +Z; rotate so +Z maps onto FACING.
-        poseStack.translate(0.5, 0.0, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-state.yRot));
-        poseStack.translate(-0.5, 0.0, -0.5);
+        for (ModelPart part : backing) part.visible = state.backboard;
+        paper2.visible = state.paperCount > 0;
+        paper3.visible = state.paperCount > 1;
+        paper1.visible = state.paperCount > 2;
+        paperStack2.visible = state.paperCount > 27;
+        paperStack1.visible = state.paperCount > 47;
 
-        // table top over both blocks
-        BoxRenderer.box(state.wood, poseStack, collector, light, 0.0f, 0.625f, 0.0f, 1.0f, 0.875f, 2.0f);
-        // legs
-        float leg = 0.125f;
-        BoxRenderer.box(state.wood, poseStack, collector, light, 0.0f, 0.0f, 0.0f, leg, 0.625f, leg);
-        BoxRenderer.box(state.wood, poseStack, collector, light, 1.0f - leg, 0.0f, 0.0f, 1.0f, 0.625f, leg);
-        BoxRenderer.box(state.wood, poseStack, collector, light, 0.0f, 0.0f, 2.0f - leg, leg, 0.625f, 2.0f);
-        BoxRenderer.box(state.wood, poseStack, collector, light, 1.0f - leg, 0.0f, 2.0f - leg, 1.0f, 0.625f, 2.0f);
-        // backboard along the far long edge (top blocks)
-        if (state.backboard) {
-            BoxRenderer.box(state.wood, poseStack, collector, light, 0.875f, 0.875f, 0.0f, 1.0f, 1.75f, 2.0f);
-        }
-        // paper stack on the foot half
-        if (state.paperCount > 0) {
-            float thickness = Math.min(0.15f, 0.004f * state.paperCount + 0.01f);
-            BoxRenderer.box(state.paper, poseStack, collector, light, 0.3f, 0.875f, 1.25f, 0.7f, 0.875f + thickness, 1.75f);
-        }
-        // target item lying open on the head half
+        poseStack.pushPose();
+        // Original RenderWritingDesk: translate(x+.5, y+1.5, z+.5); rotate 90 X; rotate 90 Y; rotate 90 Z; rotate 90*k Y.
+        poseStack.translate(0.5, 1.5, 0.5);
+        poseStack.mulPose(Axis.XP.rotationDegrees(90f));
+        poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(90f));
+        poseStack.mulPose(Axis.YP.rotationDegrees(90f * state.facingIndex));
+        collector.submitModel(desk, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
+                LegacyModels.DESK_TEXTURE, sprites, 0, state.breakProgress);
+        poseStack.popPose();
+
+        // target item lying open on the head half (local frame: head block, foot toward FACING)
         if (!state.target.isEmpty()) {
             poseStack.pushPose();
-            poseStack.translate(0.5, 0.875 + 0.02, 0.5);
+            poseStack.translate(0.5, 1.0 + 0.02, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-Direction.from2DDataValue(state.facingIndex).toYRot()));
             poseStack.mulPose(Axis.YP.rotationDegrees(90f));
             poseStack.mulPose(Axis.XP.rotationDegrees(90f));
             float s = state.targetIsBook ? 0.6f : 0.45f;
@@ -101,7 +117,6 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
             ItemRenderHelper.submit(state.target, poseStack, collector, light);
             poseStack.popPose();
         }
-        poseStack.popPose();
     }
 
     @Override

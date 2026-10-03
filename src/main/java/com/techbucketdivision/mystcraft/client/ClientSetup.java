@@ -13,6 +13,7 @@ import com.techbucketdivision.mystcraft.client.render.entity.ColoredLightningRen
 import com.techbucketdivision.mystcraft.client.render.entity.LinkbookRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MeteorRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MystFallingBlockRenderer;
+import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
 import com.techbucketdivision.mystcraft.client.render.tint.AgeBiomeTintSource;
 import com.techbucketdivision.mystcraft.client.render.tint.InkTintSource;
 import com.techbucketdivision.mystcraft.client.render.tint.PortalTintSource;
@@ -63,6 +64,7 @@ public final class ClientSetup {
 
         modBus.addListener(ClientSetup::registerScreens);
         modBus.addListener(ClientSetup::registerRenderers);
+        modBus.addListener(ClientSetup::registerLayers);
         modBus.addListener(ClientPayloadHandlers::register);
         modBus.addListener(ClientSetup::registerEnvironmentRenderers);
         modBus.addListener(ClientSetup::registerParticles);
@@ -93,6 +95,12 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModEntities.METEOR.get(), MeteorRenderer::new);
         event.registerEntityRenderer(ModEntities.FALLING_BLOCK.get(), MystFallingBlockRenderer::new);
         event.registerEntityRenderer(ModEntities.LIGHTNING.get(), ColoredLightningRenderer::new);
+    }
+
+    private static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(LegacyModels.BOOKSTAND, LegacyModels::bookstand);
+        event.registerLayerDefinition(LegacyModels.LECTERN, LegacyModels::lectern);
+        event.registerLayerDefinition(LegacyModels.WRITING_DESK, LegacyModels::writingDesk);
     }
 
     private static void registerEnvironmentRenderers(RegisterCustomEnvironmentEffectRendererEvent event) {

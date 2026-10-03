@@ -110,9 +110,11 @@ public final class DebugScene {
         }
 
         // Viewer: centred, two blocks in front of the pad, looking north and slightly down.
-        BlockPos view = new BlockPos(x0 + WIDTH / 2, y, z0 + 2);
-        level.setBlock(view.below(), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
-        viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 10f, true);
+        BlockPos view = new BlockPos(x0 + WIDTH / 2, y + 2, z0 + 6);
+        for (int vx = -1; vx <= 1; vx++) {
+            for (int vz = -1; vz <= 1; vz++) level.setBlock(view.offset(vx, -1, vz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+        }
+        viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 18f, true);
         Mystcraft.LOGGER.info("[scene] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
                 origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString());
         return view;

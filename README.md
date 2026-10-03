@@ -43,7 +43,16 @@ server-start hooks. CI runs the same target on every push.
 scripts/smoke.sh
 ```
 
-Client rendering (screens, block-entity renderers, sky) is not covered; run `./gradlew runClient`
+### In-game tests and client smoke
+
+```bash
+scripts/gametest.sh        # GameTest server + src/gametest (behaviour: linking, portals, spawn, fluids, instability)
+scripts/client-smoke.sh    # dev client under Xvfb + Mesa, scripted by ClientSelfCheck, exports screenshots to out/screenshots
+```
+
+See `docs/TESTING.md` for the layers, log markers (`[spawn]`, `[link]`, ...) and the manual checklist.
+
+Client rendering on a real GPU (look & feel) is covered by the manual checklist; run `./gradlew runClient`
 locally for that.
 
 ## Repository layout

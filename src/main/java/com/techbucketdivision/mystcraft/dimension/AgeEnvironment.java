@@ -2,6 +2,7 @@ package com.techbucketdivision.mystcraft.dimension;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeController;
+import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
 import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.server.level.ServerLevel;
@@ -27,11 +28,19 @@ public final class AgeEnvironment {
                     .addTimeBasedLayer(EnvironmentAttributes.SKY_COLOR, (base, tick) -> rgb(controller, ColorKind.SKY, base))
                     .addTimeBasedLayer(EnvironmentAttributes.FOG_COLOR, (base, tick) -> rgb(controller, ColorKind.FOG, base))
                     .addTimeBasedLayer(EnvironmentAttributes.CLOUD_COLOR, (base, tick) -> argb(controller, ColorKind.CLOUD, base))
+                    // Day/night from the Age's celestials (no timeline can express per-Age periods): server-side
+                    // sky light level drives skyDarken -> mob spawning / sleeping; the client installs the same
+                    // curves in AgeClientEnvironment because attribute layers are not synced.
+                    .addTimeBasedLayer(EnvironmentAttributes.SKY_LIGHT_LEVEL, (base, tick) -> base * AgeDayCurves.skyLightLevelFactor(angle(controller)))
                     .build();
             level.setEnvironmentAttributes(system);
         } catch (Exception e) {
             Mystcraft.LOGGER.error("Failed to install environment attributes for {}", level.dimension().identifier(), e);
         }
+    }
+
+    private static float angle(AgeController controller) {
+        return controller.celestialAngle(controller.ageData().worldTime(), 0f);
     }
 
     private static float sunAngle(AgeController controller) {

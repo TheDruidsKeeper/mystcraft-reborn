@@ -67,6 +67,9 @@ Run a single test locally without Docker (JDK 25): `./gradlew runGameTestServer`
 | Report | Root cause | Headless check |
 |---|---|---|
 | Sun/moon racing across the sky | `SkyRenderState` angles are radians; degrees were written | client smoke screenshots `03`/`05` (visual); no automated angle check possible without a GPU oracle |
+| Ages never got dark | lighting comes from world-clock timelines (global), the Age tag was empty; attribute layers are not synced | `AgeClientEnvironment` installs per-Age day/night layers on the client level (AT on `ClientLevel.environmentAttributes`); screenshot `05` is night |
+| Desk: floating half-size top, stubby legs | `BoxRenderer` resolved block items in the FIXED context (scale 0.5) | replaced by the ported original `ModelWritingDesk`; screenshot `02` |
+| Bookstand / lectern missing textures | entity textures not in the block/item atlases (`assets/minecraft/atlases/*.json`), 64x64 bookstand texture was a doubled+flipped copy | `AssetIntegrityTest` atlas checks; client smoke fails on `Missing textures`; original models ported |
 | Portal does nothing | receptacle inventory hands out copies; a Descriptive Book bound on contact was never stored → "book is not bound" | `portalBindsUnboundBook`, `portalLinksEntity` |
 | Portal renders as separate cubes | faces shared between portal blocks not culled | `LinkPortalBlock.skipRendering`; screenshot `02`/`04` |
 | Spawn floating / no platform | Age arrival used the overworld respawn point | `arrivalLandsOnPlatform`, `ageDefaultSpawnIsGrounded`, `[spawn]` log lines |
@@ -85,8 +88,8 @@ Report format: one line per failed item + the `debug.log` of that session (zip t
 anything visual. Lines tagged `[spawn]`, `[link]`, `[scene]` are what I will read first.
 
 ### A. Rendering (overworld, `/myst-scene`)
-- [ ] Writing desk: full desk visible (table top, legs, backboard) with the desk texture, both halves, from all sides. *If parts are missing, screenshot from two angles — this is the open "missing most of the image" report.*
-- [ ] Bookstand and Lectern: textured (no purple/black checker), book shown on top, title readable when looking at it.
+- [ ] Writing desk: the original desk model (shelves, side panels, back, paper stack grows with paper count, backboard with the top blocks) spans head + foot, textured, from all sides and for all four facings. (Was: half-size floating top + stubby legs — a display-transform scale bug.)
+- [ ] Bookstand and Lectern: original models (post + two tilted arms; sloped lectern top with ledge), textured, rotate with placement; book shown on top, title readable. Inventory icons are simplified hand-made models.
 - [ ] Ink mixer, book binder, link modifier: textured on all sides.
 - [ ] Ink pool: dark liquid, animated surface; **walk into it: you can swim, move and jump out**.
 - [ ] Bucket of Black Ink in hand/inventory shows a dark fluid overlay on the bucket.
@@ -103,7 +106,7 @@ anything visual. Lines tagged `[spawn]`, `[link]`, `[scene]` are what I will rea
 - [ ] Linking while riding (horse/boat): refused with a `[link] refused ...` line in the log; dismount and retry works.
 
 ### C. Sky / time (inside an Age)
-- [ ] Sun and moon move at vanilla speed (full day ≈ 20 min at period 1.0); `/myst-time set night` darkens the sky; stars appear.
+- [ ] Sun and moon move at vanilla speed (full day ≈ 20 min at period 1.0); `/myst-time set night` darkens the sky **and the world lighting** (blocks go dark, mobs can spawn); stars appear; `/myst-time set day` restores it.
 - [ ] Sky and fog colours change at sunrise/sunset; no flicker.
 - [ ] Ages with colour symbols (write a book with a grass/foliage colour page): grass blocks and leaves take the colour; **water does not yet** (documented gap).
 - [ ] Weather: rain/thunder in an Age with the matching symbols; no client errors.

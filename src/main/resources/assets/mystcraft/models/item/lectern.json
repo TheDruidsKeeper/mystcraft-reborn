@@ -1,3 +1,32 @@
 {
-  "parent": "mystcraft:block/lectern"
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "mystcraft:entity/lectern",
+    "0": "mystcraft:entity/lectern"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 4, 16],
+      "faces": {
+        "up": {"texture": "#0", "uv": [4, 0, 8, 8]},
+        "down": {"texture": "#0", "uv": [0, 0, 4, 8]},
+        "north": {"texture": "#0", "uv": [0, 8, 4, 10]},
+        "south": {"texture": "#0", "uv": [4, 8, 8, 10]},
+        "east": {"texture": "#0", "uv": [8, 0, 9.75, 8]},
+        "west": {"texture": "#0", "uv": [8, 0, 9.75, 8]}
+      }
+    },
+    {
+      "from": [0, 4, 1],
+      "to": [1, 6, 15],
+      "faces": {
+        "up": {"texture": "#0", "uv": [8.25, 1, 8.5, 8]},
+        "north": {"texture": "#0", "uv": [8, 8, 8.25, 9]},
+        "south": {"texture": "#0", "uv": [8, 8, 8.25, 9]},
+        "east": {"texture": "#0", "uv": [8.5, 8, 12, 9]},
+        "west": {"texture": "#0", "uv": [8.5, 8, 12, 9]}
+      }
+    }
+  ]
 }

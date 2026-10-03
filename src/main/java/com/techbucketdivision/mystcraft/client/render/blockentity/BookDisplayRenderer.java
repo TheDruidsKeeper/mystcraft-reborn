@@ -3,6 +3,16 @@ package com.techbucketdivision.mystcraft.client.render.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.techbucketdivision.mystcraft.block.BookstandBlock;
+import com.techbucketdivision.mystcraft.block.LecternBlock;
+import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Unit;
+import net.minecraft.world.level.block.state.BlockState;
 import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
 import com.techbucketdivision.mystcraft.client.render.LabelRenderer;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
@@ -26,6 +36,10 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
 
     public static class State extends BlockEntityRenderState {
         public final ItemStackRenderState item = new ItemStackRenderState();
+        /** 0 = plain display (no model), 1 = bookstand, 2 = lectern. */
+        public int kind;
+        public int rotationIndex;
+        public float modelYaw;
         public float yaw;
         public float pitch;
         public float surfaceHeight = 12f / 16f;
@@ -34,7 +48,15 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         public double distanceSq;
     }
 
-    public BookDisplayRenderer(BlockEntityRendererProvider.Context context) {}
+    private final Model.Simple bookstand;
+    private final Model.Simple lectern;
+    private final SpriteGetter sprites;
+
+    public BookDisplayRenderer(BlockEntityRendererProvider.Context context) {
+        this.bookstand = new Model.Simple(context.bakeLayer(LegacyModels.BOOKSTAND), RenderTypes::entityCutout);
+        this.lectern = new Model.Simple(context.bakeLayer(LegacyModels.LECTERN), RenderTypes::entityCutout);
+        this.sprites = context.sprites();
+    }
 
     @Override
     public State createRenderState() {
@@ -48,7 +70,20 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
         ItemRenderHelper.extract(state.item, item, ItemDisplayContext.FIXED, be.getLevel(), 0);
         state.yaw = be.getYaw();
         state.pitch = be.getPitch();
-        boolean lectern = be.getBlockState().is(ModBlocks.LECTERN.get());
+        BlockState bs = be.getBlockState();
+        boolean lectern = bs.is(ModBlocks.LECTERN.get());
+        if (lectern) {
+            state.kind = 2;
+            // Original RenderLectern: facings on the Z axis are flipped, then rotate by (horizontal angle + 90).
+            Direction facing = bs.hasProperty(LecternBlock.FACING) ? bs.getValue(LecternBlock.FACING) : Direction.NORTH;
+            if (facing.getAxis() == Direction.Axis.Z) facing = facing.getOpposite();
+            state.modelYaw = facing.toYRot() + 90f;
+        } else if (bs.is(ModBlocks.BOOKSTAND.get())) {
+            state.kind = 1;
+            state.rotationIndex = bs.hasProperty(BookstandBlock.ROTATION) ? bs.getValue(BookstandBlock.ROTATION) : 0;
+        } else {
+            state.kind = 0;
+        }
         state.surfaceHeight = lectern ? 7f / 16f : 12f / 16f;
         state.scale = lectern ? 1.22f * 0.5f : 1.05f * 0.5f;
         state.label = LabelRenderer.enabled() ? be.getBookTitle() : null;
@@ -60,6 +95,23 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.kind == 1) {
+            // Original RenderBookstand: translate(x+.5, y+.5, z+.5), rotate 180 about Z, rotate 45*index about Y.
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+            poseStack.mulPose(Axis.YP.rotationDegrees(45f * state.rotationIndex));
+            collector.submitModel(bookstand, Unit.INSTANCE, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
+                    LegacyModels.BOOKSTAND_TEXTURE, sprites, 0, state.breakProgress);
+            poseStack.popPose();
+        } else if (state.kind == 2) {
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.0, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(state.modelYaw));
+            collector.submitModel(lectern, Unit.INSTANCE, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
+                    LegacyModels.LECTERN_TEXTURE, sprites, 0, state.breakProgress);
+            poseStack.popPose();
+        }
         if (!state.item.isEmpty()) {
             poseStack.pushPose();
             poseStack.translate(0.5, state.surfaceHeight + 0.03, 0.5);

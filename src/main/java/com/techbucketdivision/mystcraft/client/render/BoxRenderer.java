@@ -17,9 +17,14 @@ import org.jspecify.annotations.Nullable;
 public final class BoxRenderer {
     private BoxRenderer() {}
 
-    /** Resolves the cube model of {@code block} into {@code state}. */
+    /**
+     * Resolves the cube model of {@code block} into {@code state}. {@link ItemDisplayContext#NONE}: every other
+     * context applies the model's display transform (blocks use scale 0.5 for FIXED / GUI), which shrank each box
+     * around its centre while the box positions stayed full size - the desk rendered as a floating half-size top
+     * with stubby legs at the corners.
+     */
     public static void extractBlock(ItemStackRenderState state, Block block, @Nullable Level level) {
-        ItemRenderHelper.extract(state, new ItemStack(block), ItemDisplayContext.FIXED, level, 0);
+        ItemRenderHelper.extract(state, new ItemStack(block), ItemDisplayContext.NONE, level, 0);
     }
 
     /** Submits the extracted cube stretched over the local-space box (x0,y0,z0)-(x1,y1,z1). */

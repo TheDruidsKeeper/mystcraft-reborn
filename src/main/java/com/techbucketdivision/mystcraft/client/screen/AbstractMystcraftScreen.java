@@ -97,12 +97,83 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
         return menu.getCarried();
     }
 
+    // --- slot hints -------------------------------------------------------------------------------------------------
+
+    /**
+     * What an empty slot is for: a faded example item drawn in the slot, a short name and a description shown as a
+     * tooltip while the empty slot is hovered. Makes the workstations self-explanatory without a manual.
+     */
+    protected record SlotHint(int slot, ItemStack ghost, Component name, List<Component> description) {}
+
+    protected final List<SlotHint> slotHints = new ArrayList<>();
+
+    /** Caption colour for in-GUI labels (vanilla's dark grey container text). */
+    protected static final int CAPTION = 0xFF404040;
+    protected static final int CAPTION_LIGHT = 0xFFE0E0E0;
+
+    /**
+     * Registers a hint for a menu slot. {@code key} resolves {@code <key>} (name) and {@code <key>.desc}
+     * (description; an optional {@code <key>.desc2} adds a second line).
+     */
+    protected void hintSlot(int slot, ItemStack ghost, String key) {
+        List<Component> desc = new ArrayList<>();
+        desc.add(Component.translatable(key + ".desc"));
+        if (net.minecraft.client.resources.language.I18n.exists(key + ".desc2")) desc.add(Component.translatable(key + ".desc2"));
+        slotHints.add(new SlotHint(slot, ghost, Component.translatable(key), desc));
+    }
+
+    protected void hintSlot(int slot, net.minecraft.world.level.ItemLike ghost, String key) {
+        hintSlot(slot, new ItemStack(ghost), key);
+    }
+
+    private void drawSlotHints(GuiGraphicsExtractor g) {
+        for (SlotHint hint : slotHints) {
+            if (hint.slot() >= menu.slots.size()) continue;
+            net.minecraft.world.inventory.Slot slot = menu.slots.get(hint.slot());
+            if (!slot.isActive() || slot.hasItem() || hint.ghost().isEmpty()) continue;
+            int sx = leftPos + slot.x, sy = topPos + slot.y;
+            g.item(hint.ghost(), sx, sy);
+            g.fill(sx, sy, sx + 16, sy + 16, 0xA08B8B8B); // fade the example into the slot background
+        }
+    }
+
+    private @Nullable List<Component> slotHintTooltip(int mouseX, int mouseY) {
+        for (SlotHint hint : slotHints) {
+            if (hint.slot() >= menu.slots.size()) continue;
+            net.minecraft.world.inventory.Slot slot = menu.slots.get(hint.slot());
+            if (!slot.isActive() || slot.hasItem()) continue;
+            int sx = leftPos + slot.x, sy = topPos + slot.y;
+            if (mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
+                List<Component> lines = new ArrayList<>();
+                lines.add(hint.name());
+                for (Component c : hint.description()) lines.add(c.copy().withStyle(net.minecraft.ChatFormatting.GRAY));
+                return lines;
+            }
+        }
+        return null;
+    }
+
+    /** Draws a small label (no shadow) in the container's caption colour. */
+    protected void caption(GuiGraphicsExtractor g, Component text, int x, int y) {
+        g.text(font, text, x, y, CAPTION, false);
+    }
+
+    protected void caption(GuiGraphicsExtractor g, String key, int x, int y) {
+        caption(g, Component.translatable(key), x, y);
+    }
+
+    /** Draws a label right-aligned so that it ends at {@code right}. */
+    protected void captionRight(GuiGraphicsExtractor g, Component text, int right, int y) {
+        g.text(font, text, right - font.width(text), y, CAPTION, false);
+    }
+
     // --- rendering ------------------------------------------------------------------------------------------------
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
         drawBackgroundTexture(graphics, mouseX, mouseY, partialTick);
+        drawSlotHints(graphics);
         for (GuiElement e : elements) {
             if (e.isVisible()) e.render(graphics, mouseX, mouseY, partialTick);
         }
@@ -110,9 +181,11 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
             List<Component> tooltip = e.isVisible() ? e.tooltip() : null;
             if (tooltip != null && !tooltip.isEmpty()) {
                 graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
-                break;
+                return;
             }
         }
+        List<Component> hint = slotHintTooltip(mouseX, mouseY);
+        if (hint != null) graphics.setComponentTooltipForNextFrame(font, hint, mouseX, mouseY);
     }
 
     /** Blit the GUI texture(s); called before the elements. */

@@ -1,18 +1,32 @@
 package com.techbucketdivision.mystcraft.client.screen;
 
+import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
 import com.techbucketdivision.mystcraft.client.screen.gui.GuiElement;
+import com.techbucketdivision.mystcraft.linking.InkEffects;
 import com.techbucketdivision.mystcraft.menu.InkMixerMenu;
+import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.util.Colors;
 import com.techbucketdivision.mystcraft.util.MystIds;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.jspecify.annotations.Nullable;
 
-/** Ink Mixer screen (REQUIREMENTS §8.3, 176×181, {@code inkmixer.png}) with the clickable basin. */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Ink Mixer screen (REQUIREMENTS §8.3, 176×181, {@code inkmixer.png}) with the clickable basin. Every slot carries a
+ * ghost item + tooltip saying what it takes; the basin's tooltip explains the mixing and lists the current effects.
+ */
 public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
     private static final Identifier MIXER = MystIds.id("textures/gui/inkmixer.png");
     private static final int BASIN_X = 88, BASIN_Y = 49, BASIN_R_SQ = 900;
@@ -26,6 +40,10 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
     @Override
     protected void buildElements() {
         addElement(new Basin(leftPos + 54, topPos + 16, 66, 65));
+        hintSlot(0, ModItems.INK_VIAL.get(), "gui.mystcraft.ink_mixer.slot.ink");
+        hintSlot(1, Items.PAPER, "gui.mystcraft.ink_mixer.slot.paper");
+        hintSlot(2, Items.GLASS_BOTTLE, "gui.mystcraft.ink_mixer.slot.empty");
+        hintSlot(InkMixerMenu.SLOT_OUTPUT, ModItems.PAGE.get(), "gui.mystcraft.ink_mixer.slot.output");
     }
 
     @Override
@@ -41,7 +59,15 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
         g.blit(RenderPipelines.GUI_TEXTURED, MIXER, leftPos + 54, topPos + 16, 179, 16, 66, 65, 256, 256);
         if (menu.hasInk()) renderInk(g, leftPos + 54, topPos + 16, 66, 65, partialTick);
         g.blit(RenderPipelines.GUI_TEXTURED, MIXER, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
-        g.text(font, Component.translatable("container.inventory"), leftPos + 8, topPos + imageHeight - 96 + 2, 0xFF404040, false);
+        caption(g, title, leftPos + 8, topPos + 6);
+        caption(g, Component.translatable("container.inventory"), leftPos + 8, topPos + imageHeight - 96 + 2);
+        // arrows of intent: in -> basin, basin -> out
+        caption(g, "gui.mystcraft.ink_mixer.in", leftPos + 27, topPos + 31);
+        captionRight(g, Component.translatable("gui.mystcraft.ink_mixer.out"), leftPos + 149, topPos + 31);
+        if (!menu.hasInk()) {
+            Component empty = Component.translatable("gui.mystcraft.ink_mixer.empty");
+            g.text(font, empty, leftPos + 88 - font.width(empty) / 2, topPos + 45, CAPTION_LIGHT, true);
+        }
     }
 
     private void renderInk(GuiGraphicsExtractor g, int left, int top, int w, int h, float partialTick) {
@@ -71,22 +97,67 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
 
     /** Invisible clickable disc over the basin: click with an item to consume it as an ink modifier. */
     private final class Basin extends GuiElement {
+        private boolean hovered;
+
         Basin(int x, int y, int w, int h) {
             super(x, y, w, h);
         }
 
+        private boolean inDisc(double mx, double my) {
+            double dx = mx - leftPos - BASIN_X;
+            double dy = my - topPos - BASIN_Y;
+            return dx * dx + dy * dy < BASIN_R_SQ;
+        }
+
         @Override
-        public void render(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {}
+        public void render(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+            hovered = inDisc(mouseX, mouseY);
+        }
 
         @Override
         public boolean mouseClicked(double mx, double my, int button) {
-            double dx = mx - leftPos - BASIN_X;
-            double dy = my - topPos - BASIN_Y;
-            if (dx * dx + dy * dy >= BASIN_R_SQ || carried().isEmpty()) return false;
+            if (!inDisc(mx, my) || carried().isEmpty()) return false;
             CompoundTag tag = new CompoundTag();
             tag.putBoolean("Single", button == 1);
             send(InkMixerMenu.MSG_CONSUME, tag);
             return true;
+        }
+
+        @Override
+        public @Nullable List<Component> tooltip() {
+            if (!hovered) return null;
+            List<Component> lines = new ArrayList<>();
+            lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin"));
+            if (!menu.hasInk()) {
+                lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.empty").withStyle(ChatFormatting.GRAY));
+                return lines;
+            }
+            ItemStack held = carried();
+            if (!held.isEmpty()) {
+                Map<LinkProperty, Float> effects = InkEffects.getItemEffects(held);
+                if (effects.isEmpty()) {
+                    lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.not_modifier", held.getHoverName()).withStyle(ChatFormatting.RED));
+                } else {
+                    lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.add", held.getHoverName()).withStyle(ChatFormatting.YELLOW));
+                    for (Map.Entry<LinkProperty, Float> e : effects.entrySet()) {
+                        lines.add(Component.literal("  + ").append(Component.translatable(e.getKey().descriptionId()))
+                                .append(" " + Math.round(e.getValue() * 100) + "%").withStyle(ChatFormatting.GRAY));
+                    }
+                }
+            } else {
+                lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.hint").withStyle(ChatFormatting.GRAY));
+            }
+            Map<LinkProperty, Float> current = menu.getProperties();
+            lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties").withStyle(ChatFormatting.AQUA));
+            boolean any = false;
+            for (Map.Entry<LinkProperty, Float> e : current.entrySet()) {
+                if (e.getValue() < 0.001f) continue;
+                any = true;
+                lines.add(Component.literal("  ").append(Component.translatable(e.getKey().descriptionId()))
+                        .append(": " + Math.round(e.getValue() * 100) + "%"));
+            }
+            if (!any) lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties.none").withStyle(ChatFormatting.DARK_GRAY));
+            return lines;
         }
     }
 }

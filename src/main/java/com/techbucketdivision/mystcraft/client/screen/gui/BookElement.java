@@ -154,7 +154,13 @@ public class BookElement extends GuiElement {
     }
 
     private void drawLinkPanel(GuiGraphicsExtractor g, int w, int h) {
-        if (container.isTargetWorldVisited()) {
+        // A photograph of the destination (taken by whoever last arrived there, slideshow over the last few) when
+        // one exists; otherwise the classic panel: dark gradient for a visited target, black for an unknown one.
+        Identifier picture = com.techbucketdivision.mystcraft.client.PanelImages.current(container.getLinkInfo());
+        if (picture != null) {
+            g.blit(picture, 0, 0, w, h, 0f, 1f, 0f, 1f); // stretch the whole picture over the panel
+            g.fillGradient(0, 0, w, h, 0x30000000, 0x60000000); // the panel's ink tint over the picture
+        } else if (container.isTargetWorldVisited()) {
             g.fillGradient(0, 0, w, h, 0xFF000044, 0xFF006666);
         } else {
             g.fill(0, 0, w, h, 0xFF000000);

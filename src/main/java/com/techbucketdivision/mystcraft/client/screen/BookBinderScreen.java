@@ -32,6 +32,7 @@ public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
         int gx = leftPos, gy = topPos;
         titleBox = addEditBox(new EditBox(font, gx + 7, gy + 9, imageWidth - 60, 14, Component.translatable("gui.mystcraft.item_name")));
         titleBox.setMaxLength(BookBinderMenu.MAX_TITLE);
+        titleBox.setHint(Component.translatable("gui.mystcraft.book_binder.title.hint"));
         titleBox.setResponder(text -> {
             if (syncingTitle) return;
             CompoundTag tag = new CompoundTag();
@@ -57,6 +58,10 @@ public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
             }
         }));
         addElement(new MissingPanelIcon(gx + 27, gy + 26));
+        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + 7, gy + 45, imageWidth - 14, 40,
+                () -> Component.translatable("gui.mystcraft.book_binder.pages.hint"), () -> menu.getPageList().isEmpty(), CAPTION_LIGHT, true));
+        hintSlot(BookBinderMenu.SLOT_COVER, net.minecraft.world.item.Items.LEATHER, "gui.mystcraft.book_binder.slot.cover");
+        hintSlot(BookBinderMenu.SLOT_OUTPUT, com.techbucketdivision.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.book_binder.slot.output");
     }
 
     @Override
@@ -78,7 +83,8 @@ public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
     @Override
     protected void drawBackgroundTexture(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         g.blit(RenderPipelines.GUI_TEXTURED, BINDER, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
-        g.text(font, Component.translatable("container.inventory"), leftPos + 8, topPos + imageHeight - 96 + 2, 0xFF404040, false);
+        caption(g, Component.translatable("container.inventory"), leftPos + 8, topPos + imageHeight - 96 + 2);
+        caption(g, "gui.mystcraft.book_binder.pages", leftPos + 50, topPos + 36);
         if (titleBox != null && titleBox.getValue().isEmpty()) {
             g.outline(titleBox.getX() - 1, titleBox.getY() - 1, titleBox.getWidth() + 2, titleBox.getHeight() + 2, 0xFFFF0000);
         }

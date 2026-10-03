@@ -87,6 +87,25 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
             send(WritingDeskMenu.MSG_SET_TITLE, tag);
         });
         syncName(true);
+
+        // --- what goes where
+        for (int i = 0; i < WritingDeskMenu.TAB_SLOTS; i++) {
+            // ghost icon only in the first tab so the tab column does not look full of notebooks
+            hintSlot(i, i == 0 ? new ItemStack(com.techbucketdivision.mystcraft.registry.ModItems.SYMBOL_PORTFOLIO.get()) : ItemStack.EMPTY,
+                    "gui.mystcraft.writing_desk.slot.notebook");
+        }
+        hintSlot(WritingDeskMenu.SLOT_TARGET, com.techbucketdivision.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.writing_desk.slot.target");
+        hintSlot(WritingDeskMenu.SLOT_PAPER, net.minecraft.world.item.Items.PAPER, "gui.mystcraft.writing_desk.slot.paper");
+        hintSlot(WritingDeskMenu.SLOT_CONTAINER_IN, com.techbucketdivision.mystcraft.registry.ModItems.INK_VIAL.get(), "gui.mystcraft.writing_desk.slot.ink");
+        hintSlot(WritingDeskMenu.SLOT_CONTAINER_OUT, net.minecraft.world.item.Items.GLASS_BOTTLE, "gui.mystcraft.writing_desk.slot.empty");
+        // the empty surface explains itself
+        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + 58, gy + MAIN_TOP, LEFT_W - 53, WINDOW_H,
+                () -> Component.translatable("gui.mystcraft.writing_desk.surface.hint"),
+                () -> menu.getActiveNotebook().isEmpty(), 0xFFB0B0B0, true));
+        // the empty target area explains itself
+        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + CENTER + 27, gy + MAIN_TOP + 6, WINDOW_W - 47 - 9 - 19, 50,
+                () -> Component.translatable("gui.mystcraft.writing_desk.target.hint"),
+                () -> menu.getTarget().isEmpty(), 0xFF606060, false));
     }
 
     /** Pages shown in the horizontal strip: only for writable non-book, non-page targets (folders). */
@@ -122,6 +141,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     @Override
     protected void drawBackgroundTexture(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         g.blit(RenderPipelines.GUI_TEXTURED, DESK, leftPos + CENTER, topPos + MAIN_TOP, 0, 0, WINDOW_W, WINDOW_H, 256, 256);
+        caption(g, "gui.mystcraft.writing_desk.notebooks", leftPos + 2, topPos + 5);
         // target page preview when the target is a single page
         ItemStack target = menu.getTarget();
         if (!target.isEmpty() && target.getItem() instanceof PageItem) {

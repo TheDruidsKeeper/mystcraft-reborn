@@ -91,6 +91,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+        showStandardStreams = false
+    }
 }
 
 // Expand ${...} placeholders in src/main/templates (neoforge.mods.toml).

@@ -1,8 +1,11 @@
 package com.techbucketdivision.mystcraft.blockentity;
 
+import com.techbucketdivision.mystcraft.Mystcraft;
+
 import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
+import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.menu.WritingDeskMenu;
 import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
@@ -35,6 +38,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -105,6 +109,8 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         output.putChild("fluid", inkwell);
         output.putChild("items", main);
         output.putChild("notebooks", tabs);
+        output.store("drafts", Draft.LIST_CODEC, List.copyOf(drafts));
+        output.putInt("draft_target", draftTargetId);
     }
 
     @Override
@@ -113,10 +119,118 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         input.readChild("fluid", inkwell);
         input.readChild("items", main);
         input.readChild("notebooks", tabs);
+        drafts = new ArrayList<>(input.read("drafts", Draft.LIST_CODEC).orElse(List.of()));
+        draftTargetId = input.getIntOr("draft_target", 0);
+    }
+
+    // --- drafts ------------------------------------------------------------------------------------------------------
+
+    /**
+     * A page written at this desk that is not yet permanent: {@code index} into the target's page list, and whether a
+     * sheet of paper was spent on it (Reborn: writing is provisional until the target leaves the slot, so a slip can
+     * be undone with its paper and ink refunded).
+     */
+    public record Draft(int index, boolean paperUsed) {
+        public static final com.mojang.serialization.Codec<Draft> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create(i -> i.group(
+                com.mojang.serialization.Codec.INT.fieldOf("index").forGetter(Draft::index),
+                com.mojang.serialization.Codec.BOOL.fieldOf("paper").forGetter(Draft::paperUsed)).apply(i, Draft::new));
+        public static final com.mojang.serialization.Codec<List<Draft>> LIST_CODEC = CODEC.listOf();
+    }
+
+    private List<Draft> drafts = new ArrayList<>();
+    /** Identity of the target the drafts belong to (item registry id hash); a different item in the slot commits them. */
+    private int draftTargetId;
+
+    /** Pages of the current target that are still drafts (indices into its page list), in writing order. */
+    public List<Draft> getDrafts() {
+        return List.copyOf(drafts);
+    }
+
+    public boolean isDraft(int pageIndex) {
+        for (Draft d : drafts) if (d.index() == pageIndex) return true;
+        return false;
+    }
+
+    /** Makes every draft permanent (the target was taken out, the desk broken, ...). */
+    public void commitDrafts() {
+        if (drafts.isEmpty()) return;
+        Mystcraft.LOGGER.debug("[desk] {} draft page(s) became permanent at {}", drafts.size(), getBlockPos().toShortString());
+        drafts.clear();
+        draftTargetId = 0;
+        markForUpdate();
+    }
+
+    private static int targetId(ItemStack target) {
+        return target.isEmpty() ? 0 : net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(target.getItem()).hashCode();
+    }
+
+    /** Called every server tick: drafts die with the target they were written into. */
+    private void checkDraftTarget() {
+        if (drafts.isEmpty()) return;
+        int id = targetId(getTarget());
+        if (id != draftTargetId) commitDrafts();
+    }
+
+    /**
+     * Erases the most recently written draft: the page goes back to blank (writable books) or is removed (folders /
+     * single pages), and the ink and paper it cost come back. Returns false when there is nothing to undo.
+     */
+    public boolean undoLastDraft(Player player) {
+        if (!isServer() || drafts.isEmpty()) return false;
+        ItemStack target = getTarget();
+        if (target.isEmpty()) {
+            commitDrafts();
+            return false;
+        }
+        Draft draft = drafts.remove(drafts.size() - 1);
+        boolean removed = false;
+        if (target.getItem() instanceof ItemBehaviours.OrderablePageProvider p) {
+            List<ItemStack> pages = p.getPageList(player, target);
+            if (draft.index() >= 0 && draft.index() < pages.size()) {
+                p.removePage(player, target, draft.index());
+                removed = true;
+            }
+        } else if (target.getItem() instanceof PageItem) {
+            // a single page written straight onto paper: back to paper
+            target = ItemStack.EMPTY;
+            removed = true;
+        } else if (target.getItem() instanceof ItemBehaviours.PageProvider p) {
+            List<ItemStack> pages = new ArrayList<>(p.getPageList(player, target));
+            if (draft.index() >= 0 && draft.index() < pages.size() && PageItem.isSymbolPage(pages.get(draft.index()))) {
+                pages.set(draft.index(), PageItem.createBlankPage());
+                if (target.getItem() instanceof DescriptiveBookItem) DescriptiveBookItem.setPages(target, pages);
+                removed = true;
+            }
+        }
+        if (!removed) {
+            markForUpdate();
+            return false;
+        }
+        main.setStack(SLOT_TARGET, target);
+        try (Transaction tx = Transaction.openRoot()) {
+            inkwell.insert(0, FluidResource.of(ModFluids.BLACK_INK.get()), INK_COST, tx);
+            tx.commit();
+        }
+        if (draft.paperUsed()) {
+            ItemStack paper = main.getStack(SLOT_PAPER);
+            if (paper.isEmpty()) main.setStack(SLOT_PAPER, new ItemStack(Items.PAPER));
+            else if (paper.getCount() < paper.getMaxStackSize()) main.setStack(SLOT_PAPER, paper.copyWithCount(paper.getCount() + 1));
+            else if (!player.getInventory().add(new ItemStack(Items.PAPER))) player.drop(new ItemStack(Items.PAPER), false);
+        }
+        if (drafts.isEmpty()) draftTargetId = 0;
+        Mystcraft.LOGGER.debug("[desk] {} undid draft page {} (paper refunded: {})", player.getPlainTextName(), draft.index(), draft.paperUsed());
+        markForUpdate();
+        return true;
+    }
+
+    private void recordDraft(int index, boolean paperUsed) {
+        if (drafts.isEmpty()) draftTargetId = targetId(getTarget());
+        drafts.add(new Draft(index, paperUsed));
     }
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        commitDrafts();
         dropContents(main);
         dropContents(tabs);
         super.preRemoveSideEffects(pos, state);
@@ -150,6 +264,7 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
 
     /** Server tick: fill the inkwell from the container in slot 2, or fill that container from the inkwell. */
     public void serverTick() {
+        checkDraftTarget();
         ItemStack container = main.getStack(SLOT_CONTAINER_IN);
         if (container.isEmpty()) return;
         FluidStack contained = FluidUtil.getFirstStackContained(container);
@@ -252,31 +367,55 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
     public void writeSymbol(Player player, AgeSymbol symbol) {
         if (!isServer() || !hasEnoughInk()) return;
         ItemStack paper = main.getStack(SLOT_PAPER);
+        boolean paperForNewPage = false;
         if (getTarget().isEmpty() && !paper.isEmpty()) {
             main.setStack(SLOT_TARGET, PageItem.createBlankPage());
             paper.shrink(1);
             main.setStack(SLOT_PAPER, paper);
+            paperForNewPage = true;
         }
         ItemStack target = getTarget();
         if (target.isEmpty()) return;
 
-        if (target.getItem() instanceof ItemBehaviours.Writable w && w.writeSymbol(player, target, symbol)) {
-            main.setStack(SLOT_TARGET, target);
-            useInk();
-            award(player);
-            return;
+        if (target.getItem() instanceof ItemBehaviours.Writable w) {
+            int index = firstBlankPage(player, target);
+            if (w.writeSymbol(player, target, symbol)) {
+                main.setStack(SLOT_TARGET, target);
+                useInk();
+                recordDraft(index, paperForNewPage);
+                award(player);
+                return;
+            }
         }
         paper = main.getStack(SLOT_PAPER);
         if (!paper.isEmpty() && target.getItem() instanceof ItemBehaviours.PageAcceptor acceptor) {
             ItemStack page = PageItem.createSymbolPage(symbol);
+            int index = firstFreeIndex(player, target); // where the acceptor will put it (folders fill the first gap)
             if (!page.isEmpty() && acceptor.addPage(player, target, page).isEmpty()) {
                 main.setStack(SLOT_TARGET, target);
                 useInk();
                 paper.shrink(1);
                 main.setStack(SLOT_PAPER, paper);
+                recordDraft(index, true);
                 award(player);
             }
         }
+    }
+
+    /** Index a page acceptor will append at: the first empty slot of its page list, else the end. */
+    private static int firstFreeIndex(Player player, ItemStack target) {
+        if (!(target.getItem() instanceof ItemBehaviours.PageProvider p)) return 0;
+        List<ItemStack> pages = p.getPageList(player, target);
+        for (int i = 0; i < pages.size(); i++) if (pages.get(i).isEmpty()) return i;
+        return pages.size();
+    }
+
+    /** Index of the page a Writable target will write into (its first blank page), or 0 for a single page. */
+    private static int firstBlankPage(Player player, ItemStack target) {
+        if (!(target.getItem() instanceof ItemBehaviours.PageProvider p)) return 0;
+        List<ItemStack> pages = p.getPageList(player, target);
+        for (int i = 0; i < pages.size(); i++) if (PageItem.isBlank(pages.get(i))) return i;
+        return 0;
     }
 
     private static void award(Player player) {

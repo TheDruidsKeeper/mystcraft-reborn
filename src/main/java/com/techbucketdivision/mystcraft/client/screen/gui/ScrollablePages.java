@@ -34,6 +34,12 @@ public class ScrollablePages extends GuiElement {
     private int hoverIndex = -1;
     private boolean mouseOver;
     private final List<Component> tooltip = new ArrayList<>();
+    /** Page index -> draft (washed-out tile); null when the owner has no drafts. */
+    private java.util.function.@Nullable IntPredicate draftCheck;
+
+    public void setDraftCheck(java.util.function.@Nullable IntPredicate check) {
+        this.draftCheck = check;
+    }
 
     public ScrollablePages(int x, int y, int width, int height, Supplier<@Nullable List<ItemStack>> pages, Supplier<ItemStack> carried, Handler handler) {
         super(x, y, width, height);
@@ -69,6 +75,10 @@ public class ScrollablePages extends GuiElement {
             for (int i = first; i < list.size(); i++) {
                 ItemStack page = list.get(i);
                 SymbolGlyphs.drawPage(g, page, px, py, elementWidth, elementHeight);
+                if (draftCheck != null && draftCheck.test(i)) {
+                    // pencilled draft: washed out until the folder leaves the desk
+                    g.fill(px, py, px + elementWidth, py + elementHeight, 0x80D8D0C0);
+                }
                 if (mouseOver && contains(mouseX, mouseY, px, py, elementWidth, elementHeight)) newHover = i;
                 px += elementWidth + 2;
                 if (px > x + width) break;

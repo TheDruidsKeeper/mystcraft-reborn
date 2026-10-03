@@ -50,6 +50,7 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
     public static final String MSG_SET_FLUID = "SetFluid";
     public static final String MSG_TAKE_FROM_SLIDER = "TakeFromSlider";
     public static final String MSG_INSERT_HELD_AT = "InsertHeldAt";
+    public static final String MSG_UNDO_DRAFT = "UndoDraft";
 
     public static final int X_SHIFT = 228 + 5;
     public static final int Y_SHIFT = 20;
@@ -200,8 +201,12 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
                 book.setCurrentPageIndex(data.getIntOr("Index", 0));
                 book.invalidate();
             }
+            case MSG_UNDO_DRAFT -> {
+                if (isServer()) desk.undoLastDraft(player);
+            }
             case MSG_TAKE_FROM_SLIDER -> {
                 if (!cursor().isEmpty()) return;
+                desk.commitDrafts(); // pages leaving the folder by hand are permanent (and indices shift)
                 ItemStack target = desk.getTarget();
                 if (target.isEmpty() || !(target.getItem() instanceof ItemBehaviours.OrderablePageProvider p)) return;
                 ItemStack removed = p.removePage(player, target, data.getIntOr("Index", 0));
@@ -209,6 +214,7 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
                 setCursor(player, removed);
             }
             case MSG_INSERT_HELD_AT -> {
+                desk.commitDrafts();
                 ItemStack held = cursor();
                 ItemStack target = desk.getTarget();
                 if (held.isEmpty() || target.isEmpty() || !(target.getItem() instanceof ItemBehaviours.OrderablePageProvider p)) return;
@@ -372,5 +378,14 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
 
     public boolean hasBookSlot() {
         return false;
+    }
+
+    /** Draft pages of the target (written here, not yet permanent), synced through the block entity. */
+    public List<WritingDeskBlockEntity.Draft> getDrafts() {
+        return desk.getDrafts();
+    }
+
+    public boolean isDraftPage(int index) {
+        return desk.isDraft(index);
     }
 }

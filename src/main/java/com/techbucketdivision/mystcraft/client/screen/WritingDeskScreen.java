@@ -43,7 +43,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     private @Nullable EditBox nameBox;
     private @Nullable PageSurface surface;
     private @Nullable ScrollablePages pageStrip;
-    private @Nullable ToggleButton sortButton, allButton;
+    private @Nullable ToggleButton sortButton, allButton, undoButton;
     private boolean syncingName;
 
     public WritingDeskScreen(WritingDeskMenu menu, Inventory inventory, Component title) {
@@ -88,6 +88,14 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         });
         syncName(true);
 
+        // --- drafts: undo the last page written here (pages become permanent when the target leaves the desk)
+        undoButton = addElement(new ToggleButton(gx + CENTER + 28, gy + MAIN_TOP + 77, WINDOW_W - 48 - 9 - 20, 12, null, () -> false,
+                () -> sendOnly(WritingDeskMenu.MSG_UNDO_DRAFT))
+                .label(Component.translatable("gui.mystcraft.writing_desk.undo"))
+                .tooltip(List.of(Component.translatable("gui.mystcraft.writing_desk.undo.tooltip"),
+                        Component.translatable("gui.mystcraft.writing_desk.undo.tooltip2").withStyle(net.minecraft.ChatFormatting.GRAY))));
+        pageStrip.setDraftCheck(menu::isDraftPage);
+
         // --- what goes where
         for (int i = 0; i < WritingDeskMenu.TAB_SLOTS; i++) {
             // ghost icon only in the first tab so the tab column does not look full of notebooks
@@ -123,6 +131,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         boolean collection = surface != null && surface.isCollection();
         if (sortButton != null) sortButton.setEnabled(collection);
         if (allButton != null) allButton.setEnabled(collection);
+        if (undoButton != null) undoButton.setVisible(!menu.getDrafts().isEmpty());
     }
 
     private void syncName(boolean force) {
@@ -263,6 +272,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         @Override public String getBookTitle() { return menu.getBookTitle(); }
         @Override public List<String> getBookAuthors() { return menu.getBookAuthors(); }
         @Override public boolean hasBookSlot() { return menu.hasBookSlot(); }
+        @Override public boolean isDraftPage(int index) { return menu.isDraftPage(index); }
 
         @Override
         public void setCurrentPageIndex(int index) {

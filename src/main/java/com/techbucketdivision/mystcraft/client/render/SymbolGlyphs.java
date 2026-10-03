@@ -3,6 +3,10 @@ package com.techbucketdivision.mystcraft.client.render;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.api.symbol.WordData;
 import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
+import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.techbucketdivision.mystcraft.symbol.modifiers.ModifierSymbols;
+import com.techbucketdivision.mystcraft.util.Colors;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -32,6 +36,35 @@ public final class SymbolGlyphs {
     public static final int WHITE = 0xFFFFFFFF;
     /** Glyphs are drawn black (the original tinted components with colour 0). */
     public static final int DEFAULT = 0xFF000000;
+    /** Discovered pages (added by the Age at the first link) are written in a different ink. */
+    public static final int DISCOVERED = 0xFF1C5A6E;
+    /** Drafts (written at a desk, not yet permanent) are pencilled in grey. */
+    public static final int DRAFT = 0xFF8A8A8A;
+    /** Attached modifiers that carry no colour of their own. */
+    public static final int MODIFIER = 0xFF2E3C8C;
+    /** Overlay size of an attached modifier relative to the page glyph. */
+    public static final float OVERLAY_SCALE = 0.36f;
+
+    /** The colour a modifier is overlaid in: its own colour for colour modifiers, otherwise {@link #MODIFIER}. */
+    public static int modifierTint(@Nullable AgeSymbol modifier) {
+        if (modifier instanceof ModifierSymbols.ColorSymbol color) {
+            Colors.RGB rgb = color.rgb();
+            // keep white/silver readable on parchment
+            float max = Math.max(rgb.r(), Math.max(rgb.g(), rgb.b()));
+            if (max > 0.85f && rgb.r() + rgb.g() + rgb.b() > 2.2f) rgb = rgb.scale(0.7f);
+            return rgb.toARGB();
+        }
+        return MODIFIER;
+    }
+
+    /** Corner of the {@code index}-th overlay inside a square of {@code size}: top-left, top-right, bottom-left, bottom-right. */
+    public static float overlayX(int index, float x, float size) {
+        return (index & 1) == 0 ? x : x + size - size * OVERLAY_SCALE;
+    }
+
+    public static float overlayY(int index, float y, float size) {
+        return index < 2 ? y : y + size - size * OVERLAY_SCALE;
+    }
 
     // --- components / words --------------------------------------------------------------------------------------
 
@@ -87,6 +120,24 @@ public final class SymbolGlyphs {
         drawSymbol(g, symbol == null ? null : symbol.poem(), x, y, size, DEFAULT);
     }
 
+    /**
+     * Draws a symbol page: the primary glyph in {@code argb} (or the discovered ink when the page was discovered and
+     * {@code argb} is the default), then the attached modifiers as small glyphs overlaid on the corners (the first
+     * four; the tooltip lists them all).
+     */
+    public static void drawSymbolPage(GuiGraphicsExtractor g, SymbolPage page, float x, float y, float size, int argb) {
+        AgeSymbol symbol = page.resolve();
+        int ink = argb == DEFAULT && page.discovered() ? DISCOVERED : argb;
+        drawSymbol(g, symbol == null ? null : symbol.poem(), x, y, size, ink);
+        List<Identifier> modifiers = page.modifiers();
+        float overlay = size * OVERLAY_SCALE;
+        for (int i = 0; i < Math.min(4, modifiers.size()); i++) {
+            AgeSymbol modifier = SymbolRegistry.get(modifiers.get(i));
+            drawSymbol(g, modifier == null ? null : modifier.poem(), overlayX(i, x, size), overlayY(i, y, size), overlay,
+                    argb == DRAFT ? DRAFT : modifierTint(modifier));
+        }
+    }
+
     // --- pages ---------------------------------------------------------------------------------------------------
 
     /**
@@ -96,11 +147,9 @@ public final class SymbolGlyphs {
     public static void drawPage(GuiGraphicsExtractor g, ItemStack page, float x, float y, float w, float h) {
         drawPageBackground(g, page.isEmpty(), x, y, w, h);
         if (page.isEmpty()) return;
-        AgeSymbol symbol = PageItem.getSymbol(page);
-        if (symbol != null) {
-            drawSymbol(g, symbol.poem(), x + 0.5f, y + (h + 1f - w) / 2f, w - 1f, DEFAULT);
-        } else if (PageItem.getSymbolId(page) != null) {
-            drawWord(g, null, x + 0.5f, y + (h + 1f - w) / 2f, w - 1f, DEFAULT); // unknown symbol id
+        SymbolPage symbolPage = PageItem.getSymbolPage(page);
+        if (symbolPage != null) {
+            drawSymbolPage(g, symbolPage, x + 0.5f, y + (h + 1f - w) / 2f, w - 1f, DEFAULT);
         } else if (PageItem.isLinkPanel(page)) {
             g.fill(Math.round(x + w * 0.15f), Math.round(y + h * 0.15f), Math.round(x + w * 0.85f), Math.round(y + h * 0.5f), 0xFF000000);
         }

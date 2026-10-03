@@ -2,6 +2,20 @@ package com.techbucketdivision.mystcraft.symbol;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.techbucketdivision.mystcraft.api.symbol.Modifier;
+import com.techbucketdivision.mystcraft.api.symbol.ModifierSlot;
+import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
+import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
+import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
+import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
+import com.techbucketdivision.mystcraft.api.symbol.logic.DynamicColorProvider;
+import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
+import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
+import com.techbucketdivision.mystcraft.api.symbol.logic.StaticColorProvider;
+import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainAlteration;
+import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
+import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
 import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
@@ -9,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,9 +67,73 @@ public final class SymbolRegistry {
             ERRORED.add(id);
             return false;
         }
+        bindSchema(symbol, profile);
         SYMBOLS.put(id, symbol);
         PROFILES.put(id, profile);
         return true;
+    }
+
+    // --- world-building schema ---------------------------------------------------------------------------------
+
+    /**
+     * Derives the symbol's schema from its profile: the category (explicit, else inferred from the logic it
+     * registers), the modifier slots it accepts (the modifiers it pops) and, for modifier categories, the slot it
+     * fills (the modifier it pushes).
+     */
+    private static void bindSchema(AgeSymbol symbol, SymbolProfiler.Profile profile) {
+        SymbolCategory category = symbol.hasCategory() ? symbol.category() : inferCategory(profile);
+        Set<ModifierSlot> accepts = EnumSet.noneOf(ModifierSlot.class);
+        for (String id : profile.consumedModifiers()) {
+            ModifierSlot slot = ModifierSlot.byModifierId(id);
+            if (slot != null) accepts.add(slot);
+        }
+        // a sunset colour is built from the pending gradient, and a gradient from pending colours and lengths, so a
+        // symbol taking one takes the ones it is made of too
+        if (accepts.contains(ModifierSlot.SUNSET)) accepts.add(ModifierSlot.GRADIENT);
+        if (accepts.contains(ModifierSlot.GRADIENT)) {
+            accepts.add(ModifierSlot.COLOR);
+            accepts.add(ModifierSlot.LENGTH);
+        }
+        ModifierSlot fills = null;
+        if (category.isModifier()) {
+            for (ModifierSlot candidate : FILL_PRIORITY) {
+                if (profile.producedModifiers().contains(candidate.modifierId())) {
+                    fills = candidate;
+                    break;
+                }
+            }
+            accepts.clear(); // modifiers are attached, they do not take modifiers of their own
+        }
+        symbol.bindSchema(category, accepts, fills, profile.consumedBlockCategories());
+    }
+
+    /** Which produced modifier names a modifier symbol's slot when it produces several (the gradient also pops colours). */
+    private static final List<ModifierSlot> FILL_PRIORITY = List.of(ModifierSlot.GRADIENT, ModifierSlot.SUNSET, ModifierSlot.COLOR,
+            ModifierSlot.DIRECTION, ModifierSlot.PHASE, ModifierSlot.LENGTH, ModifierSlot.BLOCK);
+
+    /** Category for symbols registered without one (add-ons): by the logic they provide, else by what they push. */
+    private static SymbolCategory inferCategory(SymbolProfiler.Profile profile) {
+        if (profile.provides(TerrainGenerator.class)) return SymbolCategory.TERRAIN;
+        if (profile.provides(BiomeController.class)) return SymbolCategory.BIOME_LAYOUT;
+        if (profile.provides(LightingController.class)) return SymbolCategory.LIGHTING;
+        if (profile.provides(WeatherController.class)) return SymbolCategory.WEATHER;
+        if (profile.provides(Celestial.class)) return SymbolCategory.CELESTIALS;
+        if (profile.provides(EnvironmentalEffect.class)) return SymbolCategory.EFFECTS;
+        if (profile.provides(Populator.class) || profile.provides(TerrainAlteration.class) || profile.provides(ChunkFinalizer.class)) {
+            return SymbolCategory.FEATURES;
+        }
+        if (profile.provides(DynamicColorProvider.class) || profile.provides(StaticColorProvider.class)) return SymbolCategory.SKY_COLORS;
+        if (profile.producedModifiers().contains(Modifier.BIOMELIST)) return SymbolCategory.BIOMES;
+        if (profile.producedModifiers().contains(Modifier.BLOCKLIST)) return SymbolCategory.MATERIALS;
+        if (!profile.producedModifiers().isEmpty()) return SymbolCategory.MODIFIERS;
+        return SymbolCategory.FEATURES;
+    }
+
+    /** Registered symbols of one category, in registration order. */
+    public static List<AgeSymbol> inCategory(SymbolCategory category) {
+        List<AgeSymbol> out = new ArrayList<>();
+        for (AgeSymbol s : SYMBOLS.values()) if (s.category() == category) out.add(s);
+        return out;
     }
 
     /**

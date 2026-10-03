@@ -147,7 +147,8 @@ public final class AgeController implements AgeDirector, TerrainContext {
             addSymbol(symbol, symbolSeeds.nextLong());
         }
 
-        // Fallbacks for missing controllers (server only writes the appended symbols back).
+        // Fallbacks for missing controllers: the blueprint fills every required category at the first link, so this
+        // only triggers for Ages whose symbols failed to register (add-ons); the server writes the pick back.
         Random fallbackRand = new Random(data.seed() ^ 0x5DEECE66DL);
         if (biomeController == null) fallback(BiomeController.class, fallbackRand);
         if (terrainGenerator == null) fallback(TerrainGenerator.class, fallbackRand);
@@ -174,6 +175,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
             return;
         }
         AgeSymbol pick = candidates.get(rand.nextInt(candidates.size()));
+        Mystcraft.LOGGER.warn("[blueprint] Age {} has no {}; falling back to {}", data.name(), type.getSimpleName(), pick.id());
         addSymbol(pick, rand.nextLong());
         symbolInstability += MISSING_CONTROLLER_INSTABILITY;
         if (!clientSide) data.addSymbol(pick.id());

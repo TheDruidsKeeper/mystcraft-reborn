@@ -42,11 +42,6 @@ public final class BlockCategory {
         return name;
     }
 
-    /** Grammar token that generates a block of this category, e.g. {@code BlockTerrain}. */
-    public String grammarToken() {
-        return "Block" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-    }
-
     @Override
     public String toString() {
         return name;

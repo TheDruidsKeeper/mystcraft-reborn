@@ -5,6 +5,7 @@ import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
 import com.techbucketdivision.mystcraft.api.symbol.Modifier;
 import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
+import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
 import com.techbucketdivision.mystcraft.symbol.symbols.BuiltinSymbols;
 import com.techbucketdivision.mystcraft.symbol.symbols.SimpleSymbol;
 import com.techbucketdivision.mystcraft.util.Colors;
@@ -14,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
-import static com.techbucketdivision.mystcraft.symbol.grammar.GrammarRules.*;
 
 /**
  * Modifier symbols (REQUIREMENTS §4.3.12): directions, phases, lengths, gradient, sunset colour and the 16 colours.
@@ -49,26 +49,26 @@ public final class ModifierSymbols {
     }
 
     public static void registerAll() {
-        BuiltinSymbols.rule(BuiltinSymbols.add(new AngleSymbol("mod_north", 0f, "North", CONTROL)), 1, ANGLE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new AngleSymbol("mod_east", 90f, "East", TRADITION)), 1, ANGLE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new AngleSymbol("mod_south", 180f, "South", CHAOS)), 1, ANGLE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new AngleSymbol("mod_west", 270f, "West", CHANGE)), 1, ANGLE_BASIC);
+        BuiltinSymbols.add(new AngleSymbol("mod_north", 0f, "North", CONTROL), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new AngleSymbol("mod_east", 90f, "East", TRADITION), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new AngleSymbol("mod_south", 180f, "South", CHAOS), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new AngleSymbol("mod_west", 270f, "West", CHANGE), SymbolCategory.MODIFIERS);
 
-        BuiltinSymbols.rule(BuiltinSymbols.add(new PhaseSymbol("mod_end", 0f, "Nadir", REBIRTH)), 1, PHASE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new PhaseSymbol("mod_rising", 90f, "Rising", GROWTH)), 1, PHASE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new PhaseSymbol("mod_noon", 180f, "Zenith", HARMONY)), 1, PHASE_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new PhaseSymbol("mod_setting", 270f, "Setting", FUTURE)), 1, PHASE_BASIC);
+        BuiltinSymbols.add(new PhaseSymbol("mod_end", 0f, "Nadir", REBIRTH), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new PhaseSymbol("mod_rising", 90f, "Rising", GROWTH), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new PhaseSymbol("mod_noon", 180f, "Zenith", HARMONY), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new PhaseSymbol("mod_setting", 270f, "Setting", FUTURE), SymbolCategory.MODIFIERS);
 
-        BuiltinSymbols.rule(BuiltinSymbols.add(new LengthSymbol("mod_zero", 0.0f, "Zero Length", INHIBIT)), 2, PERIOD_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new LengthSymbol("mod_half", 0.5f, "Half Length", STIMULATE)), 1, PERIOD_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new LengthSymbol("mod_full", 1.0f, "Full Length", BALANCE)), 1, PERIOD_BASIC);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new LengthSymbol("mod_double", 2.0f, "Double Length", SACRIFICE)), 1, PERIOD_BASIC);
+        BuiltinSymbols.add(new LengthSymbol("mod_zero", 0.0f, "Zero Length", INHIBIT), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new LengthSymbol("mod_half", 0.5f, "Half Length", STIMULATE), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new LengthSymbol("mod_full", 1.0f, "Full Length", BALANCE), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new LengthSymbol("mod_double", 2.0f, "Double Length", SACRIFICE), SymbolCategory.MODIFIERS);
 
-        BuiltinSymbols.rule(BuiltinSymbols.add(new GradientSymbol()), 1, GRADIENT_BASIC, COLOR, PERIOD);
-        BuiltinSymbols.rule(BuiltinSymbols.add(new HorizonColorSymbol()), 2, SUNSET, SUNSET_EXT, GRADIENT);
+        BuiltinSymbols.add(new GradientSymbol(), SymbolCategory.MODIFIERS);
+        BuiltinSymbols.add(new HorizonColorSymbol(), SymbolCategory.MODIFIERS);
 
         for (Map.Entry<String, ColorEntry> e : COLORS.entrySet()) {
-            BuiltinSymbols.rule(BuiltinSymbols.add(new ColorSymbol("mod_color_" + e.getKey(), e.getValue())), 1, COLOR_BASIC);
+            BuiltinSymbols.add(new ColorSymbol("mod_color_" + e.getKey(), e.getValue()), SymbolCategory.MODIFIERS);
         }
     }
 

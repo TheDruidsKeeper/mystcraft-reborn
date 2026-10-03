@@ -70,7 +70,8 @@ public class WorldTests {
         int lit = 0;
         float minAngle = 1f, maxAngle = 0f;
         for (int i = 0; i < samples; i++) {
-            ItemStack book = TestBooks.unboundDescriptiveBook("Daylight " + i);
+            // fixed seeds: the start time and the blueprint's celestials follow the seed, so the result is reproducible
+            ItemStack book = TestBooks.unboundDescriptiveBook("Daylight " + i, 1000L + i);
             AgeData data = TestBooks.bind(book, server);
             AgeController controller = new AgeController(data, server.registryAccess(), false);
             controller.ensureCurrent();

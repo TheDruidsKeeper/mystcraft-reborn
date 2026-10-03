@@ -1,10 +1,12 @@
 package com.techbucketdivision.mystcraft.client.screen.gui;
 
+import com.techbucketdivision.mystcraft.age.AgeSummary;
 import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
 import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -65,6 +67,11 @@ public class BookElement extends GuiElement {
         /** Whether the page at this index is a draft (written at a desk, not yet permanent). */
         default boolean isDraftPage(int index) {
             return false;
+        }
+
+        /** The Age summary shown after the last page of a bound Descriptive Book, or {@code null}. */
+        default @Nullable AgeSummary getSummary() {
+            return null;
         }
     }
 
@@ -127,19 +134,20 @@ public class BookElement extends GuiElement {
             blit(g, PAGE_RIGHT, 163, 0, 0, 0, 156, 195);
         } else if (!current.isEmpty()) {
             blit(g, PAGE_RIGHT_FULL, 163, 0, 0, 0, 156, 195);
-            AgeSymbol symbol = PageItem.getSymbol(current);
-            if (symbol != null || PageItem.getSymbolId(current) != null) {
+            SymbolPage symbolPage = PageItem.getSymbolPage(current);
+            AgeSymbol symbol = symbolPage == null ? null : symbolPage.resolve();
+            if (symbolPage != null) {
                 int sx = 171, sy = 25, size = 140;
                 boolean draft = container.isDraftPage(page);
                 // drafts are pencilled in grey; the ink only dries once the book leaves the desk
-                SymbolGlyphs.drawSymbol(g, symbol == null ? null : symbol.poem(), sx, sy, size, draft ? 0xFF8A8A8A : 0xFF000000);
-                if (draft) {
-                    Component note = Component.translatable("gui.mystcraft.book.draft");
-                    g.text(font, note, 240 - font.width(note) / 2, 170, 0xFF8A4A1A, false);
+                SymbolGlyphs.drawSymbolPage(g, symbolPage, sx, sy, size, draft ? SymbolGlyphs.DRAFT : SymbolGlyphs.DEFAULT);
+                if (draft || symbolPage.discovered()) {
+                    Component note = Component.translatable(draft ? "gui.mystcraft.book.draft" : "gui.mystcraft.book.discovered");
+                    g.text(font, note, 240 - font.width(note) / 2, 170, draft ? 0xFF8A4A1A : SymbolGlyphs.DISCOVERED, false);
                 }
                 // left page: the symbol's name and what it does (the glyph stays on the right)
                 if (symbol != null) {
-                    drawSymbolNotes(g, font, symbol);
+                    drawSymbolNotes(g, font, symbol, symbolPage);
                 } else {
                     Identifier missing = PageItem.getSymbolId(current);
                     drawWrapped(g, font, Component.translatable("gui.mystcraft.book.unknown_symbol", String.valueOf(missing)), 24, 30, 118, 0xFF5A1A1A);
@@ -149,6 +157,9 @@ public class BookElement extends GuiElement {
                     hoverText.addAll(Screen.getTooltipFromItem(Minecraft.getInstance(), current));
                 }
             }
+        } else if (page >= container.getPageCount() && page > 0 && container.getSummary() != null) {
+            blit(g, PAGE_RIGHT_FULL, 163, 0, 0, 0, 156, 195);
+            drawSummary(g, font, container.getSummary());
         } else {
             blit(g, PAGE_RIGHT_FULL, 163, 0, 0, 0, 156, 195);
         }
@@ -166,7 +177,8 @@ public class BookElement extends GuiElement {
                 ay += 5;
             }
         }
-        String footer = page + "/" + container.getPageCount();
+        String footer = page >= container.getPageCount() && page > 0 && container.getSummary() != null
+                ? Component.translatable("gui.mystcraft.book.summary.footer").getString() : page + "/" + container.getPageCount();
         g.text(font, footer, 165 - font.width(footer) / 2, 185, 0xFF000000, false);
         g.pose().popMatrix();
     }
@@ -189,16 +201,65 @@ public class BookElement extends GuiElement {
         }
     }
 
-    /** Left page notes for a symbol page: name, a thin rule, then the description word-wrapped to the page. */
-    private void drawSymbolNotes(GuiGraphicsExtractor g, Font font, AgeSymbol symbol) {
+    /**
+     * Left page notes for a symbol page: category, name, a thin rule, the description word-wrapped to the page, then
+     * one line per attached modifier.
+     */
+    private void drawSymbolNotes(GuiGraphicsExtractor g, Font font, AgeSymbol symbol, SymbolPage symbolPage) {
         int px = 24, py = 28, pw = 118;
+        g.pose().pushMatrix();
+        g.pose().translate(px, py - 6);
+        g.pose().scale(0.5f, 0.5f);
+        g.text(font, symbol.category().displayName(), 0, 0, 0xFF6A5A3A, false);
+        g.pose().popMatrix();
         int y = drawWrapped(g, font, symbol.displayName(), px, py, pw, 0xFF1A1A1A);
         g.fill(px, y + 1, px + pw, y + 2, 0x60000000);
         y += 6;
         Component description = symbol.description();
         // a symbol without a written description shows nothing rather than a raw key
         if (net.minecraft.client.resources.language.I18n.exists(symbol.descriptionId() + ".desc")) {
-            drawWrapped(g, font, description, px, y, pw, 0xFF3A3A3A);
+            y = drawWrapped(g, font, description, px, y, pw, 0xFF3A3A3A);
+        }
+        if (!symbolPage.modifiers().isEmpty()) {
+            y += 4;
+            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.modifiers"), px, y, pw, 0xFF1A1A1A);
+            for (Identifier id : symbolPage.modifiers()) {
+                AgeSymbol modifier = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(id);
+                Component name = modifier == null ? Component.literal(id.toString()) : modifier.displayName();
+                y = drawWrapped(g, font, Component.literal("+ ").append(name), px + 4, y, pw - 4, SymbolGlyphs.modifierTint(modifier));
+            }
+        }
+    }
+
+    /**
+     * The summary page (plan §2 rule 7): seed, instability (base + symbols, the live score when the Age is loaded),
+     * the instability effects active in the Age, authors and how many pages were discovered. Right page.
+     */
+    private void drawSummary(GuiGraphicsExtractor g, Font font, AgeSummary summary) {
+        int px = 172, py = 22, pw = 136;
+        int y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary"), px, py, pw, 0xFF1A1A1A);
+        g.fill(px, y + 1, px + pw, y + 2, 0x60000000);
+        y += 6;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.seed", Long.toString(summary.seed())), px, y, pw, 0xFF3A3A3A);
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.instability", summary.baseInstability(), summary.symbolInstability()), px, y, pw, 0xFF3A3A3A);
+        if (summary.score() >= 0) {
+            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.score", summary.score()), px, y, pw, summary.score() > 0 ? 0xFF7A1A1A : 0xFF3A3A3A);
+        }
+        if (summary.dead()) y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.dead"), px, y, pw, 0xFF7A1A1A);
+        y += 3;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.effects"), px, y, pw, 0xFF1A1A1A);
+        if (summary.activeEffects().isEmpty()) {
+            y = drawWrapped(g, font, Component.translatable(summary.score() >= 0 ? "gui.mystcraft.book.summary.effects.none" : "gui.mystcraft.book.summary.effects.unknown"), px + 4, y, pw - 4, 0xFF5A5A5A);
+        } else {
+            for (String effect : summary.activeEffects()) {
+                String name = effect.replace(",g", " (global)").replace('_', ' ');
+                y = drawWrapped(g, font, Component.literal("- " + name), px + 4, y, pw - 4, 0xFF7A1A1A);
+            }
+        }
+        y += 3;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.discovered", summary.discovered(), summary.total()), px, y, pw, 0xFF3A3A3A);
+        if (!summary.authors().isEmpty()) {
+            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.authors", String.join(", ", summary.authors())), px, y, pw, 0xFF3A3A3A);
         }
     }
 

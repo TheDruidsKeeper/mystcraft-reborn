@@ -63,22 +63,24 @@ public class LinkingTests {
     @TestHolder(description = "Binding writes every generated symbol into the book: afterwards the book's pages describe the whole Age")
     static void bindingWritesGeneratedSymbolsIntoBook(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
-        // partially written: one terrain symbol, the rest is up to the grammar
+        // partially written: one terrain symbol, the rest is up to the blueprint
         ItemStack book = TestBooks.unboundDescriptiveBook("Half written", com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat"));
         int pagesBefore = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(book).size();
         AgeData data = TestBooks.bind(book, server);
         var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(book);
-        var written = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.writtenSymbols(pages);
+        var flat = com.techbucketdivision.mystcraft.age.AgeBlueprint.flatten(pages);
         com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] bound book pages {} -> {}; age symbols {}; book symbols {}",
-                pagesBefore, pages.size(), data.symbols(), written);
+                pagesBefore, pages.size(), data.symbols(), flat);
         helper.assertTrue(pages.size() > pagesBefore, "pages were added to the book");
         helper.assertTrue(com.techbucketdivision.mystcraft.item.PageItem.isLinkPanel(pages.getFirst()), "link panel stays first");
         helper.assertValueEqual(com.techbucketdivision.mystcraft.item.PageItem.getSymbolId(pages.get(1)),
-                com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat"), "author's page keeps its place");
-        // multiset equality: every Age symbol occurrence has a page, and no page is for a symbol the Age lacks
-        var want = new java.util.ArrayList<>(data.symbols());
-        for (var id : written) helper.assertTrue(want.remove(id), "book carries a page for a symbol the Age does not use: " + id);
-        helper.assertTrue(want.isEmpty(), "Age symbols without a page in the book: " + want);
+                com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat"), "author's terrain page comes first (terrain is the first category)");
+        helper.assertTrue(!com.techbucketdivision.mystcraft.item.PageItem.isDiscovered(pages.get(1)), "author's page is not marked discovered");
+        int discovered = 0;
+        for (var page : pages) if (com.techbucketdivision.mystcraft.item.PageItem.isDiscovered(page)) discovered++;
+        helper.assertValueEqual(discovered, pages.size() - pagesBefore, "every added page is marked discovered");
+        helper.assertValueEqual(data.symbols(), flat, "the Age is built from the book's pages in order (modifiers then symbol)");
+        helper.assertTrue(com.techbucketdivision.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "no required category is missing");
         helper.assertValueEqual(data.pages().size(), pages.size(), "Age keeps the same page list");
         helper.succeed();
     }

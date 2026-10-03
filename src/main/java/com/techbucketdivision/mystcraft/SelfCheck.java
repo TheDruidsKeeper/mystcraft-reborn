@@ -1,5 +1,6 @@
 package com.techbucketdivision.mystcraft;
 
+import com.techbucketdivision.mystcraft.age.AgeBlueprint;
 import com.techbucketdivision.mystcraft.age.AgeController;
 import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.age.AgeData;
@@ -17,14 +18,11 @@ import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.registry.ModMenus;
 import com.techbucketdivision.mystcraft.registry.ModSounds;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.symbol.grammar.Grammar;
-import com.techbucketdivision.mystcraft.symbol.grammar.GrammarRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -36,7 +34,7 @@ import java.util.List;
 /**
  * Headless end-to-end verification, run on server start when {@code -Dmystcraft.selfcheck=true} or the environment
  * variable {@code MYSTCRAFT_SELFCHECK=1} is set. Used by the Docker smoke test (scripts/smoke-entry.sh) so that CI
- * verifies the parts a plain server boot never touches: dimension creation, chunk generation and the grammar.
+ * verifies the parts a plain server boot never touches: dimension creation, chunk generation and the Age blueprint.
  * <p>
  * Never enabled in normal play. Every check logs {@code [selfcheck]} and the summary line is
  * {@code SELFCHECK PASSED: n checks} / {@code SELFCHECK FAILED: n of m checks}.
@@ -59,7 +57,7 @@ public final class SelfCheck {
         try {
             checkRegistries();
             checkSymbols();
-            checkGrammar();
+            checkBlueprint();
             checkDimensionType(server);
             checkAgeCreationAndGeneration(server);
         } catch (Throwable t) {
@@ -120,28 +118,38 @@ public final class SelfCheck {
         check("every symbol round-trips through a page item", badPages == 0);
     }
 
-    /** A random Age description must expand to symbols that all resolve. */
-    private static void checkGrammar() {
-        RandomSource random = RandomSource.create(1234L);
-        List<Identifier> generated = Grammar.generateFromToken(GrammarRules.AGE, random);
-        check("grammar generates a random Age (" + generated.size() + " symbols)", !generated.isEmpty());
+    /** An empty book must be filled into a complete, stable, deterministic Age description (plan §2). */
+    private static void checkBlueprint() {
+        List<ItemStack> empty = List.of(PageItem.createLinkPanel());
+        AgeBlueprint.Result result = AgeBlueprint.fill(empty, 1234L);
+        List<Identifier> generated = AgeBlueprint.flatten(result.pages());
+        check("blueprint fills an empty book (" + result.discovered().size() + " discovered pages, " + generated.size() + " symbols)", !generated.isEmpty());
 
         List<Identifier> unresolved = new ArrayList<>();
-        for (Identifier id : generated) {
-            if (SymbolRegistry.get(id) == null) unresolved.add(id);
-        }
-        check("every generated symbol resolves", unresolved.isEmpty());
+        for (Identifier id : generated) if (SymbolRegistry.get(id) == null) unresolved.add(id);
+        check("every discovered symbol resolves", unresolved.isEmpty());
         if (!unresolved.isEmpty()) fail("unresolved symbols: " + unresolved);
-
-        // Regression band, not a spec value: a full random Age drags in 3-5 modifier symbols per visual/feature
-        // symbol, so ~60-100 is the expected shape. A grammar change that collapses expansion (a handful of
-        // symbols) or runs away (hundreds) is the thing this catches.
-        check("generated Age symbol count is in the expected 30..200 band (" + generated.size() + ")",
-                generated.size() >= 30 && generated.size() <= 200);
+        check("no required category is missing after the fill", AgeBlueprint.missing(result.pages()).isEmpty());
+        check("discovered instability within budget (" + result.discoveredInstability() + ")",
+                result.discoveredInstability() <= com.techbucketdivision.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get());
 
         // Determinism: the same seed must yield the same Age, or saved Ages would not survive a restart.
-        List<Identifier> again = Grammar.generateFromToken(GrammarRules.AGE, RandomSource.create(1234L));
-        check("grammar generation is deterministic for a given seed", generated.equals(again));
+        List<Identifier> again = AgeBlueprint.flatten(AgeBlueprint.fill(empty, 1234L).pages());
+        check("blueprint fill is deterministic for a given seed", generated.equals(again));
+
+        // 200-seed stress: never void terrain, never an unstable pick, always a sun and a terrain
+        int badSeeds = 0;
+        for (long seed = 1; seed <= 200; seed++) {
+            AgeBlueprint.Result r = AgeBlueprint.fill(empty, seed);
+            List<Identifier> ids = AgeBlueprint.flatten(r.pages());
+            boolean ok = !ids.contains(Identifier.fromNamespaceAndPath("mystcraft", "terrain_void"))
+                    && ids.stream().anyMatch(id -> id.getPath().startsWith("terrain_"))
+                    && ids.stream().anyMatch(id -> id.getPath().startsWith("sun_"))
+                    && AgeBlueprint.missing(r.pages()).isEmpty()
+                    && r.discoveredInstability() <= com.techbucketdivision.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get();
+            if (!ok) badSeeds++;
+        }
+        check("200 random fills: terrain + sun present, never void, within budget (" + badSeeds + " bad)", badSeeds == 0);
     }
 
     private static void checkDimensionType(MinecraftServer server) {
@@ -158,8 +166,9 @@ public final class SelfCheck {
         AgeData data = AgeManager.createAge(server);
 
         // Give it a real description so the generator has something to work with.
-        RandomSource random = RandomSource.create(data.seed());
-        List<Identifier> symbols = Grammar.generateFromToken(GrammarRules.AGE, random);
+        AgeBlueprint.Result filled = AgeBlueprint.fill(List.of(PageItem.createLinkPanel()), data.seed());
+        List<Identifier> symbols = AgeBlueprint.flatten(filled.pages());
+        data.setPages(filled.pages());
         data.setSymbols(symbols);
         check("age created: " + data.name() + " with " + symbols.size() + " symbols", !symbols.isEmpty());
 

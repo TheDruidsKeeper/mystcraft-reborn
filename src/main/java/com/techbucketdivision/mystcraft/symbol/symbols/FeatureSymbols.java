@@ -30,9 +30,6 @@ public final class FeatureSymbols {
     private FeatureSymbols() {}
 
     public static final int STRUCTURE_OVERUSE_INSTABILITY = 100;
-    public static final int DUMMY_LARGE_INSTABILITY = 0;
-    public static final int DUMMY_MEDIUM_INSTABILITY = 1000;
-    public static final int DUMMY_SMALL_INSTABILITY = 2000;
 
     // --- large ---------------------------------------------------------------------------------------------------
 
@@ -297,19 +294,5 @@ public final class FeatureSymbols {
             }
             director.registerInterface(new StarFissurePopulator());
         }
-    }
-
-    // --- dummies -------------------------------------------------------------------------------------------------
-
-    public static DummySymbol largeDummy() {
-        return new DummySymbol("feature_large_dummy", 4, DUMMY_LARGE_INSTABILITY, CONTRADICT, CHAOS, EXIST, TERRAIN);
-    }
-
-    public static DummySymbol mediumDummy() {
-        return new DummySymbol("feature_medium_dummy", 4, DUMMY_MEDIUM_INSTABILITY, CONTRADICT, CHAOS, EXIST, BALANCE);
-    }
-
-    public static DummySymbol smallDummy() {
-        return new DummySymbol("feature_small_dummy", 5, DUMMY_SMALL_INSTABILITY, CONTRADICT, CHAOS, EXIST, FORM);
     }
 }

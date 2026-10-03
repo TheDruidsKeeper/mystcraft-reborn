@@ -5,9 +5,9 @@ import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
 import com.techbucketdivision.mystcraft.api.symbol.BlockDescriptor;
+import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
 import com.techbucketdivision.mystcraft.api.symbol.WordData;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.symbol.grammar.Grammar;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -21,10 +21,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Block modifier symbols (REQUIREMENTS §4.3.13). A block symbol pushes a {@link BlockDescriptor} with its usable
- * categories; one grammar rule {@code Block<Category> -> symbol} per category with the category's rank.
+ * categories, each with a rarity rank the blueprint uses when it picks a random material.
  * <p>
  * Ids: {@code mystcraft:block_<blockpath>[_<propertyvalues>]} (see {@link #idFor(BlockState)}). Display name:
  * {@code symbol.mystcraft.block.wrapper} = "%s Block" with the block's name.
@@ -50,11 +51,16 @@ public final class BlockSymbols {
             return descriptor;
         }
 
+        @Override
+        public Set<BlockCategory> blockCategories() {
+            return categoryRanks.keySet();
+        }
+
         public BlockState state() {
             return descriptor.state();
         }
 
-        /** Grammar rank per usable category ({@code null} value = connect-only rule). */
+        /** Rarity rank per usable block category (1 common .. 5 rare; {@code null} = usable but never picked at random). */
         public Map<BlockCategory, Integer> categoryRanks() {
             return categoryRanks;
         }
@@ -82,28 +88,18 @@ public final class BlockSymbols {
 
     /**
      * Creates a block symbol (not registered). {@code categoryRanks} keys become the usable categories; values are the
-     * grammar ranks of the {@code Block<Category> -> symbol} rules ({@code null} = connect-only).
+     * rarity ranks the blueprint uses for random materials ({@code null} = never picked at random).
      */
     public static AgeSymbol createBlockSymbol(BlockState state, String thirdWord, @Nullable Integer rank, Map<BlockCategory, Integer> categoryRanks) {
         BlockDescriptor descriptor = new BlockDescriptor(state, categoryRanks.keySet().toArray(new BlockCategory[0]));
         return new BlockSymbol(idFor(state), descriptor, rank, categoryRanks, thirdWord);
     }
 
-    /**
-     * Registers a block symbol together with its grammar rules. Returns {@code false} if the registry rejected it
-     * (duplicate id, config, blacklist).
-     */
+    /** Registers a block symbol as a material. Returns {@code false} if the registry rejected it (duplicate id, config, blacklist). */
     public static boolean register(AgeSymbol symbol) {
         if (!(symbol instanceof BlockSymbol block)) throw new IllegalArgumentException("Not a block symbol: " + symbol);
-        boolean ok = SymbolRegistry.isFrozen() ? SymbolRegistry.registerLate(symbol) : SymbolRegistry.register(symbol);
-        if (ok) addRules(block);
-        return ok;
-    }
-
-    private static void addRules(BlockSymbol block) {
-        for (Map.Entry<BlockCategory, Integer> e : block.categoryRanks().entrySet()) {
-            Grammar.addSymbolRule(block, e.getKey().grammarToken(), e.getValue());
-        }
+        symbol.withCategory(SymbolCategory.MATERIALS);
+        return SymbolRegistry.isFrozen() ? SymbolRegistry.registerLate(symbol) : SymbolRegistry.register(symbol);
     }
 
     /** {@code mystcraft:block_<path>[_<value>...]}; other namespaces get {@code block_<ns>_<path>}. */

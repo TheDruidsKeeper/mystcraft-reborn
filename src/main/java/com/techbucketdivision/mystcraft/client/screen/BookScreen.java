@@ -31,7 +31,7 @@ public class BookScreen extends AbstractMystcraftScreen<BookMenu> {
 
     @Override
     protected void buildElements() {
-        bookElement = addElement(new BookElement(leftPos, topPos, BookElement.DESIGN_W, BookElement.DESIGN_H, new MenuBookContainer()));
+        bookElement = addElement(new BookElement(leftPos, topPos, BookElement.DESIGN_W, BookElement.DESIGN_H, container));
     }
 
     @Override
@@ -42,12 +42,15 @@ public class BookScreen extends AbstractMystcraftScreen<BookMenu> {
     }
 
     /** Adapter over {@link BookMenu}. */
+    private final MenuBookContainer container = new MenuBookContainer();
+
     private final class MenuBookContainer implements BookElement.Container {
         @Override public ItemStack getBook() { return menu.getBook(); }
         @Override public @Nullable LinkInfo getLinkInfo() { return menu.getLinkInfo(); }
         @Override public int getCurrentPageIndex() { return menu.getCurrentPageIndex(); }
         @Override public ItemStack getCurrentPage() { return menu.getCurrentPage(); }
         @Override public int getPageCount() { return menu.getPageCount(); }
+        @Override public com.techbucketdivision.mystcraft.age.@Nullable AgeSummary getSummary() { return menu.getSummary(); }
         @Override public boolean isLinkPermitted() { return menu.isLinkPermitted(); }
         @Override public boolean isTargetWorldVisited() { return menu.isTargetWorldVisited(); }
         @Override public String getBookTitle() { return menu.getBookTitle(); }
@@ -65,5 +68,10 @@ public class BookScreen extends AbstractMystcraftScreen<BookMenu> {
         public void onLink() {
             sendOnly(BookMenu.MSG_LINK);
         }
+    }
+
+    /** Test hook (client self-check): turns to a page as a click on the page edge would. */
+    public void jumpToPage(int index) {
+        container.setCurrentPageIndex(index);
     }
 }

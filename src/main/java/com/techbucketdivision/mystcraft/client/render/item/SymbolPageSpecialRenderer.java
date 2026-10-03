@@ -7,6 +7,8 @@ import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.api.symbol.WordData;
 import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
 import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
+import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -18,6 +20,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -50,16 +53,28 @@ public final class SymbolPageSpecialRenderer implements SpecialModelRenderer<Sym
     private static final float SQRT2 = 1.4142135f;
     private static final float DIAMOND = 1f + SQRT2;
 
-    /** What a page shows: a symbol (null poem = unknown symbol -> "?"), a link panel, or nothing (blank). */
-    public record Page(@Nullable Identifier symbol, @Nullable List<String> poem, boolean linkPanel) {}
+    /** One glyph to draw: its poem (null = unknown symbol -> "?") and ink colour. */
+    public record Glyph(@Nullable List<String> poem, int argb) {}
+
+    /**
+     * What a page shows: the primary glyph with up to four modifier overlays (same corners as
+     * {@link SymbolGlyphs#drawSymbolPage}), a link panel, or nothing (blank).
+     */
+    public record Page(@Nullable Glyph symbol, List<Glyph> overlays, boolean linkPanel) {}
 
     @Override
     public @Nullable Page extractArgument(ItemStack stack) {
-        if (PageItem.isLinkPanel(stack)) return new Page(null, null, true);
-        Identifier id = PageItem.getSymbolId(stack);
-        if (id == null) return null;
-        AgeSymbol symbol = PageItem.getSymbol(stack);
-        return new Page(id, symbol == null ? null : symbol.poem(), false);
+        if (PageItem.isLinkPanel(stack)) return new Page(null, List.of(), true);
+        SymbolPage page = PageItem.getSymbolPage(stack);
+        if (page == null) return null;
+        AgeSymbol symbol = page.resolve();
+        List<Glyph> overlays = new ArrayList<>(4);
+        for (int i = 0; i < Math.min(4, page.modifiers().size()); i++) {
+            AgeSymbol modifier = SymbolRegistry.get(page.modifiers().get(i));
+            overlays.add(new Glyph(modifier == null ? null : modifier.poem(), SymbolGlyphs.modifierTint(modifier)));
+        }
+        return new Page(new Glyph(symbol == null ? null : symbol.poem(), page.discovered() ? SymbolGlyphs.DISCOVERED : SymbolGlyphs.DEFAULT),
+                overlays, false);
     }
 
     @Override
@@ -74,28 +89,37 @@ public final class SymbolPageSpecialRenderer implements SpecialModelRenderer<Sym
                         0.3f, 0.3f, 0.7f, 0.7f, SymbolGlyphs.DEFAULT, light, overlay);
             }
         });
-        if (page == null || page.linkPanel()) return; // blank page / link panel
+        if (page == null || page.linkPanel() || page.symbol() == null) return; // blank page / link panel
         collector.submitCustomGeometry(poseStack, GLYPH_TYPE, (pose, buffer) -> {
-            List<String> poem = page.poem();
-            if (poem == null || poem.isEmpty()) {
-                word(pose, buffer, null, GLYPH_MARGIN, GLYPH_MARGIN, GLYPH_SIZE, light, overlay);
-                return;
+            symbol(pose, buffer, page.symbol(), GLYPH_MARGIN, GLYPH_MARGIN, GLYPH_SIZE, light, overlay);
+            float size = GLYPH_SIZE * SymbolGlyphs.OVERLAY_SCALE;
+            for (int i = 0; i < page.overlays().size(); i++) {
+                symbol(pose, buffer, page.overlays().get(i), SymbolGlyphs.overlayX(i, GLYPH_MARGIN, GLYPH_SIZE),
+                        SymbolGlyphs.overlayY(i, GLYPH_MARGIN, GLYPH_SIZE), size, light, overlay);
             }
-            // Same layout as SymbolGlyphs.drawSymbol: four words on a diamond, each at half scale.
-            float half = GLYPH_SIZE / 2f;
-            float s = half / DIAMOND;
-            float o = s * SQRT2;
-            float wordSize = 2f * s;
-            float x = GLYPH_MARGIN, y = GLYPH_MARGIN;
-            if (poem.size() > 0) word(pose, buffer, poem.get(0), x + o, y, wordSize, light, overlay);
-            if (poem.size() > 1) word(pose, buffer, poem.get(1), x + o * 2f, y + o, wordSize, light, overlay);
-            if (poem.size() > 2) word(pose, buffer, poem.get(2), x + o, y + o * 2f, wordSize, light, overlay);
-            if (poem.size() > 3) word(pose, buffer, poem.get(3), x, y + o, wordSize, light, overlay);
         });
     }
 
+    /** Same layout as {@link SymbolGlyphs#drawSymbol}: four words on a diamond, each at half scale. */
+    private static void symbol(PoseStack.Pose pose, VertexConsumer buffer, Glyph glyph, float x, float y, float size,
+                               int light, int overlay) {
+        List<String> poem = glyph.poem();
+        if (poem == null || poem.isEmpty()) {
+            word(pose, buffer, null, x, y, size, glyph.argb(), light, overlay);
+            return;
+        }
+        float half = size / 2f;
+        float s = half / DIAMOND;
+        float o = s * SQRT2;
+        float wordSize = 2f * s;
+        if (poem.size() > 0) word(pose, buffer, poem.get(0), x + o, y, wordSize, glyph.argb(), light, overlay);
+        if (poem.size() > 1) word(pose, buffer, poem.get(1), x + o * 2f, y + o, wordSize, glyph.argb(), light, overlay);
+        if (poem.size() > 2) word(pose, buffer, poem.get(2), x + o, y + o * 2f, wordSize, glyph.argb(), light, overlay);
+        if (poem.size() > 3) word(pose, buffer, poem.get(3), x, y + o, wordSize, glyph.argb(), light, overlay);
+    }
+
     private static void word(PoseStack.Pose pose, VertexConsumer buffer, @Nullable String word, float gx, float gy, float size,
-                             int light, int overlay) {
+                             int argb, int light, int overlay) {
         List<Integer> components = word == null || word.isEmpty() ? List.of(0) : WordData.components(word);
         if (components.isEmpty()) components = List.of(0);
         for (int c : components) {
@@ -103,7 +127,7 @@ public final class SymbolPageSpecialRenderer implements SpecialModelRenderer<Sym
             float v0 = ((c / PER_ROW) % PER_ROW) * CELL / (float) SHEET;
             float u1 = u0 + CELL / (float) SHEET;
             float v1 = v0 + CELL / (float) SHEET;
-            sheet(pose, buffer, gx, gy, size, GLYPH_Z, BACK_Z - 0.002f, u0, v0, u1, v1, SymbolGlyphs.DEFAULT, light, overlay);
+            sheet(pose, buffer, gx, gy, size, GLYPH_Z, BACK_Z - 0.002f, u0, v0, u1, v1, argb, light, overlay);
         }
     }
 

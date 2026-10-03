@@ -7,7 +7,7 @@ import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.item.component.BookHealth;
 import com.techbucketdivision.mystcraft.item.component.PageList;
 import com.techbucketdivision.mystcraft.item.component.SlotPages;
-import com.techbucketdivision.mystcraft.item.component.SymbolRef;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Item data components (replace the original NBT layouts, REQUIREMENTS §2).
  * <ul>
- * <li>Page: {@link #SYMBOL} (absent = blank) or {@link #LINK_PANEL} (set of properties; present = link panel)</li>
+ * <li>Page: {@link #SYMBOL} (symbol + modifiers + discovered; absent = blank) or {@link #LINK_PANEL} (set of properties; present = link panel)</li>
  * <li>Books: {@link #LINK_INFO}, {@link #BOOK_HEALTH}, {@link #PAGES} (descriptive book), {@link #AUTHORS}</li>
  * <li>Folder: {@link #SLOT_PAGES}, {@link #ITEM_TITLE}; Portfolio: {@link #PAGES}, {@link #ITEM_TITLE}</li>
  * </ul>
@@ -31,8 +31,9 @@ public final class ModDataComponents {
 
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Mystcraft.MOD_ID);
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SymbolRef>> SYMBOL = COMPONENTS.registerComponentType("symbol",
-            b -> b.persistent(SymbolRef.CODEC).networkSynchronized(SymbolRef.STREAM_CODEC));
+    /** Symbol page: primary symbol, attached modifiers, discovered flag. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SymbolPage>> SYMBOL = COMPONENTS.registerComponentType("symbol",
+            b -> b.persistent(SymbolPage.CODEC).networkSynchronized(SymbolPage.STREAM_CODEC));
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Set<LinkProperty>>> LINK_PANEL = COMPONENTS.registerComponentType("link_panel",
             b -> b.persistent(LinkProperty.CODEC.listOf().xmap(l -> (Set<LinkProperty>) new java.util.LinkedHashSet<>(l), List::copyOf))

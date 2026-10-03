@@ -2,9 +2,9 @@ package com.techbucketdivision.mystcraft;
 
 import com.mojang.logging.LogUtils;
 import com.techbucketdivision.mystcraft.config.BalanceConfig;
+import com.techbucketdivision.mystcraft.config.WorldBuildingConfig;
 import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import com.techbucketdivision.mystcraft.instability.InstabilityManager;
-import com.techbucketdivision.mystcraft.linking.InkEffects;
 import com.techbucketdivision.mystcraft.linking.LinkListeners;
 import com.techbucketdivision.mystcraft.network.Payloads;
 import com.techbucketdivision.mystcraft.registry.ModAttachments;
@@ -24,7 +24,6 @@ import com.techbucketdivision.mystcraft.registry.ModRecipes;
 import com.techbucketdivision.mystcraft.registry.ModSounds;
 import com.techbucketdivision.mystcraft.registry.ModVillagers;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.symbol.grammar.Grammar;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -64,6 +63,7 @@ public final class Mystcraft {
         // Config
         container.registerConfig(ModConfig.Type.COMMON, MystcraftConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, BalanceConfig.SPEC, MOD_ID + "-balance.toml");
+        container.registerConfig(ModConfig.Type.COMMON, WorldBuildingConfig.SPEC, MOD_ID + "-worldbuilding.toml");
 
         modBus.addListener(Payloads::register);
         modBus.addListener(this::commonSetup);
@@ -72,10 +72,8 @@ public final class Mystcraft {
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             LinkListeners.registerDefaults();
-            InkEffects.registerDefaults();
             InstabilityManager.registerDefaults();
             SymbolRegistry.bootstrapBuiltins();
-            Grammar.bootstrap();
             SymbolRegistry.freeze();
             LOGGER.info("Mystcraft Reborn: {} symbols registered", SymbolRegistry.all().size());
         });

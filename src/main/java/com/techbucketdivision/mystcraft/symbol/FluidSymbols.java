@@ -19,15 +19,15 @@ import java.util.Set;
 
 /**
  * Fluid symbols (REQUIREMENTS §4.3.14): one block symbol per registered source fluid other than vanilla water/lava
- * (which are covered by the built-in block table). Word "Sea"; card rank 4, grammar rank 4 (config/balance table of
- * the original reduced to the built-in defaults, plus black ink = card 1 / grammar 0). Categories: FLUID always, SEA
+ * (which are covered by the built-in block table). Word "Sea"; card rank 4, material rank 4 (config/balance table of
+ * the original reduced to the built-in defaults, plus black ink = card 1 / rank 0). Categories: FLUID always, SEA
  * unless sea-banned (GAS instead of SEA for fluids lighter than air).
  */
 public final class FluidSymbols {
     private FluidSymbols() {}
 
     public static final int DEFAULT_CARD_RANK = 4;
-    public static final int DEFAULT_GRAMMAR_RANK = 4;
+    public static final int DEFAULT_RANK = 4;
 
     private static final Set<Identifier> BLACKLIST = new LinkedHashSet<>();
     private static final Set<Identifier> SEA_BANNED = new LinkedHashSet<>();
@@ -69,18 +69,18 @@ public final class FluidSymbols {
             }
             boolean seaBanned = SEA_BANNED.contains(fluidId);
             int card = DEFAULT_CARD_RANK;
-            int grammar = DEFAULT_GRAMMAR_RANK;
+            int rank = DEFAULT_RANK;
             if (fluid == ModFluids.BLACK_INK.get()) {
                 card = 1;
-                grammar = 0;
+                rank = 0;
                 seaBanned = true;
             }
             Map<BlockCategory, Integer> ranks = new LinkedHashMap<>();
-            ranks.put(BlockCategory.FLUID, grammar);
+            ranks.put(BlockCategory.FLUID, rank);
             if (gaseous) {
-                ranks.put(BlockCategory.GAS, grammar);
+                ranks.put(BlockCategory.GAS, rank);
             } else if (!seaBanned) {
-                ranks.put(BlockCategory.SEA, grammar);
+                ranks.put(BlockCategory.SEA, rank);
             }
             AgeSymbol symbol = BlockSymbols.createBlockSymbol(block, WordData.SEA, card, ranks);
             if (SymbolRegistry.contains(symbol.id())) continue; // already a built-in block symbol

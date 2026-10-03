@@ -2,6 +2,7 @@ package com.techbucketdivision.mystcraft.menu;
 
 import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
 import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.techbucketdivision.mystcraft.age.AgeSummary;
 import com.techbucketdivision.mystcraft.blockentity.BookUtil;
 import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
 import com.techbucketdivision.mystcraft.menu.slot.ToggleHandlerSlot;
@@ -42,6 +43,7 @@ public class BookMenu extends AbstractMystcraftMenu {
     public static final String MSG_LINK = BookView.MSG_LINK;
     public static final String MSG_SET_CURRENT_PAGE = BookView.MSG_SET_CURRENT_PAGE;
     public static final String MSG_LINK_PERMITTED = BookView.MSG_LINK_PERMITTED;
+    public static final String MSG_SUMMARY = BookView.MSG_SUMMARY;
 
     public static final int INV_START = 0;
     public static final int SLOT_BOOK_EMPTY = 36;
@@ -68,6 +70,7 @@ public class BookMenu extends AbstractMystcraftMenu {
 
     private final Source source;
     private final BookView book;
+    private int summaryTicks;
     private ItemStack lastBook = ItemStack.EMPTY;
 
     public BookMenu(int containerId, Inventory inv, Source source) {
@@ -183,6 +186,14 @@ public class BookMenu extends AbstractMystcraftMenu {
             tag.putBoolean("Visited", book.isTargetWorldVisited());
             sendToClient(MSG_LINK_PERMITTED, tag);
         }
+        // the summary page follows the Age (score, active instability effects): refresh once a second
+        boolean first = summaryTicks == 0;
+        if (summaryTicks++ % 20 == 0 && (book.computeSummary() || first)) {
+            CompoundTag tag = new CompoundTag();
+            AgeSummary summary = book.getSummary();
+            if (summary != null) tag.put("Summary", summary.toTag());
+            sendToClient(MSG_SUMMARY, tag);
+        }
     }
 
     @Override
@@ -190,6 +201,7 @@ public class BookMenu extends AbstractMystcraftMenu {
         switch (messageName(data)) {
             case MSG_LINK_PERMITTED -> book.setPermitted(data.getBooleanOr("Permitted", false), data.getBooleanOr("Visited", false));
             case MSG_SET_CURRENT_PAGE -> book.setCurrentPageIndex(data.getIntOr("Index", 0));
+            case MSG_SUMMARY -> book.setSummary(AgeSummary.fromTag(data, "Summary"));
             case MSG_LINK -> {
                 if (player instanceof ServerPlayer sp) source.link(sp);
             }
@@ -226,6 +238,10 @@ public class BookMenu extends AbstractMystcraftMenu {
 
     public int getPageCount() {
         return book.getPageCount();
+    }
+
+    public @Nullable AgeSummary getSummary() {
+        return book.getSummary();
     }
 
     public boolean isLinkPermitted() {

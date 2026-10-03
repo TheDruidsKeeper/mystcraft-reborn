@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.OptionalLong;
@@ -90,10 +90,10 @@ public final class AgeManager {
     // --- sync --------------------------------------------------------------------------------------------------
 
     public static void sendAgeData(ServerPlayer player, AgeData data) {
-        PacketDistributor.sendToPlayer(player, new AgeDataSyncPayload(data.copy()));
+        Network.sendToPlayer(player, new AgeDataSyncPayload(data.copy()));
     }
 
     public static void sendAgeDataToLevel(ServerLevel level, AgeData data) {
-        PacketDistributor.sendToPlayersInDimension(level, new AgeDataSyncPayload(data.copy()));
+        Network.sendToPlayersInDimension(level, new AgeDataSyncPayload(data.copy()));
     }
 }

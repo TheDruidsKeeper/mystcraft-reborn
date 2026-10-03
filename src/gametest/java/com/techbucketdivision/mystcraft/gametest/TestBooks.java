@@ -29,6 +29,13 @@ final class TestBooks {
         return book;
     }
 
+    /** As {@link #unboundDescriptiveBook(String, Identifier...)} with a fixed Age seed (deterministic blueprint and start time). */
+    static ItemStack unboundDescriptiveBook(String title, long seed, Identifier... symbols) {
+        ItemStack book = unboundDescriptiveBook(title, symbols);
+        LinkingItem.setLinkInfo(book, LinkingItem.getLinkInfo(book).withProp(LinkProperty.PROP_SEED, Long.toString(seed)));
+        return book;
+    }
+
     /** Binds the book to a fresh Age (what the first link does) and returns the Age data. */
     static AgeData bind(ItemStack book, MinecraftServer server) {
         DescriptiveBookItem.checkFirstLink(book, server);

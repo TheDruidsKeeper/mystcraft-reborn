@@ -3,9 +3,8 @@ package com.techbucketdivision.mystcraft.symbol;
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
 import com.techbucketdivision.mystcraft.api.symbol.WordData;
-import com.techbucketdivision.mystcraft.symbol.grammar.Grammar;
-import com.techbucketdivision.mystcraft.symbol.grammar.GrammarRules;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import com.techbucketdivision.mystcraft.world.biome.BiomeHeights;
 import net.minecraft.core.Holder;
@@ -28,8 +27,8 @@ import java.util.Set;
  * Biome modifier symbols (REQUIREMENTS §4.3.12 "Biome"). One symbol per registered biome, created per server from
  * its datapack registry ({@code ServerAboutToStartEvent} in package E, and lazily by {@link #selectableBiomes}).
  * <p>
- * Id: {@code mystcraft:biome_<namespace>_<path>}. Card rank 2 (End / void biomes: {@code null}, and their grammar
- * rule is connect-only). Display name: {@code symbol.mystcraft.biome.wrapper} = "%s Biome". Trade price 1 emerald.
+ * Id: {@code mystcraft:biome_<namespace>_<path>}. Card rank 2 (End / void biomes: {@code null}; the blueprint only
+ * picks End biomes with End terrain). Display name: {@code symbol.mystcraft.biome.wrapper} = "%s Biome". Trade price 1 emerald.
  */
 public final class BiomeSymbols {
     private BiomeSymbols() {}
@@ -115,7 +114,7 @@ public final class BiomeSymbols {
 
     /**
      * (Re)registers a symbol for every biome of the given registries and the fluid symbols. Safe to call repeatedly
-     * (each call replaces the symbols of the previous registry set). Also rebuilds the card ranks and grammar.
+     * (each call replaces the symbols of the previous registry set). Also rebuilds the card ranks.
      */
     public static synchronized void registerAll(HolderLookup.Provider registries) {
         List<Holder<Biome>> list = new ArrayList<>();
@@ -126,8 +125,8 @@ public final class BiomeSymbols {
             ResourceKey<Biome> key = ref.key();
             boolean end = isEndOrVoid(key);
             BiomeSymbol symbol = new BiomeSymbol(key, ref, end ? null : 2);
+            symbol.withCategory(SymbolCategory.BIOMES);
             if (SymbolRegistry.registerLate(symbol)) {
-                Grammar.addSymbolRule(symbol, GrammarRules.BIOME, end ? null : 1);
                 CardRanks.overrideTradePrice(symbol.id(), 1);
                 if (!end) list.add(ref);
                 keys.add(key);

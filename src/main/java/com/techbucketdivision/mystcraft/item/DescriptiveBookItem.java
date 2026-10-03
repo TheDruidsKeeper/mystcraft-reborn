@@ -1,6 +1,7 @@
 package com.techbucketdivision.mystcraft.item;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
+import com.techbucketdivision.mystcraft.age.AgeBlueprint;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.age.AgeManager;
 import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
@@ -11,11 +12,9 @@ import com.techbucketdivision.mystcraft.item.component.BookHealth;
 import com.techbucketdivision.mystcraft.item.component.PageList;
 import com.techbucketdivision.mystcraft.registry.ModDataComponents;
 import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.symbol.grammar.Grammar;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -97,16 +96,6 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         }
     }
 
-    /** Symbol ids of every symbol page, in page order (blank pages and link panels skipped). */
-    public static List<Identifier> writtenSymbols(List<ItemStack> pages) {
-        List<Identifier> out = new ArrayList<>();
-        for (ItemStack page : pages) {
-            Identifier id = PageItem.getSymbolId(page);
-            if (id != null) out.add(id);
-        }
-        return out;
-    }
-
     private List<ItemStack> defaultPages(@Nullable MinecraftServer server, ItemStack book) {
         AgeData data = getAgeData(server, book);
         if (data != null && !data.pages().isEmpty()) return data.pages();
@@ -160,8 +149,8 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
     }
 
     /**
-     * First link: creates the Age, binds the book, copies title/seed/pages/authors into the Age and expands the
-     * written symbols through the grammar (REQUIREMENTS §2.3.1, §4.4).
+     * First link: creates the Age, binds the book, copies title/seed/authors into the Age and completes the pages
+     * through the Age blueprint (REQUIREMENTS §2.3.1, §4.4 Reborn revision).
      */
     public static void checkFirstLink(ItemStack stack, MinecraftServer server) {
         if (!isDescriptiveBook(stack) || !hasLinkInfo(stack)) return;
@@ -190,51 +179,41 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         }
         setLinkInfo(stack, info);
 
-        List<ItemStack> pages = PageItem.remapAll(getPages(stack));
-        setPages(stack, pages);
-        data.setPages(pages);
+        List<ItemStack> written = PageItem.remapAll(getPages(stack));
         data.setAuthors(stack.getOrDefault(ModDataComponents.AUTHORS.get(), List.of()));
 
-        List<Identifier> written = writtenSymbols(pages);
-        List<Identifier> expanded = Grammar.expandAge(written, RandomSource.create(data.seed()));
-        data.setSymbols(expanded);
-        // Build the Age once now so the controller fallbacks (a missing terrain / biome / lighting / weather symbol)
-        // are chosen and recorded; after this data.symbols() is the complete description of the Age.
+        // Reborn: the Age blueprint fills what the author left out (required categories, defaults, random extras),
+        // organises the pages by category and derives the symbol list; the book then describes the whole Age.
+        AgeBlueprint.Result filled = AgeBlueprint.fill(written, data.seed());
+        List<ItemStack> pages = filled.pages();
+        List<Identifier> symbols = AgeBlueprint.flatten(pages);
+        data.setSymbols(symbols);
+        // Build the Age once now so any controller fallback (only possible with add-on symbols that fail) is recorded.
         try {
             new com.techbucketdivision.mystcraft.age.AgeController(data, server.registryAccess(), false);
         } catch (RuntimeException e) {
             Mystcraft.LOGGER.warn("Could not pre-build Age {} to settle its symbols", data.uuid(), e);
         }
-        // Reborn: the book becomes a complete description of the Age it now points at - every symbol the grammar
-        // (and the fallbacks) added, dangerous ones included, is written onto a new page after the author's pages.
-        int added = writeGeneratedSymbols(stack, data);
-        Mystcraft.LOGGER.info("Bound descriptive book '{}' to Age {} ({} written symbols -> {} total, {} pages added to the book)",
-                info.displayName(), data.uuid(), written.size(), data.symbols().size(), added);
+        pages = reconcile(pages, symbols, data.symbols());
+        setPages(stack, pages);
+        data.setPages(pages);
+        data.setSymbols(AgeBlueprint.flatten(pages));
+        Mystcraft.LOGGER.info("Bound descriptive book '{}' to Age {} ({} written pages, {} discovered, {} symbols, discovered instability {})",
+                info.displayName(), data.uuid(), written.size(), filled.discovered().size(), data.symbols().size(), filled.discoveredInstability());
     }
 
     /**
-     * Appends a symbol page for every occurrence of a symbol in the Age's final list that the book does not already
-     * carry (multiset difference, Age order), and mirrors the page list into the Age. Returns the number of pages added.
+     * Adds a discovered page for every symbol the controller added on top of the blueprint (a fallback for a missing
+     * controller) so the book stays a complete description; returns the organised page list.
      */
-    public static int writeGeneratedSymbols(ItemStack stack, AgeData data) {
-        List<ItemStack> pages = new ArrayList<>(getPages(stack));
-        java.util.Map<Identifier, Integer> have = new java.util.HashMap<>();
-        for (Identifier id : writtenSymbols(pages)) have.merge(id, 1, Integer::sum);
-        int added = 0;
-        for (Identifier id : data.symbols()) {
-            int left = have.getOrDefault(id, 0);
-            if (left > 0) {
-                have.put(id, left - 1);
-                continue;
-            }
-            pages.add(PageItem.createSymbolPage(id));
-            added++;
+    private static List<ItemStack> reconcile(List<ItemStack> pages, List<Identifier> expected, List<Identifier> actual) {
+        if (actual.size() <= expected.size()) return pages;
+        List<ItemStack> out = new ArrayList<>(pages);
+        for (Identifier id : actual.subList(expected.size(), actual.size())) {
+            Mystcraft.LOGGER.warn("[blueprint] controller fallback added {}; writing it as a discovered page", id);
+            out.add(PageItem.createDiscoveredPage(id, List.of()));
         }
-        if (added > 0) {
-            setPages(stack, pages);
-            data.setPages(pages);
-        }
-        return added;
+        return AgeBlueprint.organise(out);
     }
 
     // --- age access --------------------------------------------------------------------------------------------

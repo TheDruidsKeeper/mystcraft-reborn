@@ -26,18 +26,14 @@ public final class MiscSymbols {
         public NoSea() { super("no_sea", 2, MODIFIER, CONSTRAINT, FLOW, INHIBIT); }
 
         @Override
+        public java.util.Set<BlockCategory> blockCategories() {
+            return java.util.Set.of(BlockCategory.SEA);
+        }
+
+        @Override
         public void registerLogic(AgeDirector director, long seed) {
             director.pushBlock(new BlockDescriptor(Blocks.AIR.defaultBlockState(), BlockCategory.SEA));
         }
     }
 
-    /** Clear Modifiers: drops every pending modifier at 20% of the dangling cost. */
-    public static final class ClearModifiers extends SimpleSymbol {
-        public ClearModifiers() { super("clear_modifiers", 0, CONTRADICT, TRANSFORM, CHANGE, VOID); }
-
-        @Override
-        public void registerLogic(AgeDirector director, long seed) {
-            director.clearModifiers();
-        }
-    }
 }

@@ -1,31 +1,32 @@
 package com.techbucketdivision.mystcraft.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
 import com.techbucketdivision.mystcraft.entity.MystFallingBlockEntity;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Falling block (instability crumble / meteors). Phase 1 renders the block's item model (a unit cube for full blocks),
- * which avoids the unverified {@code MovingBlockRenderState} API; blocks without an item render nothing.
- * TODO Phase 2: submitMovingBlock / submitBlockModel with the real block state model.
+ * Falling block (instability crumble / meteors). Mirrors vanilla {@code FallingBlockRenderer}: the real block-state
+ * model is submitted through {@link SubmitNodeCollector#submitMovingBlock} with a {@link MovingBlockRenderState}
+ * carrying biome (grass/foliage/water tints), cardinal lighting and the light engine of the client level.
  */
 public class MystFallingBlockRenderer extends EntityRenderer<MystFallingBlockEntity, MystFallingBlockRenderer.State> {
 
     public static class State extends EntityRenderState {
-        public final ItemStackRenderState block = new ItemStackRenderState();
+        public final MovingBlockRenderState movingBlock = new MovingBlockRenderState();
     }
 
     public MystFallingBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.shadowRadius = 0.5f;
     }
 
     @Override
@@ -36,19 +37,25 @@ public class MystFallingBlockRenderer extends EntityRenderer<MystFallingBlockEnt
     @Override
     public void extractRenderState(MystFallingBlockEntity entity, State state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
-        state.shadowRadius = 0.5f; // EntityRenderState#shadowRadius (API_CHEATSHEET K, verified field)
-        BlockState bs = entity.getBlockState();
-        ItemStack stack = bs.isAir() ? ItemStack.EMPTY : new ItemStack(bs.getBlock());
-        ItemRenderHelper.extract(state.block, stack, ItemDisplayContext.FIXED, entity.level(), entity.getId());
+        BlockPos pos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+        state.movingBlock.randomSeedPos = entity.blockPosition();
+        state.movingBlock.blockPos = pos;
+        state.movingBlock.blockState = entity.getBlockState();
+        if (entity.level() instanceof ClientLevel clientLevel) {
+            state.movingBlock.biome = clientLevel.getBiome(pos);
+            state.movingBlock.cardinalLighting = clientLevel.cardinalLighting();
+            state.movingBlock.lightEngine = clientLevel.getLightEngine();
+        }
     }
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
-        super.submit(state, poseStack, collector, camera);
-        if (state.block.isEmpty()) return;
+        BlockState blockState = state.movingBlock.blockState;
+        if (blockState.getRenderShape() != RenderShape.MODEL) return;
         poseStack.pushPose();
-        poseStack.translate(0.0, 0.5, 0.0); // block items are centred cubes; the entity origin is its bottom
-        ItemRenderHelper.submit(state.block, poseStack, collector, state.lightCoords);
+        poseStack.translate(-0.5, 0.0, -0.5);
+        collector.submitMovingBlock(poseStack, state.movingBlock);
         poseStack.popPose();
+        super.submit(state, poseStack, collector, camera);
     }
 }

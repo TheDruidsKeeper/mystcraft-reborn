@@ -19,6 +19,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
@@ -145,9 +147,28 @@ public final class LinkListeners {
         if (entity instanceof Container container) {
             ejectContainer(level, entity, container);
         }
-        // TODO: horse chests (AbstractHorse inventory is not publicly accessible in 26.1)
+        if (entity instanceof AbstractHorse horse) {
+            ejectHorseInventory(level, horse);
+        }
         if (entity instanceof Mob mob) {
             dropEquipment(level, mob);
+        }
+    }
+
+    /**
+     * Horse / donkey / llama saddle + chest contents. {@code AbstractHorse.inventory} is protected in 26.1, but the
+     * vanilla {@link Entity#getSlot(int)} exposes it at {@code 500 + index} (used by /item), so no AT is needed.
+     */
+    private static void ejectHorseInventory(ServerLevel level, AbstractHorse horse) {
+        for (int i = 0; i < horse.getInventorySize(); i++) {
+            SlotAccess slot = horse.getSlot(500 + i);
+            if (slot == null) continue;
+            ItemStack stack = slot.get();
+            if (stack.isEmpty()) continue;
+            slot.set(ItemStack.EMPTY);
+            ItemEntity item = new ItemEntity(level, horse.getX(), horse.getY() + 0.5, horse.getZ(), stack);
+            item.setDefaultPickUpDelay();
+            level.addFreshEntity(item);
         }
     }
 

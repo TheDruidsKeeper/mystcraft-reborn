@@ -8,7 +8,7 @@ classes.
 
 | Class | Purpose |
 |---|---|
-| `ClientSetup` | `register(modBus)`: installs `ClientNetwork.INSTANCE` as the menu `ClientSender`; mod-bus listeners `RegisterMenuScreensEvent` (7 screens), `EntityRenderersEvent.RegisterRenderers` (4 BERs, 4 entity renderers), `RegisterClientPayloadHandlersEvent` (→ `ClientPayloadHandlers.register`), `RegisterCustomEnvironmentEffectRendererEvent` (`mystcraft:age` skybox / clouds / weather), `RegisterParticleProvidersEvent` (`mystcraft:link` sprite set), `RegisterColorHandlersEvent.BlockTintSources` (portal tint, ink tint); then `ClientGameEvents.register(NeoForge.EVENT_BUS)`. Constant `AGE_ENVIRONMENT = mystcraft:age`. |
+| `ClientSetup` | `register(modBus)`: installs `ClientNetwork.INSTANCE` as the menu `ClientSender`; mod-bus listeners `RegisterMenuScreensEvent` (7 screens), `EntityRenderersEvent.RegisterRenderers` (4 BERs, 4 entity renderers), `RegisterClientPayloadHandlersEvent` (→ `ClientPayloadHandlers.register`), `RegisterCustomEnvironmentEffectRendererEvent` (`mystcraft:age` skybox / clouds / weather), `RegisterParticleProvidersEvent` (`mystcraft:link` sprite set), `RegisterColorHandlersEvent.BlockTintSources` (portal tint, ink tint, Age biome-tint wrappers), `RegisterFluidModelsEvent` (`FluidModel.Unbaked(block/fluid, block/fluid_flow, null, InkTintSource)` for both ink fluids); then `ClientGameEvents.register(NeoForge.EVENT_BUS)`. Constant `AGE_ENVIRONMENT = mystcraft:age`. |
 | `ClientGameEvents` | Game bus: `ExtractLevelRenderStateEvent` (Phase 1 sky: `skyRenderState.sunAngle/moonAngle/starAngle/starBrightness/rainBrightness/moonPhase/sunriseAndSunsetColor/skyColor`, `levelRenderState.cloudColor/cloudHeight` from the client `AgeController`), `ViewportEvent.ComputeFogColor` (fog colour), `ClientTickEvent.Post` (local age clock + `WeatherController.updateRaining` → `Level#setRainLevel/setThunderLevel`), `ClientPlayerNetworkEvent.LoggingOut` (`ClientAgeData.clear()`). |
 | `ClientAgeData` | Cache of synced `AgeData` by UUID. `accept(AgeData)` (structural change → `copyFrom`, else only time + weather storage so the controller survives), `get(UUID)`, `dataFor(ClientLevel)`, `controllerFor(ClientLevel)` (→ `AgeControllers.client`), `ageTime(ClientLevel)`, `tick(ClientLevel)`, `clear()` (also `AgeControllers.clearClient()`). |
 | `ClientNetwork` | `implements menu.ClientSender`; `INSTANCE`, `send(MenuMessagePayload)`, `static sendToServer(CustomPacketPayload)` via `ClientPacketDistributor`. |
@@ -25,15 +25,16 @@ classes.
 | `ItemRenderHelper` | `extract(ItemStackRenderState, ItemStack, ItemDisplayContext, Level, seed)` via `Minecraft#getItemModelResolver().updateForTopItem`, `submit(state, poseStack, collector, light)`. |
 | `BoxRenderer` | Stretched block-item cubes (`extractBlock`, `box(...)`) used for the placeholder desk geometry. |
 | `LabelRenderer` | Floating labels (`enabled()` = `ClientConfig.RENDER_LABELS` && server allows; 25-block limit; `submit` via `submitNameTag`). |
-| `tint.PortalTintSource` | `BlockTintSource` for `link_portal`: `PortalUtils.getReceptacle(level, pos).getPortalColor()`. |
-| `tint.InkTintSource` | `BlockTintSource` for `black_ink`: `0x191919`. |
+| `tint.PortalTintSource` | `BlockTintSource` for `link_portal`: `PortalUtils.getReceptacle(level, pos).getPortalColor() \| 0xFF000000`. Alpha must be opaque: 26.1 `QuadInstance.multiplyColor` uses `ARGB.multiply` on all four channels, so a bare `0xRRGGBB` tint renders the block invisible. |
+| `tint.InkTintSource` | `FluidTintSource` (NeoForge, extends `BlockTintSource`) for `black_ink`: `0xFF191919`; shared by the block tint registration, the `FluidModel` (fluid renderer uses `ARGB.scaleRGB`, alpha kept) and the `neoforge:fluid_container` bucket (`FluidContentsTint` → `colorAsStack`). |
+| `tint.AgeBiomeTints` / `tint.AgeBiomeTintSource` | Static `ColorKind.GRASS/FOLIAGE/WATER` overrides of the current Age (`AgeController.staticColor`), refreshed each client tick into volatile ints and read by chunk-mesh workers. `ClientSetup.wrapBiomeTints` wraps the vanilla `BlockColors` entries (grass block/plants, leaves/vine, water cauldron/bubble column/water block) at `RegisterColorHandlersEvent.BlockTintSources` time, which fires after `BlockColors.createDefault` and overrides by `register`. The water *fluid* itself still uses NeoForge's `FluidTintSources.water()` — `RegisterFluidModelsEvent` rejects duplicate registrations, so a per-Age water colour needs a mixin into `ClientLevel#getBlockTint`/`BiomeColors` (not done). |
 | `blockentity.BookDisplayRenderer<T extends BookDisplayBlockEntity>` | bookstand (surface 12/16, scale 0.525) / lectern (7/16, 0.61): displayed item lying flat, rotated by yaw, tilted by pitch; optional label. Render state `State` (item, yaw, pitch, surfaceHeight, scale, label, distanceSq). |
 | `blockentity.BookReceptacleRenderer` | subclass: book on the slab face of `BookReceptacleBlock.ROTATION`. |
 | `blockentity.WritingDeskRenderer` | Draws the whole invisible desk (table top + legs over head/foot, backboard when `hasBackboard()`, paper stack, open target item) from stretched planks cubes; `getRenderBoundingBox` covers 3×2×3. **Phase 2:** port `ModelWritingDesk` + `textures/entity/desk.png`. |
 | `blockentity.StarFissureRenderer` | `submitCustomGeometry(RenderTypes.endPortal())` quads on the top (1.6 px) and bottom faces. |
 | `entity.LinkbookRenderer` | `EntityRenderer<LinkbookEntity, State>`: book item flat on the ground, hurt bounce, name tag = `getAgeName()` when labels are enabled. |
 | `entity.MeteorRenderer` | tumbling end-portal cube scaled by `getScale()`. |
-| `entity.MystFallingBlockRenderer` | block item model of `getBlockState()` (Phase 2: `submitMovingBlock`). |
+| `entity.MystFallingBlockRenderer` | Mirrors vanilla `FallingBlockRenderer`: `MovingBlockRenderState` (blockState, blockPos at bbox top, biome, `ClientLevel#cardinalLighting()`, light engine) → `SubmitNodeCollector#submitMovingBlock` after `translate(-0.5, 0, -0.5)`; `shadowRadius = 0.5` on the renderer. |
 | `entity.ColoredLightningRenderer` | port of the vanilla bolt geometry via `RenderTypes.lightning()`, tinted with `getColor()`. |
 
 ## Screens (`client.screen`, all extend `AbstractMystcraftScreen<M>` → `AbstractContainerScreen<M>`)
@@ -93,6 +94,7 @@ gui.mystcraft.shop.buy_booster=Buy a Sealed Notebook (%s emeralds)
 
 ## Phase 2 TODOs
 
-Custom sky (`AgeSkyRenderer`), real desk / book models, `MovingBlockRenderState` for falling blocks, per-biome weather
-temperatures, link-panel effects (Disarm lightning, LookingGlass), D'ni colour eye, fluid sprite in `InkTank`,
-grass/foliage/water tints from `ColorKind.GRASS/FOLIAGE/WATER`.
+Custom sky (`AgeSkyRenderer`), real desk / book models, per-biome weather temperatures, link-panel effects (Disarm
+lightning, LookingGlass), D'ni colour eye, fluid sprite in `InkTank`, water-*fluid* tint from `ColorKind.WATER` (needs a
+mixin, see `tint.AgeBiomeTints`). Done since: `MovingBlockRenderState` falling blocks, grass/foliage block tints, ink
+`FluidModel`, dynamic bucket model.

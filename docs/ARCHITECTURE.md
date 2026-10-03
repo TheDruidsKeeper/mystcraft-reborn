@@ -100,5 +100,5 @@ Mutable, per-age, keyed by `UUID`. Fields mirror REQUIREMENTS §5.2 (name, seed,
 | M1 | Registries, items, blocks, block entities, menus/screens, data components, lang/models/assets, recipes, loot | in progress |
 | M2 | Symbols (all), grammar, AgeData/AgeController, dynamic dimensions, chunk generator, terrain gens, biome controllers, features, celestial/weather maths, phase-1 sky | in progress |
 | M3 | Linking (books, portals, star fissure, permissions), instability (profiling, decks, effects, decay), entities (book, meteor, falling block, lightning), commands, villager/library structures | in progress |
-| M4 | Phase-2 rendering (custom sky with multiple celestials, rainbows, page glyph item models, block tints), notebook/desk UI polish, gametests | planned |
+| M4 | Phase-2 rendering (custom sky with multiple celestials, rainbows, page glyph item models), notebook/desk UI polish, gametests | in progress (done: falling-block `MovingBlockRenderState`, grass/foliage block tints, ink fluid model + bucket) |
 | M5 | Baseline profiling, add-on API surface (events, IMC-equivalents), translations, CurseForge/Modrinth publishing | planned |

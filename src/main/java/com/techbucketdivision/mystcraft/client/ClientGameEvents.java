@@ -5,6 +5,7 @@ import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
 import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
 import com.techbucketdivision.mystcraft.client.render.AgeSkyMath;
+import com.techbucketdivision.mystcraft.client.render.tint.AgeBiomeTints;
 import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -108,6 +109,7 @@ public final class ClientGameEvents {
         ClientLevel level = mc.level;
         if (level == null || mc.isPaused()) return;
         ClientAgeData.tick(level);
+        AgeBiomeTints.update(level);
         AgeController controller = ClientAgeData.controllerFor(level);
         if (controller == null) return;
         WeatherController weather = controller.weather();
@@ -123,5 +125,6 @@ public final class ClientGameEvents {
 
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientAgeData.clear();
+        AgeBiomeTints.clear();
     }
 }

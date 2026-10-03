@@ -1,5 +1,6 @@
 package com.techbucketdivision.mystcraft.client;
 
+import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
 import com.techbucketdivision.mystcraft.client.particle.LinkParticle;
 import com.techbucketdivision.mystcraft.client.render.AgeCloudRenderer;
 import com.techbucketdivision.mystcraft.client.render.AgeSkyRenderer;
@@ -12,6 +13,7 @@ import com.techbucketdivision.mystcraft.client.render.entity.ColoredLightningRen
 import com.techbucketdivision.mystcraft.client.render.entity.LinkbookRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MeteorRenderer;
 import com.techbucketdivision.mystcraft.client.render.entity.MystFallingBlockRenderer;
+import com.techbucketdivision.mystcraft.client.render.tint.AgeBiomeTintSource;
 import com.techbucketdivision.mystcraft.client.render.tint.InkTintSource;
 import com.techbucketdivision.mystcraft.client.render.tint.PortalTintSource;
 import com.techbucketdivision.mystcraft.client.screen.ArchivistShopScreen;
@@ -25,19 +27,28 @@ import com.techbucketdivision.mystcraft.menu.AbstractMystcraftMenu;
 import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import com.techbucketdivision.mystcraft.registry.ModEntities;
+import com.techbucketdivision.mystcraft.registry.ModFluids;
 import com.techbucketdivision.mystcraft.registry.ModMenus;
 import com.techbucketdivision.mystcraft.registry.ModParticles;
 import com.techbucketdivision.mystcraft.util.MystIds;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterCustomEnvironmentEffectRendererEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** All client registration. Called once from {@code MystcraftClient}. */
@@ -56,6 +67,7 @@ public final class ClientSetup {
         modBus.addListener(ClientSetup::registerEnvironmentRenderers);
         modBus.addListener(ClientSetup::registerParticles);
         modBus.addListener(ClientSetup::registerBlockTints);
+        modBus.addListener(ClientSetup::registerFluidModels);
 
         ClientGameEvents.register(NeoForge.EVENT_BUS);
     }
@@ -95,5 +107,42 @@ public final class ClientSetup {
     private static void registerBlockTints(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(new PortalTintSource()), ModBlocks.LINK_PORTAL.get());
         event.register(List.of(new InkTintSource()), ModBlocks.BLACK_INK.get());
+
+        // Age colour symbols: wrap the vanilla biome tint sources (registered before this event fires, see
+        // BlockColors.createDefault) so a static GRASS/FOLIAGE/WATER colour replaces the biome colour inside an Age.
+        BlockColors colors = event.getBlockColors();
+        wrapBiomeTints(event, colors, ColorKind.GRASS,
+                Blocks.GRASS_BLOCK, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.POTTED_FERN, Blocks.BUSH,
+                Blocks.TALL_GRASS, Blocks.LARGE_FERN, Blocks.PINK_PETALS, Blocks.WILDFLOWERS, Blocks.SUGAR_CANE);
+        wrapBiomeTints(event, colors, ColorKind.FOLIAGE,
+                Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES,
+                Blocks.MANGROVE_LEAVES, Blocks.VINE);
+        wrapBiomeTints(event, colors, ColorKind.WATER,
+                Blocks.WATER, Blocks.BUBBLE_COLUMN, Blocks.WATER_CAULDRON);
+    }
+
+    private static void wrapBiomeTints(RegisterColorHandlersEvent.BlockTintSources event, BlockColors colors,
+                                       ColorKind kind, Block... blocks) {
+        for (Block block : blocks) {
+            List<BlockTintSource> existing = colors.getTintSources(block.defaultBlockState());
+            if (existing.isEmpty()) continue;
+            List<BlockTintSource> wrapped = new ArrayList<>(existing.size());
+            for (BlockTintSource source : existing) wrapped.add(new AgeBiomeTintSource(kind, source));
+            event.register(List.copyOf(wrapped), block);
+        }
+    }
+
+    /**
+     * 26.1 moved fluid textures off {@code IClientFluidTypeExtensions}: without a {@link FluidModel} the placed ink
+     * renders as the missing texture ("Missing FluidModel for fluid 'mystcraft:black_ink'") and the
+     * {@code neoforge:fluid_container} bucket model has no fluid sprite. One model is shared by source and flowing.
+     */
+    private static void registerFluidModels(RegisterFluidModelsEvent event) {
+        event.register(new FluidModel.Unbaked(
+                        new Material(MystIds.id("block/fluid")),
+                        new Material(MystIds.id("block/fluid_flow")),
+                        null,
+                        new InkTintSource()),
+                ModFluids.BLACK_INK, ModFluids.FLOWING_BLACK_INK);
     }
 }

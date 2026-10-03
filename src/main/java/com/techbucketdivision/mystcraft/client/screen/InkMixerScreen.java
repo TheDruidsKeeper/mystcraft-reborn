@@ -137,6 +137,7 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
                 Map<LinkProperty, Float> effects = InkEffects.getItemEffects(held);
                 if (effects.isEmpty()) {
                     lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.not_modifier", held.getHoverName()).withStyle(ChatFormatting.RED));
+                    addIngredientList(lines);
                 } else {
                     lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.add", held.getHoverName()).withStyle(ChatFormatting.YELLOW));
                     for (Map.Entry<LinkProperty, Float> e : effects.entrySet()) {
@@ -146,6 +147,7 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
                 }
             } else {
                 lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.hint").withStyle(ChatFormatting.GRAY));
+                addIngredientList(lines);
             }
             Map<LinkProperty, Float> current = menu.getProperties();
             lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties").withStyle(ChatFormatting.AQUA));
@@ -158,6 +160,23 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
             }
             if (!any) lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties.none").withStyle(ChatFormatting.DARK_GRAY));
             return lines;
+        }
+
+        /** "Ingredients:" followed by one line per usable item ("Gunpowder: Disarm 20%"); tag-only bindings with no items are skipped. */
+        private void addIngredientList(List<Component> lines) {
+            lines.add(Component.translatable("gui.mystcraft.ink_mixer.ingredients").withStyle(ChatFormatting.YELLOW));
+            java.util.Set<net.minecraft.world.item.Item> seen = new java.util.HashSet<>();
+            for (InkEffects.Ingredient ingredient : InkEffects.getIngredients()) {
+                if (!ingredient.available() || !seen.add(ingredient.example().getItem())) continue;
+                var line = Component.literal("  ").append(ingredient.example().getHoverName().copy().withStyle(ChatFormatting.WHITE)).append(": ");
+                boolean first = true;
+                for (Map.Entry<LinkProperty, Float> e : ingredient.effects().entrySet()) {
+                    if (!first) line.append(", ");
+                    first = false;
+                    line.append(Component.translatable(e.getKey().descriptionId())).append(" " + Math.round(e.getValue() * 100) + "%");
+                }
+                lines.add(line.withStyle(ChatFormatting.GRAY));
+            }
         }
     }
 }

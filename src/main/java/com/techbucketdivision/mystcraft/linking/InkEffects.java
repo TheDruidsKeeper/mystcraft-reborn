@@ -4,12 +4,14 @@ import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
 import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import com.techbucketdivision.mystcraft.util.Colors;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,6 +92,35 @@ public final class InkEffects {
         return !getItemEffects(stack).isEmpty();
     }
 
+    /** One usable ingredient for display: a representative stack (empty for tags with no items loaded) and its effects. */
+    public record Ingredient(ItemStack example, @Nullable TagKey<Item> tag, Map<LinkProperty, Float> effects) {
+        public boolean available() {
+            return !example.isEmpty();
+        }
+    }
+
+    /**
+     * Every registered ingredient in registration order (stack bindings, then item bindings, then tag bindings).
+     * Tag bindings whose tag has no items in this game are included with an empty example so GUIs can skip them.
+     */
+    public static synchronized List<Ingredient> getIngredients() {
+        List<Ingredient> out = new ArrayList<>();
+        for (Map.Entry<StackKey, Map<LinkProperty, Float>> e : STACK_BINDINGS.entrySet()) {
+            out.add(new Ingredient(new ItemStack(e.getKey().item()), null, Collections.unmodifiableMap(e.getValue())));
+        }
+        for (Map.Entry<Item, Map<LinkProperty, Float>> e : ITEM_BINDINGS.entrySet()) {
+            out.add(new Ingredient(new ItemStack(e.getKey()), null, Collections.unmodifiableMap(e.getValue())));
+        }
+        for (Map.Entry<TagKey<Item>, Map<LinkProperty, Float>> e : TAG_BINDINGS.entrySet()) {
+            ItemStack example = BuiltInRegistries.ITEM.get(e.getKey())
+                    .flatMap(named -> named.stream().findFirst())
+                    .map(holder -> new ItemStack(holder.value()))
+                    .orElse(ItemStack.EMPTY);
+            out.add(new Ingredient(example, e.getKey(), Collections.unmodifiableMap(e.getValue())));
+        }
+        return out;
+    }
+
     /** Properties the mixer can attach (inkable, coloured), in registration order. */
     public static List<LinkProperty> getProperties() {
         List<LinkProperty> out = new ArrayList<>();
@@ -165,6 +196,13 @@ public final class InkEffects {
         addPropertyToItem(Items.ENDER_PEARL, LinkProperty.DISARM, 0.15f);
         addPropertyToItem(Items.FEATHER, LinkProperty.MAINTAIN_MOMENTUM, 0.15f);
         addPropertyToItem(Items.FIRE_CHARGE, LinkProperty.DISARM, 0.25f);
+        // Reborn addition: vanilla nuggets stand in for the metal dusts of the original (which only other mods
+        // provide), at roughly half the dust's odds so a nugget is not worth more than a dust.
+        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.INTRA_LINKING, 0.12f);
+        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.GENERATE_PLATFORM, 0.05f);
+        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.DISARM, 0.05f);
+        addPropertyToItem(Items.IRON_NUGGET, LinkProperty.GENERATE_PLATFORM, 0.08f);
+        addPropertyToItem(Items.IRON_NUGGET, LinkProperty.INTRA_LINKING, 0.08f);
 
         addPropertyToItem(dust("brass"), LinkProperty.DISARM, 0.15f);
         addPropertyToItem(dust("bronze"), LinkProperty.DISARM, 0.15f);

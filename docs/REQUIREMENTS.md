@@ -341,7 +341,7 @@ Spreading handlers never convert a neighbour that already is the same decay stat
 
 ### 3.12 Black Ink fluid block (`BlockFluidInk`)
 
-* Forge classic fluid block, light opacity 3, treated as water for `isEntityInsideMaterial` (so players "swim"). Fog colour handled like water. Filling a bucket or glass bottle from the ink block is **cancelled** by event handlers (`FillBucketEvent`, `RightClickItem` with glass bottle on the block).
+* Forge classic fluid block, light opacity 3, treated as water for `isEntityInsideMaterial` (so players "swim"). Fog colour handled like water. The original **cancelled** filling a bucket or glass bottle from the ink block (`FillBucketEvent`, `RightClickItem`). **Reborn revision:** ink is collectable — an empty bucket picks up a source block as a Black Ink Bucket (vanilla `BucketPickup`), and a glass bottle scoops a source block into an Ink Vial (`CommonEvents.scoopIntoVial`); flowing ink yields nothing.
 * Instability factors for the ink fluid: (1, 0). Fluid symbol default card rank 4.
 ---
 
@@ -849,6 +849,10 @@ Ink modifier items (probability contributed per item consumed; totals per item m
 | `dustSilver` | Generate Platform 0.20, Intra Linking 0.20 |
 | `dustDiamond` | Intra Linking 0.25, Maintain Momentum 0.10, Generate Platform 0.10 |
 | `dustGold` | Intra Linking 0.25, Generate Platform 0.10, Disarm 0.10 |
+| Gold Nugget (Reborn addition, vanilla stand-in for `dustGold`) | Intra Linking 0.12, Generate Platform 0.05, Disarm 0.05 |
+| Iron Nugget (Reborn addition, vanilla stand-in for `dustIron`) | Generate Platform 0.08, Intra Linking 0.08 |
+
+The Ink Mixer basin tooltip lists every ingredient available in the current game (tag bindings with no items are hidden) with its effects, so the recipe list is discoverable in-game.
 
 Ink gradient for GUI display (`getPropertiesGradient`): for each property with p ≥ 0.001, push its colour with interval p (split as (p−0.3)+0.3 when p>0.3); remaining (1−Σ) pushed as black the same way.
 

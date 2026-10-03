@@ -43,6 +43,24 @@ public final class AgeTicker {
     public static final int MAX_TICK_RADIUS = 8;
     public static final int RESEND_TICKS_DIRTY = 200;
     public static final int RESEND_TICKS_IDLE = 1200;
+    /** How often the age clock is flushed to the saved data (it is not dirty-tracked per tick). */
+    public static final int SAVE_TIME_TICKS = 600;
+    /** A brand-new Age starts this long after its first sunrise so arrival is in daylight. */
+    public static final long MORNING_OFFSET_TICKS = 1500L;
+
+    /**
+     * A new Age's celestials have random phases, so a first arrival is at night roughly half the time (playtest:
+     * "every world is dark"). Rewind/advance the clock of a never-ticked Age so a light-giving celestial just rose;
+     * Ages without any light source (dark sun) are left alone - they are meant to be dark.
+     */
+    private static void startInTheMorning(AgeController controller, AgeData data) {
+        boolean anyLight = controller.celestials().stream().anyMatch(c -> c.providesLight());
+        if (!anyLight) return;
+        long toSunrise = controller.timeToSunrise(0L);
+        if (toSunrise == Long.MAX_VALUE || toSunrise < 0) return;
+        data.setWorldTime(toSunrise + MORNING_OFFSET_TICKS);
+        data.markSaveNeeded();
+    }
 
     private static final class State {
         int ticksSinceSync;
@@ -59,11 +77,25 @@ public final class AgeTicker {
         AgeController controller = AgeControllers.server(level);
         if (controller == null) return;
         AgeData data = controller.ageData();
-        State state = STATES.computeIfAbsent(level.dimension(), k -> new State());
+        State state = STATES.get(level.dimension());
+        if (state == null) {
+            state = new State();
+            STATES.put(level.dimension(), state);
+            if (data.worldTime() == 0L) {
+                startInTheMorning(controller, data);
+                state.ticksSinceSync = RESEND_TICKS_IDLE; // push the new clock to anyone already inside
+            }
+            float angle = controller.celestialAngle(data.worldTime(), 0f);
+            Mystcraft.LOGGER.info("[age] {} ({}) ticking: time {}, {} celestials ({} giving light), celestial angle {} ({})",
+                    data.name(), level.dimension().identifier(), data.worldTime(), controller.celestials().size(),
+                    controller.celestials().stream().filter(c -> c.providesLight()).count(), angle,
+                    angle < 0.25f || angle > 0.75f ? "day" : "night");
+        }
 
         // Age time.
         if (level.getGameRules().get(GameRules.ADVANCE_TIME)) {
             data.setWorldTime(data.worldTime() + 1);
+            if (data.worldTime() % SAVE_TIME_TICKS == 0) data.markSaveNeeded();
         }
 
         InstabilityBonusManager.get(level).tick(level);

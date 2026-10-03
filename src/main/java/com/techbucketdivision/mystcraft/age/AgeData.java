@@ -214,9 +214,17 @@ public final class AgeData {
         markDirty();
     }
 
-    /** Advances age time (no dirty marking: synced on the periodic resend). */
+    /** Advances age time (no dirty marking: synced on the periodic resend, saved via {@link #markSaveNeeded()}). */
     public void setWorldTime(long time) {
         this.worldTime = time;
+    }
+
+    /**
+     * Asks the owning storage to save without bumping the revision (no controller rebuild, no forced resync). Used
+     * for the age clock, which changes every tick but must survive a restart (playtest: Age time reset on reload).
+     */
+    public void markSaveNeeded() {
+        if (dirtyListener != null) dirtyListener.run();
     }
 
     public void setSpawn(@Nullable BlockPos spawn) {

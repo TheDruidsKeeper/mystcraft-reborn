@@ -61,6 +61,37 @@ public class WorldTests {
         helper.succeed();
     }
 
+    @GameTest(timeoutTicks = 20 * 60)
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Age time advances on the server and is persisted (playtest: worlds dark, time frozen)")
+    static void ageTimeAdvances(ExtendedGameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        ItemStack book = TestBooks.unboundDescriptiveBook("Clock");
+        AgeData data = TestBooks.bind(book, server);
+        ServerLevel age = AgeManager.getOrCreateLevel(server, data);
+        var pig = helper.spawn(EntityType.PIG, 1, 1, 1); // AgeTicker only advances time with players; use the level tick directly
+        long start = data.worldTime();
+        helper.startSequence()
+                .thenExecuteAfter(40, () -> helper.assertTrue(data.worldTime() >= start + 30,
+                        "Age time advanced (" + start + " -> " + data.worldTime() + ")"))
+                .thenSucceed();
+    }
+
+    @GameTest(timeoutTicks = 20 * 60)
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Age spawn search finds solid ground without the fallback (heightmaps usable on fresh Age chunks)")
+    static void spawnSearchFindsGround(ExtendedGameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        ItemStack book = TestBooks.unboundDescriptiveBook("Heightmap");
+        AgeData data = TestBooks.bind(book, server);
+        ServerLevel age = AgeManager.getOrCreateLevel(server, data);
+        age.getChunk(0, 0);
+        int h = age.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 8, 8);
+        Mystcraft.LOGGER.info("[gametest] heightmap at 8,8 in Age '{}': {} (minY {})", data.name(), h, age.getMinY());
+        helper.assertTrue(h > age.getMinY(), "MOTION_BLOCKING_NO_LEAVES heightmap is primed in generated Age chunks (got " + h + ")");
+        helper.succeed();
+    }
+
     @GameTest(timeoutTicks = 100)
     @EmptyTemplate(value = "5x5x5", floor = true)
     @TestHolder(description = "Black ink is water-like: entities swim in it instead of being frozen in place (playtest bug: stuck in ink)")

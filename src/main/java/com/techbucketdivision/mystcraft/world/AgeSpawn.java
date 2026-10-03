@@ -59,19 +59,26 @@ public final class AgeSpawn {
         }
 
         BlockPos result = null;
+        int tries = 0;
+        // MOTION_BLOCKING_NO_LEAVES counts water as blocking, so an ocean surface is not "ground": require a block
+        // with a collision shape under the feet. The spread widens after the first half of the tries so ocean or
+        // void Ages still find a shore / island.
         for (int i = 0; i < RANDOM_TRIES; i++) {
-            int x = cx + rand.nextInt(RANDOM_SPREAD * 2 + 1) - RANDOM_SPREAD;
-            int z = cz + rand.nextInt(RANDOM_SPREAD * 2 + 1) - RANDOM_SPREAD;
+            tries++;
+            int spread = i < RANDOM_TRIES / 2 ? RANDOM_SPREAD : RANDOM_SPREAD * 3;
+            int x = cx + rand.nextInt(spread * 2 + 1) - spread;
+            int z = cz + rand.nextInt(spread * 2 + 1) - spread;
             int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
             if (top < level.getMinY()) continue;
-            BlockState state = level.getBlockState(new BlockPos(x, top, z));
-            if (state.is(Blocks.BEDROCK) || !state.isSolid()) continue;
-            result = new BlockPos(x, top + 1, z);
+            BlockPos ground = new BlockPos(x, top, z);
+            BlockState state = level.getBlockState(ground);
+            if (state.is(Blocks.BEDROCK) || !state.getFluidState().isEmpty() || state.getCollisionShape(level, ground).isEmpty()) continue;
+            result = ground.above();
             break;
         }
         if (result == null) {
             result = new BlockPos(cx, Math.max(seaLevel, level.getMinY() + 1), cz);
-            Mystcraft.LOGGER.warn("No solid spawn found for Age {}; using {}", data.name(), result);
+            Mystcraft.LOGGER.warn("[spawn] no ground found for Age '{}' after {} tries (water / void everywhere?); using {}", data.name(), tries, result.toShortString());
         }
         int maxY = level.getMaxY();
         while (result.getY() < maxY && !level.getBlockState(result).isAir()) {
@@ -79,7 +86,7 @@ public final class AgeSpawn {
         }
         data.setSpawn(result);
         placePlatform(level, result);
-        Mystcraft.LOGGER.info("[spawn] Age '{}' spawn determined at {} ({}, platform placed)", data.name(), result.toShortString(),
+        Mystcraft.LOGGER.info("[spawn] Age '{}' spawn determined at {} after {} tries ({}, platform placed)", data.name(), result.toShortString(), tries,
                 nearOrigin ? "kept near the star fissure at chunk 0,0" : biomePos == null ? "no preferred biome found" : "preferred biome at " + biomePos.toShortString());
         return result;
     }

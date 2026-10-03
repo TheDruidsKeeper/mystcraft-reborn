@@ -61,7 +61,7 @@ public final class ModBlocks {
         for (DecayType type : DecayType.values()) {
             DECAY.put(type, BLOCKS.registerBlock("decay_" + type.getSerializedName(),
                     props -> new DecayBlock(type, props),
-                    p -> p.mapColor(type.mapColor()).sound(SoundType.SAND).strength(type.hardness(), type.explosionResistance()).noLootTable()));
+                    p -> p.mapColor(type.mapColor()).sound(SoundType.SAND).strength(type.hardness(), type.explosionResistance()).noLootTable().randomTicks()));
         }
     }
 

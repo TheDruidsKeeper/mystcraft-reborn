@@ -175,6 +175,34 @@ public class LinkingTests {
                 .thenSucceed();
     }
 
+    @GameTest(timeoutTicks = AGE_TIMEOUT)
+    @EmptyTemplate(value = "5x6x5", floor = true)
+    @TestHolder(description = "Breaking a frame crystal collapses the portal field; removing the book shuts it down")
+    static void portalCollapsesWhenFrameBroken(ExtendedGameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        ItemStack book = TestBooks.unboundDescriptiveBook("Collapse");
+        TestBooks.bind(book, server);
+        for (int x = 1; x <= 3; x++) {
+            for (int y = 1; y <= 3; y++) {
+                if (x == 2 && y == 2) continue;
+                helper.setBlock(x, y, 2, ModBlocks.CRYSTAL.get());
+            }
+        }
+        helper.setBlock(2, 4, 2, ModBlocks.BOOK_RECEPTACLE.get().defaultBlockState().setValue(BookReceptacleBlock.ROTATION, Direction.UP));
+        BookReceptacleBlockEntity receptacle = helper.getBlockEntity(2, 4, 2, BookReceptacleBlockEntity.class);
+        receptacle.setBook(book);
+        helper.assertBlockPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2);
+        helper.startSequence()
+                .thenExecute(() -> helper.setBlock(2, 1, 2, Blocks.AIR)) // bottom frame crystal
+                .thenWaitUntil(() -> helper.assertBlockNotPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2))
+                .thenExecute(() -> helper.setBlock(2, 1, 2, ModBlocks.CRYSTAL.get()))
+                .thenExecute(() -> receptacle.setBook(receptacle.getBook().copy())) // re-pulse by re-inserting
+                .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2))
+                .thenExecute(() -> receptacle.setBook(ItemStack.EMPTY))
+                .thenWaitUntil(() -> helper.assertBlockNotPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2))
+                .thenSucceed();
+    }
+
     @GameTest(timeoutTicks = 200)
     @EmptyTemplate(value = "5x5x5", floor = true)
     @TestHolder(description = "Disarm ejects a donkey's chest contents on link (horse inventories via Entity#getSlot)")

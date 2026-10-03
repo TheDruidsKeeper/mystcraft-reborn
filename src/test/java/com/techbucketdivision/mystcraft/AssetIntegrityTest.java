@@ -162,13 +162,11 @@ class AssetIntegrityTest {
                 for (Map.Entry<String, JsonElement> t : root.getAsJsonObject("textures").entrySet()) {
                     String v = t.getValue().getAsString();
                     if (v.startsWith("#")) continue; // variable, resolved by the parent/child chain
-                    if (itemModel) {
-                        String id = t.getValue().getAsString();
-                        if (ours(id) && !path(id).startsWith("item/") && !path(id).startsWith("block/") && !itemAtlas.contains(path(id))) {
-                            problems.add(where + ": " + id + " is not in the item atlas (textures/item|block or minecraft/atlases/items.json)");
-                        }
-                        requireTexture(t.getValue(), where + " texture '" + t.getKey() + "'", Set.of());
-                        continue;
+                    // Item models bake against the block atlas too (vanilla block items use block/ textures and the
+                    // items atlas only lists item/), so one atlas membership check covers both; a sprite listed in
+                    // both atlases is a "Duplicate sprite" warning that future versions reject.
+                    if (itemModel && itemAtlas.contains(path(t.getValue().getAsString())) && atlasSprites.contains(path(t.getValue().getAsString()))) {
+                        problems.add(where + ": " + t.getValue().getAsString() + " is listed in both atlases/blocks.json and atlases/items.json (duplicate sprite)");
                     }
                     requireTexture(t.getValue(), where + " texture '" + t.getKey() + "'", atlasSprites);
                 }

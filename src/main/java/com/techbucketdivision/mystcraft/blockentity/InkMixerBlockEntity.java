@@ -1,8 +1,8 @@
 package com.techbucketdivision.mystcraft.blockentity;
 
 import com.mojang.serialization.Codec;
+import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.linking.InkEffects;
 import com.techbucketdivision.mystcraft.menu.InkMixerMenu;
@@ -30,34 +30,31 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Random;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Ink Mixer (REQUIREMENTS §3.2). Slots: 0 ink container in, 1 paper, 2 empty container out. Holds one basin of ink
- * the set of link effects mixed into it (stored as a property -> 1.0 map); crafting turns a paper into a Link Panel
- * page carrying exactly those effects. Reborn: deterministic, one ingredient per effect, refilling the ink resets.
+ * and the set of link effects mixed into it; crafting turns a paper into a Link Panel page carrying exactly those
+ * effects. Reborn: deterministic, one ingredient per effect, refilling the ink resets the set.
  */
 public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider {
     public static final int SLOT_INK_IN = 0;
     public static final int SLOT_PAPER = 1;
     public static final int SLOT_INK_OUT = 2;
 
-    private static final Codec<Map<LinkProperty, Float>> PROBABILITIES_CODEC = Codec.unboundedMap(LinkProperty.CODEC, Codec.FLOAT);
+    private static final Codec<List<LinkProperty>> EFFECTS_CODEC = LinkProperty.CODEC.listOf();
 
     public final FilteredItemHandler inventory = new FilteredItemHandler(3, this::acceptsItem, this::markForUpdate);
 
     private boolean hasInk = false;
-    private Map<LinkProperty, Float> probabilities = new HashMap<>();
-    private long nextSeed;
+    private Set<LinkProperty> effects = new LinkedHashSet<>();
 
     public InkMixerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.INK_MIXER.get(), pos, state);
-        this.nextSeed = new Random().nextLong();
     }
 
     private boolean acceptsItem(int slot, ItemResource resource) {
@@ -75,8 +72,7 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
         super.saveAdditional(output);
         output.putChild("inventory", inventory);
         output.putBoolean("ink", hasInk);
-        output.putLong("seed", nextSeed);
-        output.store("probabilities", PROBABILITIES_CODEC, Map.copyOf(probabilities));
+        output.store("effects", EFFECTS_CODEC, List.copyOf(effects));
     }
 
     @Override
@@ -84,8 +80,7 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
         super.loadAdditional(input);
         input.readChild("inventory", inventory);
         hasInk = input.getBooleanOr("ink", false);
-        nextSeed = input.getLongOr("seed", nextSeed);
-        probabilities = new HashMap<>(input.read("probabilities", PROBABILITIES_CODEC).orElse(Map.of()));
+        effects = new LinkedHashSet<>(input.read("effects", EFFECTS_CODEC).orElse(List.of()));
     }
 
     @Override
@@ -115,7 +110,7 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
             return; // empty container would not fit in the output slot (nothing was consumed: the scratch sink is discarded)
         }
         hasInk = true;
-        probabilities.clear(); // fresh ink: all effects reset
+        effects.clear(); // fresh ink: all effects reset
         container.shrink(1);
         inventory.setStack(SLOT_INK_IN, container);
         if (!emptied.isEmpty()) {
@@ -128,29 +123,27 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
     // --- ink modifiers ------------------------------------------------------------------------------------------------
 
     /**
-     * Consumes exactly one item from the stack and adds its link effects to the basin (Reborn: deterministic — one
-     * ingredient switches its effects on; there is no probability). An item that only dilutes (black dye) clears the
-     * basin's effects. Effects already present are not consumed again.
+     * Consumes exactly one item from the stack and switches on the effect the ingredient stands for (one ingredient
+     * per effect, {@link InkEffects}); the clearing ingredient empties the effect set. An item whose effect is already
+     * in the ink, or that would clear an already plain ink, is not consumed.
      *
      * @return the remaining stack
      */
     public ItemStack addItems(ItemStack stack, int amount) {
         if (!hasInk || stack.isEmpty() || amount <= 0) return stack;
-        Map<LinkProperty, Float> itemEffects = InkEffects.getItemEffects(stack);
-        if (itemEffects == null || itemEffects.isEmpty()) return stack;
-        boolean changed = false;
-        for (LinkProperty property : itemEffects.keySet()) {
-            if (property == InkEffects.DILUTION) {
-                if (!probabilities.isEmpty()) {
-                    probabilities.clear();
-                    changed = true;
-                }
-                continue;
-            }
-            if (!isPropertyAllowed(property)) continue;
-            if (probabilities.put(property, 1f) == null) changed = true;
+        InkEffects.Ingredient ingredient = InkEffects.ingredientFor(stack);
+        if (ingredient == null) return stack;
+        boolean changed;
+        if (ingredient.clears()) {
+            changed = !effects.isEmpty();
+            effects.clear();
+        } else {
+            LinkProperty effect = ingredient.effect();
+            if (!InkEffects.isPropertyAllowed(effect)) return stack;
+            changed = effects.add(effect);
         }
         if (!changed) return stack; // nothing new to add: keep the item
+        Mystcraft.LOGGER.info("[ink] mixer at {}: {} -> effects {}", worldPosition, stack.getItem(), effects.stream().map(LinkProperty::name).toList());
         stack.shrink(1);
         markForUpdate();
         return stack.isEmpty() ? ItemStack.EMPTY : stack;
@@ -158,11 +151,7 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
 
     /** Whether the basin currently carries the effect. */
     public boolean hasEffect(LinkProperty property) {
-        return probabilities.getOrDefault(property, 0f) >= 0.5f;
-    }
-
-    private static boolean isPropertyAllowed(LinkProperty property) {
-        return property.inkable() && MystcraftConfig.isLinkEffectEnabled(property.name());
+        return effects.contains(property);
     }
 
     // --- crafting -------------------------------------------------------------------------------------------------------
@@ -185,15 +174,10 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
             return;
         }
         // Deterministic: every effect in the basin goes onto the panel.
-        Set<LinkProperty> props = new LinkedHashSet<>();
-        for (Map.Entry<LinkProperty, Float> e : probabilities.entrySet()) {
-            if (e.getValue() >= 0.5f) props.add(e.getKey());
-        }
-        ItemStack panel = PageItem.createLinkPanel(props);
+        ItemStack panel = PageItem.createLinkPanel(Set.copyOf(effects));
         result.applyComponents(panel.getComponentsPatch());
-        nextSeed = new Random(nextSeed).nextLong();
         hasInk = false;
-        probabilities.clear();
+        effects.clear();
         ItemStack paper = inventory.getStack(SLOT_PAPER);
         paper.shrink(1);
         inventory.setStack(SLOT_PAPER, paper);
@@ -210,21 +194,13 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
         this.hasInk = hasInk;
     }
 
-    public long getNextSeed() {
-        return nextSeed;
+    public Set<LinkProperty> getEffects() {
+        return Collections.unmodifiableSet(effects);
     }
 
-    public void setNextSeed(long seed) {
-        this.nextSeed = seed;
-    }
-
-    public Map<LinkProperty, Float> getProbabilities() {
-        return Collections.unmodifiableMap(probabilities);
-    }
-
-    /** Client-side replacement of the probability map (from {@code SetProperties}). */
-    public void setProbabilities(Map<LinkProperty, Float> map) {
-        probabilities = new HashMap<>(map);
+    /** Client-side replacement of the effect set (from {@code SetEffects}). */
+    public void setEffects(Collection<LinkProperty> set) {
+        effects = new LinkedHashSet<>(set);
     }
 
     // --- menu ----------------------------------------------------------------------------------------------------------

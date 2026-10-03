@@ -1,5 +1,6 @@
 package com.techbucketdivision.mystcraft.config;
 
+import com.techbucketdivision.mystcraft.linking.InkEffects;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -30,6 +31,12 @@ public final class MystcraftConfig {
             .define("crafting.linkbook.enabled", true);
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DISABLED_LINK_EFFECTS = B.comment("Link properties the Ink Mixer may NOT produce")
             .defineListAllowEmpty("crafting.linkeffects.disabled", List.of(), () -> "", o -> o instanceof String);
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> INK_INGREDIENTS = B.comment(
+                    "Ink Mixer ingredients, one entry per effect as \"effect=item\" (one ingredient per effect, one effect per ingredient).",
+                    "Effects: intra_linking, intra_linking_only, relative, disarm, maintain_momentum, generate_platform, following.")
+            .defineListAllowEmpty("inkmixer.ingredients", InkEffects.DEFAULT_INGREDIENTS, () -> "", o -> o instanceof String);
+    public static final ModConfigSpec.ConfigValue<String> INK_CLEAR_INGREDIENT = B.comment("Item that clears every effect from the basin")
+            .define("inkmixer.clearIngredient", InkEffects.DEFAULT_CLEAR_INGREDIENT);
     public static final ModConfigSpec.BooleanValue SERVER_LABELS = B.comment("Allow clients to render book name labels above stands/lecterns/receptacles/book entities")
             .define("render.serverLabels", true);
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DISABLED_SYMBOLS = B.comment("Symbol ids to disable, e.g. \"mystcraft:env_meteor\"")

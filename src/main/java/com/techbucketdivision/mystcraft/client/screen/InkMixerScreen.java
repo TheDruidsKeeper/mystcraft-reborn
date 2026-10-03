@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Ink Mixer screen (REQUIREMENTS §8.3, 176×181, {@code inkmixer.png}) with the clickable basin. Every slot carries a
@@ -134,53 +133,43 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
             }
             ItemStack held = carried();
             if (!held.isEmpty()) {
-                Map<LinkProperty, Float> effects = InkEffects.getItemEffects(held);
-                if (effects.isEmpty()) {
+                InkEffects.Ingredient ingredient = InkEffects.ingredientFor(held);
+                if (ingredient == null) {
                     lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.not_modifier", held.getHoverName()).withStyle(ChatFormatting.RED));
                     addIngredientList(lines);
+                } else if (ingredient.clears()) {
+                    lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.clear", held.getHoverName()).withStyle(ChatFormatting.YELLOW));
                 } else {
-                    boolean dilutes = effects.containsKey(InkEffects.DILUTION);
-                    lines.add(Component.translatable(dilutes ? "gui.mystcraft.ink_mixer.basin.clear" : "gui.mystcraft.ink_mixer.basin.add", held.getHoverName()).withStyle(ChatFormatting.YELLOW));
-                    for (LinkProperty property : effects.keySet()) {
-                        if (property == InkEffects.DILUTION) continue;
-                        boolean already = menu.getProperties().getOrDefault(property, 0f) >= 0.5f;
-                        lines.add(Component.literal("  + ").append(Component.translatable(property.descriptionId()))
-                                .append(already ? Component.translatable("gui.mystcraft.ink_mixer.basin.already") : Component.empty())
-                                .withStyle(already ? ChatFormatting.DARK_GRAY : ChatFormatting.GRAY));
-                    }
+                    LinkProperty property = ingredient.effect();
+                    boolean already = menu.getEffects().contains(property);
+                    lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.add", held.getHoverName()).withStyle(ChatFormatting.YELLOW));
+                    lines.add(Component.literal("  + ").append(Component.translatable(property.descriptionId()))
+                            .append(already ? Component.translatable("gui.mystcraft.ink_mixer.basin.already") : Component.empty())
+                            .withStyle(already ? ChatFormatting.DARK_GRAY : ChatFormatting.GRAY));
                 }
             } else {
                 lines.add(Component.translatable("gui.mystcraft.ink_mixer.basin.hint").withStyle(ChatFormatting.GRAY));
                 addIngredientList(lines);
             }
-            Map<LinkProperty, Float> current = menu.getProperties();
             lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties").withStyle(ChatFormatting.AQUA));
-            boolean any = false;
-            for (Map.Entry<LinkProperty, Float> e : current.entrySet()) {
-                if (e.getValue() < 0.5f) continue;
-                any = true;
-                lines.add(Component.literal("  ").append(Component.translatable(e.getKey().descriptionId())));
+            if (menu.getEffects().isEmpty()) {
+                lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties.none").withStyle(ChatFormatting.DARK_GRAY));
             }
-            if (!any) lines.add(Component.translatable("gui.mystcraft.ink_mixer.properties.none").withStyle(ChatFormatting.DARK_GRAY));
+            for (LinkProperty property : menu.getEffects()) {
+                lines.add(Component.literal("  ").append(Component.translatable(property.descriptionId())));
+            }
             return lines;
         }
 
-        /** "Ingredients:" followed by one line per usable item ("Gunpowder: Disarm"); tag-only bindings with no items are skipped. */
+        /** "Ingredients (one item each):" followed by one line per item ("Gunpowder: Disarm"); the clearing item last. */
         private void addIngredientList(List<Component> lines) {
             lines.add(Component.translatable("gui.mystcraft.ink_mixer.ingredients").withStyle(ChatFormatting.YELLOW));
-            java.util.Set<net.minecraft.world.item.Item> seen = new java.util.HashSet<>();
             for (InkEffects.Ingredient ingredient : InkEffects.getIngredients()) {
-                if (!ingredient.available() || !seen.add(ingredient.example().getItem())) continue;
-                var line = Component.literal("  ").append(ingredient.example().getHoverName().copy().withStyle(ChatFormatting.WHITE)).append(": ");
-                boolean first = true;
-                for (LinkProperty property : ingredient.effects().keySet()) {
-                    if (!first) line.append(", ");
-                    first = false;
-                    line.append(property == InkEffects.DILUTION
-                            ? Component.translatable("gui.mystcraft.ink_mixer.ingredient.clears")
-                            : Component.translatable(property.descriptionId()));
-                }
-                lines.add(line.withStyle(ChatFormatting.GRAY));
+                lines.add(Component.literal("  ").append(ingredient.example().getHoverName().copy().withStyle(ChatFormatting.WHITE)).append(": ")
+                        .append(ingredient.clears()
+                                ? Component.translatable("gui.mystcraft.ink_mixer.ingredient.clears")
+                                : Component.translatable(ingredient.effect().descriptionId()))
+                        .withStyle(ChatFormatting.GRAY));
             }
         }
     }

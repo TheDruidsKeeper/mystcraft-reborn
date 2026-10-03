@@ -8,6 +8,9 @@ import com.techbucketdivision.mystcraft.menu.slot.CraftOutputSlot;
 import com.techbucketdivision.mystcraft.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -19,18 +22,17 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Ink Mixer container (REQUIREMENTS §8.3). Slots: 0 ink in, 1 paper, 2 empty container out, 3–29 inventory,
- * 30–38 hotbar, 39 craft output. Messages client→server: {@code Consume(Single)}. Server→client: {@code SetInk(Ink)},
- * {@code SetSeed(Seed)}, {@code SetProperties(Properties)}.
+ * 30–38 hotbar, 39 craft output. Messages client→server: {@code Consume}. Server→client: {@code SetInk(Ink)},
+ * {@code SetEffects(Effects)}.
  */
 public class InkMixerMenu extends AbstractMystcraftMenu {
-    public static final String MSG_SET_SEED = "SetSeed";
     public static final String MSG_SET_INK = "SetInk";
-    public static final String MSG_SET_PROPERTIES = "SetProperties";
+    public static final String MSG_SET_EFFECTS = "SetEffects";
     public static final String MSG_CONSUME = "Consume";
 
     public static final int INV_START = 3;
@@ -41,8 +43,7 @@ public class InkMixerMenu extends AbstractMystcraftMenu {
     private final CraftOutputSlot outputSlot;
 
     private boolean cachedHasInk;
-    private long cachedSeed;
-    private final Map<LinkProperty, Float> properties = new HashMap<>();
+    private final Set<LinkProperty> effects = new LinkedHashSet<>();
     private @Nullable ColorGradient gradient;
 
     public InkMixerMenu(int containerId, Inventory inv, InkMixerBlockEntity mixer) {
@@ -80,21 +81,15 @@ public class InkMixerMenu extends AbstractMystcraftMenu {
             tag.putBoolean("Ink", cachedHasInk);
             sendToClient(MSG_SET_INK, tag);
         }
-        if (cachedSeed != mixer.getNextSeed()) {
-            cachedSeed = mixer.getNextSeed();
+        Set<LinkProperty> current = mixer.getEffects();
+        if (!current.equals(effects)) {
+            effects.clear();
+            effects.addAll(current);
             CompoundTag tag = new CompoundTag();
-            tag.putLong("Seed", cachedSeed);
-            sendToClient(MSG_SET_SEED, tag);
-        }
-        Map<LinkProperty, Float> probs = mixer.getProbabilities();
-        if (!probs.equals(properties)) {
-            properties.clear();
-            properties.putAll(probs);
-            CompoundTag tag = new CompoundTag();
-            CompoundTag map = new CompoundTag();
-            for (Map.Entry<LinkProperty, Float> e : probs.entrySet()) map.putFloat(e.getKey().name(), e.getValue());
-            tag.put("Properties", map);
-            sendToClient(MSG_SET_PROPERTIES, tag);
+            ListTag list = new ListTag();
+            for (LinkProperty p : current) list.add(StringTag.valueOf(p.name()));
+            tag.put("Effects", list);
+            sendToClient(MSG_SET_EFFECTS, tag);
         }
     }
 
@@ -130,18 +125,13 @@ public class InkMixerMenu extends AbstractMystcraftMenu {
                 cachedHasInk = data.getBooleanOr("Ink", false);
                 if (isClient()) mixer.setHasInk(cachedHasInk);
             }
-            case MSG_SET_SEED -> {
-                cachedSeed = data.getLongOr("Seed", 0L);
-                if (isClient()) mixer.setNextSeed(cachedSeed);
-            }
-            case MSG_SET_PROPERTIES -> {
-                properties.clear();
-                CompoundTag map = data.getCompoundOrEmpty("Properties");
-                for (String key : map.keySet()) {
-                    properties.put(LinkProperty.getOrCreate(key), map.getFloatOr(key, 0f));
+            case MSG_SET_EFFECTS -> {
+                effects.clear();
+                for (Tag entry : data.getListOrEmpty("Effects")) {
+                    entry.asString().ifPresent(name -> effects.add(LinkProperty.getOrCreate(name)));
                 }
-                if (isClient()) mixer.setProbabilities(properties);
-                gradient = InkEffects.getPropertiesGradient(properties);
+                if (isClient()) mixer.setEffects(effects);
+                gradient = InkEffects.getPropertiesGradient(effects);
             }
             case MSG_CONSUME -> {
                 ItemStack held = cursor();
@@ -165,11 +155,11 @@ public class InkMixerMenu extends AbstractMystcraftMenu {
         return isClient() ? cachedHasInk : mixer.hasInk();
     }
 
-    public Map<LinkProperty, Float> getProperties() {
-        return Collections.unmodifiableMap(properties);
+    public Set<LinkProperty> getEffects() {
+        return Collections.unmodifiableSet(effects);
     }
 
-    /** Colour gradient of the current property mix for the basin (null until properties were synced). */
+    /** Colour gradient of the current effect mix for the basin (null until the effects were synced). */
     public @Nullable ColorGradient getPropertyGradient() {
         return gradient;
     }

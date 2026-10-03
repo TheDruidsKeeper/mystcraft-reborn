@@ -1,127 +1,152 @@
 package com.techbucketdivision.mystcraft.linking;
 
+import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
 import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Ink effect registry (REQUIREMENTS §7.2, §19.1): which items add which link-property probabilities in the Ink
- * Mixer. Bindings by exact stack (item + components, count ignored), by item tag and by item; lookup order
- * stack → tag → item. The sum of one binding's probabilities may not exceed 1.
+ * Ink ingredient table (REQUIREMENTS §7.2, Reborn revision): <b>one ingredient per effect, one effect per
+ * ingredient</b>. The table comes from the config ({@code inkmixer.ingredients}, {@code inkmixer.clearIngredient});
+ * the defaults are the Reborn balance where the price of an ingredient follows what the effect gives.
  * <p>
- * The original bound black dye to the empty property {@code ""} (dilution). That is modelled by the non-inkable
- * {@link #DILUTION} property.
+ * The table is resolved lazily from the config and re-resolved when the config list changes, so a config reload is
+ * picked up without a restart. Invalid entries (unknown item, unknown or non-inkable property, duplicate item or
+ * effect) are logged under {@code [ink]} and skipped.
  */
 public final class InkEffects {
     private InkEffects() {}
 
-    /** Dilution ("" in the original): lowers every other probability without adding a flag. */
-    public static final LinkProperty DILUTION = LinkProperty.register("dilution", null, false);
+    /** Default table, {@code effect=item} per entry (see the plan §8 for the reasoning behind each price). */
+    public static final List<String> DEFAULT_INGREDIENTS = List.of(
+            "generate_platform=minecraft:clay_ball",
+            "maintain_momentum=minecraft:feather",
+            "disarm=minecraft:gunpowder",
+            "intra_linking_only=minecraft:compass",
+            "intra_linking=minecraft:ender_pearl",
+            "relative=minecraft:amethyst_shard",
+            "following=minecraft:ender_eye");
+    /** Default item that clears every effect from the basin (the original's dilution role). */
+    public static final String DEFAULT_CLEAR_INGREDIENT = "minecraft:black_dye";
 
     private static final Colors.RGB DEFAULT_COLOR = Colors.RGB.WHITE;
     private static final Colors.RGB EMPTY_COLOR = Colors.RGB.BLACK;
 
-    private static final Map<StackKey, Map<LinkProperty, Float>> STACK_BINDINGS = new LinkedHashMap<>();
-    private static final Map<TagKey<Item>, Map<LinkProperty, Float>> TAG_BINDINGS = new LinkedHashMap<>();
-    private static final Map<Item, Map<LinkProperty, Float>> ITEM_BINDINGS = new LinkedHashMap<>();
+    /** One usable ingredient: the item and the effect it switches on, or {@code null} when it clears the basin. */
+    public record Ingredient(Item item, @Nullable LinkProperty effect) {
+        public boolean clears() {
+            return effect == null;
+        }
 
-    /** Exact-stack key: item + component patch, count ignored. */
-    private record StackKey(Item item, int componentsHash) {
-        static StackKey of(ItemStack stack) {
-            return new StackKey(stack.getItem(), stack.getComponentsPatch().hashCode());
+        public ItemStack example() {
+            return new ItemStack(item);
         }
     }
 
-    // --- registration ------------------------------------------------------------------------------------------
+    private static @Nullable List<? extends String> cachedSource;
+    private static @Nullable String cachedClear;
+    private static Map<Item, Ingredient> table = Map.of();
+    private static List<Ingredient> ordered = List.of();
 
-    public static synchronized void addPropertyToItem(ItemStack stack, LinkProperty property, float probability) {
-        add(STACK_BINDINGS.computeIfAbsent(StackKey.of(stack), k -> new LinkedHashMap<>()), property, probability);
-    }
+    // --- resolution ------------------------------------------------------------------------------------------------
 
-    public static synchronized void addPropertyToItem(TagKey<Item> tag, LinkProperty property, float probability) {
-        add(TAG_BINDINGS.computeIfAbsent(tag, k -> new LinkedHashMap<>()), property, probability);
-    }
-
-    public static synchronized void addPropertyToItem(Item item, LinkProperty property, float probability) {
-        add(ITEM_BINDINGS.computeIfAbsent(item, k -> new LinkedHashMap<>()), property, probability);
-    }
-
-    private static void add(Map<LinkProperty, Float> map, LinkProperty property, float probability) {
-        map.merge(property, probability, Float::sum);
-        float total = 0;
-        for (float f : map.values()) total += f;
-        if (total > 1.0001f) {
-            throw new IllegalStateException("Total of all ink property probabilities from an item cannot exceed 1 (" + map + ")");
+    private static synchronized void ensureResolved() {
+        List<? extends String> source;
+        String clear;
+        try {
+            source = MystcraftConfig.INK_INGREDIENTS.get();
+            clear = MystcraftConfig.INK_CLEAR_INGREDIENT.get();
+        } catch (IllegalStateException | NullPointerException e) {
+            source = DEFAULT_INGREDIENTS; // config not loaded yet (early client code paths, unit tests)
+            clear = DEFAULT_CLEAR_INGREDIENT;
         }
-    }
-
-    // --- lookup ------------------------------------------------------------------------------------------------
-
-    /** Property probabilities contributed by one item; empty map when the item is not an ink modifier. */
-    public static Map<LinkProperty, Float> getItemEffects(ItemStack stack) {
-        if (stack.isEmpty()) return Map.of();
-        Map<LinkProperty, Float> map = STACK_BINDINGS.get(StackKey.of(stack));
-        if (map == null) {
-            for (Map.Entry<TagKey<Item>, Map<LinkProperty, Float>> e : TAG_BINDINGS.entrySet()) {
-                if (stack.is(e.getKey())) {
-                    map = e.getValue();
-                    break;
-                }
+        if (source == cachedSource && clear.equals(cachedClear)) return;
+        Map<Item, Ingredient> resolved = new LinkedHashMap<>();
+        Set<LinkProperty> usedEffects = new HashSet<>();
+        for (String entry : source) {
+            int eq = entry.indexOf('=');
+            if (eq <= 0 || eq == entry.length() - 1) {
+                Mystcraft.LOGGER.warn("[ink] ignoring malformed ingredient entry '{}' (expected effect=item)", entry);
+                continue;
             }
+            LinkProperty effect = LinkProperty.get(entry.substring(0, eq).trim());
+            Item item = parseItem(entry.substring(eq + 1).trim());
+            if (effect == null || !effect.inkable()) {
+                Mystcraft.LOGGER.warn("[ink] ignoring ingredient entry '{}': unknown or non-inkable effect", entry);
+                continue;
+            }
+            if (item == null) {
+                Mystcraft.LOGGER.warn("[ink] ignoring ingredient entry '{}': unknown item", entry);
+                continue;
+            }
+            if (!usedEffects.add(effect)) {
+                Mystcraft.LOGGER.warn("[ink] ignoring ingredient entry '{}': effect already has an ingredient", entry);
+                continue;
+            }
+            if (resolved.containsKey(item)) {
+                Mystcraft.LOGGER.warn("[ink] ignoring ingredient entry '{}': item already bound to {}", entry, resolved.get(item).effect());
+                continue;
+            }
+            resolved.put(item, new Ingredient(item, effect));
         }
-        if (map == null) map = ITEM_BINDINGS.get(stack.getItem());
-        return map == null ? Map.of() : Collections.unmodifiableMap(map);
+        Item clearItem = parseItem(clear);
+        if (clearItem == null) {
+            Mystcraft.LOGGER.warn("[ink] unknown clear ingredient '{}', using {}", clear, DEFAULT_CLEAR_INGREDIENT);
+            clearItem = Items.BLACK_DYE;
+        }
+        if (resolved.containsKey(clearItem)) {
+            Mystcraft.LOGGER.warn("[ink] clear ingredient {} is also bound to {}; it clears", clear, resolved.get(clearItem).effect());
+        }
+        resolved.put(clearItem, new Ingredient(clearItem, null));
+        table = Map.copyOf(resolved);
+        ordered = List.copyOf(resolved.values());
+        cachedSource = source;
+        cachedClear = clear;
+        Mystcraft.LOGGER.info("[ink] ingredient table: {}", ordered.stream()
+                .map(i -> BuiltInRegistries.ITEM.getKey(i.item()) + "->" + (i.clears() ? "clear" : i.effect().name())).toList());
+    }
+
+    private static @Nullable Item parseItem(String id) {
+        Identifier key = Identifier.tryParse(id);
+        if (key == null) return null;
+        return BuiltInRegistries.ITEM.getOptional(key).orElse(null);
+    }
+
+    // --- lookup ------------------------------------------------------------------------------------------------------
+
+    /** The ingredient the stack is, or {@code null} when the item has no effect on the ink. */
+    public static @Nullable Ingredient ingredientFor(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        ensureResolved();
+        return table.get(stack.getItem());
     }
 
     public static boolean isInkModifier(ItemStack stack) {
-        return !getItemEffects(stack).isEmpty();
+        return ingredientFor(stack) != null;
     }
 
-    /** One usable ingredient for display: a representative stack (empty for tags with no items loaded) and its effects. */
-    public record Ingredient(ItemStack example, @Nullable TagKey<Item> tag, Map<LinkProperty, Float> effects) {
-        public boolean available() {
-            return !example.isEmpty();
-        }
+    /** Every ingredient in table order (effects first, the clearing item last). */
+    public static List<Ingredient> getIngredients() {
+        ensureResolved();
+        return ordered;
     }
 
-    /**
-     * Every registered ingredient in registration order (stack bindings, then item bindings, then tag bindings).
-     * Tag bindings whose tag has no items in this game are included with an empty example so GUIs can skip them.
-     */
-    public static synchronized List<Ingredient> getIngredients() {
-        List<Ingredient> out = new ArrayList<>();
-        for (Map.Entry<StackKey, Map<LinkProperty, Float>> e : STACK_BINDINGS.entrySet()) {
-            out.add(new Ingredient(new ItemStack(e.getKey().item()), null, Collections.unmodifiableMap(e.getValue())));
-        }
-        for (Map.Entry<Item, Map<LinkProperty, Float>> e : ITEM_BINDINGS.entrySet()) {
-            out.add(new Ingredient(new ItemStack(e.getKey()), null, Collections.unmodifiableMap(e.getValue())));
-        }
-        for (Map.Entry<TagKey<Item>, Map<LinkProperty, Float>> e : TAG_BINDINGS.entrySet()) {
-            ItemStack example = BuiltInRegistries.ITEM.get(e.getKey())
-                    .flatMap(named -> named.stream().findFirst())
-                    .map(holder -> new ItemStack(holder.value()))
-                    .orElse(ItemStack.EMPTY);
-            out.add(new Ingredient(example, e.getKey(), Collections.unmodifiableMap(e.getValue())));
-        }
-        return out;
-    }
-
-    /** Properties the mixer can attach (inkable, coloured), in registration order. */
+    /** Properties the mixer and Link Modifier can attach (inkable, coloured), in registration order. */
     public static List<LinkProperty> getProperties() {
         List<LinkProperty> out = new ArrayList<>();
         for (LinkProperty p : LinkProperty.all().values()) {
@@ -137,7 +162,7 @@ public final class InkEffects {
 
     /** Relative is inkable but excluded from creative listings and trades (REQUIREMENTS §7.2). */
     public static boolean isCraftable(LinkProperty property) {
-        return property.inkable() && property != LinkProperty.RELATIVE && property != DILUTION;
+        return property.inkable() && property != LinkProperty.RELATIVE;
     }
 
     public static Colors.RGB getPropertyColor(LinkProperty property) {
@@ -145,82 +170,15 @@ public final class InkEffects {
         return color == null ? DEFAULT_COLOR : color;
     }
 
-    /**
-     * GUI gradient (REQUIREMENTS §7.2): every property with p ≥ 0.001 pushes its colour with interval p (split as
-     * (p − 0.3) + 0.3 when p > 0.3); the remaining (1 − Σ) is pushed as black the same way.
-     */
-    public static ColorGradient getPropertiesGradient(Map<LinkProperty, Float> properties) {
+    /** Basin gradient: equal bands per effect in the ink; plain ink is black. */
+    public static ColorGradient getPropertiesGradient(Collection<LinkProperty> properties) {
         ColorGradient gradient = new ColorGradient();
-        float max = 1.0f;
-        float total = 0;
-        for (Map.Entry<LinkProperty, Float> e : properties.entrySet()) {
-            float value = e.getValue();
-            if (value < 0.001f) continue;
-            Colors.RGB color = e.getKey() == DILUTION ? EMPTY_COLOR : getPropertyColor(e.getKey());
-            float interval = value * max;
-            total += interval;
-            if (interval > 0.3f) {
-                gradient.pushColor(color, interval - 0.3f);
-                interval = 0.3f;
-            }
-            gradient.pushColor(color, interval);
+        if (properties.isEmpty()) {
+            gradient.pushColor(EMPTY_COLOR, 1.0f);
+            return gradient;
         }
-        if (total < max - 0.01f) {
-            float interval = max - total;
-            if (interval > 0.3f) {
-                gradient.pushColor(EMPTY_COLOR, interval - 0.3f);
-                interval = 0.3f;
-            }
-            gradient.pushColor(EMPTY_COLOR, interval);
-        }
+        float interval = 1.0f / properties.size();
+        for (LinkProperty property : properties) gradient.pushColor(getPropertyColor(property), interval);
         return gradient;
-    }
-
-    // --- defaults ----------------------------------------------------------------------------------------------
-
-    private static TagKey<Item> dust(String metal) {
-        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "dusts/" + metal));
-    }
-
-    /** Registers the built-in bindings (REQUIREMENTS §7.2). Called once from common setup. */
-    public static synchronized void registerDefaults() {
-        if (!ITEM_BINDINGS.isEmpty()) return;
-
-        addPropertyToItem(Items.GUNPOWDER, LinkProperty.DISARM, 0.2f);
-        addPropertyToItem(Items.MUSHROOM_STEW, LinkProperty.DISARM, 0.05f);
-        addPropertyToItem(Items.CLAY_BALL, LinkProperty.GENERATE_PLATFORM, 0.25f);
-        addPropertyToItem(Items.EXPERIENCE_BOTTLE, LinkProperty.INTRA_LINKING, 0.15f);
-        addPropertyToItem(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "dyes/black")), DILUTION, 0.5f);
-        addPropertyToItem(Items.BLACK_DYE, DILUTION, 0.5f);
-        addPropertyToItem(Items.ENDER_PEARL, LinkProperty.INTRA_LINKING, 0.15f);
-        addPropertyToItem(Items.ENDER_PEARL, LinkProperty.DISARM, 0.15f);
-        addPropertyToItem(Items.FEATHER, LinkProperty.MAINTAIN_MOMENTUM, 0.15f);
-        addPropertyToItem(Items.FIRE_CHARGE, LinkProperty.DISARM, 0.25f);
-        // Reborn addition: a lead keeps the book tethered to the linker (Following).
-        addPropertyToItem(Items.LEAD, LinkProperty.FOLLOWING, 1.0f);
-        // Reborn addition: vanilla nuggets stand in for the metal dusts of the original (which only other mods
-        // provide), at roughly half the dust's odds so a nugget is not worth more than a dust.
-        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.INTRA_LINKING, 0.12f);
-        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.GENERATE_PLATFORM, 0.05f);
-        addPropertyToItem(Items.GOLD_NUGGET, LinkProperty.DISARM, 0.05f);
-        addPropertyToItem(Items.IRON_NUGGET, LinkProperty.GENERATE_PLATFORM, 0.08f);
-        addPropertyToItem(Items.IRON_NUGGET, LinkProperty.INTRA_LINKING, 0.08f);
-
-        addPropertyToItem(dust("brass"), LinkProperty.DISARM, 0.15f);
-        addPropertyToItem(dust("bronze"), LinkProperty.DISARM, 0.15f);
-        addPropertyToItem(dust("tin"), LinkProperty.GENERATE_PLATFORM, 0.1f);
-        addPropertyToItem(dust("tin"), LinkProperty.INTRA_LINKING, 0.1f);
-        addPropertyToItem(dust("iron"), LinkProperty.GENERATE_PLATFORM, 0.15f);
-        addPropertyToItem(dust("iron"), LinkProperty.INTRA_LINKING, 0.15f);
-        addPropertyToItem(dust("lead"), LinkProperty.DISARM, 0.2f);
-        addPropertyToItem(dust("lead"), LinkProperty.INTRA_LINKING, 0.2f);
-        addPropertyToItem(dust("silver"), LinkProperty.GENERATE_PLATFORM, 0.2f);
-        addPropertyToItem(dust("silver"), LinkProperty.INTRA_LINKING, 0.2f);
-        addPropertyToItem(dust("diamond"), LinkProperty.INTRA_LINKING, 0.25f);
-        addPropertyToItem(dust("diamond"), LinkProperty.MAINTAIN_MOMENTUM, 0.1f);
-        addPropertyToItem(dust("diamond"), LinkProperty.GENERATE_PLATFORM, 0.1f);
-        addPropertyToItem(dust("gold"), LinkProperty.INTRA_LINKING, 0.25f);
-        addPropertyToItem(dust("gold"), LinkProperty.GENERATE_PLATFORM, 0.1f);
-        addPropertyToItem(dust("gold"), LinkProperty.DISARM, 0.1f);
     }
 }

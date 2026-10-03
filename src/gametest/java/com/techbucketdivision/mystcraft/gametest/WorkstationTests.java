@@ -1,8 +1,13 @@
 package com.techbucketdivision.mystcraft.gametest;
 
+import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
 import com.techbucketdivision.mystcraft.blockentity.InkMixerBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
+import com.techbucketdivision.mystcraft.util.MystIds;
+import com.techbucketdivision.mystcraft.linking.InkEffects;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import com.techbucketdivision.mystcraft.registry.ModItems;
 import net.minecraft.core.Direction;
@@ -87,27 +92,70 @@ public class WorkstationTests {
 
     @GameTest
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "Every ingredient the mixer advertises is accepted as an ink modifier; the vanilla stand-ins (gold/iron nugget) are among them")
-    static void inkIngredientCatalogueMatchesLookup(ExtendedGameTestHelper helper) {
-        var catalogue = com.techbucketdivision.mystcraft.linking.InkEffects.getIngredients();
-        helper.assertTrue(!catalogue.isEmpty(), "ingredient catalogue is not empty");
-        int available = 0;
-        boolean goldNugget = false;
-        for (var ingredient : catalogue) {
-            if (!ingredient.available()) {
-                com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] ink ingredient tag {} has no items in this game", ingredient.tag());
-                continue;
-            }
-            available++;
-            var lookedUp = com.techbucketdivision.mystcraft.linking.InkEffects.getItemEffects(ingredient.example());
-            com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] ink ingredient {} -> {}", ingredient.example().getItem(), lookedUp);
-            helper.assertTrue(!lookedUp.isEmpty(), ingredient.example().getItem() + " is accepted by the mixer");
-            goldNugget |= ingredient.example().is(Items.GOLD_NUGGET);
+    @TestHolder(description = "Ink table: one ingredient per effect and one effect per ingredient; the default table is clay/feather/gunpowder/compass/ender pearl/amethyst/eye of ender + black dye clears")
+    static void inkIngredientTableIsOneToOne(ExtendedGameTestHelper helper) {
+        var table = InkEffects.getIngredients();
+        java.util.Set<net.minecraft.world.item.Item> items = new java.util.HashSet<>();
+        java.util.Set<LinkProperty> effects = new java.util.HashSet<>();
+        int clearing = 0;
+        for (var ingredient : table) {
+            com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] ink ingredient {} -> {}", ingredient.item(), ingredient.clears() ? "clear" : ingredient.effect());
+            helper.assertTrue(items.add(ingredient.item()), ingredient.item() + " listed once");
+            if (ingredient.clears()) clearing++;
+            else helper.assertTrue(effects.add(ingredient.effect()), ingredient.effect() + " has one ingredient");
+            helper.assertTrue(InkEffects.ingredientFor(ingredient.example()) == ingredient, ingredient.item() + " looks up to itself");
         }
-        helper.assertTrue(available >= 10, "at least the vanilla ingredients are available (" + available + ")");
-        helper.assertTrue(goldNugget, "gold nugget is an ink ingredient");
-        helper.assertTrue(com.techbucketdivision.mystcraft.linking.InkEffects.getItemEffects(new ItemStack(Items.STICK)).isEmpty(), "a stick is not an ingredient");
+        helper.assertValueEqual(clearing, 1, "exactly one clearing ingredient");
+        helper.assertValueEqual(effects, java.util.Set.of(LinkProperty.GENERATE_PLATFORM, LinkProperty.MAINTAIN_MOMENTUM, LinkProperty.DISARM,
+                LinkProperty.INTRA_LINKING_ONLY, LinkProperty.INTRA_LINKING, LinkProperty.RELATIVE, LinkProperty.FOLLOWING), "every inkable effect has an ingredient");
+        helper.assertTrue(InkEffects.ingredientFor(new ItemStack(Items.GUNPOWDER)).effect() == LinkProperty.DISARM, "gunpowder -> Disarm");
+        helper.assertTrue(InkEffects.ingredientFor(new ItemStack(Items.ENDER_EYE)).effect() == LinkProperty.FOLLOWING, "eye of ender -> Following");
+        helper.assertTrue(InkEffects.ingredientFor(new ItemStack(Items.BLACK_DYE)).clears(), "black dye clears");
+        for (var removed : new net.minecraft.world.item.Item[] {Items.STICK, Items.LEAD, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.MUSHROOM_STEW, Items.FIRE_CHARGE, Items.EXPERIENCE_BOTTLE}) {
+            helper.assertTrue(InkEffects.ingredientFor(new ItemStack(removed)) == null, removed + " is not an ingredient");
+        }
         helper.succeed();
+    }
+
+    @GameTest(timeoutTicks = 100)
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Mixing: one item per click switches its effect on, a repeat is not consumed, black dye clears, the panel carries exactly the mixed effects and the next fill starts plain")
+    static void mixerOneIngredientPerEffect(ExtendedGameTestHelper helper) {
+        helper.setBlock(1, 1, 1, ModBlocks.INK_MIXER.get());
+        InkMixerBlockEntity mixer = helper.getBlockEntity(1, 1, 1, InkMixerBlockEntity.class);
+        mixer.inventory.setStack(InkMixerBlockEntity.SLOT_INK_IN, new ItemStack(ModItems.INK_VIAL.get(), 2));
+        mixer.inventory.setStack(InkMixerBlockEntity.SLOT_PAPER, new ItemStack(Items.PAPER, 2));
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(mixer.hasInk(), "basin has ink"))
+                .thenExecute(() -> Check.run(helper, () -> {
+                    ItemStack gunpowder = mixer.addItems(new ItemStack(Items.GUNPOWDER, 3), 1);
+                    helper.assertValueEqual(gunpowder.getCount(), 2, "one gunpowder consumed");
+                    helper.assertTrue(mixer.hasEffect(LinkProperty.DISARM), "Disarm in the ink");
+                    gunpowder = mixer.addItems(gunpowder, 1);
+                    helper.assertValueEqual(gunpowder.getCount(), 2, "a second gunpowder is not consumed");
+                    ItemStack feather = mixer.addItems(new ItemStack(Items.FEATHER), 1);
+                    helper.assertTrue(feather.isEmpty() && mixer.hasEffect(LinkProperty.MAINTAIN_MOMENTUM), "feather adds Maintain Momentum");
+                    ItemStack lead = mixer.addItems(new ItemStack(Items.LEAD), 1);
+                    helper.assertValueEqual(lead.getCount(), 1, "a lead is not an ingredient any more");
+                    helper.assertValueEqual(mixer.getEffects().size(), 2, "two effects in the ink");
+
+                    ItemStack panel = mixer.getCraftedItem();
+                    helper.assertTrue(!panel.isEmpty(), "paper + ink gives a panel");
+                    mixer.buildItem(panel, helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL));
+                    helper.assertValueEqual(PageItem.getLinkProperties(panel), java.util.Set.of(LinkProperty.DISARM, LinkProperty.MAINTAIN_MOMENTUM), "panel carries exactly the mixed effects");
+                    helper.assertTrue(!mixer.hasInk(), "basin emptied by the panel");
+                }))
+                .thenWaitUntil(() -> helper.assertTrue(mixer.hasInk(), "basin refilled from the second vial"))
+                .thenExecute(() -> Check.run(helper, () -> {
+                    helper.assertTrue(mixer.getEffects().isEmpty(), "fresh ink has no effects");
+                    ItemStack dye = mixer.addItems(new ItemStack(Items.BLACK_DYE), 1);
+                    helper.assertValueEqual(dye.getCount(), 1, "black dye on plain ink is not consumed");
+                    mixer.addItems(new ItemStack(Items.ENDER_PEARL), 1);
+                    helper.assertTrue(mixer.hasEffect(LinkProperty.INTRA_LINKING), "ender pearl adds Intra-Linking");
+                    dye = mixer.addItems(dye, 1);
+                    helper.assertTrue(dye.isEmpty() && mixer.getEffects().isEmpty(), "black dye clears the effects");
+                }))
+                .thenSucceed();
     }
 
     @GameTest
@@ -144,40 +192,70 @@ public class WorkstationTests {
 
     @GameTest
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "Writing desk: the menu reports when a click can write, and writing a symbol fills the book's blank page and uses ink")
-    static void deskWritesSymbolIntoBook(ExtendedGameTestHelper helper) {
+    @TestHolder(description = "Writing desk: only a folder is a target; a known primary symbol is written onto a fresh page (paper + ink), unknown symbols and modifiers are refused; a Scholar's desk knows everything")
+    static void deskWritesKnownSymbolsIntoFolder(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
         var menu = new com.techbucketdivision.mystcraft.menu.WritingDeskMenu(1, player.getInventory(), desk);
-        var symbol = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.all().iterator().next();
+        var flat = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
+        var north = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
 
-        // nothing in the desk: a click must take the page, not write
+        helper.assertFalse(WritingDeskBlockEntity.isTargetItem(new ItemStack(ModItems.DESCRIPTIVE_BOOK.get())), "a book is not a desk target any more");
+        helper.assertFalse(WritingDeskBlockEntity.isTargetItem(PageItem.createBlankPage()), "a page is not a desk target");
+        helper.assertTrue(WritingDeskBlockEntity.isTargetItem(com.techbucketdivision.mystcraft.item.FolderItem.create("", java.util.List.of())), "a folder is the desk target");
         helper.assertFalse(menu.canWriteSymbol(), "empty desk cannot write");
 
-        // an unvisited descriptive book with a blank page + ink -> writable
-        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
-        com.techbucketdivision.mystcraft.item.LinkingItem.setLinkInfo(book,
-                com.techbucketdivision.mystcraft.api.linking.LinkInfo.EMPTY.withDisplayName("Desk test"));
-        com.techbucketdivision.mystcraft.item.DescriptiveBookItem.setPages(book, java.util.List.of(
-                com.techbucketdivision.mystcraft.item.PageItem.createLinkPanel(),
-                com.techbucketdivision.mystcraft.item.PageItem.createBlankPage()));
-        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, book);
-        helper.assertFalse(menu.canWriteSymbol(), "book but no ink cannot write");
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.techbucketdivision.mystcraft.item.FolderItem.create("Desk test", java.util.List.of()));
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(Items.PAPER, 4));
         desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
-        helper.assertTrue(menu.canWriteSymbol(), "book + ink can write");
+        helper.assertTrue(menu.canWriteSymbol(), "folder + paper + ink can write");
 
-        int inkBefore = desk.getInkAmount();
-        desk.writeSymbol(player, symbol);
-        ItemStack written = desk.getTarget();
-        var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(written);
-        com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] desk wrote {} -> pages {} ink {}->{}", symbol.id(), pages, inkBefore, desk.getInkAmount());
-        helper.assertTrue(pages.size() == 2 && symbol.id().equals(com.techbucketdivision.mystcraft.item.PageItem.getSymbolId(pages.get(1))), "blank page now carries the symbol");
-        helper.assertValueEqual(desk.getInkAmount(), inkBefore - WritingDeskBlockEntity.INK_COST, "ink used per symbol");
+        helper.assertFalse(desk.writeSymbol(player, flat), "an unknown symbol is refused");
+        helper.assertValueEqual(desk.getInkAmount(), 1000, "no ink spent on a refused symbol");
+        SymbolKnowledge.unlock(player, java.util.List.of(flat.id(), north.id()), "test");
+        helper.assertTrue(SymbolKnowledge.knows(player, flat), "player knows terrain_flat now");
+        helper.assertTrue(desk.writeSymbol(player, flat), "a known symbol is written");
+        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        helper.assertTrue(pages.size() == 1 && flat.id().equals(PageItem.getSymbolId(pages.getFirst())), "folder holds the written page: " + pages);
+        helper.assertValueEqual(desk.getInkAmount(), 1000 - WritingDeskBlockEntity.INK_COST, "ink used per symbol");
+        helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 3, "paper used");
+        helper.assertFalse(desk.writeSymbol(player, north), "a modifier is never written as a page of its own");
 
-        // no blank page left and no paper: cannot write again (paper would make a new page instead)
-        helper.assertTrue(menu.canWriteSymbol(), "menu still offers writing (book is Writable; the item decides per page)");
-        desk.writeSymbol(player, symbol);
-        helper.assertValueEqual(desk.getInkAmount(), inkBefore - WritingDeskBlockEntity.INK_COST, "no ink used when the book has no blank page");
+        desk.setScholar(true);
+        var meteors = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("env_meteors"));
+        helper.assertFalse(SymbolKnowledge.knows(player, meteors), "player does not know meteors");
+        helper.assertTrue(desk.writeSymbol(player, meteors), "a Scholar's desk writes any symbol");
+        helper.succeed();
+    }
+
+    @GameTest
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Writing desk modifiers: a known modifier attaches to a folder page whose symbol takes it (ink only), is refused otherwise, and the last one can be detached")
+    static void deskAttachesModifiers(ExtendedGameTestHelper helper) {
+        WritingDeskBlockEntity desk = placeDesk(helper);
+        var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        var sun = MystIds.id("sun_normal");
+        var north = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
+        var red = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_color_red"));
+        var half = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_half"));
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.techbucketdivision.mystcraft.item.FolderItem.create("Mods", java.util.List.of(
+                PageItem.createSymbolPage(sun), PageItem.createSymbolPage(MystIds.id("terrain_flat")))));
+        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
+
+        helper.assertFalse(desk.attachModifier(player, 0, north), "unknown modifier refused");
+        SymbolKnowledge.unlock(player, java.util.List.of(north.id(), red.id(), half.id()), "test");
+        helper.assertTrue(desk.attachModifier(player, 0, north), "north attaches to the sun");
+        helper.assertFalse(desk.attachModifier(player, 1, north), "a direction does not attach to terrain");
+        helper.assertFalse(desk.attachModifier(player, 1, red), "a colour does not attach to terrain");
+        helper.assertTrue(desk.attachModifier(player, 0, half), "half length attaches to the sun");
+        helper.assertFalse(desk.attachModifier(player, 5, half), "no page at index 5");
+        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        helper.assertValueEqual(PageItem.getModifiers(pages.get(0)), java.util.List.of(north.id(), half.id()), "sun page carries north then half");
+        helper.assertValueEqual(desk.getInkAmount(), 1000 - 2 * WritingDeskBlockEntity.INK_COST, "ink per attached modifier, no paper");
+        helper.assertTrue(desk.detachLastModifier(player, 0), "detach the last modifier");
+        pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        helper.assertValueEqual(PageItem.getModifiers(pages.get(0)), java.util.List.of(north.id()), "only north left");
+        helper.assertFalse(desk.detachLastModifier(player, 1), "nothing to detach on the terrain page");
         helper.succeed();
     }
 
@@ -187,7 +265,8 @@ public class WorkstationTests {
     static void deskDraftsUndoAndCommit(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
-        var symbol = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.all().iterator().next();
+        var symbol = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
+        SymbolKnowledge.unlock(player, java.util.List.of(symbol.id()), "test");
         desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
 
         // folder target + paper: writing appends a draft page

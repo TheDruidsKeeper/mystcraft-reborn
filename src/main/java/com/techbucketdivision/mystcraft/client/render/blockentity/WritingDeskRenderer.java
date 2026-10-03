@@ -53,7 +53,8 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
     /** Book spines that fit on the two shelves under the head half of the desk top (14 units wide each, 2 per book). */
     public static final int BOOKS_PER_SHELF = 6;
     public static final int MAX_SHELF_BOOKS = BOOKS_PER_SHELF * 2;
-    private static final int TINT_NOTEBOOK = 0xFF9A6A3A, TINT_PORTFOLIO = 0xFF4A6A9A, TINT_FOLDER = 0xFFD8C08A;
+    /** A Scholar's desk shows a full shelf of reference volumes; an ordinary desk has empty shelves. */
+    private static final int[] SCHOLAR_TINTS = {0xFF4A6A9A, 0xFF9A6A3A, 0xFF6A3A7A, 0xFF3A7A6A, 0xFFD8C08A, 0xFF7A3A3A};
 
     private final Model.Simple desk;
     private final SpriteGetter sprites;
@@ -96,13 +97,9 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         ItemStack target = be.getDisplayItem();
         state.targetIsBook = BookUtil.isLinkingItem(target);
         ItemRenderHelper.extract(state.target, target, ItemDisplayContext.FIXED, be.getLevel(), 0);
-        int shown = 0;
         java.util.Arrays.fill(state.shelfBooks, 0);
-        for (int tab = 0; tab < be.getMaxSurfaceTabCount() && shown < MAX_SHELF_BOOKS; tab++) {
-            ItemStack notebook = be.getTabItem(tab);
-            if (notebook.isEmpty()) continue;
-            state.shelfBooks[shown++] = notebook.getItem() instanceof com.techbucketdivision.mystcraft.item.PortfolioItem ? TINT_PORTFOLIO
-                    : notebook.getItem() instanceof com.techbucketdivision.mystcraft.item.FolderItem ? TINT_FOLDER : TINT_NOTEBOOK;
+        if (be.isScholar()) {
+            for (int i = 0; i < MAX_SHELF_BOOKS; i++) state.shelfBooks[i] = SCHOLAR_TINTS[i % SCHOLAR_TINTS.length];
         }
         int ink = be.getInkAmount();
         state.inkLevel = ink <= 0 ? -1f : Math.min(1f, ink / (float) WritingDeskBlockEntity.TANK_CAPACITY);

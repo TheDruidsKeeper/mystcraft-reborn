@@ -35,7 +35,7 @@ Conventions used below:
 ### 1.2 Player loop
 
 1. Find pages (dungeon/temple/library loot, Archivist trades, Sealed Notebooks).
-2. Build a Writing Desk; put an Ink Vial (or bucket of black ink) in the desk, paper, and a Descriptive Book/Folder/Portfolio as target; copy symbols from a notebook onto blank pages (1 page = 50 mB ink).
+2. Build a Writing Desk; put an Ink Vial (or bucket of black ink) in the desk, paper, and a Collation Folder as target; write copies of the symbols you know (studied pages, visited Ages) onto new pages (1 page = 50 mB ink) and attach modifiers to them (Reborn, see §3.10).
 3. Build an Ink Mixer; fill it with black ink, drop modifiers (gunpowder, feathers, clay, ender pearls, ...) to build link-property probabilities; craft a Link Panel page from paper.
 4. Build a Book Binder; insert a Link Panel as page 0 followed by symbol pages, name the book, provide leather (or an empty folder) as cover and take the Descriptive Book.
 5. Craft an Unlinked Link Book (Link Panel + leather, shapeless) and right-click it to bind a Linking Book to the current position so you can get back.
@@ -68,7 +68,11 @@ Item block equivalents exist for: `blockinkmixer`, `blockbookbinder`, `blockbook
 
 ### 2.2 Page (`ItemPage`)
 
-**Data model (item NBT):**
+> **Reborn revision (studying pages):** using a symbol page in hand teaches the player every symbol on it (symbol and modifiers; `SymbolKnowledge.learnPage`) and consumes the page; a page whose symbols are all known is kept ("You already know everything on this page"). The tooltip says "Use: study this page" or "You know these symbols". Knowledge is a player attachment (`mystcraft:knowledge`, kept over death, synced with `KnowledgePayload`), also fed by arriving in an Age (every symbol of the Age). Logged under `[knowledge]`.
+
+> **Reborn revision (symbol pages, `SymbolPage` component):** a symbol page stores `{id, modifiers: [symbol ids], discovered}`. The modifiers attached to the page are applied right before its symbol when the Age is built (the sequential modifier model of §4.2 stays; only the *source order* now comes from pages), so a page is self-contained and can be reordered freely. `discovered` marks pages the Age blueprint added at the first link (§4.4); they are rendered in a different ink and listed as "Discovered in the Age". Page icons draw the attached modifiers as small overlays on the corners of the symbol glyph (colour modifiers in their own colour), in GUIs and as item models (`SymbolGlyphs.drawSymbolPage`, `SymbolPageSpecialRenderer`). Every symbol belongs to one `SymbolCategory` (§4.4) and knows which modifier slots it takes (`AgeSymbol.accepts`, derived from the dry run of its logic) and, for modifiers, which slot it fills (`AgeSymbol.fills`).
+
+**Data model (item NBT, original):**
 
 | Key | Type | Meaning |
 |---|---|---|
@@ -105,7 +109,7 @@ Common behaviour:
 
 #### 2.3.1 Descriptive Book (`ItemAgebook`)
 
-> **Reborn revisions:** on the first link the Age is built once immediately (so controller fallbacks are chosen) and a symbol page is appended to the book for every symbol of the final Age list the author did not write (multiset difference, Age order; `DescriptiveBookItem.writeGeneratedSymbols`) - the book then describes the whole Age, dangerous symbols included; the Age keeps the same page list. New Ages start at a seeded random point of their day (`AgeTicker.startAtRandomTime`, first ten days).
+> **Reborn revisions:** on the first link the Age blueprint (§4.4) completes the book: discovered pages (flagged) for everything the author left out, the whole list organised by category, and `AgeData.symbols` derived from the pages (modifiers then symbol per page). The Age is built once immediately so a controller fallback (only possible with failing add-on symbols) is recorded as a discovered page too. The book then describes the whole Age, dangerous symbols included; the Age keeps the same page list. New Ages start at a seeded random point of their day (`AgeTicker.startAtRandomTime`, first ten days).
 
 Extra NBT: `Pages` (list of page-item NBT), `Authors` (list of strings), `Props.Seed` (string long).
 
@@ -155,6 +159,8 @@ Extra NBT: `Pages` (list of page-item NBT), `Authors` (list of strings), `Props.
 * Tooltip shows the name.
 
 ### 2.6 Symbol Portfolio (`ItemPortfolio`) — `IItemPageCollection`
+
+> **Reborn revision:** removed. There are no page collections: symbols are *known* by the player (§2.2 studying pages) and the Writing Desk writes copies of known symbols. `IItemPageCollection` is gone with it; the creative tab offers a Scholar's Writing Desk (§3.10) instead of "Spawned (...)" portfolios.
 
 * NBT: `Name`, `Collection` (list of item NBT compounds; duplicates allowed — a stack of N pages is stored as N entries).
 * Only accepts `mystcraft:page` items; `addPage` also accepts a whole Folder/Portfolio (count 1) and moves all its pages in.
@@ -231,7 +237,7 @@ Fluid: `myst.ink.black` (`fluid.myst.ink.black` = "Black Ink"), still texture `b
 
 ### 3.2 Ink Mixer (`BlockInkMixer` / `TileEntityInkMixer`)
 
-> **Reborn revision (deterministic ink):** the basin holds a *set* of link effects instead of probabilities. Clicking the basin with an ingredient consumes exactly one item and switches on every effect the ingredient lists (an effect already present costs nothing); black dye clears the set; filling the basin with fresh ink clears it too. The Link Panel page gets exactly the effects in the set - no roll. The ingredient table in §7.2 still gives the effect list per item (the numbers are kept for reference only). Reborn adds Lead -> Following.
+> **Reborn revision (deterministic ink, one ingredient per effect):** the basin holds a *set* of link effects instead of probabilities. Clicking the basin with an ingredient consumes exactly one item and switches on the one effect the ingredient stands for (an effect already present costs nothing); the clearing ingredient (black dye) empties the set; filling the basin with fresh ink clears it too. The Link Panel page gets exactly the effects in the set - no roll. The table is config (`inkmixer.ingredients`, one `effect=item` entry per effect, `inkmixer.clearIngredient`), defaults priced by what the effect gives: Generate Platform = clay ball, Maintain Momentum = feather, Disarm = gunpowder, Intra-Linking Only = compass, Intra-Linking = ender pearl, Relative = amethyst shard, Following = eye of ender. The original's probability table in §7.2 (mushroom stew, bottle o' enchanting, fire charge, metal dusts) is reference only and no longer implemented. `[ink]` log lines record the resolved table and every mix.
 
 * State: `facing` (horizontal, from placer). Non-opaque cube, model `inkwell_model` (+ TESR `ModelInkMixer` for the pages on it).
 * Right-click → GUI `INK_MIXER`.
@@ -319,6 +325,8 @@ Spreading handlers never convert a neighbour that already is the same decay stat
 * No recipe (creative/admin tool).
 
 ### 3.10 Writing Desk (`BlockWritingDesk` / `TileEntityDesk`)
+
+> **Reborn revision (world-building plan §4):** the desk has **no notebook tabs**. Its target slot takes only a **Collation Folder**; paper, an ink container and the inkwell stay. The writing surface lists the symbols the *player* knows (§2.2), grouped by category under tabs (All, Terrain, Biomes, Sky, Weather, Features, Materials, Effects, Modifiers) with a search box; clicking a primary symbol writes a copy onto a fresh page in the folder (one paper, 50 mB ink; the page is a draft until the folder leaves the desk); clicking a modifier **attaches** it to the page selected in the folder strip when that page's symbol takes it (`AgeSymbol.takes`; 50 mB ink, no paper); right-click on a strip page removes its last modifier. `WritingDeskBlockEntity.writeSymbol` / `attachModifier` / `detachLastModifier` refuse unknown symbols, modifiers as standalone pages and non-matching slots. A **Scholar's Writing Desk** (`mystcraft:scholars_writing_desk`, creative only, no recipe; `scholar` flag on the block entity, full shelves in the renderer) offers every registered symbol. Books are bound at the Book Binder from the folder's pages and are no longer edited at the desk.
 
 * States: `facing` horizontal (default NORTH), `istop`, `isfoot`. Legacy meta = `top<<3 | foot<<2 | horizontalIndex`. Render type ENTITYBLOCK_ANIMATED (TESR `ModelWritingDesk`, texture `entity/desk.png`, shows backboard when `hasTop()`, and paper count). Only the head block (not top, not foot) has the tile entity.
 * Bounding box: full cube for base blocks; top blocks are 0.75 high and half-width on the side facing the desk (`dirInt 0: xmin=0.5; 1: zmin=0.5; 2: xmax=0.5; 3: zmax=0.5`).
@@ -587,6 +595,8 @@ Skipped: gaseous or negative-density fluids, blacklisted (IMC `blacklistfluid`),
 
 ### 4.4 Grammar (random Age generation)
 
+> **Reborn revision (the grammar is gone):** random Age completion is done by the **Age blueprint** (`AgeBlueprint`, `docs/impl/WORLD_BUILDING_PLAN.md`). Every symbol belongs to one `SymbolCategory` - Terrain, Biomes, Biome layout, Lighting, Celestials, Sky colours, World colours, Weather, Structures, Features, Effects, plus the attached-only Materials and Modifiers. At the first link the blueprint (1) leaves every category the author wrote anything in alone, (2) fills the required categories (terrain, biome layout, biomes unless the layout is Native, lighting, celestials with exactly one sun) and (3) gives optional categories their configured defaults and, by chance, random extras, all from `RandomSource.create(seed ^ FILL_SALT)` with one stream per category. Hard gates: nether biomes / nether fortress need nether terrain, end biomes need end terrain, Single takes one biome, other layouts at least two, void terrain is never picked, a dark sun is only kept together with bright lighting. The discovered symbols' instability stays within `fill.instabilityBudget` (default 500). Every number is in `mystcraft-worldbuilding.toml` (`WorldBuildingConfig`). The pages are then **organised** (link panel, categories in build order, player pages before discovered ones, blanks last) and **flattened** (each page: its modifiers then its symbol) into `AgeData.symbols`; the book carries the organised list, so it is a complete description of the Age. The dummies ("Lacking ... Features") and Clear Modifiers no longer exist. `[blueprint]` log lines record every fill and every pick dropped for the budget. §4.4.1-4.4.3 below describe the original and are kept for reference only.
+
 #### 4.4.1 Rule model
 
 A `Rule(parent, values[], rank)` is a CFG production. Rank ⇒ weight: per parent token, weights are built like card ranks (`buildRankWeights`: highest rank weight 1, each lower rank ≥ total weight of the rank above +1). Rank `null` ⇒ weight 0 (rule is never chosen when expanding randomly but is available for connecting written symbols).
@@ -634,7 +644,7 @@ Note: because the root is always expanded, every random/first-link Age gets exac
 
 #### 4.4.4 Fallback when required logic is missing
 
-After processing all symbols (`AgeController.reconstruct`), if no biome controller / terrain generator / lighting / weather controller was registered, a random symbol providing that interface is picked (seeded by the Age seed) and appended to `AgeData.symbols` with instability `InstabilityData.missing.controller` = **0** (lighting: 0). Registering a *second* controller of the same kind adds `InstabilityData.extra.controller` = **500** each.
+After processing all symbols (`AgeController.reconstruct`), if no biome controller / terrain generator / lighting / weather controller was registered, a random symbol providing that interface is picked (seeded by the Age seed) and appended to `AgeData.symbols` with instability `InstabilityData.missing.controller` = **0** (lighting: 0). Registering a *second* controller of the same kind adds `InstabilityData.extra.controller` = **500** each. **Reborn:** the blueprint fills the required categories before the first build, so this fallback only fires for Ages whose symbols fail to register (logged as `[blueprint] ... falling back`).
 ---
 
 ## 5. Age Generation Pipeline
@@ -825,7 +835,7 @@ Flag constants: `Intra Linking`, `Intra Linking Only`, `Relative`, `Disarm`, `Ma
 
 ### 7.2 Link properties (ink effects) and their meaning
 
-> **Reborn revision:** Following is inkable (gold) so the Link Modifier lists it and the mixer can set it (Lead).
+> **Reborn revision:** Following is inkable (gold) so the Link Modifier lists it and the mixer can set it (eye of ender). Every inkable property has exactly one ingredient (§3.2).
 
 | Property | Colour (ink gradient) | Gameplay |
 |---|---|---|
@@ -919,7 +929,7 @@ Shift-click routing uses `SlotCollection` chains: internal slots → main invent
 
 ### 8.1 Writing Desk (`ContainerWritingDesk` / `GuiWritingDesk`)
 
-> **Reborn revisions:** (1) a plain click on a surface symbol writes a copy whenever the desk can write (ink + target/paper); shift-click takes the page (Ctrl+Shift the stack). (2) **Drafts:** pages written at the desk are recorded as drafts (`WritingDeskBlockEntity.Draft` = page index + paper used) and drawn in grey / washed out; **Undo last page** reverts the newest draft (book page back to blank, folder page removed, single page back to paper) and refunds its ink and paper; drafts become permanent when the target leaves the slot (checked every tick), when pages are moved by hand in the strip, or when the desk is broken. (3) A bound Descriptive Book in a notebook tab exposes its pages on the surface so its symbols can be copied. (4) The desk block renders notebook spines in the backboard shelf (up to 7, tinted by kind) and an inkwell on the desk top showing the tank level.
+> **Reborn revisions:** (1) the left panel is the **symbol surface** (`SymbolSurface`): search box, nine category tabs, then the known symbols grouped under category headers; the tooltip of a symbol shows its category, what it takes ("Takes: direction, phase, length, sunset colour") or what it attaches to, and what a click does. (2) **Drafts:** pages written at the desk are recorded as drafts (`WritingDeskBlockEntity.Draft` = page index + paper used) and drawn washed out in the strip; **Undo last page** removes the newest draft and refunds its ink and paper; drafts become permanent when the folder leaves the slot (checked every tick), when pages are moved by hand in the strip, or when the desk is broken. (3) The folder strip selects a page on click (gold frame); modifiers that fit the selected page glow on the surface, the others dim; shift-click takes a page out, right-click removes its last modifier. (4) Messages: `SetTitle`, `WriteSymbol(Symbol)`, `AttachModifier(Symbol, Index)`, `DetachModifier(Index)`, `TakeFromSlider`, `InsertHeldAt`, `UndoDraft`, `SetFluid`. (5) The desk block renders an inkwell on the desk top showing the tank level; a Scholar's desk shows full shelves. No notebook slots, no `AddToSurface` / `RemoveFrom*` / `AddToTab` messages, no AZ/ALL buttons.
 
 Layout constants: left panel width 228, main window 176×166 shifted by (233, 20); button row 18 px.
 
@@ -954,7 +964,7 @@ Elements:
 
 ### 8.5 Book GUI (`GuiBook` / `GuiElementBook` / `ContainerBook`) — used for held books, stands, lecterns, receptacles, book entities
 
-> **Reborn revisions:** symbol pages show the symbol's name and a one-line description (`symbol.<ns>.<id>.desc`, `AgeSymbol.description()`) on the left page, the glyph on the right; the same description is appended to page item tooltips. The link panel shows four level photographs taken from the arrival point (north, east, south, west, in that order) as a slideshow; a new arrival replaces the set.
+> **Reborn revisions:** symbol pages show the symbol's category (small, above the name), name and a one-line description (`symbol.<ns>.<id>.desc`, `AgeSymbol.description()`) on the left page followed by the attached modifiers ("With: + North Direction"), the glyph with its modifier overlays on the right; discovered pages are drawn in the discovered ink with a "discovered at the first link" note, drafts in grey. The pages of a bound book are in category order (§4.4). The same description is in page item tooltips. A bound Descriptive Book has a **summary page** after its last page (`AgeSummary`, synced by `BookMenu` once a second): seed, base + symbol instability, the live instability score and the active instability effects while the Age is loaded, discovered-page count and authors. The link panel shows four level photographs taken from the arrival point (north, east, south, west, in that order) as a slideshow; a new arrival replaces the set.
 
 * Book element is 327×199 (scaled): cover textures `bookui_cover.png`; Descriptive Books get gold borders. Page 0 (index 0) shows: optional book slot at (40,20) (only for tile/entity containers), title at (40,40), authors at half scale from (50,50) stepping 5, and the **link panel** at (173,20) 132×83: gradient dark-blue→teal (`0xFF000044→0xFF006666`) if the target dimension is registered/visited, else black; then registered `ILinkPanelEffect`s (Disarm: red lightning flashes every 3–8 s; LookingGlass: live world view with shaders when installed); then a grey overlay (`0xBB888888`) if the link is not permitted. Clicking the panel on page 0 sends `Link`. Pages > 0 show a symbol page (glyph at (171,25) size 140, tooltip name) or the link-panel page. Click left half / right half or arrow keys (or A/D binds) to page. Footer `current/total` at (165,185).
 * When the container has an "other inventory" and no book, the GUI shows a plain single-slot 176×166 inventory screen (`single_slot.png`) so a book can be inserted; when a book is present only the book slot (41,21) exists (player inventory hidden).
@@ -962,11 +972,15 @@ Elements:
 
 ### 8.6 Folder / Portfolio GUI (`GuiInventoryFolder`, `ContainerFolder`)
 
+> **Reborn revision:** folders only (the portfolio is gone): search box over the page grid, no AZ/ALL buttons, messages `AddToSurface` and `RemoveFromOrderedCollection`.
+
 * 176 wide; page surface 132 high with search field and AZ/ALL buttons on top, then the player inventory (from `writingdesk.png` region y=82, 80 high). The held folder's hotbar slot is banned (cannot be taken). Messages `AddToSurface` (index, Single), `RemoveFromOrderedCollection`, `RemoveFromCollection`. Shift-click from inventory adds pages into the collection.
 
 ### 8.7 Creative collections
 
 `mystcraft.common` tab adds "Spawned (<name>)" portfolios: All Symbols; Biome Distributions (`BiomeController`); Celestials (Sun, Moon, Starfield, Doodad); Effects; Lighting; Modifiers, Basic (AngleBasic, PeriodBasic, PhaseBasic); Modifiers, Biomes (Biome); Modifiers, Block (all Block* categories); Modifiers, Colors (ColorBasic, Color, GradientBasic, Gradient, Sunset); World Features (FeatureSmall/Medium/Large); World Landscapes (TerrainGen); Visuals; Weather. Contents = every symbol appearing as a value of a rule whose parent is one of the tokens, sorted by name.
+
+> **Reborn revision:** one "Spawned (<category>)" portfolio per `SymbolCategory` (§4.4), pages sorted by id.
 
 ### 8.8 Villager shop (`GuiVillagerShop`, `tradeshop.png` 176×181)
 
@@ -1052,7 +1066,8 @@ Files under `config/mystcraft/`: `core.cfg`, `balance.cfg` (and optional `balanc
 | core / general | `ids.villager.archivist` | true | Enable the Archivist profession. |
 | core / general | `ids.dim_provider` | 1210950779 | Dimension type id. |
 | core / general | `crafting.linkbook.enabled` | true | Enable the Unlinked Link Book recipe. |
-| core / general | `crafting.linkeffects.<property>.enabled` | true | Allow each link property in the Ink Mixer (`intra_linking`, `intra_linking_only`, `generate_platform`, `maintain_momentum`, `disarm`, `relative`). |
+| core / general | `crafting.linkeffects.<property>.enabled` | true | Allow each link property in the Ink Mixer (`intra_linking`, `intra_linking_only`, `generate_platform`, `maintain_momentum`, `disarm`, `relative`). Reborn: `crafting.linkeffects.disabled` list. |
+| core / general | `inkmixer.ingredients`, `inkmixer.clearIngredient` | Reborn table (§3.2) | Reborn: one `effect=item` entry per effect; the clearing item. |
 | core / render | `renderlabels` | false | Draw book names above stands/lecterns/receptacles/entities (server value overrides clients). |
 | core / render | `fast_rainbows` | true | Cache rainbow in a display list. |
 | core / baselining | `client.persave` | true | Baseline profiling per save in background (false: once at startup with a loading GUI). |

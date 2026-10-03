@@ -3,7 +3,8 @@ package com.techbucketdivision.mystcraft.item;
 import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
 import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.component.SymbolRef;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
 import com.techbucketdivision.mystcraft.registry.ModDataComponents;
 import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
@@ -14,6 +15,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -58,9 +64,18 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
 
     /** Symbol page by id (the symbol need not be registered, e.g. for remapping targets). */
     public static ItemStack createSymbolPage(Identifier symbolId) {
+        return createSymbolPage(SymbolPage.of(symbolId));
+    }
+
+    public static ItemStack createSymbolPage(SymbolPage page) {
         ItemStack stack = createBlankPage();
-        stack.set(ModDataComponents.SYMBOL.get(), new SymbolRef(symbolId));
+        stack.set(ModDataComponents.SYMBOL.get(), page);
         return stack;
+    }
+
+    /** A page the game discovered for the Age (first link), rendered and listed as such. */
+    public static ItemStack createDiscoveredPage(Identifier symbolId, List<Identifier> modifiers) {
+        return createSymbolPage(new SymbolPage(symbolId, modifiers, true));
     }
 
     public static ItemStack createLinkPanel(Set<LinkProperty> properties) {
@@ -102,9 +117,29 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
     }
 
     public static @Nullable Identifier getSymbolId(ItemStack stack) {
-        if (!isPage(stack)) return null;
-        SymbolRef ref = stack.get(ModDataComponents.SYMBOL.get());
-        return ref == null ? null : ref.id();
+        SymbolPage page = getSymbolPage(stack);
+        return page == null ? null : page.symbol();
+    }
+
+    /** The symbol component of a symbol page, {@code null} for blank pages and link panels. */
+    public static @Nullable SymbolPage getSymbolPage(ItemStack stack) {
+        return isPage(stack) ? stack.get(ModDataComponents.SYMBOL.get()) : null;
+    }
+
+    /** Modifier symbol ids attached to the page, in application order. */
+    public static List<Identifier> getModifiers(ItemStack stack) {
+        SymbolPage page = getSymbolPage(stack);
+        return page == null ? List.of() : page.modifiers();
+    }
+
+    public static boolean isDiscovered(ItemStack stack) {
+        SymbolPage page = getSymbolPage(stack);
+        return page != null && page.discovered();
+    }
+
+    /** Replaces the symbol component (keeps the stack). */
+    public static void setSymbolPage(ItemStack stack, SymbolPage page) {
+        stack.set(ModDataComponents.SYMBOL.get(), page);
     }
 
     public static @Nullable AgeSymbol getSymbol(ItemStack stack) {
@@ -121,7 +156,7 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
 
     public static void setSymbol(ItemStack stack, @Nullable AgeSymbol symbol) {
         if (symbol == null) stack.remove(ModDataComponents.SYMBOL.get());
-        else stack.set(ModDataComponents.SYMBOL.get(), SymbolRef.of(symbol));
+        else stack.set(ModDataComponents.SYMBOL.get(), SymbolPage.of(symbol));
     }
 
     public static void addLinkProperty(ItemStack stack, LinkProperty property) {
@@ -141,8 +176,9 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
         if (id == null || !SymbolRemapper.hasRemapping(id)) return List.of(page);
         List<Identifier> targets = SymbolRemapper.remap(id);
         List<ItemStack> out = new ArrayList<>(targets.size());
+        SymbolPage original = getSymbolPage(page);
         for (Identifier target : targets) {
-            ItemStack mapped = createSymbolPage(target);
+            ItemStack mapped = createSymbolPage(new SymbolPage(target, original.modifiers(), original.discovered()));
             mapped.setCount(page.getCount());
             out.add(mapped);
         }
@@ -157,6 +193,29 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
     }
 
     // --- Item overrides ----------------------------------------------------------------------------------------
+
+    /**
+     * Using a symbol page studies it: the player learns its symbol and attached modifiers and the page is consumed
+     * (world-building plan §7.1). A page whose symbols are all known is kept.
+     */
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!isSymbolPage(stack)) return InteractionResult.PASS;
+        if (level.isClientSide()) {
+            return SymbolKnowledge.knowsPage(player, stack) ? InteractionResult.PASS : InteractionResult.SUCCESS;
+        }
+        List<Identifier> learned = SymbolKnowledge.learnPage(player, stack);
+        if (learned.isEmpty()) {
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                serverPlayer.sendOverlayMessage(Component.translatable("message.mystcraft.knowledge.known").withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+            return InteractionResult.PASS;
+        }
+        level.playSound(null, player.blockPosition(), SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1f, 1f);
+        stack.consume(1, player);
+        return InteractionResult.CONSUME;
+    }
 
     @Override
     public Component getName(ItemStack stack) {
@@ -179,8 +238,22 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
             }
             return;
         }
+        SymbolPage page = getSymbolPage(stack);
+        if (page == null) return;
+        if (page.discovered()) builder.accept(Component.translatable("item.mystcraft.page.discovered").withStyle(net.minecraft.ChatFormatting.DARK_AQUA));
+        // tooltips are built on the client; the hook keeps the Minecraft class out of this common class
+        Player holder = context.level() != null && context.level().isClientSide() ? com.techbucketdivision.mystcraft.client.ClientHooks.player() : null;
+        if (holder != null) {
+            builder.accept(Component.translatable(SymbolKnowledge.knowsPage(holder, stack) ? "item.mystcraft.page.known" : "item.mystcraft.page.study")
+                    .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
+        for (Identifier modifierId : page.modifiers()) {
+            AgeSymbol modifier = SymbolRegistry.get(modifierId);
+            builder.accept(Component.literal("  + ").append(modifier == null ? Component.literal(modifierId.toString()) : modifier.displayName())
+                    .withStyle(net.minecraft.ChatFormatting.BLUE));
+        }
         // what the symbol does (same text as the left page of the book view); tooltips do not wrap, so split here
-        AgeSymbol symbol = getSymbol(stack);
+        AgeSymbol symbol = page.resolve();
         if (symbol == null) return;
         String text = symbol.description().getString();
         if (text.endsWith(".desc")) return; // no description written for this symbol

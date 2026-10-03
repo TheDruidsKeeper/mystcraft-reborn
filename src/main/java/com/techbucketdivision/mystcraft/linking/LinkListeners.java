@@ -31,7 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -318,7 +318,7 @@ public final class LinkListeners {
 
     private static void spawnParticles(Entity entity) {
         if (entity.level() instanceof ServerLevel level) {
-            PacketDistributor.sendToPlayersInDimension(level, new LinkParticlesPayload(entity.getX(), entity.getY(), entity.getZ()));
+            Network.sendToPlayersInDimension(level, new LinkParticlesPayload(entity.getX(), entity.getY(), entity.getZ()));
         }
     }
 }

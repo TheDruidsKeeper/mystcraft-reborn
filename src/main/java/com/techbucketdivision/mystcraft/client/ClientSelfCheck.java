@@ -58,7 +58,7 @@ public final class ClientSelfCheck {
     private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "ink", "fissure", "pages"};
     /** Screens to open and screenshot: "open <element>" for blocks, "use <item>" for items. */
     private static final String[] SCREENS = {"open desk", "open ink_mixer", "open book_binder", "open link_modifier",
-            "use linking_book", "use descriptive_book", "use folder", "use notebook"};
+            "use linking_book", "use descriptive_book", "use folder"};
     private static int screenIndex;
     private static final List<String> failures = new ArrayList<>();
 
@@ -139,9 +139,22 @@ public final class ClientSelfCheck {
                             Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
                         }
                         screenshot(mc, "02z_screen_" + name);
-                    } else if (stepTicks == 30) {
+                    } else if (stepTicks == 30 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        // the scene desk is a Scholar's desk: the surface lists every symbol; then the Sky tab and the
+                        // Modifiers tab with the folder's sun page selected (modifiers that fit it are highlighted)
+                        int listed = desk.listedSymbols();
+                        Mystcraft.LOGGER.info("[clientcheck] scholar's desk lists {} symbols", listed);
+                        if (listed < 50) failures.add("scholar's desk surface lists only " + listed + " symbols");
+                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.SKY);
+                    } else if (stepTicks == 34 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        screenshot(mc, "02y_desk_tab_sky");
+                        desk.selectPage(0);
+                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.MODIFIERS);
+                    } else if (stepTicks == 38 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen) {
+                        screenshot(mc, "02y_desk_tab_modifiers");
+                    } else if (stepTicks == 40) {
                         if (mc.screen != null) mc.screen.onClose();
-                    } else if (stepTicks > 34) {
+                    } else if (stepTicks > 44) {
                         screenIndex++;
                         stepTicks = 0;
                     }
@@ -166,7 +179,12 @@ public final class ClientSelfCheck {
                     }
                 }
                 case SCENE_AGE -> {
-                    if (stepTicks == 60) screenshot(mc, "04_scene_age");
+                    if (stepTicks == 60) {
+                        screenshot(mc, "04_scene_age");
+                        int known = mc.player == null ? 0 : com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge.known(mc.player).size();
+                        Mystcraft.LOGGER.info("[clientcheck] symbols known after arriving in the Age: {}", known);
+                        if (known == 0) failures.add("arriving in an Age taught no symbols (knowledge not synced to the client)");
+                    }
                     // the book of this Age: its link panel should show the photo taken on arrival
                     if (stepTicks == 70) command(mc, "myst-scene use current_age_book");
                     if (stepTicks == 95) {
@@ -181,8 +199,30 @@ public final class ClientSelfCheck {
                         if (frames < 4) failures.add("expected four link panel pictures (N/E/S/W) for the visited Age, got " + frames + " (see [panel] lines)");
                         screenshot(mc, "04b_age_book");
                     }
-                    if (stepTicks == 100 && mc.screen != null) mc.screen.onClose();
-                    if (stepTicks > 104) {
+                    // page to the first symbol page (category label + glyph) and to the summary page after the last page
+                    if (stepTicks == 100 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                        book.jumpToPage(1);
+                    }
+                    if (stepTicks == 110 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                        if (book.getMenu().getCurrentPageIndex() != 1) failures.add("book did not turn to page 1");
+                        var page = book.getMenu().getCurrentPage();
+                        var symbol = com.techbucketdivision.mystcraft.item.PageItem.getSymbol(page);
+                        if (symbol == null) failures.add("page 1 of the Age book is not a symbol page");
+                        else if (symbol.category() != com.techbucketdivision.mystcraft.api.symbol.SymbolCategory.TERRAIN) {
+                            failures.add("page 1 of the Age book is not the terrain page (organised by category); got " + symbol.id());
+                        }
+                        screenshot(mc, "04c_age_book_page");
+                        book.jumpToPage(book.getMenu().getPageCount());
+                    }
+                    if (stepTicks == 125 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                        var summary = book.getMenu().getSummary();
+                        Mystcraft.LOGGER.info("[clientcheck] Age book summary: {}", summary);
+                        if (summary == null) failures.add("no Age summary synced for the bound book");
+                        else if (summary.total() == 0 || summary.discovered() == 0) failures.add("Age summary has no discovered pages: " + summary);
+                        screenshot(mc, "04d_age_book_summary");
+                    }
+                    if (stepTicks == 130 && mc.screen != null) mc.screen.onClose();
+                    if (stepTicks > 134) {
                         command(mc, "myst-time set night");
                         next(Step.NIGHT);
                     }

@@ -85,6 +85,21 @@ public final class MystcraftCommands {
         dispatcher.register(toggleDownfall());
         dispatcher.register(scene());
         dispatcher.register(visit());
+        dispatcher.register(qaShelf());
+    }
+
+    // --- /myst-qa-shelf (lecterns with preset books for the visual QA matrix) --------------------------------------
+
+    private static LiteralArgumentBuilder<CommandSourceStack> qaShelf() {
+        return Commands.literal("myst-qa-shelf")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .executes(ctx -> {
+                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                    ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();
+                    int placed = QaShelf.build(level, player);
+                    ctx.getSource().sendSuccess(() -> Component.literal("QA shelf: " + placed + " lecterns placed - each book is bound to a fixed-seed Age; see [qa] in the log for what to look for"), false);
+                    return placed;
+                });
     }
 
     // --- /myst-scene (debug showcase) ----------------------------------------------------------------------------

@@ -5,18 +5,18 @@ import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
+import com.techbucketdivision.mystcraft.item.FolderItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.item.component.SymbolPage;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
 import com.techbucketdivision.mystcraft.menu.WritingDeskMenu;
 import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
 import com.techbucketdivision.mystcraft.registry.ModCriteria;
 import com.techbucketdivision.mystcraft.registry.ModFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -42,20 +42,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Writing Desk (REQUIREMENTS §3.10). Main inventory: 0 target (writable / renameable / page acceptor, limit 1),
- * 1 paper, 2 ink container in, 3 empty container out. Tabs: 25 notebook slots. Inkwell: 1000 mB of ink.
+ * Writing Desk (REQUIREMENTS §3.10, Reborn rework: world-building plan §4). Main inventory: 0 target (a Collation
+ * Folder, limit 1), 1 paper, 2 ink container in, 3 empty container out. Inkwell: 1000 mB of ink. The desk has no
+ * notebooks: it writes copies of the symbols the <i>player</i> knows ({@link SymbolKnowledge}) into the folder, and
+ * attaches known modifiers to the folder's pages. A Scholar's desk ({@link #isScholar()}) offers every registered
+ * symbol. Pages written here stay drafts until the folder leaves the desk.
  */
 public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvider {
     public static final int SLOT_TARGET = 0;
     public static final int SLOT_PAPER = 1;
     public static final int SLOT_CONTAINER_IN = 2;
     public static final int SLOT_CONTAINER_OUT = 3;
-    public static final int TAB_COUNT = 25;
     public static final int TANK_CAPACITY = FluidType.BUCKET_VOLUME;
     public static final int INK_COST = 50;
 
     public final FilteredItemHandler main = new FilteredItemHandler(4, this::acceptsMain, slot -> slot == SLOT_TARGET ? 1 : 64, this::markForUpdate);
-    public final FilteredItemHandler tabs = new FilteredItemHandler(TAB_COUNT, (slot, res) -> isNotebook(res.toStack()), this::markForUpdate);
     public final FluidStacksResourceHandler inkwell = new FluidStacksResourceHandler(1, TANK_CAPACITY) {
         @Override
         public boolean isValid(int index, FluidResource resource) {
@@ -89,16 +90,28 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
                 && stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(stack)) != null;
     }
 
+    /** Only a Collation Folder goes in the target slot (books are bound at the Book Binder from a folder's pages). */
     public static boolean isTargetItem(ItemStack stack) {
-        return !stack.isEmpty() && (stack.getItem() instanceof ItemBehaviours.Writable
-                || stack.getItem() instanceof ItemBehaviours.Renameable
-                || stack.getItem() instanceof ItemBehaviours.PageAcceptor);
+        return FolderItem.isFolder(stack);
     }
 
-    /** Items allowed in the notebook tabs: page collections and writable items (folders, portfolios, books, pages). */
-    public static boolean isNotebook(ItemStack stack) {
-        return !stack.isEmpty() && (stack.getItem() instanceof ItemBehaviours.PageCollection
-                || stack.getItem() instanceof ItemBehaviours.Writable);
+    // --- scholar's desk -------------------------------------------------------------------------------------------
+
+    private boolean scholar;
+
+    /** A Scholar's desk (creative) offers every registered symbol instead of the player's knowledge. */
+    public boolean isScholar() {
+        return scholar;
+    }
+
+    public void setScholar(boolean scholar) {
+        this.scholar = scholar;
+        markForUpdate();
+    }
+
+    /** Whether this desk lets {@code player} write {@code symbol}. */
+    public boolean canUse(Player player, AgeSymbol symbol) {
+        return scholar || SymbolKnowledge.knows(player, symbol);
     }
 
     // --- persistence -------------------------------------------------------------------------------------------------
@@ -108,7 +121,7 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         super.saveAdditional(output);
         output.putChild("fluid", inkwell);
         output.putChild("items", main);
-        output.putChild("notebooks", tabs);
+        output.putBoolean("scholar", scholar);
         output.store("drafts", Draft.LIST_CODEC, List.copyOf(drafts));
         output.putInt("draft_target", draftTargetId);
     }
@@ -118,7 +131,7 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         super.loadAdditional(input);
         input.readChild("fluid", inkwell);
         input.readChild("items", main);
-        input.readChild("notebooks", tabs);
+        scholar = input.getBooleanOr("scholar", false);
         drafts = new ArrayList<>(input.read("drafts", Draft.LIST_CODEC).orElse(List.of()));
         draftTargetId = input.getIntOr("draft_target", 0);
     }
@@ -172,8 +185,8 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
     }
 
     /**
-     * Erases the most recently written draft: the page goes back to blank (writable books) or is removed (folders /
-     * single pages), and the ink and paper it cost come back. Returns false when there is nothing to undo.
+     * Erases the most recently written draft: the page is removed from the folder and the ink and paper it cost come
+     * back. Returns false when there is nothing to undo.
      */
     public boolean undoLastDraft(Player player) {
         if (!isServer() || drafts.isEmpty()) return false;
@@ -188,17 +201,6 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
             List<ItemStack> pages = p.getPageList(player, target);
             if (draft.index() >= 0 && draft.index() < pages.size()) {
                 p.removePage(player, target, draft.index());
-                removed = true;
-            }
-        } else if (target.getItem() instanceof PageItem) {
-            // a single page written straight onto paper: back to paper
-            target = ItemStack.EMPTY;
-            removed = true;
-        } else if (target.getItem() instanceof ItemBehaviours.PageProvider p) {
-            List<ItemStack> pages = new ArrayList<>(p.getPageList(player, target));
-            if (draft.index() >= 0 && draft.index() < pages.size() && PageItem.isSymbolPage(pages.get(draft.index()))) {
-                pages.set(draft.index(), PageItem.createBlankPage());
-                if (target.getItem() instanceof DescriptiveBookItem) DescriptiveBookItem.setPages(target, pages);
                 removed = true;
             }
         }
@@ -232,7 +234,6 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         commitDrafts();
         dropContents(main);
-        dropContents(tabs);
         super.preRemoveSideEffects(pos, state);
     }
 
@@ -352,54 +353,72 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         return p.getPageList(player, target);
     }
 
-    /** Activates the linking item in the target slot (server only). */
-    public void link(Entity entity) {
-        if (!(getLevel() instanceof ServerLevel serverLevel)) return;
-        ItemStack book = getTarget();
-        if (!BookUtil.isLinkingItem(book)) return;
-        BookUtil.activate(book, serverLevel, entity);
+    /**
+     * Writes a copy of a known symbol onto a fresh page in the folder (server only): costs one paper and
+     * {@link #INK_COST} ink; the page is a draft until the folder leaves the desk. Returns false when the player does
+     * not know the symbol, the symbol is a modifier (those are attached, not written), or paper / ink / folder is
+     * missing.
+     */
+    public boolean writeSymbol(Player player, AgeSymbol symbol) {
+        if (!isServer() || !hasEnoughInk() || !canUse(player, symbol) || symbol.category().isModifier()) return false;
+        ItemStack paper = main.getStack(SLOT_PAPER);
+        ItemStack target = getTarget();
+        if (paper.isEmpty() || !(target.getItem() instanceof ItemBehaviours.PageAcceptor acceptor)) return false;
+        ItemStack page = PageItem.createSymbolPage(symbol);
+        int index = firstFreeIndex(player, target); // where the acceptor will put it (folders fill the first gap)
+        if (!acceptor.addPage(player, target, page).isEmpty()) return false;
+        main.setStack(SLOT_TARGET, target);
+        useInk();
+        paper.shrink(1);
+        main.setStack(SLOT_PAPER, paper);
+        recordDraft(index, true);
+        award(player);
+        Mystcraft.LOGGER.debug("[desk] {} wrote {} into slot {}", player.getPlainTextName(), symbol.id(), index);
+        return true;
     }
 
     /**
-     * Writes a symbol into the target (server only): moves a paper into an empty target slot as a blank page first;
-     * writable targets get the symbol written, page acceptors receive a new symbol page made from a paper.
+     * Attaches a known modifier to the folder page at {@code index} (server only): costs {@link #INK_COST} ink, no
+     * paper. Refused when the page's symbol does not take the modifier's slot, the page is not a player's page, or the
+     * modifier is unknown to the player.
      */
-    public void writeSymbol(Player player, AgeSymbol symbol) {
-        if (!isServer() || !hasEnoughInk()) return;
-        ItemStack paper = main.getStack(SLOT_PAPER);
-        boolean paperForNewPage = false;
-        if (getTarget().isEmpty() && !paper.isEmpty()) {
-            main.setStack(SLOT_TARGET, PageItem.createBlankPage());
-            paper.shrink(1);
-            main.setStack(SLOT_PAPER, paper);
-            paperForNewPage = true;
-        }
+    public boolean attachModifier(Player player, int index, AgeSymbol modifier) {
+        if (!isServer() || !hasEnoughInk() || !canUse(player, modifier) || modifier.fills() == null) return false;
         ItemStack target = getTarget();
-        if (target.isEmpty()) return;
+        if (!(target.getItem() instanceof ItemBehaviours.OrderablePageProvider provider)) return false;
+        List<ItemStack> pages = provider.getPageList(player, target);
+        if (index < 0 || index >= pages.size()) return false;
+        ItemStack page = pages.get(index);
+        SymbolPage symbolPage = PageItem.getSymbolPage(page);
+        AgeSymbol symbol = symbolPage == null ? null : symbolPage.resolve();
+        if (symbol == null || !symbol.takes(modifier)) return false;
+        ItemStack updated = page.copy();
+        PageItem.setSymbolPage(updated, symbolPage.withModifier(modifier.id()));
+        provider.setPage(player, target, updated, index);
+        main.setStack(SLOT_TARGET, target);
+        useInk();
+        award(player);
+        Mystcraft.LOGGER.debug("[desk] {} attached {} to page {} ({})", player.getPlainTextName(), modifier.id(), index, symbol.id());
+        markForUpdate();
+        return true;
+    }
 
-        if (target.getItem() instanceof ItemBehaviours.Writable w) {
-            int index = firstBlankPage(player, target);
-            if (w.writeSymbol(player, target, symbol)) {
-                main.setStack(SLOT_TARGET, target);
-                useInk();
-                recordDraft(index, paperForNewPage);
-                award(player);
-                return;
-            }
-        }
-        paper = main.getStack(SLOT_PAPER);
-        if (!paper.isEmpty() && target.getItem() instanceof ItemBehaviours.PageAcceptor acceptor) {
-            ItemStack page = PageItem.createSymbolPage(symbol);
-            int index = firstFreeIndex(player, target); // where the acceptor will put it (folders fill the first gap)
-            if (!page.isEmpty() && acceptor.addPage(player, target, page).isEmpty()) {
-                main.setStack(SLOT_TARGET, target);
-                useInk();
-                paper.shrink(1);
-                main.setStack(SLOT_PAPER, paper);
-                recordDraft(index, true);
-                award(player);
-            }
-        }
+    /** Removes the last attached modifier from the folder page at {@code index} (server only; no refund). */
+    public boolean detachLastModifier(Player player, int index) {
+        if (!isServer()) return false;
+        ItemStack target = getTarget();
+        if (!(target.getItem() instanceof ItemBehaviours.OrderablePageProvider provider)) return false;
+        List<ItemStack> pages = provider.getPageList(player, target);
+        if (index < 0 || index >= pages.size()) return false;
+        ItemStack page = pages.get(index);
+        SymbolPage symbolPage = PageItem.getSymbolPage(page);
+        if (symbolPage == null || symbolPage.modifiers().isEmpty()) return false;
+        ItemStack updated = page.copy();
+        PageItem.setSymbolPage(updated, symbolPage.withoutModifier(symbolPage.modifiers().size() - 1));
+        provider.setPage(player, target, updated, index);
+        main.setStack(SLOT_TARGET, target);
+        markForUpdate();
+        return true;
     }
 
     /** Index a page acceptor will append at: the first empty slot of its page list, else the end. */
@@ -410,79 +429,8 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         return pages.size();
     }
 
-    /** Index of the page a Writable target will write into (its first blank page), or 0 for a single page. */
-    private static int firstBlankPage(Player player, ItemStack target) {
-        if (!(target.getItem() instanceof ItemBehaviours.PageProvider p)) return 0;
-        List<ItemStack> pages = p.getPageList(player, target);
-        for (int i = 0; i < pages.size(); i++) if (PageItem.isBlank(pages.get(i))) return i;
-        return 0;
-    }
-
     private static void award(Player player) {
         if (player instanceof ServerPlayer sp) ModCriteria.WRITING_DESK_WRITE.get().trigger(sp);
-    }
-
-    // --- tabs -----------------------------------------------------------------------------------------------------------------
-
-    public int getMaxSurfaceTabCount() {
-        return TAB_COUNT;
-    }
-
-    /** The notebook in a tab (copy), or empty when the slot holds nothing usable. */
-    public ItemStack getTabItem(int tab) {
-        if (tab < 0 || tab >= TAB_COUNT) return ItemStack.EMPTY;
-        ItemStack stack = tabs.getStack(tab);
-        return isNotebook(stack) ? stack : ItemStack.EMPTY;
-    }
-
-    private void setTabItem(int tab, ItemStack stack) {
-        tabs.setStack(tab, stack);
-        markForUpdate();
-    }
-
-    /** Removes the page at {@code index} from an ordered notebook (folder). */
-    public ItemStack removePageFromSurface(Player player, int tab, int index) {
-        ItemStack notebook = getTabItem(tab);
-        if (notebook.isEmpty() || !(notebook.getItem() instanceof ItemBehaviours.OrderablePageProvider p)) return ItemStack.EMPTY;
-        ItemStack result = p.removePage(player, notebook, index);
-        if (result.isEmpty()) return ItemStack.EMPTY;
-        setTabItem(tab, notebook);
-        return result;
-    }
-
-    /** Removes pages equal to {@code page} from an unordered collection (portfolio). */
-    public ItemStack removePageFromSurface(Player player, int tab, ItemStack page) {
-        ItemStack notebook = getTabItem(tab);
-        if (notebook.isEmpty() || !(notebook.getItem() instanceof ItemBehaviours.PageCollection c)) return ItemStack.EMPTY;
-        ItemStack result = c.remove(player, notebook, page);
-        if (result.isEmpty()) return ItemStack.EMPTY;
-        setTabItem(tab, notebook);
-        return result;
-    }
-
-    /** Adds a page (or stack of pages) to a notebook; returns the remainder. */
-    public ItemStack addPageToTab(Player player, int tab, ItemStack page) {
-        ItemStack notebook = getTabItem(tab);
-        if (notebook.isEmpty() || !(notebook.getItem() instanceof ItemBehaviours.PageAcceptor a)) return page;
-        ItemStack result = a.addPage(player, notebook, page);
-        setTabItem(tab, notebook);
-        return result;
-    }
-
-    /** Places a page at {@code index} of an ordered notebook, or adds it to a collection; returns the remainder. */
-    public ItemStack placePageOnSurface(Player player, int tab, ItemStack page, int index) {
-        ItemStack notebook = getTabItem(tab);
-        if (notebook.isEmpty()) return page;
-        ItemStack result;
-        if (notebook.getItem() instanceof ItemBehaviours.OrderablePageProvider p) {
-            result = p.setPage(player, notebook, page, index);
-        } else if (notebook.getItem() instanceof ItemBehaviours.PageCollection c) {
-            result = c.addPage(player, notebook, page);
-        } else {
-            return page;
-        }
-        setTabItem(tab, notebook);
-        return result;
     }
 
     // --- menu ------------------------------------------------------------------------------------------------------------------

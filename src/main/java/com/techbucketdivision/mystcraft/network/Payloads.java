@@ -19,6 +19,7 @@ public final class Payloads {
         r.playToClient(AgeDataSyncPayload.TYPE, AgeDataSyncPayload.STREAM_CODEC);
         r.playToClient(UpdateDimensionsPayload.TYPE, UpdateDimensionsPayload.STREAM_CODEC);
         r.playToClient(ServerConfigPayload.TYPE, ServerConfigPayload.STREAM_CODEC);
+        r.playToClient(KnowledgePayload.TYPE, KnowledgePayload.STREAM_CODEC);
         r.playToClient(LinkParticlesPayload.TYPE, LinkParticlesPayload.STREAM_CODEC);
         r.playToClient(ExplosionEffectsPayload.TYPE, ExplosionEffectsPayload.STREAM_CODEC);
         r.playToClient(LightningPayload.TYPE, LightningPayload.STREAM_CODEC);

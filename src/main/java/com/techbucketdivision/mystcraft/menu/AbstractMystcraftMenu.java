@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
@@ -60,7 +60,7 @@ public abstract class AbstractMystcraftMenu extends AbstractContainerMenu implem
 
     /** Server → a specific client. */
     public void sendToClient(ServerPlayer target, String message, CompoundTag data) {
-        PacketDistributor.sendToPlayer(target, MenuMessagePayload.of(containerId, message, data));
+        Network.sendToPlayer(target, MenuMessagePayload.of(containerId, message, data));
     }
 
     /** Server → the player owning this menu (no-op on the client). */

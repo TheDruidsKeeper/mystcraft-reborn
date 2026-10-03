@@ -91,7 +91,7 @@ public final class DebugScene {
     }
 
     /** Items whose screens the self check opens with {@code /myst-scene use <item>}. */
-    public enum UsableItem { LINKING_BOOK, DESCRIPTIVE_BOOK, FOLDER, NOTEBOOK, CURRENT_AGE_BOOK }
+    public enum UsableItem { LINKING_BOOK, DESCRIPTIVE_BOOK, FOLDER, CURRENT_AGE_BOOK }
 
     /** Puts a fresh item of that kind in the player's main hand and uses it (opens its screen). */
     public static boolean use(ServerLevel level, ServerPlayer viewer, UsableItem kind) {
@@ -106,7 +106,6 @@ public final class DebugScene {
                                 .with(1, PageItem.createLinkPanel()));
                 yield folder;
             }
-            case NOTEBOOK -> new ItemStack(ModItems.SYMBOL_PORTFOLIO.get());
             case CURRENT_AGE_BOOK -> {
                 // a Descriptive Book of the Age the player stands in (shows the destination picture on its panel)
                 AgeData current = AgeManager.get(level.getServer(), level.dimension());
@@ -153,12 +152,16 @@ public final class DebugScene {
         level.setBlock(desk.east().above(), deskHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
         // stock the desk so the renderer's shelf books and inkwell show up in screenshots
         if (level.getBlockEntity(desk) instanceof com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity deskBe) {
-            deskBe.tabs.setStack(0, com.techbucketdivision.mystcraft.item.FolderItem.create("Scene folder", List.of(
-                    PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")))));
-            var portfolios = com.techbucketdivision.mystcraft.symbol.grammar.CreativeCollections.portfolios();
-            for (int i = 0; i < Math.min(8, portfolios.size()); i++) deskBe.tabs.setStack(1 + i, portfolios.get(i));
+            // a Scholar's desk (every symbol on the surface, full shelves) with a folder holding a page that carries modifiers
+            deskBe.setScholar(true);
             deskBe.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 700));
-            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_TARGET, descriptiveBook(server, "Desk Scene"));
+            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_TARGET,
+                    com.techbucketdivision.mystcraft.item.FolderItem.create("Scene folder", List.of(
+                            PageItem.createSymbolPage(new com.techbucketdivision.mystcraft.item.component.SymbolPage(
+                                    com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal"),
+                                    List.of(com.techbucketdivision.mystcraft.util.MystIds.id("mod_north")), false)),
+                            PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat")))));
+            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(net.minecraft.world.item.Items.PAPER, 16));
             deskBe.markForUpdate();
         }
 
@@ -204,7 +207,12 @@ public final class DebugScene {
         // Row C east end: a wall of item frames showing the item icons that are rendered dynamically (pages, books).
         List<ItemStack> framed = List.of(
                 PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")),
-                PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_normal")),
+                // a page with attached modifiers (overlays on the corners) and a discovered page (different ink)
+                PageItem.createSymbolPage(new com.techbucketdivision.mystcraft.item.component.SymbolPage(
+                        com.techbucketdivision.mystcraft.util.MystIds.id("color_sky"),
+                        List.of(com.techbucketdivision.mystcraft.util.MystIds.id("mod_color_red"), com.techbucketdivision.mystcraft.util.MystIds.id("mod_gradient"),
+                                com.techbucketdivision.mystcraft.util.MystIds.id("mod_color_blue")), false)),
+                PageItem.createDiscoveredPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_normal"), List.of()),
                 PageItem.createLinkPanel(),
                 PageItem.createBlankPage(),
                 descriptiveBook(server, "Framed"),

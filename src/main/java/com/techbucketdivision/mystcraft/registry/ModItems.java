@@ -9,7 +9,6 @@ import com.techbucketdivision.mystcraft.item.FolderItem;
 import com.techbucketdivision.mystcraft.item.InkVialItem;
 import com.techbucketdivision.mystcraft.item.LinkingBookItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.PortfolioItem;
 import com.techbucketdivision.mystcraft.item.UnlinkedBookItem;
 import com.techbucketdivision.mystcraft.item.WritingDeskItem;
 import net.minecraft.world.item.BlockItem;
@@ -40,14 +39,15 @@ public final class ModItems {
             p -> p.stacksTo(64));
     public static final DeferredItem<FolderItem> COLLATION_FOLDER = ITEMS.registerItem("collation_folder", FolderItem::new,
             p -> p.stacksTo(32).rarity(Rarity.UNCOMMON));
-    public static final DeferredItem<PortfolioItem> SYMBOL_PORTFOLIO = ITEMS.registerItem("symbol_portfolio", PortfolioItem::new,
-            p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
     public static final DeferredItem<InkVialItem> INK_VIAL = ITEMS.registerItem("ink_vial", InkVialItem::new,
             p -> p.stacksTo(16).craftRemainder(Items.GLASS_BOTTLE));
     public static final DeferredItem<WritingDeskItem> WRITING_DESK = ITEMS.registerItem("writing_desk",
             p -> new WritingDeskItem(false, p), p -> p.stacksTo(64));
     public static final DeferredItem<WritingDeskItem> WRITING_DESK_BACKBOARD = ITEMS.registerItem("writing_desk_backboard",
             p -> new WritingDeskItem(true, p), p -> p.stacksTo(64));
+    /** Creative only (no recipe): places a desk that offers every registered symbol. */
+    public static final DeferredItem<WritingDeskItem> SCHOLARS_WRITING_DESK = ITEMS.registerItem("scholars_writing_desk",
+            p -> new WritingDeskItem(false, true, p), p -> p.stacksTo(64).rarity(Rarity.EPIC));
     public static final DeferredItem<BucketItem> BLACK_INK_BUCKET = ITEMS.registerItem("black_ink_bucket",
             p -> new BucketItem(ModFluids.BLACK_INK.get(), p), p -> p.stacksTo(1).craftRemainder(Items.BUCKET));
 

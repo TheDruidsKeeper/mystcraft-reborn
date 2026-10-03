@@ -2,7 +2,7 @@
   "parent": "mystcraft:symbol",
   "display": {
     "icon": {
-      "id": "mystcraft:symbol_portfolio"
+      "id": "mystcraft:collation_folder"
     },
     "title": {
       "translate": "advancements.mystcraft.write.title"

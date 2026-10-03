@@ -7,7 +7,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.List;
@@ -73,7 +72,7 @@ public final class PanelImagePayloads {
             if (!(ctx.player() instanceof ServerPlayer player)) return;
             PanelImageStorage storage = PanelImageStorage.get(player.level().getServer());
             List<byte[]> frames = storage == null ? List.of() : storage.frames(payload.key());
-            PacketDistributor.sendToPlayer(player, new Images(payload.key(), frames));
+            Network.sendToPlayer(player, new Images(payload.key(), frames));
         }
     }
 

@@ -34,7 +34,7 @@ public final class ItemBehaviours {
         List<ItemStack> getPageList(@Nullable Player player, ItemStack stack);
     }
 
-    /** Can accept a page (folder, portfolio). Returns the remainder (empty if fully accepted). */
+    /** Can accept a page (folder). Returns the remainder (empty if fully accepted). */
     public interface PageAcceptor {
         ItemStack addPage(@Nullable Player player, ItemStack stack, ItemStack page);
     }
@@ -48,14 +48,6 @@ public final class ItemBehaviours {
 
         /** Highest occupied slot index, or -1. */
         int getLargestPageIndex(ItemStack stack);
-    }
-
-    /** Unordered page collection (portfolio). */
-    public interface PageCollection extends PageAcceptor {
-        List<ItemStack> getItems(@Nullable Player player, ItemStack stack);
-
-        /** Removes up to {@code page.getCount()} pages equal to {@code page}; returns what was removed. */
-        ItemStack remove(@Nullable Player player, ItemStack stack, ItemStack page);
     }
 
     /** Placed in a Book Receptacle to power a crystal portal. */

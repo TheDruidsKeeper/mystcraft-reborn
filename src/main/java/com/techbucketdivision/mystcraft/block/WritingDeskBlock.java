@@ -201,17 +201,24 @@ public class WritingDeskBlock extends Block implements EntityBlock {
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
         super.playerDestroy(level, player, pos, state, blockEntity, tool);
         if (!level.isClientSide() && !player.hasInfiniteMaterials()) {
-            Block.popResource(level, pos, dropFor(state));
+            Block.popResource(level, pos, dropFor(state, blockEntity instanceof WritingDeskBlockEntity desk && desk.isScholar()));
         }
     }
 
-    private static ItemStack dropFor(BlockState state) {
-        return new ItemStack(state.getValue(TOP) ? ModItems.WRITING_DESK_BACKBOARD.get() : ModItems.WRITING_DESK.get());
+    private static ItemStack dropFor(BlockState state, boolean scholar) {
+        if (state.getValue(TOP)) return new ItemStack(ModItems.WRITING_DESK_BACKBOARD.get());
+        return new ItemStack(scholar ? ModItems.SCHOLARS_WRITING_DESK.get() : ModItems.WRITING_DESK.get());
     }
 
     @Override
     protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
-        return dropFor(state);
+        boolean scholar = false;
+        if (!state.getValue(TOP)) {
+            Direction facing = state.getValue(FACING);
+            BlockPos head = state.getValue(FOOT) ? pos.relative(facing.getOpposite()) : pos;
+            scholar = level.getBlockEntity(head) instanceof WritingDeskBlockEntity desk && desk.isScholar();
+        }
+        return dropFor(state, scholar);
     }
 
     // --- block entity ------------------------------------------------------------------------------------------------

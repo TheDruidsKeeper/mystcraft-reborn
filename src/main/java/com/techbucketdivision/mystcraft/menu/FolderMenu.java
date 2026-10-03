@@ -3,10 +3,7 @@ package com.techbucketdivision.mystcraft.menu;
 import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
 import com.techbucketdivision.mystcraft.menu.slot.BannedSlot;
 import com.techbucketdivision.mystcraft.registry.ModMenus;
-import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,14 +16,13 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Folder / Portfolio container (REQUIREMENTS §8.6) for a held page collection. Slots: 0–26 inventory (y 135),
- * 27–35 hotbar (y 193); the hotbar slot of the open item is locked. Messages client→server:
- * {@code AddToSurface(Index, Single)}, {@code RemoveFromOrderedCollection(Index)}, {@code RemoveFromCollection(Page)}.
+ * Collation Folder container (REQUIREMENTS §8.6) for a held folder. Slots: 0–26 inventory (y 135), 27–35 hotbar
+ * (y 193); the hotbar slot of the open item is locked. Messages client→server: {@code AddToSurface(Index, Single)},
+ * {@code RemoveFromOrderedCollection(Index)}.
  */
 public class FolderMenu extends AbstractMystcraftMenu {
     public static final String MSG_ADD_TO_SURFACE = "AddToSurface";
     public static final String MSG_REMOVE_FROM_ORDERED_COLLECTION = "RemoveFromOrderedCollection";
-    public static final String MSG_REMOVE_FROM_COLLECTION = "RemoveFromCollection";
 
     public static final int INV_START = 0;
 
@@ -59,8 +55,7 @@ public class FolderMenu extends AbstractMystcraftMenu {
     }
 
     public static boolean isPageCollection(ItemStack stack) {
-        return !stack.isEmpty() && (stack.getItem() instanceof ItemBehaviours.OrderablePageProvider
-                || stack.getItem() instanceof ItemBehaviours.PageCollection);
+        return !stack.isEmpty() && stack.getItem() instanceof ItemBehaviours.OrderablePageProvider;
     }
 
     // --- container plumbing ---------------------------------------------------------------------------------------
@@ -75,19 +70,9 @@ public class FolderMenu extends AbstractMystcraftMenu {
         return quickMove(player, index, 0, 0, INV_START, stack -> placePageOnSurface(player, stack, Integer.MAX_VALUE));
     }
 
-    private DynamicOps<Tag> ops() {
-        return player.level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-    }
-
     @Override
     public void processMessage(Player player, CompoundTag data) {
         switch (messageName(data)) {
-            case MSG_REMOVE_FROM_COLLECTION -> {
-                if (!cursor().isEmpty()) return;
-                ItemStack page = data.read("Page", ItemStack.OPTIONAL_CODEC, ops()).orElse(ItemStack.EMPTY);
-                if (page.isEmpty()) return;
-                setCursor(player, removePageFromSurface(player, page));
-            }
             case MSG_REMOVE_FROM_ORDERED_COLLECTION -> {
                 if (!cursor().isEmpty()) return;
                 setCursor(player, removePageFromSurface(player, data.getIntOr("Index", 0)));
@@ -121,8 +106,6 @@ public class FolderMenu extends AbstractMystcraftMenu {
         if (item.getItem() instanceof ItemBehaviours.OrderablePageProvider p) {
             if (index == Integer.MAX_VALUE) index = p.getLargestPageIndex(item) + 1;
             result = p.setPage(player, item, page, index);
-        } else if (item.getItem() instanceof ItemBehaviours.PageCollection c) {
-            result = c.addPage(player, item, page);
         }
         player.setItemInHand(hand, item);
         return result;
@@ -136,17 +119,9 @@ public class FolderMenu extends AbstractMystcraftMenu {
         return result;
     }
 
-    private ItemStack removePageFromSurface(Player player, ItemStack page) {
-        ItemStack item = getInventoryItem();
-        if (item.isEmpty() || !(item.getItem() instanceof ItemBehaviours.PageCollection c)) return ItemStack.EMPTY;
-        ItemStack result = c.remove(player, item, page);
-        player.setItemInHand(hand, item);
-        return result;
-    }
-
     // --- screen state ------------------------------------------------------------------------------------------------
 
-    /** The folder / portfolio being edited. */
+    /** The folder being edited. */
     public ItemStack getInventoryItem() {
         return player.getItemInHand(hand);
     }

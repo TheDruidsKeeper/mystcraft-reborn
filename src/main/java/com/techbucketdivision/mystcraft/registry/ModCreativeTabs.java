@@ -35,11 +35,11 @@ public final class ModCreativeTabs {
                 out.accept(ModItems.UNLINKED_BOOK.get());
                 out.accept(ModItems.SEALED_NOTEBOOK.get());
                 out.accept(ModItems.COLLATION_FOLDER.get());
-                out.accept(ModItems.SYMBOL_PORTFOLIO.get());
                 out.accept(ModItems.INK_VIAL.get());
                 out.accept(ModItems.BLACK_INK_BUCKET.get());
                 out.accept(ModItems.WRITING_DESK.get());
                 out.accept(ModItems.WRITING_DESK_BACKBOARD.get());
+                out.accept(ModItems.SCHOLARS_WRITING_DESK.get());
                 out.accept(ModItems.INK_MIXER.get());
                 out.accept(ModItems.BOOK_BINDER.get());
                 out.accept(ModItems.BOOKSTAND.get());
@@ -50,7 +50,6 @@ public final class ModCreativeTabs {
                 out.accept(ModItems.LINK_PORTAL.get());
                 out.accept(ModItems.STAR_FISSURE.get());
                 for (DecayType t : DecayType.values()) out.accept(ModItems.decay(t));
-                for (ItemStack portfolio : com.techbucketdivision.mystcraft.symbol.grammar.CreativeCollections.portfolios()) out.accept(portfolio);
             }).build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> PAGES = TABS.register("pages", () -> CreativeModeTab.builder()

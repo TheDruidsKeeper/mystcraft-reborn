@@ -24,6 +24,28 @@ public class ScrollablePages extends GuiElement {
         void place(int index, boolean single);
 
         void remove(int index);
+
+        /** When true a plain left click {@link #select}s the page; shift + click removes it. */
+        default boolean selectsOnClick() {
+            return false;
+        }
+
+        default void select(int index) {}
+
+        /** Right click with an empty cursor. */
+        default void rightClick(int index) {}
+
+        /** Extra tooltip lines under a hovered page explaining what the mouse buttons do here. */
+        default List<Component> actionHints(int index) {
+            return List.of();
+        }
+    }
+
+    /** Index of the highlighted page (gold frame), or -1; null when the owner has no selection. */
+    private java.util.function.@Nullable IntSupplier selection;
+
+    public void setSelection(java.util.function.@Nullable IntSupplier selection) {
+        this.selection = selection;
     }
 
     private final Supplier<@Nullable List<ItemStack>> pages;
@@ -79,6 +101,13 @@ public class ScrollablePages extends GuiElement {
                     // pencilled draft: washed out until the folder leaves the desk
                     g.fill(px, py, px + elementWidth, py + elementHeight, 0x80D8D0C0);
                 }
+                if (selection != null && selection.getAsInt() == i) {
+                    // selected page: gold frame (modifiers clicked on the surface attach to it)
+                    g.fill(px - 1, py - 1, px + elementWidth + 1, py, 0xFFE0B040);
+                    g.fill(px - 1, py + elementHeight, px + elementWidth + 1, py + elementHeight + 1, 0xFFE0B040);
+                    g.fill(px - 1, py, px, py + elementHeight, 0xFFE0B040);
+                    g.fill(px + elementWidth, py, px + elementWidth + 1, py + elementHeight, 0xFFE0B040);
+                }
                 if (mouseOver && contains(mouseX, mouseY, px, py, elementWidth, elementHeight)) newHover = i;
                 px += elementWidth + 2;
                 if (px > x + width) break;
@@ -115,7 +144,12 @@ public class ScrollablePages extends GuiElement {
             return true;
         }
         if (hoverIndex >= 0 && button == 0) {
-            handler.remove(hoverIndex);
+            if (handler.selectsOnClick() && !GuiElement.isShiftHeld()) handler.select(hoverIndex);
+            else handler.remove(hoverIndex);
+            return true;
+        }
+        if (hoverIndex >= 0 && button == 1) {
+            handler.rightClick(hoverIndex);
             return true;
         }
         return false;
@@ -152,6 +186,11 @@ public class ScrollablePages extends GuiElement {
 
     @Override
     public @Nullable List<Component> tooltip() {
-        return hoverIndex >= 0 && !tooltip.isEmpty() ? tooltip : null;
+        if (hoverIndex < 0 || tooltip.isEmpty()) return null;
+        List<Component> hints = handler.actionHints(hoverIndex);
+        if (hints.isEmpty()) return tooltip;
+        List<Component> out = new ArrayList<>(tooltip);
+        out.addAll(hints);
+        return out;
     }
 }

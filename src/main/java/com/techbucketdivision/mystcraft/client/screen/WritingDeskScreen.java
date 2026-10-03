@@ -1,33 +1,36 @@
 package com.techbucketdivision.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
-import com.techbucketdivision.mystcraft.client.screen.gui.BookElement;
+import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.techbucketdivision.mystcraft.client.screen.gui.HintText;
 import com.techbucketdivision.mystcraft.client.screen.gui.InkTank;
-import com.techbucketdivision.mystcraft.client.screen.gui.NotebookTabs;
-import com.techbucketdivision.mystcraft.client.screen.gui.PageSurface;
 import com.techbucketdivision.mystcraft.client.screen.gui.ScrollablePages;
+import com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface;
 import com.techbucketdivision.mystcraft.client.screen.gui.ToggleButton;
 import com.techbucketdivision.mystcraft.item.PageItem;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
 import com.techbucketdivision.mystcraft.menu.WritingDeskMenu;
+import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.util.MystIds;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Writing Desk screen (REQUIREMENTS §8.1): notebook tabs + page surface on the left (228 px), the 176×166 desk window
- * shifted by (233, 20) on the right with the target area (book / page strip / page), name field and ink tank.
+ * Writing Desk screen (REQUIREMENTS §8.1, Reborn rework: world-building plan §4). Left (228 px): search box, category
+ * tabs and the symbol surface listing what the player knows; right: the 176×166 desk window shifted by (233, 20) with
+ * the folder's page strip, name field, undo button and ink tank. A page selected in the strip takes the modifiers
+ * clicked on the surface.
  */
 public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> {
     private static final Identifier DESK = MystIds.id("textures/gui/writingdesk.png");
@@ -36,46 +39,56 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     private static final int WINDOW_W = 176;
     private static final int WINDOW_H = 166;
     private static final int BUTTON = 18;
+    private static final int LEFT_TOP = (BUTTON + 1) * 2;
     private static final int CENTER = WritingDeskMenu.X_SHIFT; // 233
     private static final int MAIN_TOP = WritingDeskMenu.Y_SHIFT; // 20
 
     private @Nullable EditBox searchBox;
     private @Nullable EditBox nameBox;
-    private @Nullable PageSurface surface;
+    private @Nullable SymbolSurface surface;
     private @Nullable ScrollablePages pageStrip;
-    private @Nullable ToggleButton sortButton, allButton, undoButton;
+    private @Nullable ToggleButton undoButton;
+    private final List<ToggleButton> tabButtons = new ArrayList<>();
     private boolean syncingName;
+    private int selectedPage = -1;
 
     public WritingDeskScreen(WritingDeskMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, LEFT_W + WINDOW_W + 5, WINDOW_H + BUTTON + 1);
+        super(menu, inventory, title, LEFT_W + WINDOW_W + 5, WINDOW_H + LEFT_TOP);
     }
 
     @Override
     protected void buildElements() {
         int gx = leftPos, gy = topPos;
+        tabButtons.clear();
 
-        // --- left: surface controls, tabs, page surface
-        surface = new PageSurface(gx + 58, gy + MAIN_TOP, LEFT_W - 53, WINDOW_H, menu::getActiveNotebook, this::player, new SurfaceHandler());
-        sortButton = addElement(new ToggleButton(gx + 58, gy, BUTTON, "AZ", () -> surface != null && surface.isSortAlphabetical(), () -> surface.toggleSort())
-                .tooltip(Component.translatable("gui.mystcraft.surface.sort")));
-        allButton = addElement(new ToggleButton(gx + 58 + BUTTON, gy, BUTTON, "ALL", () -> surface != null && surface.isShowAll(), () -> surface.toggleShowAll())
-                .tooltip(Component.translatable("gui.mystcraft.surface.show_all")));
-        addElement(new NotebookTabs(gx, gy + MAIN_TOP, imageHeight - MAIN_TOP, new TabsHandler()));
-        addElement(surface);
-
-        searchBox = addEditBox(new EditBox(font, gx + 58 + (BUTTON + 2) * 2, gy, LEFT_W - 53 - (BUTTON + 2) * 2, BUTTON,
-                Component.translatable("gui.mystcraft.surface.search")));
+        // --- left: search, tabs, symbol surface
+        surface = new SymbolSurface(gx, gy + LEFT_TOP, LEFT_W, imageHeight - LEFT_TOP,
+                () -> SymbolKnowledge.known(player()), menu::isScholar, new SurfaceHandler());
+        searchBox = addEditBox(new EditBox(font, gx, gy, LEFT_W, BUTTON, Component.translatable("gui.mystcraft.surface.search")));
         searchBox.setMaxLength(32);
         searchBox.setHint(Component.translatable("gui.mystcraft.surface.search"));
         searchBox.setResponder(text -> {
             if (surface != null) surface.setSearch(text);
         });
+        int tabW = LEFT_W / SymbolSurface.Tab.values().length;
+        int tx = gx;
+        for (SymbolSurface.Tab tab : SymbolSurface.Tab.values()) {
+            int w = tab.ordinal() == SymbolSurface.Tab.values().length - 1 ? gx + LEFT_W - tx : tabW;
+            ToggleButton button = addElement(new ToggleButton(tx, gy + BUTTON + 1, w, BUTTON, null,
+                    () -> surface != null && surface.tab() == tab, () -> selectTab(tab))
+                    .label(tab.shortLabel())
+                    .tooltip(List.of(tab.label(), Component.translatable("gui.mystcraft.writing_desk.tab.tooltip").withStyle(ChatFormatting.GRAY))));
+            tabButtons.add(button);
+            tx += w;
+        }
+        addElement(surface);
 
         // --- right: target area
         addElement(new InkTank(gx + CENTER + WINDOW_W - 44, gy + MAIN_TOP + 7, 16, 70, menu::getInk, menu.getInkCapacity()));
-        addElement(new BookElement(gx + CENTER + 30, gy + MAIN_TOP + 6, 90, 50, new DeskBookContainer()));
         pageStrip = addElement(new ScrollablePages(gx + CENTER + 27, gy + MAIN_TOP + 6, WINDOW_W - 47 - 9 - 19, 50,
-                this::stripPages, this::carried, new StripHandler()));
+                menu::getBookPageList, this::carried, new StripHandler()));
+        pageStrip.setDraftCheck(menu::isDraftPage);
+        pageStrip.setSelection(() -> selectedPage);
 
         nameBox = addEditBox(new EditBox(font, gx + CENTER + 28, gy + MAIN_TOP + 61, WINDOW_W - 48 - 9 - 20, 14,
                 Component.translatable("gui.mystcraft.item_name")));
@@ -88,57 +101,58 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         });
         syncName(true);
 
-        // --- drafts: undo the last page written here (pages become permanent when the target leaves the desk)
+        // --- drafts: undo the last page written here (pages become permanent when the folder leaves the desk)
         undoButton = addElement(new ToggleButton(gx + CENTER + 28, gy + MAIN_TOP + 77, WINDOW_W - 48 - 9 - 20, 12, null, () -> false,
                 () -> sendOnly(WritingDeskMenu.MSG_UNDO_DRAFT))
                 .label(Component.translatable("gui.mystcraft.writing_desk.undo"))
                 .tooltip(List.of(Component.translatable("gui.mystcraft.writing_desk.undo.tooltip"),
-                        Component.translatable("gui.mystcraft.writing_desk.undo.tooltip2").withStyle(net.minecraft.ChatFormatting.GRAY))));
-        pageStrip.setDraftCheck(menu::isDraftPage);
+                        Component.translatable("gui.mystcraft.writing_desk.undo.tooltip2").withStyle(ChatFormatting.GRAY))));
 
         // --- what goes where
-        for (int i = 0; i < WritingDeskMenu.TAB_SLOTS; i++) {
-            // ghost icon only in the first tab so the tab column does not look full of notebooks
-            hintSlot(i, i == 0 ? new ItemStack(com.techbucketdivision.mystcraft.registry.ModItems.SYMBOL_PORTFOLIO.get()) : ItemStack.EMPTY,
-                    "gui.mystcraft.writing_desk.slot.notebook");
-        }
-        hintSlot(WritingDeskMenu.SLOT_TARGET, com.techbucketdivision.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.writing_desk.slot.target");
-        hintSlot(WritingDeskMenu.SLOT_PAPER, net.minecraft.world.item.Items.PAPER, "gui.mystcraft.writing_desk.slot.paper");
-        hintSlot(WritingDeskMenu.SLOT_CONTAINER_IN, com.techbucketdivision.mystcraft.registry.ModItems.INK_VIAL.get(), "gui.mystcraft.writing_desk.slot.ink");
-        hintSlot(WritingDeskMenu.SLOT_CONTAINER_OUT, net.minecraft.world.item.Items.GLASS_BOTTLE, "gui.mystcraft.writing_desk.slot.empty");
-        // the empty surface explains itself
-        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + 58, gy + MAIN_TOP, LEFT_W - 53, WINDOW_H,
-                () -> Component.translatable("gui.mystcraft.writing_desk.surface.hint"),
-                () -> menu.getActiveNotebook().isEmpty(), 0xFFB0B0B0, true));
+        hintSlot(WritingDeskMenu.SLOT_TARGET, ModItems.COLLATION_FOLDER.get(), "gui.mystcraft.writing_desk.slot.target");
+        hintSlot(WritingDeskMenu.SLOT_PAPER, Items.PAPER, "gui.mystcraft.writing_desk.slot.paper");
+        hintSlot(WritingDeskMenu.SLOT_CONTAINER_IN, ModItems.INK_VIAL.get(), "gui.mystcraft.writing_desk.slot.ink");
+        hintSlot(WritingDeskMenu.SLOT_CONTAINER_OUT, Items.GLASS_BOTTLE, "gui.mystcraft.writing_desk.slot.empty");
+        // the empty surface explains itself (no symbols known yet, or none in this tab)
+        addElement(new HintText(gx, gy + LEFT_TOP, LEFT_W - SymbolSurface.SCROLLBAR_W, imageHeight - LEFT_TOP,
+                () -> Component.translatable(SymbolKnowledge.known(player()).isEmpty() && !menu.isScholar()
+                        ? "gui.mystcraft.writing_desk.surface.hint" : "gui.mystcraft.writing_desk.surface.empty_tab"),
+                () -> surface != null && surface.tileCount() == 0, 0xFFB0B0B0, true));
         // the empty target area explains itself
-        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + CENTER + 27, gy + MAIN_TOP + 6, WINDOW_W - 47 - 9 - 19, 50,
+        addElement(new HintText(gx + CENTER + 27, gy + MAIN_TOP + 6, WINDOW_W - 47 - 9 - 19, 50,
                 () -> Component.translatable("gui.mystcraft.writing_desk.target.hint"),
                 () -> menu.getTarget().isEmpty(), 0xFF606060, false));
     }
 
-    /** Pages shown in the horizontal strip: only for writable non-book, non-page targets (folders). */
-    private @Nullable List<ItemStack> stripPages() {
-        ItemStack target = menu.getTarget();
-        if (target.isEmpty() || !menu.getBook().isEmpty() || target.getItem() instanceof PageItem) return null;
-        if (!(target.getItem() instanceof ItemBehaviours.OrderablePageProvider)) return null;
-        return menu.getBookPageList();
+    /** Test hook (client self-check) and tab buttons. */
+    public void selectTab(SymbolSurface.Tab tab) {
+        if (surface != null) surface.setTab(tab);
+    }
+
+    /** Test hook: symbols currently listed on the surface. */
+    public int listedSymbols() {
+        return surface == null ? 0 : surface.tileCount();
+    }
+
+    /** Test hook: selects a page of the folder strip. */
+    public void selectPage(int index) {
+        selectedPage = index;
     }
 
     @Override
     protected void containerTick() {
         super.containerTick();
         syncName(false);
-        boolean collection = surface != null && surface.isCollection();
-        if (sortButton != null) sortButton.setEnabled(collection);
-        if (allButton != null) allButton.setEnabled(collection);
         if (undoButton != null) undoButton.setVisible(!menu.getDrafts().isEmpty());
+        List<ItemStack> pages = menu.getBookPageList();
+        if (pages == null || selectedPage >= pages.size() || (selectedPage >= 0 && !PageItem.isSymbolPage(pages.get(selectedPage)))) {
+            selectedPage = -1;
+        }
     }
 
     private void syncName(boolean force) {
         if (nameBox == null) return;
-        ItemStack target = menu.getTarget();
-        boolean editable = !target.isEmpty() && !(target.getItem() instanceof PageItem);
-        nameBox.setEditable(editable);
+        nameBox.setEditable(!menu.getTarget().isEmpty());
         String name = menu.getTargetName();
         if ((force || !nameBox.isFocused()) && !nameBox.getValue().equals(name)) {
             syncingName = true;
@@ -150,67 +164,48 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     @Override
     protected void drawBackgroundTexture(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         g.blit(RenderPipelines.GUI_TEXTURED, DESK, leftPos + CENTER, topPos + MAIN_TOP, 0, 0, WINDOW_W, WINDOW_H, 256, 256);
-        caption(g, "gui.mystcraft.writing_desk.notebooks", leftPos + 2, topPos + 5);
-        // target page preview when the target is a single page
-        ItemStack target = menu.getTarget();
-        if (!target.isEmpty() && target.getItem() instanceof PageItem) {
-            SymbolGlyphs.drawPage(g, target, leftPos + CENTER + 32, topPos + MAIN_TOP + 6, 37.5f, 50f);
+        if (menu.isScholar()) {
+            // above the desk window (the 20 px band the window is shifted down by)
+            caption(g, Component.translatable("gui.mystcraft.writing_desk.scholar"), leftPos + CENTER + 4, topPos + 6);
         }
+    }
+
+    private @Nullable ItemStack selectedPageStack() {
+        List<ItemStack> pages = menu.getBookPageList();
+        if (pages == null || selectedPage < 0 || selectedPage >= pages.size()) return null;
+        ItemStack page = pages.get(selectedPage);
+        return PageItem.isSymbolPage(page) ? page : null;
     }
 
     // --- handlers ---------------------------------------------------------------------------------------------------
 
-    private final class SurfaceHandler implements PageSurface.Handler {
+    private final class SurfaceHandler implements SymbolSurface.Handler {
         @Override
-        public void place(int index, boolean single) {
+        public void write(AgeSymbol symbol) {
             CompoundTag tag = new CompoundTag();
-            tag.putInt("Tab", menu.getActiveTabSlot());
-            tag.putBoolean("Single", single);
-            tag.putInt("Index", index);
-            send(WritingDeskMenu.MSG_ADD_TO_SURFACE, tag);
-        }
-
-        @Override
-        public boolean writesOnClick() {
-            return menu.canWriteSymbol();
-        }
-
-        @Override
-        public List<Component> actionHints() {
-            var grey = net.minecraft.ChatFormatting.GRAY;
-            if (menu.canWriteSymbol()) {
-                return List.of(Component.translatable("gui.mystcraft.writing_desk.page.write").withStyle(grey),
-                        Component.translatable("gui.mystcraft.writing_desk.page.take_shift").withStyle(grey));
-            }
-            return List.of(Component.translatable("gui.mystcraft.writing_desk.page.take").withStyle(grey),
-                    Component.translatable("gui.mystcraft.writing_desk.page.cannot_write").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
-        }
-
-        @Override
-        public void pickup(PageSurface.Entry entry) {
-            if (entry.count <= 0) return;
-            if (surface != null && surface.isCollection()) {
-                ItemStack page = entry.stack.copy();
-                // shift-click takes one page (plain click writes a copy); ctrl+shift takes the whole stack
-                boolean wholeStack = com.techbucketdivision.mystcraft.client.screen.gui.GuiElement.isControlHeld(); // latched from the click event
-                page.setCount(wholeStack ? Math.min(64, entry.count) : 1);
-                CompoundTag tag = new CompoundTag();
-                tag.store("Page", ItemStack.OPTIONAL_CODEC, ops(), page);
-                send(WritingDeskMenu.MSG_REMOVE_FROM_COLLECTION, tag);
-            } else {
-                CompoundTag tag = new CompoundTag();
-                tag.putInt("Index", entry.slotId);
-                send(WritingDeskMenu.MSG_REMOVE_FROM_ORDERED_COLLECTION, tag);
-            }
-        }
-
-        @Override
-        public void copy(PageSurface.Entry entry) {
-            Identifier symbol = PageItem.getSymbolId(entry.stack);
-            if (symbol == null || entry.count <= 0) return;
-            CompoundTag tag = new CompoundTag();
-            tag.putString("Symbol", symbol.toString());
+            tag.putString("Symbol", symbol.id().toString());
             send(WritingDeskMenu.MSG_WRITE_SYMBOL, tag);
+        }
+
+        @Override
+        public void attach(AgeSymbol modifier) {
+            ItemStack page = selectedPageStack();
+            AgeSymbol target = page == null ? null : PageItem.getSymbol(page);
+            if (target == null || !target.takes(modifier)) return;
+            CompoundTag tag = new CompoundTag();
+            tag.putString("Symbol", modifier.id().toString());
+            tag.putInt("Index", selectedPage);
+            send(WritingDeskMenu.MSG_ATTACH_MODIFIER, tag);
+        }
+
+        @Override
+        public @Nullable ItemStack selectedPage() {
+            return selectedPageStack();
+        }
+
+        @Override
+        public boolean canWrite() {
+            return menu.canWriteSymbol();
         }
     }
 
@@ -225,65 +220,42 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
 
         @Override
         public void remove(int index) {
+            if (selectedPage == index) selectedPage = -1;
             CompoundTag tag = new CompoundTag();
             tag.putInt("Index", index);
             send(WritingDeskMenu.MSG_TAKE_FROM_SLIDER, tag);
         }
-    }
-
-    private final class TabsHandler implements NotebookTabs.Handler {
-        @Override public ItemStack tabItem(int slot) { return menu.getTabSlot(slot); }
-        @Override public int firstTab() { return menu.getFirstTabSlot(); }
-        @Override public int activeTab() { return menu.getActiveTabSlot(); }
-        @Override public int maxTabs() { return menu.getMaxTabCount(); }
 
         @Override
-        public void setFirstTab(int first) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("Tab", first);
-            send(WritingDeskMenu.MSG_SET_FIRST_NOTEBOOK, tag);
+        public boolean selectsOnClick() {
+            return true;
         }
 
         @Override
-        public void tabClicked(int slot, int button) {
-            if (!carried().isEmpty()) {
-                CompoundTag tag = new CompoundTag();
-                tag.putInt("Tab", slot);
-                tag.putBoolean("Single", button == 1);
-                send(WritingDeskMenu.MSG_ADD_TO_TAB, tag);
-            } else if (menu.getActiveTabSlot() != slot) {
-                CompoundTag tag = new CompoundTag();
-                tag.putInt("Tab", slot);
-                send(WritingDeskMenu.MSG_SET_ACTIVE_NOTEBOOK, tag);
-                if (surface != null) surface.invalidate();
-            }
+        public void select(int index) {
+            List<ItemStack> pages = menu.getBookPageList();
+            if (pages == null || index < 0 || index >= pages.size() || !PageItem.isSymbolPage(pages.get(index))) return;
+            selectedPage = selectedPage == index ? -1 : index;
         }
-    }
-
-    /** Adapter over the desk menu's book view. */
-    private final class DeskBookContainer implements BookElement.Container {
-        @Override public ItemStack getBook() { return menu.getBook(); }
-        @Override public @Nullable LinkInfo getLinkInfo() { return menu.getLinkInfo(); }
-        @Override public int getCurrentPageIndex() { return menu.getBookView().getCurrentPageIndex(); }
-        @Override public ItemStack getCurrentPage() { return menu.getBookView().getCurrentPage(); }
-        @Override public int getPageCount() { return menu.getBookView().getPageCount(); }
-        @Override public boolean isLinkPermitted() { return menu.isLinkPermitted(); }
-        @Override public boolean isTargetWorldVisited() { return menu.isTargetWorldVisited(); }
-        @Override public String getBookTitle() { return menu.getBookTitle(); }
-        @Override public List<String> getBookAuthors() { return menu.getBookAuthors(); }
-        @Override public boolean hasBookSlot() { return menu.hasBookSlot(); }
-        @Override public boolean isDraftPage(int index) { return menu.isDraftPage(index); }
 
         @Override
-        public void setCurrentPageIndex(int index) {
+        public void rightClick(int index) {
             CompoundTag tag = new CompoundTag();
             tag.putInt("Index", index);
-            send(WritingDeskMenu.MSG_SET_CURRENT_PAGE, tag);
+            send(WritingDeskMenu.MSG_DETACH_MODIFIER, tag);
         }
 
         @Override
-        public void onLink() {
-            sendOnly(WritingDeskMenu.MSG_LINK);
+        public List<Component> actionHints(int index) {
+            List<ItemStack> pages = menu.getBookPageList();
+            if (pages == null || index < 0 || index >= pages.size() || !PageItem.isSymbolPage(pages.get(index))) return List.of();
+            List<Component> out = new ArrayList<>();
+            out.add(Component.translatable(selectedPage == index ? "gui.mystcraft.writing_desk.strip.deselect" : "gui.mystcraft.writing_desk.strip.select").withStyle(ChatFormatting.GRAY));
+            out.add(Component.translatable("gui.mystcraft.writing_desk.strip.take").withStyle(ChatFormatting.GRAY));
+            if (!PageItem.getModifiers(pages.get(index)).isEmpty()) {
+                out.add(Component.translatable("gui.mystcraft.writing_desk.strip.detach").withStyle(ChatFormatting.GRAY));
+            }
+            return out;
         }
     }
 }

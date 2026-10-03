@@ -1,6 +1,7 @@
 package com.techbucketdivision.mystcraft.item;
 
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
+import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,14 +25,25 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class WritingDeskItem extends Item {
     private final boolean backboard;
+    private final boolean scholar;
 
     public WritingDeskItem(boolean backboard, Item.Properties properties) {
+        this(backboard, false, properties);
+    }
+
+    /** @param scholar places a Scholar's desk: the block entity offers every registered symbol (creative) */
+    public WritingDeskItem(boolean backboard, boolean scholar, Item.Properties properties) {
         super(properties);
         this.backboard = backboard;
+        this.scholar = scholar;
     }
 
     public boolean isBackboard() {
         return backboard;
+    }
+
+    public boolean isScholar() {
+        return scholar;
     }
 
     @Override
@@ -68,6 +80,7 @@ public class WritingDeskItem extends Item {
         level.setBlockAndUpdate(head, base);
         if (level.getBlockState(head).is(ModBlocks.WRITING_DESK.get())) {
             level.setBlockAndUpdate(foot, base.setValue(WritingDeskBlock.FOOT, true));
+            if (scholar && level.getBlockEntity(head) instanceof WritingDeskBlockEntity desk) desk.setScholar(true);
         }
         if (!player.hasInfiniteMaterials()) stack.shrink(1);
         return InteractionResult.SUCCESS_SERVER;

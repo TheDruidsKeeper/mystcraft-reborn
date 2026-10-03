@@ -15,6 +15,7 @@ import com.techbucketdivision.mystcraft.instability.InstabilityController;
 import com.techbucketdivision.mystcraft.item.LinkingBookItem;
 import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.linking.LinkController;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
 import com.techbucketdivision.mystcraft.network.ServerConfigPayload;
 import com.techbucketdivision.mystcraft.registry.ModAttachments;
 import com.techbucketdivision.mystcraft.registry.ModFluids;
@@ -62,7 +63,7 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -152,7 +153,8 @@ public final class CommonEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         MinecraftServer server = player.level().getServer();
         if (server == null) return;
-        PacketDistributor.sendToPlayer(player, new ServerConfigPayload(MystcraftConfig.SERVER_LABELS.get()));
+        Network.sendToPlayer(player, new ServerConfigPayload(MystcraftConfig.SERVER_LABELS.get()));
+        SymbolKnowledge.sync(player);
 
         ResourceKey<Level> current = player.level().dimension();
         UUID currentAge = AgeData.uuidFromLevelKey(current);
@@ -181,9 +183,13 @@ public final class CommonEvents {
             return;
         }
         player.setData(ModAttachments.LAST_AGE.get(), Optional.ofNullable(AgeData.uuidFromLevelKey(to)));
+        SymbolKnowledge.sync(player); // the client gets a fresh player entity on a dimension change
         if (AgeManager.isAge(to)) {
             syncAgeData(player, server, to);
             awardEntryAdvancement(player);
+            // arriving in an Age teaches every symbol it is made of (world-building plan §7.1)
+            AgeData age = AgeManager.get(server, to);
+            if (age != null) SymbolKnowledge.learnAge(player, age);
         }
     }
 
@@ -204,6 +210,11 @@ public final class CommonEvents {
         }
         if (hasLinkingBook) ModCriteria.ENTER_AGE_SAFE.get().trigger(player);
         else ModCriteria.ENTER_AGE_QUINN.get().trigger(player);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) SymbolKnowledge.sync(player);
     }
 
     @SubscribeEvent

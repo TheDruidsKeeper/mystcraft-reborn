@@ -16,15 +16,13 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
- * Scrollable grid of 30×40 page tiles showing the contents of a page collection (portfolio: grouped with counts,
- * optionally every registered symbol as a count-0 ghost) or an ordered page provider (folder: one tile per slot).
- * Port of {@code GuiElementPageSurface} + {@code GuiElementSurfaceControlsBase} (REQUIREMENTS §8.1 / §8.6).
+ * Scrollable grid of 30×40 page tiles showing the pages of an ordered page provider (folder: one tile per slot),
+ * filtered by a search text. Port of {@code GuiElementPageSurface} (REQUIREMENTS §8.6).
  */
 public class PageSurface extends GuiElement {
     public static final int PAGE_W = 30;
@@ -33,7 +31,7 @@ public class PageSurface extends GuiElement {
 
     /** Screen-side actions. */
     public interface Handler {
-        /** Place the cursor stack at {@code index} (folders) / into the collection (portfolios). */
+        /** Place the cursor stack at {@code index}. */
         void place(int index, boolean single);
 
         /** Pick up a page (left click, or shift + left click when {@link #writesOnClick()}). */
@@ -70,10 +68,7 @@ public class PageSurface extends GuiElement {
 
     private ItemStack cached = ItemStack.EMPTY;
     private @Nullable List<Entry> entries;
-    private boolean sortAlphabetical = true;
-    private boolean showAll;
     private String search = "";
-    private boolean isCollection;
 
     private int scroll;
     private int maxScroll;
@@ -90,20 +85,6 @@ public class PageSurface extends GuiElement {
     }
 
     // --- state -----------------------------------------------------------------------------------------------------
-
-    public boolean isSortAlphabetical() { return sortAlphabetical; }
-    public boolean isShowAll() { return showAll; }
-    public boolean isCollection() { return isCollection; }
-
-    public void toggleSort() {
-        sortAlphabetical = !sortAlphabetical;
-        invalidate();
-    }
-
-    public void toggleShowAll() {
-        showAll = !showAll;
-        invalidate();
-    }
 
     public void setSearch(String text) {
         this.search = text == null ? "" : text;
@@ -133,67 +114,16 @@ public class PageSurface extends GuiElement {
     private void rebuild() {
         entries = null;
         hover = null;
-        isCollection = false;
-        if (cached.isEmpty()) return;
-        String filter = search.toLowerCase(Locale.ROOT);
+        if (cached.isEmpty() || !(cached.getItem() instanceof ItemBehaviours.PageProvider provider)) return;
         List<Entry> list = new ArrayList<>();
-        if (cached.getItem() instanceof ItemBehaviours.PageCollection collection) {
-            isCollection = true;
-            for (ItemStack page : collection.getItems(player.get(), cached)) {
-                if (page.isEmpty()) continue;
-                String name = symbolName(page);
-                if (!filter.isEmpty() && (name == null || !name.toLowerCase(Locale.ROOT).contains(filter))) continue;
-                Entry existing = null;
-                for (Entry e : list) {
-                    if (ItemStack.isSameItemSameComponents(e.stack, page)) {
-                        existing = e;
-                        break;
-                    }
-                }
-                if (existing == null) {
-                    Entry e = new Entry();
-                    e.stack = page.copyWithCount(1);
-                    e.count = page.getCount();
-                    e.name = name;
-                    list.add(e);
-                } else {
-                    existing.count += page.getCount();
-                }
-            }
-            if (showAll) {
-                for (AgeSymbol symbol : SymbolRegistry.all()) {
-                    String name = symbol.displayName().getString();
-                    if (!filter.isEmpty() && !name.toLowerCase(Locale.ROOT).contains(filter)) continue;
-                    boolean present = false;
-                    for (Entry e : list) {
-                        if (symbol.equals(PageItem.getSymbol(e.stack))) {
-                            present = true;
-                            break;
-                        }
-                    }
-                    if (present) continue;
-                    Entry e = new Entry();
-                    e.stack = PageItem.createSymbolPage(symbol);
-                    e.count = 0;
-                    e.name = name;
-                    list.add(e);
-                }
-            }
-            if (sortAlphabetical) {
-                list.sort(Comparator.comparing((Entry e) -> e.name == null ? "" : e.name.toLowerCase(Locale.ROOT)));
-            }
-        } else if (cached.getItem() instanceof ItemBehaviours.PageProvider provider) {
-            int i = 0;
-            for (ItemStack page : provider.getPageList(player.get(), cached)) {
-                Entry e = new Entry();
-                e.stack = page;
-                e.slotId = i++;
-                e.count = 1;
-                e.name = symbolName(page);
-                list.add(e);
-            }
-        } else {
-            return;
+        int i = 0;
+        for (ItemStack page : provider.getPageList(player.get(), cached)) {
+            Entry e = new Entry();
+            e.stack = page;
+            e.slotId = i++;
+            e.count = 1;
+            e.name = symbolName(page);
+            list.add(e);
         }
         float xStep = PAGE_W + 1, yStep = PAGE_H + 1;
         float px = 0, py = 0;

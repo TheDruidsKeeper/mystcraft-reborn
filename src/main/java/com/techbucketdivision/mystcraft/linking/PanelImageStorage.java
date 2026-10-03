@@ -14,7 +14,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -119,7 +119,7 @@ public final class PanelImageStorage extends SavedData {
         if (storage == null) return;
         long now = player.level().getGameTime();
         if (!storage.requestCapture(key, now)) return;
-        PacketDistributor.sendToPlayer(player, new PanelImagePayloads.CaptureRequest(key));
+        Network.sendToPlayer(player, new PanelImagePayloads.CaptureRequest(key));
         Mystcraft.LOGGER.info("[panel] asked {} to photograph {}", player.getPlainTextName(), key);
     }
 }

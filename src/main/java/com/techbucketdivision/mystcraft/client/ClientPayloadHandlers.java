@@ -1,5 +1,6 @@
 package com.techbucketdivision.mystcraft.client;
 
+import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.entity.ColoredLightningBolt;
 import com.techbucketdivision.mystcraft.network.AgeDataSyncPayload;
 import com.techbucketdivision.mystcraft.network.ExplosionEffectsPayload;
@@ -7,7 +8,9 @@ import com.techbucketdivision.mystcraft.network.LightningPayload;
 import com.techbucketdivision.mystcraft.network.LinkParticlesPayload;
 import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
 import com.techbucketdivision.mystcraft.network.ProfilingStatePayload;
+import com.techbucketdivision.mystcraft.network.KnowledgePayload;
 import com.techbucketdivision.mystcraft.network.ServerConfigPayload;
+import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
 import com.techbucketdivision.mystcraft.network.UpdateDimensionsPayload;
 import com.techbucketdivision.mystcraft.registry.ModEntities;
 import com.techbucketdivision.mystcraft.registry.ModParticles;
@@ -38,6 +41,7 @@ public final class ClientPayloadHandlers {
         event.register(AgeDataSyncPayload.TYPE, ClientPayloadHandlers::handleAgeData);
         event.register(UpdateDimensionsPayload.TYPE, ClientPayloadHandlers::handleUpdateDimensions);
         event.register(ServerConfigPayload.TYPE, ClientPayloadHandlers::handleServerConfig);
+        event.register(KnowledgePayload.TYPE, ClientPayloadHandlers::handleKnowledge);
         event.register(LinkParticlesPayload.TYPE, ClientPayloadHandlers::handleLinkParticles);
         event.register(ExplosionEffectsPayload.TYPE, ClientPayloadHandlers::handleExplosionEffects);
         event.register(LightningPayload.TYPE, ClientPayloadHandlers::handleLightning);
@@ -66,6 +70,11 @@ public final class ClientPayloadHandlers {
 
     private static void handleServerConfig(ServerConfigPayload payload, IPayloadContext ctx) {
         serverLabelsAllowed = payload.serverLabels();
+    }
+
+    private static void handleKnowledge(KnowledgePayload payload, IPayloadContext ctx) {
+        SymbolKnowledge.receive(ctx.player(), payload.symbols());
+        Mystcraft.LOGGER.info("[knowledge] client: {} symbols known", payload.symbols().size());
     }
 
     private static void handleLinkParticles(LinkParticlesPayload payload, IPayloadContext ctx) {

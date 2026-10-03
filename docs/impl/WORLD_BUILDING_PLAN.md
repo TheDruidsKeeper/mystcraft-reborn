@@ -1,6 +1,6 @@
 # World-building system and writing desk rework — plan
 
-Status: **proposal, awaiting decisions** (see §7). Nothing in this document is implemented yet.
+Status: **decided 2026-10-03, in implementation** (decisions in §7, ink table in §8 confirmed). Phase progress in §6.
 
 Goal: replace the ported Mystcraft grammar (`Grammar.expandAge`) with a category-based "Age blueprint" that fills an
 incomplete Descriptive Book deterministically and safely, organises the book, and rework the Writing Desk around
@@ -22,6 +22,15 @@ incomplete Descriptive Book deterministically and safely, organises the book, an
 
 Counts are *defaults*, every number is a config key (§5). "Default when empty" = what the Age does when no symbol of
 the category is present (the "normal Minecraft" behaviour the user asked for).
+
+Implementation note: the build order of `SymbolCategory` puts **Biomes before Biome layout** (the layout symbol consumes
+the biome list), so the book and the desk strip show Terrain, Biomes, Biome layout, Lighting, Celestials, Sky colours,
+World colours, Weather, Structures, Features, Effects. `no_sea` is a **material** (attached to the terrain page, 3 %),
+not a feature. "Dark sun gets a bright moon" is implemented as: a dark sun is only kept when the filler may also set
+`lighting_bright` (lighting not written by the player), otherwise the sun stays normal. The instability budget default
+is 500 (one bright lighting / dense ores fits, Accelerated (1000) never does; effects with negative instability always fit).
+Biome families: every overworld biome weight 10, nether biomes 1 (only with `terrain_nether`), end biomes 1 (only with
+`terrain_end`); `fill.biomes.weights` overrides single biome symbols by id.
 
 | # | Category | Required | Count | Default when empty | Random fill | Members (current symbol ids) |
 |---|---|---|---|---|---|---|
@@ -81,14 +90,15 @@ folder's pages grouped by category with a header per category ("Terrain · requi
 "missing" list for required categories (advisory only, nothing enforced). Selecting a page in the strip and clicking a
 modifier symbol **attaches** it to that page (shown as a grid on the page tile and in the book view).
 
-Import slot: a symbol page (loot, trade, Sealed Notebook) or a **bound Descriptive Book** placed here unlocks its
-symbol(s) — pages are consumed, books are not. Unlock scope: **decision §7.1**.
+Learning symbols (decision §7.1): **no import slot**. A player unlocks a symbol by using a symbol page (right-click;
+the page is consumed; all of the page's symbols, modifiers included) or by arriving in an Age (all of its symbols). The
+desk surface shows the *player's* unlocked symbols; a desk is just a workplace.
 
 Creative: a separate uncraftable **"Scholar's Writing Desk"** item places the same block with `allUnlocked=true` (every
-registered symbol available). Link Modifier already has no recipe (stays that way).
+registered symbol available to whoever uses it). Link Modifier already has no recipe (stays that way).
 
-Removed: `PortfolioItem` (existing portfolios convert into folders on load), notebook tabs, `MSG_ADD_TO_SURFACE` /
-`REMOVE_FROM_*` / `ADD_TO_TAB` messages, AZ/ALL buttons (replaced by category tabs + search).
+Removed: `PortfolioItem` (no migration, decision §7.10), notebook tabs, `MSG_ADD_TO_SURFACE` / `REMOVE_FROM_*` /
+`ADD_TO_TAB` messages, AZ/ALL buttons (replaced by category tabs + search).
 
 Guidance in the UI: category header text + tooltip ("Required: exactly one. Default: Standard World."), symbol tooltip
 gains "Takes: colour modifier" / "Needs: cave terrain" lines, discovered pages show "discovered" in the book and strip.
@@ -96,14 +106,21 @@ gains "Takes: colour modifier" / "Needs: cave terrain" lines, discovered pages s
 ## 5. Config (`mystcraft-common.toml`, section `worldbuilding`)
 
 ```
-fill.instabilityBudget = 0
-fill.<category>.chance = <percent>          # optional categories
-fill.<category>.min / .max                   # counts
-fill.<category>.weights = ["id=weight", ...] # per-symbol weights, "0" removes a symbol from random fill
+fill.instabilityBudget = 500
+fill.starFissureChance = 10
+fill.<category>.chance = <percent>            # optional categories (required ones are always filled)
+fill.<category>.min / .max                     # counts
+fill.<category>.defaults = ["id", ...]         # always added when the category is empty
+fill.<category>.weights = ["id=weight", ...]   # per-symbol weights, "0" removes a symbol from random fill
 fill.celestials.modifierChance.direction/phase/sunset = 30/30/20
-fill.materials.exoticChance = 5
-desk.unlockScope = DESK | PLAYER | WORLD
+fill.materials.commonChance / exoticChance / noSeaChance = 15 / 5 / 3
 ```
+
+Config lives in its own file `mystcraft-worldbuilding.toml` (`WorldBuildingConfig`): `fill.<category>.{chance,min,max,
+defaults,weights}`, `fill.biomes.{countWeights,overworldWeight,netherWeight,endWeight}`, `fill.celestials.{moonCountWeights,
+starfieldCountWeights,lengthWeights,modifierChance.direction/phase/sunset}`, `fill.colors.gradientChance`,
+`fill.materials.{commonChance,exoticChance,noSeaChance}`, `fill.instabilityBudget`, `fill.starFissureChance`. Unlock
+scope is fixed (per player), so there is no `desk.unlockScope` key.
 
 ## 6. Work breakdown (phases, each ends green on the Docker pipeline)
 
@@ -114,26 +131,39 @@ desk.unlockScope = DESK | PLAYER | WORLD
 | C | Desk BE (unlocked set, import slot, folder-only target, creative flag), menu/screens with category tabs, Scholar's desk item, portfolio removal + migration, Archivist/loot pages feed the import slot | gametests: import unlocks, folder-only, write-from-unlocked, creative desk has all; client smoke screenshots of each tab |
 | D | Book view grouping, summary page, TESTING.md + REQUIREMENTS rewrite of §4.4 / §8.1 | selfcheck pages |
 
-Order: A → B → D → C (C is the largest UI piece and depends on A/B's data model).
+Order: ink mixer (independent) → A+B (one commit: the data model and the filler replace the grammar together) → D → C.
 
-## 7. Decisions needed
+Progress: ink mixer done; A+B done (categories, `SymbolPage`, `AgeBlueprint`, `WorldBuildingConfig`, grammar removed,
+modifier overlays on page icons, discovered ink); D done (category label + modifiers on the left page, summary page via
+`AgeSummary`); C done (`SymbolKnowledge` player attachment, pages studied by use, Ages teach on arrival, desk rework
+with `SymbolSurface` tabs, folder-only target, attach/detach modifiers, Scholar's desk, portfolio removed). Extra:
+`/myst-qa-shelf` builds 14 lecterns with fixed-seed books for the visual QA matrix (`QaShelf`).
 
-1. **Unlock scope**: per desk (base building, shareable in multiplayer), per player (knowledge follows you), or per
-   world (everyone shares)? Proposal: **per desk**, with a desk-to-desk copy by placing a bound book in the import slot.
-2. **Empty Structures category**: "normal Minecraft" = villages/mineshafts/dungeons/ravines on in every Age, or none
-   (original Mystcraft)? Proposal: **vanilla set on** (matches "defaults apply"), off via config.
-3. **Modifiers on the page** (data-model change, §3) — confirm. Alternative keeps the sequential model and only
-   *displays* modifiers grouped, which is fragile once pages are reordered.
-4. **Drop the original grammar** entirely (category system replaces it; card ranks stay for trades)? Proposal: yes.
-5. **Dangerous picks in random fill**: never, or low chance as in §2 (void 0 %, dark sun 4 %, meteors ~1 % overall,
-   dense ores 2 %)? Proposal: low chance, all configurable, budget keeps the Age stable.
-6. **Star Fissure** in random fill: never (original), or a small chance (gives a way home)? Proposal: 10 % of Ages.
-7. **Reorganising player pages on bind** into category order (needed for the grouped layout) — confirm.
-8. **Page sources stay**: Archivist trades, library lecterns, Sealed Notebook → all feed the import slot. Confirm; or
-   should the Archivist sell "unlock" directly?
-9. **Biome count** 1–4 and celestial ranges above — adjust?
+## 7. Decisions (taken 2026-10-03)
 
-## 8. Ink Mixer: one ingredient per effect (proposal, awaiting confirmation)
+1. **Unlock scope: per player.** Knowledge follows the player (a player attachment, synced to the client). Symbols are
+   learned by **using a symbol page** (right-click: the page is consumed, the symbol is unlocked) and by **arriving in
+   an Age** (every symbol of that Age, modifiers included, is unlocked on arrival). There is no import slot on the desk.
+2. **Empty Structures category: none** (original Mystcraft). `fill.structures.defaults = []`; the random fill may still
+   add structures (40 %).
+3. **Modifiers on the page: yes.** `SymbolPage(symbol, modifiers, discovered)`; the modifier glyphs are rendered as
+   **overlays on the page's symbol** (corners of the icon, colour modifiers in their own colour).
+4. **Grammar dropped.** `symbol/grammar` removed, the "Lacking … Features" dummies and Clear Modifiers with it. Card
+   ranks stay for trade pricing.
+5. **Dangerous picks: low chance, all configurable** (void 0 %, dark sun 4 %, meteors ≈1 %, dense ores 2 %), the
+   instability budget keeps Ages stable.
+6. **Star Fissure: 10 % of Ages** (`fill.starFissureChance`).
+7. **Reorganise on bind: yes**, and the pages discovered at the first link go into the proper category order too
+   (`AgeBlueprint.organise`).
+8. **Page sources unchanged**: Archivist trades, library lecterns, Sealed Notebook give pages; a page is consumed to
+   learn its symbol (see 1).
+9. **Counts**: biomes 1–4 (weights 35/35/20/10), celestials 1–5, sky colours 0–4, world colours 0–3, structures 0–3,
+   features 0–3 (defaults caves + surface lakes), effects 0–2.
+10. **No backwards compatibility**: old worlds are discarded; every change replaces what was there (no migrations, no
+    aliases).
+11. **No playtesting between phases** unless needed to verify something.
+
+## 8. Ink Mixer: one ingredient per effect (confirmed, implemented)
 
 Price scales with how much the effect gives. No item grants two effects, no effect has two sources; mapping goes in
 config (`inkmixer.ingredients = ["intra_linking=minecraft:ender_pearl", ...]`), `crafting.linkeffects.disabled` stays.
@@ -153,6 +183,6 @@ Removed: mushroom stew, bottle o' enchanting, fire charge, `c:dusts/*` tag bindi
 
 ## 9. Session hand-off
 
-Next session: read this document, ask the decisions in §7 and confirm §8 (one message, numbered, with the proposals
-as defaults), then implement in the phase order of §6 following the usual cycle (Docker pipeline green per phase,
-gametests + selfcheck coverage, TESTING.md / REQUIREMENTS.md updated, logical commits, jar copied to the instance).
+Decisions are taken (§7); implementation follows the order in §6 with the usual cycle (Docker pipeline green per
+phase, gametests + selfcheck coverage, TESTING.md / REQUIREMENTS.md updated, logical commits, jar copied to the
+instance). A new session continues at the first phase not marked done under §6 "Progress".

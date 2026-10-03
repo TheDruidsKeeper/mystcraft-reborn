@@ -32,7 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import com.techbucketdivision.mystcraft.network.Network;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 
@@ -203,7 +203,7 @@ public final class DynamicDimensions {
     private static void sendToAll(MinecraftServer server, UpdateDimensionsPayload payload) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player.connection.hasChannel(payload)) {
-                PacketDistributor.sendToPlayer(player, payload);
+                Network.sendToPlayer(player, payload);
             }
         }
     }

@@ -198,8 +198,43 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         List<Identifier> written = writtenSymbols(pages);
         List<Identifier> expanded = Grammar.expandAge(written, RandomSource.create(data.seed()));
         data.setSymbols(expanded);
-        Mystcraft.LOGGER.info("Bound descriptive book '{}' to Age {} ({} written symbols -> {} total)", info.displayName(),
-                data.uuid(), written.size(), expanded.size());
+        // Build the Age once now so the controller fallbacks (a missing terrain / biome / lighting / weather symbol)
+        // are chosen and recorded; after this data.symbols() is the complete description of the Age.
+        try {
+            new com.techbucketdivision.mystcraft.age.AgeController(data, server.registryAccess(), false);
+        } catch (RuntimeException e) {
+            Mystcraft.LOGGER.warn("Could not pre-build Age {} to settle its symbols", data.uuid(), e);
+        }
+        // Reborn: the book becomes a complete description of the Age it now points at - every symbol the grammar
+        // (and the fallbacks) added, dangerous ones included, is written onto a new page after the author's pages.
+        int added = writeGeneratedSymbols(stack, data);
+        Mystcraft.LOGGER.info("Bound descriptive book '{}' to Age {} ({} written symbols -> {} total, {} pages added to the book)",
+                info.displayName(), data.uuid(), written.size(), data.symbols().size(), added);
+    }
+
+    /**
+     * Appends a symbol page for every occurrence of a symbol in the Age's final list that the book does not already
+     * carry (multiset difference, Age order), and mirrors the page list into the Age. Returns the number of pages added.
+     */
+    public static int writeGeneratedSymbols(ItemStack stack, AgeData data) {
+        List<ItemStack> pages = new ArrayList<>(getPages(stack));
+        java.util.Map<Identifier, Integer> have = new java.util.HashMap<>();
+        for (Identifier id : writtenSymbols(pages)) have.merge(id, 1, Integer::sum);
+        int added = 0;
+        for (Identifier id : data.symbols()) {
+            int left = have.getOrDefault(id, 0);
+            if (left > 0) {
+                have.put(id, left - 1);
+                continue;
+            }
+            pages.add(PageItem.createSymbolPage(id));
+            added++;
+        }
+        if (added > 0) {
+            setPages(stack, pages);
+            data.setPages(pages);
+        }
+        return added;
     }
 
     // --- age access --------------------------------------------------------------------------------------------

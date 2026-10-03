@@ -28,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,20 +46,17 @@ public final class AgeTicker {
     public static final int RESEND_TICKS_IDLE = 1200;
     /** How often the age clock is flushed to the saved data (it is not dirty-tracked per tick). */
     public static final int SAVE_TIME_TICKS = 600;
-    /** A brand-new Age starts this long after its first sunrise so arrival is in daylight. */
-    public static final long MORNING_OFFSET_TICKS = 1500L;
+    /** A brand-new Age's clock starts somewhere in its first ten (vanilla-length) days. */
+    public static final long START_TIME_SPAN = 24000L * 10;
 
     /**
-     * A new Age's celestials have random phases, so a first arrival is at night roughly half the time (playtest:
-     * "every world is dark"). Rewind/advance the clock of a never-ticked Age so a light-giving celestial just rose;
-     * Ages without any light source (dark sun) are left alone - they are meant to be dark.
+     * A new Age starts at a random point of its day/night cycle (seeded by the Age, so it is reproducible): the
+     * celestials already carry random phases, and the clock is offset too so a fresh Age can be met at any hour.
+     * The offset is never 0 so "never ticked" stays distinguishable from "started at midnight".
      */
-    private static void startInTheMorning(AgeController controller, AgeData data) {
-        boolean anyLight = controller.celestials().stream().anyMatch(c -> c.providesLight());
-        if (!anyLight) return;
-        long toSunrise = controller.timeToSunrise(0L);
-        if (toSunrise == Long.MAX_VALUE || toSunrise < 0) return;
-        data.setWorldTime(toSunrise + MORNING_OFFSET_TICKS);
+    private static void startAtRandomTime(AgeData data) {
+        long start = 1L + new Random(data.seed() ^ 0x5A17C10CL).nextLong(START_TIME_SPAN - 1);
+        data.setWorldTime(start);
         data.markSaveNeeded();
     }
 
@@ -82,7 +80,7 @@ public final class AgeTicker {
             state = new State();
             STATES.put(level.dimension(), state);
             if (data.worldTime() == 0L) {
-                startInTheMorning(controller, data);
+                startAtRandomTime(data);
                 state.ticksSinceSync = RESEND_TICKS_IDLE; // push the new clock to anyone already inside
             }
             float angle = controller.celestialAngle(data.worldTime(), 0f);

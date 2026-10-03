@@ -34,9 +34,10 @@ import java.util.Set;
  * quick visual regression checks (docs/TESTING.md). Layout (player looks north, x grows to the right):
  *
  * <pre>
- *   row z-9 : crystal portal (3x3 ring + receptacle + new Age book)   star fissure 2x2
+ *   row z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | ink pool 3x3 | star fissure 2x2 | item frames
  *   row z-6 : writing desk | bookstand+book | lectern+book | ink mixer | book binder | link modifier
- *   row z-3 : ink pool 3x3 (1 deep)       decay blocks (one of each type)        crystal column
+ *   row z-3 : decay blocks (one of each type)        crystal column
+ * The viewer stands on the ground (the pad replaces the surface, nothing floats) 6 blocks south of the pad.
  * </pre>
  */
 public final class DebugScene {
@@ -51,7 +52,7 @@ public final class DebugScene {
     /** Elements of the scene a close-up can target: offset of the element from the origin. */
     public enum Element {
         DESK(1.5, 0, -6, 180f, 35f), BOOKSTAND(5, 0, -6, 180f, 35f), LECTERN(8, 0, -6, 180f, 35f), INK_MIXER(11, 0, -6, 180f, 35f),
-        BOOK_BINDER(14, 0, -6, 180f, 35f), LINK_MODIFIER(17, 0, -6, 180f, 35f), PORTAL(5, 1, -9, 180f, 10f), INK(2, -1, -3, 180f, 50f),
+        BOOK_BINDER(14, 0, -6, 180f, 35f), LINK_MODIFIER(17, 0, -6, 180f, 35f), PORTAL(5, 1, -9, 180f, 10f), INK(9, -1, -9, 180f, 50f),
         FISSURE(12.5, -1, -9.5, 180f, 45f), DECAY(12, 0, -3, 180f, 30f), PAGES(18.5, 0.5, -9, 180f, 15f);
 
         public final double dx, dy, dz;
@@ -135,12 +136,7 @@ public final class DebugScene {
             }
         }
 
-        // Row A (z0-3): ink pool, decay blocks, crystal column.
-        for (int dx = 1; dx <= 3; dx++) {
-            for (int dz = 2; dz <= 4; dz++) {
-                level.setBlock(new BlockPos(x0 + dx, y - 1, z0 - dz), ModBlocks.BLACK_INK.get().defaultBlockState(), 3);
-            }
-        }
+        // Row A (z0-3): decay blocks, crystal column.
         int dx = 6;
         for (DecayType type : DecayType.values()) {
             level.setBlock(new BlockPos(x0 + dx, y, z0 - 3), ModBlocks.decay(type).get().defaultBlockState(), 3);
@@ -177,9 +173,17 @@ public final class DebugScene {
                 level.setBlock(new BlockPos(px + fx, y + fy, z0 - 9), ModBlocks.CRYSTAL.get().defaultBlockState(), 3);
             }
         }
-        BlockPos receptacle = new BlockPos(px + 1, y + 5, z0 - 9);
-        level.setBlock(receptacle, ModBlocks.BOOK_RECEPTACLE.get().defaultBlockState().setValue(BookReceptacleBlock.ROTATION, Direction.UP), 3);
+        // Receptacle on the front (south) face of the left pillar at player height, so it can be used from the ground.
+        BlockPos receptacle = new BlockPos(px, y + 1, z0 - 8);
+        level.setBlock(receptacle, ModBlocks.BOOK_RECEPTACLE.get().defaultBlockState().setValue(BookReceptacleBlock.ROTATION, Direction.SOUTH), 3);
         putBook(level, receptacle, descriptiveBook(server, "Portal Scene")); // fires the portal
+
+        // Ink pool (1 deep, sunk into the pad) between the portal and the star fissure.
+        for (int ix = 8; ix <= 10; ix++) {
+            for (int iz = 8; iz <= 10; iz++) {
+                level.setBlock(new BlockPos(x0 + ix, y - 1, z0 - iz), ModBlocks.BLACK_INK.get().defaultBlockState(), 3);
+            }
+        }
 
         for (int fx = 0; fx < 2; fx++) {
             for (int fz = 0; fz < 2; fz++) {
@@ -204,12 +208,16 @@ public final class DebugScene {
             level.addFreshEntity(frame);
         }
 
-        // Viewer: centred, two blocks in front of the pad, looking north and slightly down.
-        BlockPos view = new BlockPos(x0 + WIDTH / 2, y + 2, z0 + 6);
+        // Viewer: centred, six blocks in front of the pad, standing on the ground (a 3x3 stone patch replaces the
+        // surface block under the feet; nothing floats) looking north and slightly down.
+        BlockPos view = new BlockPos(x0 + WIDTH / 2, y, z0 + 6);
         for (int vx = -1; vx <= 1; vx++) {
-            for (int vz = -1; vz <= 1; vz++) level.setBlock(view.offset(vx, -1, vz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+            for (int vz = -1; vz <= 1; vz++) {
+                level.setBlock(view.offset(vx, -1, vz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+                for (int vy = 0; vy < 3; vy++) level.setBlock(view.offset(vx, vy, vz), Blocks.AIR.defaultBlockState(), 2);
+            }
         }
-        viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 18f, true);
+        viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 12f, true);
         ORIGINS.put(level.dimension(), origin);
         Mystcraft.LOGGER.info("[scene] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
                 origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString() + " (2x3)");

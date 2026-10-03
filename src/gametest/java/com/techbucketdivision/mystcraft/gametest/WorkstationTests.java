@@ -181,6 +181,43 @@ public class WorkstationTests {
         helper.succeed();
     }
 
+    @GameTest(timeoutTicks = 100)
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Writing desk drafts: a written page is a draft, undo refunds ink and paper, taking the target out makes drafts permanent")
+    static void deskDraftsUndoAndCommit(ExtendedGameTestHelper helper) {
+        WritingDeskBlockEntity desk = placeDesk(helper);
+        var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        var symbol = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.all().iterator().next();
+        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
+
+        // folder target + paper: writing appends a draft page
+        ItemStack folder = com.techbucketdivision.mystcraft.item.FolderItem.create("Drafts", java.util.List.of());
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, folder);
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(Items.PAPER, 3));
+        desk.writeSymbol(player, symbol);
+        helper.assertValueEqual(desk.getDrafts().size(), 1, "one draft after writing");
+        helper.assertTrue(desk.isDraft(0), "the new page is a draft");
+        helper.assertValueEqual(desk.getInkAmount(), 950, "ink used");
+        helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 2, "paper used");
+
+        // undo: page gone, ink and paper back
+        helper.assertTrue(desk.undoLastDraft(player), "undo succeeds");
+        helper.assertValueEqual(desk.getDrafts().size(), 0, "no drafts after undo");
+        helper.assertValueEqual(desk.getInkAmount(), 1000, "ink refunded");
+        helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 3, "paper refunded");
+        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        helper.assertTrue(pages.isEmpty(), "folder is empty again (got " + pages + ")");
+
+        // write again, take the folder out: the draft is committed on the next tick
+        desk.writeSymbol(player, symbol);
+        helper.assertValueEqual(desk.getDrafts().size(), 1, "draft written again");
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, ItemStack.EMPTY);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertValueEqual(desk.getDrafts().size(), 0, "drafts committed once the target left the slot"))
+                .thenExecute(() -> helper.assertFalse(desk.undoLastDraft(player), "nothing left to undo"))
+                .thenSucceed();
+    }
+
     private static WritingDeskBlockEntity placeDesk(ExtendedGameTestHelper helper) {
         var head = ModBlocks.WRITING_DESK.get().defaultBlockState().setValue(WritingDeskBlock.FACING, Direction.EAST);
         helper.setBlock(0, 1, 1, head);

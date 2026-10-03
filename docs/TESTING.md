@@ -57,7 +57,7 @@ Debug commands (OP, also used by the client smoke):
 
 | Command                                                                   | Effect                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/myst-scene`                                                             | builds the showcase in front of you: writing desk, bookstand + book, lectern + book, ink mixer, book binder, link modifier, ink pool, every decay block, a crystal column, a powered crystal portal, star fissure blocks; teleports you to the viewpoint |
+| `/myst-scene`                                                             | builds the showcase in front of you: writing desk, bookstand + book, lectern + book, ink mixer, book binder, link modifier, every decay block, a crystal column, a powered crystal portal (receptacle on the front at eye height), an ink pool between the portal and the star fissure, item frames; puts you on the ground south of the pad (nothing floats) |
 | `/myst-scene closeup <element>`, `/myst-scene open <element>`, `/myst-scene use <item>` | teleport to one scene element, right-click it (opens its screen), or put an item in hand and use it (`linking_book`, `descriptive_book`, `folder`, `notebook`, `current_age_book`) |
 | `/myst-visit [name]`                                                      | creates a new Age and links you into it through the normal link path (spawn search, ground snap, platform); gives you the bound Descriptive Book                                                                                                         |
 | `/myst-create [name]`, `/myst-agebook [dim]`, `/tpx`, `/myst-time set day | night`,` /myst-twi`,` /myst-spawnmeteor`,` /myst-dbg`                                                                                                                                                                                                    |
@@ -112,8 +112,9 @@ block in front of you), then play through the mechanics below. Report one line p
 ### 1. Pages and ink (Ink Mixer)
 
 - [ ] Fill the mixer: ink vial or Bucket of Black Ink into the **Ink in** slot; the basin shows ink, the emptied container appears in **Out**.
-- [ ] Hover the basin: tooltip lists the usable ingredients with their effects and the current link effects; hold an ingredient (e.g. feather, gunpowder, gold nugget) over it: tooltip says what it adds (or that it has no effect); click adds it, the basin colour changes.
-- [ ] Paper in the **Paper** slot produces a Link Panel page in the output slot; the panel page carries the mixed effects (hover it).
+- [ ] Hover the basin: tooltip lists the usable ingredients ("one item each") with the effect each switches on, and the effects currently in the ink (no percentages - effects are on or off); hold an ingredient (e.g. feather, gunpowder, gold nugget, lead) over it: tooltip says what it adds, "(already in the ink)" or that it has no effect.
+- [ ] Click the basin with a stack of ingredients: exactly one item is used per click; a second click with the same effect uses nothing. Black dye clears every effect. Refilling the ink after a page was made starts with no effects.
+- [ ] Paper in the **Paper** slot produces a Link Panel page in the output slot; the panel page carries exactly the effects that were in the ink (hover it).
 - [ ] Pour a bucket of ink into the world: it forms a pool you can swim in and climb out of.
 - [ ] Right-click a still (source) ink block with an empty bucket: you get a Black Ink Bucket and the block is gone; with a glass bottle: you get an Ink Vial. Flowing (non-source) ink cannot be scooped. Both containers work in the desk and mixer afterwards.
 
@@ -123,6 +124,8 @@ block in front of you), then play through the mechanics below. Report one line p
 - [ ] Put paper, an ink container and a blank Descriptive Book (from the binder) in the slots; click symbols: pages are written into the book (paper and ink are consumed; ink well level drops).
 - [ ] Hover a symbol on the surface: the tooltip ends with what a click does ("Click: write a copy…" when ink + target are present, otherwise "Click: take this page" plus what is missing).
 - [ ] Shift-click a symbol takes one page out of the notebook; Ctrl+Shift-click takes the whole stack; right-click also writes a copy. With no ink or target, a plain click takes the page.
+- [ ] Drafts: a page written here shows in grey ("draft - not yet permanent" in the book view; washed-out tile in a folder's strip) and **Undo last page** appears under the name field. Undo removes the page (books: back to a blank page) and refunds the paper and ink. Taking the book/folder out of the desk makes the drafts permanent (Undo disappears).
+- [ ] Put a bound Descriptive Book in a notebook tab: its symbol pages appear on the surface and can be copied onto new pages (into another book / folder as target).
 - [ ] Rename the book in the name field; the title shows on the item and later on lecterns.
 - [ ] Empty slots show faded example items and a tooltip saying what goes there; the empty surface and target area explain themselves.
 
@@ -134,20 +137,23 @@ block in front of you), then play through the mechanics below. Report one line p
 ### 4. Linking
 
 - [ ] Right-click an unused Descriptive Book: you arrive in a new Age standing on a 3x3 cobblestone pad with head room, never floating or buried. Repeat for 5 Ages (`/myst-visit` is a shortcut).
-- [ ] Linking Book (right-click an Unlinked Book where you stand): returns you to that exact spot; the book stays behind unless it has the Following effect.
-- [ ] Open a book: the link panel shows a photo of the destination (several photos cycle after repeated visits); hovering shows the Age name; unvisited Ages show the plain dark panel.
+- [ ] After the first visit the book carries a page for every symbol of the Age (the ones you wrote first, then everything the grammar added - terrain, biomes, celestials, dangerous ones too); the page count in the book footer grew, `Bound descriptive book ... pages added` is in the log.
+- [ ] Linking Book (right-click an Unlinked Book where you stand): returns you to that exact spot; the book stays behind unless it has the Following effect (Link Modifier check box, or a lead in the ink mixer), in which case it comes along.
+- [ ] Open a book: the link panel cycles through four level photos taken from the arrival point looking north, east, south and west (the view turns for a few ticks right after arriving - that is the camera); unvisited Ages show the plain dark panel.
+- [ ] Page through a book: each symbol page shows the glyph on the right and the symbol's name plus a one-line description of what it does on the left; hovering a page item anywhere shows the same description.
 - [ ] Link Modifier: insert a book; title/seed editable; each effect is a labelled check box with a tooltip; **Mark Age dead** asks for confirmation and cannot be undone.
 - [ ] Linking while riding is refused with a `[link] refused ...` line; dismount and retry works.
 
 ### 5. Books in the world
 
-- [ ] Bookstand and Lectern: place a book by right-click; the book lies on the stand / slope, title label hovers above (if server labels are on); right-click with an empty hand links you. Models look right from all sides and for all facings; the lectern's low edge faces you when placed.
+- [ ] Bookstand and Lectern: place a book by right-click; the book lies **open** (descriptive = gold-brown cover, linking = green) flat on the bookstand and along the lectern's slope with the spine running away from the reader; a page item still lies flat as its icon. Title label hovers above (if server labels are on); right-click with an empty hand links you. Models look right from all sides and for all facings; the lectern's low edge faces you when placed.
+- [ ] Writing desk block: notebooks in the tabs appear as book spines standing in the backboard shelf (one per notebook, up to 7; blue = portfolio, tan = folder, brown = notebook); ink in the tank shows as an inkwell on the desk top whose fill follows the level.
 - [ ] Book receptacle + crystal frame: book in the receptacle lights the portal; walking through links you; breaking a frame crystal or removing the book collapses the portal (no crumble effect: crystal is plain glass-like block).
 - [ ] Star fissure (Age with the Star Fissure symbol, or the scene): the thin starry plane at bedrock level; falling onto it sends you home; water flowing onto it does not remove it.
 
 ### 6. Ages: sky, time, weather, colours
 
-- [ ] A new Age starts in daylight (unless it has no light-giving sun). Sun/moon move at a sensible speed; `/myst-time set night` darkens sky and world lighting (stars, mobs); `/myst-time set day` restores it. Time survives leaving and re-entering the Age and reopening the world.
+- [ ] New Ages start at different times of day (some in daylight, some at night; the `[age] … ticking: time` log line shows the start tick). Sun/moon move at a sensible speed; `/myst-time set night` darkens sky and world lighting (stars, mobs); `/myst-time set day` restores it. Time survives leaving and re-entering the Age and reopening the world.
 - [ ] Sunrise/sunset tint the sky and fog smoothly, no flicker.
 - [ ] Weather symbols (rain/snow/storm): precipitation and thunder in the Age; `/myst-toggledownfall` toggles it.
 - [ ] Colour symbols (grass/foliage/water/sky/fog): the Age's blocks and sky take the colour.

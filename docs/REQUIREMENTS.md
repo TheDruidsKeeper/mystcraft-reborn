@@ -105,6 +105,8 @@ Common behaviour:
 
 #### 2.3.1 Descriptive Book (`ItemAgebook`)
 
+> **Reborn revisions:** on the first link the Age is built once immediately (so controller fallbacks are chosen) and a symbol page is appended to the book for every symbol of the final Age list the author did not write (multiset difference, Age order; `DescriptiveBookItem.writeGeneratedSymbols`) - the book then describes the whole Age, dangerous symbols included; the Age keeps the same page list. New Ages start at a seeded random point of their day (`AgeTicker.startAtRandomTime`, first ten days).
+
 Extra NBT: `Pages` (list of page-item NBT), `Authors` (list of strings), `Props.Seed` (string long).
 
 | Behaviour | Detail |
@@ -229,6 +231,8 @@ Fluid: `myst.ink.black` (`fluid.myst.ink.black` = "Black Ink"), still texture `b
 
 ### 3.2 Ink Mixer (`BlockInkMixer` / `TileEntityInkMixer`)
 
+> **Reborn revision (deterministic ink):** the basin holds a *set* of link effects instead of probabilities. Clicking the basin with an ingredient consumes exactly one item and switches on every effect the ingredient lists (an effect already present costs nothing); black dye clears the set; filling the basin with fresh ink clears it too. The Link Panel page gets exactly the effects in the set - no roll. The ingredient table in §7.2 still gives the effect list per item (the numbers are kept for reference only). Reborn adds Lead -> Following.
+
 * State: `facing` (horizontal, from placer). Non-opaque cube, model `inkwell_model` (+ TESR `ModelInkMixer` for the pages on it).
 * Right-click → GUI `INK_MIXER`.
 * Break → drops inventory contents.
@@ -247,6 +251,8 @@ Fluid: `myst.ink.black` (`fluid.myst.ink.black` = "Black Ink"), still texture `b
 * Craft result: Descriptive Book (`ItemAgebook.create(book, player, pages, title)`); on take, pages cleared, title cleared, cover shrinks by 1.
 
 ### 3.4 Book displays (`BlockBookDisplay` base: Bookstand, Lectern)
+
+> **Reborn revision:** a Descriptive or Linking Book on a stand is rendered as an open book (vanilla `BookModel`, legacy `agebook.png` / `linkbook.png` covers) - flat on the bookstand, along the lectern's slope with the spine running away from the reader; non-book items still lie flat as their icon.
 
 Common right-click logic (server):
 * If tile has no book: if held item acceptable → move 1 into the tile; else open GUI `BOOK_DISPLAY`.
@@ -819,6 +825,8 @@ Flag constants: `Intra Linking`, `Intra Linking Only`, `Relative`, `Disarm`, `Ma
 
 ### 7.2 Link properties (ink effects) and their meaning
 
+> **Reborn revision:** Following is inkable (gold) so the Link Modifier lists it and the mixer can set it (Lead).
+
 | Property | Colour (ink gradient) | Gameplay |
 |---|---|---|
 | Intra Linking | (0,1,0) green | Allows linking within the same dimension. |
@@ -911,6 +919,8 @@ Shift-click routing uses `SlotCollection` chains: internal slots → main invent
 
 ### 8.1 Writing Desk (`ContainerWritingDesk` / `GuiWritingDesk`)
 
+> **Reborn revisions:** (1) a plain click on a surface symbol writes a copy whenever the desk can write (ink + target/paper); shift-click takes the page (Ctrl+Shift the stack). (2) **Drafts:** pages written at the desk are recorded as drafts (`WritingDeskBlockEntity.Draft` = page index + paper used) and drawn in grey / washed out; **Undo last page** reverts the newest draft (book page back to blank, folder page removed, single page back to paper) and refunds its ink and paper; drafts become permanent when the target leaves the slot (checked every tick), when pages are moved by hand in the strip, or when the desk is broken. (3) A bound Descriptive Book in a notebook tab exposes its pages on the surface so its symbols can be copied. (4) The desk block renders notebook spines in the backboard shelf (up to 7, tinted by kind) and an inkwell on the desk top showing the tank level.
+
 Layout constants: left panel width 228, main window 176×166 shifted by (233, 20); button row 18 px.
 
 Slots (indices): 0–3 notebook tab slots (tab inventory, indices `firstslot..firstslot+3`, stack limit 1, at x=37, y=14+i·37+20); 4 target slot (main 0, limit 1) at (241, 80); 5 paper (main 1) at (241, 28); 6 ink container in (main 2) at (385, 28); 7 container out (main 3) at (385, 80); 8–34 player inventory; 35–43 hotbar.
@@ -943,6 +953,8 @@ Elements:
 * "kill" (120,32) arms; "confirmkill" (140,32, red) → `RecycleDim` (mark dead). Shown only for Descriptive Books; `LinkDead` state synced.
 
 ### 8.5 Book GUI (`GuiBook` / `GuiElementBook` / `ContainerBook`) — used for held books, stands, lecterns, receptacles, book entities
+
+> **Reborn revisions:** symbol pages show the symbol's name and a one-line description (`symbol.<ns>.<id>.desc`, `AgeSymbol.description()`) on the left page, the glyph on the right; the same description is appended to page item tooltips. The link panel shows four level photographs taken from the arrival point (north, east, south, west, in that order) as a slideshow; a new arrival replaces the set.
 
 * Book element is 327×199 (scaled): cover textures `bookui_cover.png`; Descriptive Books get gold borders. Page 0 (index 0) shows: optional book slot at (40,20) (only for tile/entity containers), title at (40,40), authors at half scale from (50,50) stepping 5, and the **link panel** at (173,20) 132×83: gradient dark-blue→teal (`0xFF000044→0xFF006666`) if the target dimension is registered/visited, else black; then registered `ILinkPanelEffect`s (Disarm: red lightning flashes every 3–8 s; LookingGlass: live world view with shaders when installed); then a grey overlay (`0xBB888888`) if the link is not permitted. Clicking the panel on page 0 sends `Link`. Pages > 0 show a symbol page (glyph at (171,25) size 140, tooltip name) or the link-panel page. Click left half / right half or arrow keys (or A/D binds) to page. Footer `current/total` at (165,185).
 * When the container has an "other inventory" and no book, the GUI shows a plain single-slot 176×166 inventory screen (`single_slot.png`) so a book can be inserted; when a book is present only the book slot (41,21) exists (player inventory hidden).

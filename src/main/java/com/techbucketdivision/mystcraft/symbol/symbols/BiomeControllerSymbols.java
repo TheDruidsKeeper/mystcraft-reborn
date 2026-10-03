@@ -44,8 +44,8 @@ public final class BiomeControllerSymbols {
 
         @Override
         public void registerLogic(AgeDirector director, long seed) {
-            if (director.isProfiling()) {
-                director.registerInterface(Markers.BIOME_CONTROLLER);
+            if (director.isProfiling() || director.isClientSide()) {
+                director.registerInterface(Markers.BIOME_CONTROLLER); // client has no multi-noise parameter lists
                 return;
             }
             director.registerInterface(new NativeBiomeController(director.getSeed(), director.registries()));

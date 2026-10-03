@@ -1,10 +1,13 @@
 package com.techbucketdivision.mystcraft.linking;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
+import com.techbucketdivision.mystcraft.age.AgeController;
+import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.age.AgeManager;
 import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
 import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
+import com.techbucketdivision.mystcraft.world.AgeSpawn;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -49,7 +52,7 @@ public final class LinkController {
 
         BlockPos spawn = info.spawn().orElse(null);
         if (spawn == null) {
-            spawn = destination.getRespawnData().pos();
+            spawn = defaultSpawn(destination);
             info = info.withSpawn(spawn);
         }
         float yaw = info.yaw();
@@ -61,6 +64,24 @@ public final class LinkController {
         info = info.withSpawn(spawn).withYaw(yaw);
 
         return teleportEntity(destination, entity, spawn, yaw, info) != null;
+    }
+
+    /**
+     * Default arrival point of a level. For Ages this is {@link AgeSpawn#findSpawn} (determined and stored on first
+     * use), snapped onto the ground by {@link AgeSpawn#snapToGround}. {@code ServerLevel#getRespawnData()} is NOT
+     * usable here: in 26.1 it delegates to the server-wide (overworld) respawn data, which put Age arrivals at the
+     * overworld spawn coordinates - floating above or buried in unrelated terrain.
+     */
+    public static BlockPos defaultSpawn(ServerLevel destination) {
+        if (AgeManager.isAge(destination.dimension())) {
+            AgeController controller = AgeControllers.server(destination);
+            if (controller != null) {
+                BlockPos spawn = AgeSpawn.findSpawn(destination, controller);
+                return AgeSpawn.snapToGround(destination, spawn);
+            }
+            Mystcraft.LOGGER.warn("[link] no controller for Age level {}; falling back to the shared spawn", destination.dimension().identifier());
+        }
+        return destination.getRespawnData().pos();
     }
 
     /** Loads (or creates, for Ages) the destination level. */

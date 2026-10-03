@@ -8,6 +8,7 @@ import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -26,17 +27,24 @@ import java.util.stream.Stream;
  */
 public final class AgeBiomeSource extends BiomeSource {
     public static final Codec<UUID> UUID_STRING_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+    /**
+     * The plains fallback is captured from the decoding {@code RegistryOps}, so a level stem deserialised without a
+     * running server (WorldOpenFlows validating level.dat on the client before the integrated server exists) still has
+     * a biome to report; previously this threw "AgeBiomeSource used without a server" and aborted the world load.
+     */
     public static final MapCodec<AgeBiomeSource> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            UUID_STRING_CODEC.fieldOf("age_id").forGetter(s -> s.ageId)
+            UUID_STRING_CODEC.fieldOf("age_id").forGetter(s -> s.ageId),
+            RegistryOps.retrieveElement(Biomes.PLAINS)
     ).apply(i, AgeBiomeSource::new));
 
     private final UUID ageId;
     private volatile @Nullable AgeController controller;
     private volatile @Nullable Holder<Biome> fallback;
 
-    public AgeBiomeSource(UUID ageId) {
+    public AgeBiomeSource(UUID ageId, @Nullable Holder<Biome> fallback) {
         super();
         this.ageId = ageId;
+        this.fallback = fallback;
     }
 
     public UUID ageId() {
@@ -66,7 +74,7 @@ public final class AgeBiomeSource extends BiomeSource {
         Holder<Biome> f = fallback;
         if (f != null) return f;
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null) throw new IllegalStateException("AgeBiomeSource used without a server and without a controller");
+        if (server == null) throw new IllegalStateException("AgeBiomeSource " + ageId + " used without a server, a controller or a fallback biome");
         f = server.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
         fallback = f;
         return f;

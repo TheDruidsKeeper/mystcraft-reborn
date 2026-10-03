@@ -102,4 +102,13 @@ public interface AgeDirector {
     default boolean isProfiling() {
         return false;
     }
+
+    /**
+     * {@code true} for the client-side mirror built from synced data. World-generation logic (biome controllers,
+     * terrain, populators) must not be constructed there: the client lacks server-only registries such as
+     * {@code worldgen/multi_noise_biome_source_parameter_list}.
+     */
+    default boolean isClientSide() {
+        return false;
+    }
 }

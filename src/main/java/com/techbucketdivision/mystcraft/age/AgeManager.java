@@ -9,6 +9,7 @@ import com.techbucketdivision.mystcraft.world.AgeBiomeSource;
 import com.techbucketdivision.mystcraft.world.AgeChunkGenerator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -59,7 +60,8 @@ public final class AgeManager {
         Holder<DimensionType> type = server.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE)
                 .getOrThrow(AgeDimensionType.AGE);
         return DynamicDimensions.getOrCreateLevel(server, key, () -> new LevelStem(type,
-                new AgeChunkGenerator(data.uuid(), new AgeBiomeSource(data.uuid())), OptionalLong.of(data.seed())));
+                new AgeChunkGenerator(data.uuid(), new AgeBiomeSource(data.uuid(),
+                        server.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS))), OptionalLong.of(data.seed())));
     }
 
     /** Recreates every live Age's level on server start (no-op for levels vanilla already restored). */

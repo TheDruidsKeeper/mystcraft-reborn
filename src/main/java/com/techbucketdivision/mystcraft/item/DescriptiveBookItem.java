@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -150,6 +151,12 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         MinecraftServer server = level.getServer();
         if (server != null) checkFirstLink(stack, server);
         super.activate(stack, level, entity);
+    }
+
+    @Override
+    protected void prepareLink(ItemStack stack, Level level) {
+        MinecraftServer server = level.getServer();
+        if (server != null) checkFirstLink(stack, server);
     }
 
     /**

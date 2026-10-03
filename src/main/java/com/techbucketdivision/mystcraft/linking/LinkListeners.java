@@ -1,10 +1,12 @@
 package com.techbucketdivision.mystcraft.linking;
 
+import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.age.AgeManager;
 import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
 import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
 import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
+import com.techbucketdivision.mystcraft.world.AgeSpawn;
 import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
 import com.techbucketdivision.mystcraft.item.LinkingBookItem;
 import com.techbucketdivision.mystcraft.network.LinkParticlesPayload;
@@ -31,6 +33,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -57,12 +61,30 @@ public final class LinkListeners {
         NeoForge.EVENT_BUS.addListener(LinkListeners::onEndEffects);
     }
 
-    /** Posts {@link LinkEvent.Allow}; {@code false} when any listener cancelled it. */
+    /**
+     * Posts {@link LinkEvent.Allow}; {@code false} when any listener cancelled it. Refusals are logged once per entity
+     * and reason (portal collisions re-try every tick), so a "walked through the portal, nothing happened" report can
+     * be diagnosed from the log: {@code [link] refused <entity> -> <dimension>: <reason>}.
+     */
     public static boolean isLinkPermitted(ServerLevel origin, Entity entity, LinkInfo info) {
         LinkEvent.Allow event = new LinkEvent.Allow(origin, entity, info);
         NeoForge.EVENT_BUS.post(event);
-        return !event.isCanceled();
+        if (!event.isCanceled()) return true;
+        String reason = event.getReason() == null ? "cancelled by a listener" : event.getReason();
+        String key = entity.getUUID() + "|" + reason;
+        long now = origin.getGameTime();
+        Long last = REFUSAL_LOG.get(key);
+        if (last == null || now - last > REFUSAL_LOG_INTERVAL) {
+            REFUSAL_LOG.put(key, now);
+            if (REFUSAL_LOG.size() > 256) REFUSAL_LOG.clear();
+            Mystcraft.LOGGER.info("[link] refused {} -> {}: {}", entity.getName().getString(),
+                    info.dimension().map(k -> k.identifier().toString()).orElse("<unbound>"), reason);
+        }
+        return false;
     }
+
+    private static final Map<String, Long> REFUSAL_LOG = new HashMap<>();
+    private static final long REFUSAL_LOG_INTERVAL = 100; // ticks
 
     // --- Allow -------------------------------------------------------------------------------------------------
 
@@ -74,36 +96,48 @@ public final class LinkListeners {
 
         ResourceKey<Level> target = info.dimension().orElse(null);
         if (target == null || server == null) {
-            event.setCanceled(true);
+            event.cancel("book is not bound to a dimension");
             return;
         }
-        if (!entity.isAlive() || entity.level() != origin || entity.isVehicle()) {
-            event.setCanceled(true);
+        if (!entity.isAlive()) {
+            event.cancel("entity is dead");
+            return;
+        }
+        if (entity.level() != origin) {
+            event.cancel("entity is in another level");
+            return;
+        }
+        if (entity.isVehicle()) {
+            event.cancel("entity is being ridden (passengers link with their vehicle)");
             return;
         }
         boolean sameDimension = origin.dimension().equals(target);
         if (sameDimension && !info.hasFlag(LinkProperty.INTRA_LINKING) && !info.hasFlag(LinkProperty.INTRA_LINKING_ONLY)) {
-            event.setCanceled(true);
+            event.cancel("already in the target dimension and the book has no Intra-Linking");
             return;
         }
         if (!sameDimension && info.hasFlag(LinkProperty.INTRA_LINKING_ONLY)) {
-            event.setCanceled(true);
+            event.cancel("book is intra-linking only");
             return;
         }
         if (AgeManager.isAge(target)) {
             AgeData data = AgeManager.get(server, target);
-            if (data == null || data.dead()) {
-                event.setCanceled(true);
+            if (data == null) {
+                event.cancel("target Age has no data (deleted world data?)");
+                return;
+            }
+            if (data.dead()) {
+                event.cancel("target Age is dead");
                 return;
             }
             UUID expected = info.targetUuid().orElse(null);
             if (expected != null && !expected.equals(data.uuid())) {
-                event.setCanceled(true);
+                event.cancel("book Age uuid " + expected + " does not match dimension Age " + data.uuid());
                 return;
             }
         }
         if (info.hasFlag(LinkProperty.DISARM) && (entity instanceof ItemEntity || entity instanceof LinkbookEntity)) {
-            event.setCanceled(true);
+            event.cancel("Disarm books do not link items");
         }
     }
 
@@ -116,8 +150,10 @@ public final class LinkListeners {
         ResourceKey<Level> target = info.dimension().orElse(null);
         if (server == null || target == null) return;
         LinkPermissions permissions = LinkPermissions.get(server);
-        if (!permissions.canLeave(player, event.getOrigin().dimension()) || !permissions.canEnter(player, target)) {
-            event.setCanceled(true);
+        if (!permissions.canLeave(player, event.getOrigin().dimension())) {
+            event.cancel("player may not leave " + event.getOrigin().dimension().identifier());
+        } else if (!permissions.canEnter(player, target)) {
+            event.cancel("player may not enter " + target.identifier());
         }
     }
 
@@ -235,11 +271,22 @@ public final class LinkListeners {
     }
 
     /** Generate Platform: a stone block under the spawn when the two blocks below are air. */
+    /**
+     * Arrival platform. Linking into an Age (any book) always leaves the traveller on a 3x3 cobblestone platform:
+     * {@link AgeSpawn#ensureArrivalPlatform} fills only non-solid blocks under the feet and clears head room, so a
+     * natural landing is untouched apart from the pad, and a sky / lava / cave arrival is survivable. Non-Age
+     * destinations keep the original one-block stone platform when {@code GENERATE_PLATFORM} is set.
+     */
     private static void onEndPlatform(LinkEvent.End event) {
         LinkInfo info = event.getInfo();
         BlockPos spawn = info.spawn().orElse(null);
-        if (spawn == null || !info.hasFlag(LinkProperty.GENERATE_PLATFORM)) return;
+        if (spawn == null) return;
         ServerLevel level = event.getDestination();
+        if (AgeManager.isAge(level.dimension())) {
+            AgeSpawn.ensureArrivalPlatform(level, spawn);
+            return;
+        }
+        if (!info.hasFlag(LinkProperty.GENERATE_PLATFORM)) return;
         if (level.isEmptyBlock(spawn.below()) && level.isEmptyBlock(spawn.below(2))) {
             level.setBlockAndUpdate(spawn.below(), Blocks.STONE.defaultBlockState());
         }

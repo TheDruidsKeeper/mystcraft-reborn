@@ -24,6 +24,9 @@ public final class ModFluids {
             .descriptionId("fluid_type.mystcraft.black_ink")
             .density(1100).viscosity(1200).temperature(300)
             .canSwim(true).canDrown(true).canExtinguish(true).canConvertToSource(false).supportsBoating(false)
+            // Without this NeoForge applies NO movement logic to a non-vanilla fluid (LivingEntity.travelInFluid only
+            // handles water/lava unless the type is water-like or overrides move()), so entities got stuck in ink.
+            .isWaterLike(true)
             .rarity(Rarity.COMMON)
             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)));

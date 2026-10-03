@@ -31,10 +31,22 @@ public abstract class LinkEvent extends Event {
         return info;
     }
 
-    /** Cancel to refuse the link. */
+    /** Cancel to refuse the link. Prefer {@link #cancel(String)} so the refusal reason reaches the log. */
     public static final class Allow extends LinkEvent implements ICancellableEvent {
+        private @Nullable String reason;
+
         public Allow(ServerLevel origin, Entity entity, LinkInfo info) {
             super(origin, entity, info);
+        }
+
+        /** Cancels the link and records why (logged by {@code LinkListeners.isLinkPermitted}). */
+        public void cancel(String reason) {
+            this.reason = reason;
+            setCanceled(true);
+        }
+
+        public @Nullable String getReason() {
+            return reason;
         }
     }
 

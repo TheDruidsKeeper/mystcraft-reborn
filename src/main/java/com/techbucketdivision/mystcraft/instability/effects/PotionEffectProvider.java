@@ -49,6 +49,10 @@ public final class PotionEffectProvider implements InstabilityProvider {
             if (!(entity instanceof LivingEntity living)) return;
             if (enemiesOnly && entity instanceof Player) return;
             if (!global && !world.canSeeSky(entity.blockPosition())) return;
+            // Only (re)apply when the effect is absent, weaker, or past half its duration: re-adding every chunk tick
+            // resets the timer each tick, which spams effect-update packets and makes the HUD timer flicker.
+            MobEffectInstance existing = living.getEffect(effect);
+            if (existing != null && existing.getAmplifier() >= amplifier && existing.getDuration() > duration / 2) return;
             living.addEffect(new MobEffectInstance(effect, duration, amplifier));
         }
     }

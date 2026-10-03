@@ -57,6 +57,12 @@ public class LinkPortalBlock extends Block {
         return true;
     }
 
+    /** Portal blocks merge into one translucent volume: faces shared with another portal block are not drawn. */
+    @Override
+    protected boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {
+        return neighborState.is(this) || super.skipRendering(state, neighborState, direction);
+    }
+
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType type) {
         return false;
@@ -130,6 +136,7 @@ public class LinkPortalBlock extends Block {
         ItemStack book = receptacle.getBook();
         if (book.getItem() instanceof ItemBehaviours.PortalActivator activator) {
             activator.onPortalCollision(book, level, entity, pos);
+            receptacle.setChanged(); // a Descriptive Book binds to its Age on first portal use
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.techbucketdivision.mystcraft.world.feature;
 
+import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeController;
 import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
@@ -22,22 +23,24 @@ import org.jspecify.annotations.Nullable;
 public final class StarFissurePopulator implements Populator {
     public StarFissurePopulator() {}
 
+    /**
+     * The fissure always generates in chunk (0,0). The spawn chunk is not usable as the anchor: the spawn is
+     * determined by probing heightmaps (which generates the chunk, running this populator) *before*
+     * {@code AgeData.spawn()} is set, so the two could never agree. Instead {@link AgeSpawn} keeps the spawn search
+     * near the origin for Ages that have this populator, matching the original (spawn within ±64 of 0,0).
+     */
     @Override
     public boolean populate(WorldGenLevel level, RandomSource random, int chunkX, int chunkZ, boolean flag) {
-        BlockPos spawn = spawnPos(level);
-        int spawnChunkX = spawn == null ? 0 : spawn.getX() >> 4;
-        int spawnChunkZ = spawn == null ? 0 : spawn.getZ() >> 4;
-        if (chunkX != spawnChunkX || chunkZ != spawnChunkZ) return false;
-        // Kept within ±1 chunk of the spawn chunk (the decoration region's write radius): centred origin + centred rows.
+        if (chunkX != 0 || chunkZ != 0) return false;
+        // Kept within ±1 chunk of the anchor chunk (the decoration region's write radius): centred origin + centred rows.
         int x = (chunkX << 4) + 4 + random.nextInt(8);
         int z = (chunkZ << 4) + 4 + random.nextInt(8);
-        generate(level, random, new BlockPos(x, 0, z));
-        return true;
-    }
-
-    private static @Nullable BlockPos spawnPos(WorldGenLevel level) {
+        BlockPos origin = new BlockPos(x, 0, z);
+        generate(level, random, origin);
         AgeController controller = AgeControllers.server(level.getLevel());
-        return controller == null ? null : controller.ageData().spawn();
+        Mystcraft.LOGGER.info("[worldgen] star fissure generated at {} in Age '{}'", origin.toShortString(),
+                controller == null ? level.getLevel().dimension().identifier() : controller.ageData().name());
+        return true;
     }
 
     private static void generate(WorldGenLevel level, RandomSource random, BlockPos pos) {

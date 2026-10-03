@@ -198,6 +198,7 @@ public abstract class LinkingItem extends Item implements ItemBehaviours.PortalA
     @Override
     public void onPortalCollision(ItemStack stack, Level level, Entity entity, BlockPos portalPos) {
         if (level.isClientSide()) return;
+        prepareLink(stack, level);
         LinkInfo info = getLinkInfo(stack)
                 .withFlag(LinkProperty.MAINTAIN_MOMENTUM, true)
                 .withFlag(LinkProperty.GENERATE_PLATFORM, false)
@@ -205,6 +206,9 @@ public abstract class LinkingItem extends Item implements ItemBehaviours.PortalA
                 .withProp(LinkProperty.PROP_SOUND, SOUND_PORTAL_LINK);
         LinkController.travelEntity(entity, info);
     }
+
+    /** Hook run before any portal link; Descriptive Books bind to a new Age here (as {@code activate} does). */
+    protected void prepareLink(ItemStack stack, Level level) {}
 
     @Override
     public int getPortalColor(ItemStack stack, Level level) {

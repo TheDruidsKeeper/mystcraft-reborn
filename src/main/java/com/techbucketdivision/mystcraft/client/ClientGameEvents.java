@@ -12,6 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.MoonPhase;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
@@ -53,11 +54,14 @@ public final class ClientGameEvents {
         Celestial moon = AgeSkyMath.first(controller, Celestial.Kind.MOON);
         Celestial stars = AgeSkyMath.firstStars(controller);
 
-        sky.sunAngle = AgeSkyMath.angleDegrees(sun, time, partial, angle);
-        sky.moonAngle = AgeSkyMath.angleDegrees(moon, time, partial, angle + 0.5f);
-        sky.starAngle = AgeSkyMath.angleDegrees(stars, time, partial, angle);
+        // SkyRenderState angles are RADIANS: vanilla SkyRenderer.extractRenderState multiplies the degree-valued
+        // SUN_ANGLE/MOON_ANGLE/STAR_ANGLE attributes by PI/180 before storing them. Writing degrees here made the sun
+        // and moon orbit ~57x too fast.
+        sky.sunAngle = AgeSkyMath.angleDegrees(sun, time, partial, angle) * Mth.DEG_TO_RAD;
+        sky.moonAngle = AgeSkyMath.angleDegrees(moon, time, partial, angle + 0.5f) * Mth.DEG_TO_RAD;
+        sky.starAngle = AgeSkyMath.angleDegrees(stars, time, partial, angle) * Mth.DEG_TO_RAD;
         sky.starBrightness = stars == null ? 0f : AgeSkyMath.starBrightness(angle, rain);
-        sky.rainBrightness = 1.0f - rain * 0.5f; // rainBrightness: 1.0 = clear; vanilla dims celestials while raining
+        sky.rainBrightness = 1.0f - rain; // same formula as vanilla SkyRenderer.extractRenderState
         sky.moonPhase = moonPhase(moon == null ? 0 : moon.phase(time));
         sky.sunriseAndSunsetColor = AgeSkyMath.sunriseColor(sun, angle);
 

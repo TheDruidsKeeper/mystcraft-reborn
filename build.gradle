@@ -46,6 +46,8 @@ neoForge {
     runs {
         client {
             client()
+            // Pinned so the Docker client smoke test can pre-seed options.txt and collect screenshots.
+            gameDirectory = project.file('run/client')
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             jvmArgument '-Xmx3G'
         }

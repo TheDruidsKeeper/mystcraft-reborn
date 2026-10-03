@@ -102,9 +102,31 @@ public final class MystcraftCommands {
                 return 1;
             }));
         }
+        LiteralArgumentBuilder<CommandSourceStack> open = Commands.literal("open");
+        for (DebugScene.Element element : DebugScene.Element.values()) {
+            open.then(Commands.literal(element.name().toLowerCase(java.util.Locale.ROOT)).executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();
+                if (!DebugScene.open(level, player, element)) {
+                    ctx.getSource().sendFailure(Component.literal("Nothing to open for " + element + " (run /myst-scene first)"));
+                    return 0;
+                }
+                return 1;
+            }));
+        }
+        LiteralArgumentBuilder<CommandSourceStack> use = Commands.literal("use");
+        for (DebugScene.UsableItem item : DebugScene.UsableItem.values()) {
+            use.then(Commands.literal(item.name().toLowerCase(java.util.Locale.ROOT)).executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();
+                return DebugScene.use(level, player, item) ? 1 : 0;
+            }));
+        }
         return Commands.literal("myst-scene")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(closeup)
+                .then(open)
+                .then(use)
                 .executes(ctx -> {
                     ServerPlayer player = ctx.getSource().getPlayerOrException();
                     ServerLevel level = player.level() instanceof ServerLevel sl ? sl : ctx.getSource().getLevel();

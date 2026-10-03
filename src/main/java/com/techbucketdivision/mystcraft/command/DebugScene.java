@@ -52,7 +52,7 @@ public final class DebugScene {
     public enum Element {
         DESK(1.5, 0, -6, 180f, 35f), BOOKSTAND(5, 0, -6, 180f, 35f), LECTERN(8, 0, -6, 180f, 35f), INK_MIXER(11, 0, -6, 180f, 35f),
         BOOK_BINDER(14, 0, -6, 180f, 35f), LINK_MODIFIER(17, 0, -6, 180f, 35f), PORTAL(5, 1, -9, 180f, 10f), INK(2, -1, -3, 180f, 50f),
-        FISSURE(12.5, -1, -9.5, 180f, 45f), DECAY(12, 0, -3, 180f, 30f);
+        FISSURE(12.5, -1, -9.5, 180f, 45f), DECAY(12, 0, -3, 180f, 30f), PAGES(18.5, 0.5, -9, 180f, 15f);
 
         public final double dx, dy, dz;
         public final float yaw, pitch;
@@ -70,6 +70,56 @@ public final class DebugScene {
         viewer.teleportTo(level, x, y + 2.0, z + 3.0, Set.of(), element.yaw, element.pitch, true);
         Mystcraft.LOGGER.info("[scene] close-up of {} at {}, {}, {}", element, x, y, z);
         return true;
+    }
+
+    /**
+     * Right-clicks the element's block for the player (opens its screen when it has one), exactly as a player would
+     * with an empty hand. Returns false without a scene or when the block did nothing.
+     */
+    public static boolean open(ServerLevel level, ServerPlayer viewer, Element element) {
+        BlockPos origin = ORIGINS.get(level.dimension());
+        if (origin == null) return false;
+        BlockPos pos = new BlockPos((int) Math.floor(origin.getX() + element.dx), (int) Math.floor(origin.getY() + element.dy),
+                (int) Math.floor(origin.getZ() + element.dz));
+        BlockState state = level.getBlockState(pos);
+        net.minecraft.world.phys.BlockHitResult hit = new net.minecraft.world.phys.BlockHitResult(
+                net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, 0, 0.5), Direction.SOUTH, pos, false);
+        net.minecraft.world.InteractionResult result = state.useWithoutItem(level, viewer, hit);
+        Mystcraft.LOGGER.info("[scene] open {} at {} ({}) -> {}", element, pos.toShortString(), state.getBlock(), result);
+        return result.consumesAction();
+    }
+
+    /** Items whose screens the self check opens with {@code /myst-scene use <item>}. */
+    public enum UsableItem { LINKING_BOOK, DESCRIPTIVE_BOOK, FOLDER, NOTEBOOK, CURRENT_AGE_BOOK }
+
+    /** Puts a fresh item of that kind in the player's main hand and uses it (opens its screen). */
+    public static boolean use(ServerLevel level, ServerPlayer viewer, UsableItem kind) {
+        ItemStack stack = switch (kind) {
+            case LINKING_BOOK -> LinkingBookItem.createAt(viewer);
+            case DESCRIPTIVE_BOOK -> descriptiveBook(level.getServer(), "Scene Book");
+            case FOLDER -> {
+                ItemStack folder = new ItemStack(ModItems.COLLATION_FOLDER.get());
+                folder.set(com.techbucketdivision.mystcraft.registry.ModDataComponents.SLOT_PAGES.get(),
+                        com.techbucketdivision.mystcraft.item.component.SlotPages.EMPTY
+                                .with(0, PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")))
+                                .with(1, PageItem.createLinkPanel()));
+                yield folder;
+            }
+            case NOTEBOOK -> new ItemStack(ModItems.SYMBOL_PORTFOLIO.get());
+            case CURRENT_AGE_BOOK -> {
+                // a Descriptive Book of the Age the player stands in (shows the destination picture on its panel)
+                AgeData current = AgeManager.get(level.getServer(), level.dimension());
+                if (current == null) yield descriptiveBook(level.getServer(), "Scene Book");
+                ItemStack book = DescriptiveBookItem.create(viewer, current.pages(), current.name());
+                DescriptiveBookItem.initializeForAge(book, current);
+                yield book;
+            }
+        };
+        viewer.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
+        viewer.inventoryMenu.broadcastChanges(); // the hand item must reach the client before the book menu opens
+        net.minecraft.world.InteractionResult result = stack.use(level, viewer, net.minecraft.world.InteractionHand.MAIN_HAND);
+        Mystcraft.LOGGER.info("[scene] use {} -> {}", kind, result);
+        return result.consumesAction();
     }
 
     /** Builds the scene with its south-west corner at {@code origin} (pad surface = origin.y - 1). */
@@ -135,6 +185,23 @@ public final class DebugScene {
             for (int fz = 0; fz < 2; fz++) {
                 level.setBlock(new BlockPos(x0 + 12 + fx, y - 1, z0 - 9 - fz), ModBlocks.STAR_FISSURE.get().defaultBlockState(), 3);
             }
+        }
+
+        // Row C east end: a wall of item frames showing the item icons that are rendered dynamically (pages, books).
+        List<ItemStack> framed = List.of(
+                PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")),
+                PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_normal")),
+                PageItem.createLinkPanel(),
+                PageItem.createBlankPage(),
+                descriptiveBook(server, "Framed"),
+                LinkingBookItem.createAt(viewer));
+        for (int i = 0; i < framed.size(); i++) {
+            BlockPos wall = new BlockPos(x0 + 16 + i, y + 1, z0 - 10);
+            level.setBlock(wall, Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+            net.minecraft.world.entity.decoration.ItemFrame frame =
+                    new net.minecraft.world.entity.decoration.ItemFrame(level, wall.south(), Direction.SOUTH);
+            frame.setItem(framed.get(i), false);
+            level.addFreshEntity(frame);
         }
 
         // Viewer: centred, two blocks in front of the pad, looking north and slightly down.

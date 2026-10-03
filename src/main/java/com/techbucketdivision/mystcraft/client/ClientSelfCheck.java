@@ -47,7 +47,7 @@ public final class ClientSelfCheck {
         gameBus.addListener(ClientSelfCheck::onClientTick);
     }
 
-    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, DONE }
+    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, DONE }
 
     private static final int OVERALL_BUDGET_TICKS = 20 * 60 * 6; // 6 minutes
     private static Step step = Step.TITLE;
@@ -55,7 +55,11 @@ public final class ClientSelfCheck {
     private static int stepTicks;      // ticks in the current step
     private static int screenshots;
     private static int closeupIndex;
-    private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "ink", "fissure"};
+    private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "ink", "fissure", "pages"};
+    /** Screens to open and screenshot: "open <element>" for blocks, "use <item>" for items. */
+    private static final String[] SCREENS = {"open desk", "open ink_mixer", "open book_binder", "open link_modifier",
+            "use linking_book", "use descriptive_book", "use folder", "use notebook"};
+    private static int screenIndex;
     private static final List<String> failures = new ArrayList<>();
 
     private static void onClientTick(ClientTickEvent.Post event) {
@@ -106,14 +110,39 @@ public final class ClientSelfCheck {
                 case CLOSEUPS -> {
                     // one close-up per element: teleport, wait 30 ticks, screenshot
                     if (closeupIndex >= CLOSEUPS.length) {
-                        command(mc, "myst-visit Selfcheck Age");
-                        next(Step.VISIT_AGE);
+                        screenIndex = 0;
+                        next(Step.SCREENS);
                     } else if (stepTicks == 1) {
                         command(mc, "myst-scene closeup " + CLOSEUPS[closeupIndex]);
                     } else if (stepTicks == 30) {
                         screenshot(mc, String.format("02%c_closeup_%s", (char) ('a' + closeupIndex), CLOSEUPS[closeupIndex]));
                     } else if (stepTicks > 32) {
                         closeupIndex++;
+                        stepTicks = 0;
+                    }
+                }
+                case SCREENS -> {
+                    // one screen each: open, wait, screenshot, close
+                    if (screenIndex >= SCREENS.length) {
+                        command(mc, "myst-visit Selfcheck Age");
+                        next(Step.VISIT_AGE);
+                    } else if (stepTicks == 1) {
+                        // stand next to the block first: container menus close when the player is > 8 blocks away
+                        if (SCREENS[screenIndex].startsWith("open ")) command(mc, "myst-scene closeup " + SCREENS[screenIndex].substring(5));
+                    } else if (stepTicks == 5) {
+                        command(mc, "myst-scene " + SCREENS[screenIndex]);
+                    } else if (stepTicks == 25) {
+                        String name = SCREENS[screenIndex].substring(SCREENS[screenIndex].indexOf(' ') + 1);
+                        if (mc.screen == null) {
+                            failures.add("screen did not open for /myst-scene " + SCREENS[screenIndex]);
+                        } else {
+                            Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
+                        }
+                        screenshot(mc, "02z_screen_" + name);
+                    } else if (stepTicks == 30) {
+                        if (mc.screen != null) mc.screen.onClose();
+                    } else if (stepTicks > 34) {
+                        screenIndex++;
                         stepTicks = 0;
                     }
                 }
@@ -138,7 +167,22 @@ public final class ClientSelfCheck {
                 }
                 case SCENE_AGE -> {
                     if (stepTicks == 60) screenshot(mc, "04_scene_age");
-                    if (stepTicks > 70) {
+                    // the book of this Age: its link panel should show the photo taken on arrival
+                    if (stepTicks == 70) command(mc, "myst-scene use current_age_book");
+                    if (stepTicks == 95) {
+                        if (mc.screen == null) failures.add("current Age book screen did not open");
+                        var level = mc.level;
+                        var info = level == null ? null : new com.techbucketdivision.mystcraft.api.linking.LinkInfo(
+                                java.util.Optional.of(level.dimension()),
+                                java.util.Optional.ofNullable(com.techbucketdivision.mystcraft.age.AgeData.uuidFromLevelKey(level.dimension())),
+                                java.util.Optional.empty(), 0f, "", java.util.Set.of(), java.util.Map.of());
+                        int frames = PanelImages.frameCount(info);
+                        Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {}", frames);
+                        if (frames == 0) failures.add("no link panel picture was captured/received for the visited Age (see [panel] lines)");
+                        screenshot(mc, "04b_age_book");
+                    }
+                    if (stepTicks == 100 && mc.screen != null) mc.screen.onClose();
+                    if (stepTicks > 104) {
                         command(mc, "myst-time set night");
                         next(Step.NIGHT);
                     }
@@ -194,9 +238,32 @@ public final class ClientSelfCheck {
         }
         long time = ClientAgeData.ageTime(level);
         float angle = controller.celestialAngle(time, 0f);
-        Mystcraft.LOGGER.info("[clientcheck] client Age controller ok: {} celestials, age time {}, celestial angle {}",
-                controller.celestials().size(), time, angle);
+        var data = ClientAgeData.dataFor(level);
+        StringBuilder celestials = new StringBuilder();
+        for (var c : controller.celestials()) {
+            celestials.append(c.kind()).append(c.providesLight() ? "(light)" : "").append('@')
+                    .append(String.format("%.3f", c.getAltitudeAngle(time, 0f))).append(' ');
+        }
+        var attrs = level.environmentAttributes();
+        float skyLight = attrs.getDimensionValue(net.minecraft.world.attribute.EnvironmentAttributes.SKY_LIGHT_LEVEL);
+        float skyFactor = attrs.getValue(net.minecraft.world.attribute.EnvironmentAttributes.SKY_LIGHT_FACTOR,
+                mc.player == null ? net.minecraft.world.phys.Vec3.ZERO : mc.player.position());
+        Mystcraft.LOGGER.info("[clientcheck] client Age controller ok: seed {}, {} symbols, celestials [{}], age time {}, "
+                        + "celestial angle {}, brightness {}, sky_light_level {}, sky_light_factor {}, skyDarken {}",
+                data == null ? "?" : data.seed(), data == null ? -1 : data.symbols().size(), celestials.toString().trim(),
+                time, angle, com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.brightness(angle), skyLight,
+                skyFactor, level.getSkyDarken());
         if (angle < 0f || angle > 1f) failures.add("celestial angle out of range: " + angle);
+        float expectedLight = 15f * com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.skyLightLevelFactor(angle);
+        // vanilla weather layers darken on top of the Age curve (rain: blend towards 4 by 0.3125, thunder by 0.527)
+        float thunder = level.getThunderLevel(1f), rain = level.getRainLevel(1f) - thunder;
+        if (rain > 0f) expectedLight += (4f - expectedLight) * 0.3125f * rain;
+        if (thunder > 0f) expectedLight += (4f - expectedLight) * 0.52734375f * thunder;
+        Mystcraft.LOGGER.info("[clientcheck] Age weather: rain {}, thunder {}; expected sky light {}", rain, thunder, expectedLight);
+        if (Math.abs(expectedLight - skyLight) > 1.5f) {
+            failures.add("client sky light " + skyLight + " does not follow the Age's celestial angle " + angle
+                    + " (expected ~" + expectedLight + ")");
+        }
     }
 
     private static void next(Step s) {

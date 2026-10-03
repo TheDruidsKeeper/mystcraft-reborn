@@ -27,7 +27,7 @@ All stages export into `out/` (gitignored) and keep the Docker build output in `
 | `out/mystcraft-neoforge-26.1-<version>.jar`                                              | the mod                                                                                                                  |
 | `out/smoke.log`, `out/smoke-status.txt`                                                  | dedicated server log, `PASSED` / `SELFCHECK_FAILED` / `SERVER_DID_NOT_LOAD`                                              |
 | `out/gametest.log`, `out/gametest-status.txt`, `out/gametest-results/*.xml`              | game-test server log, `PASSED` / `FAILED`, JUnit summary                                                                 |
-| `out/client-smoke.log`, `out/client-smoke-status.txt`, `out/screenshots/selfcheck_*.png` | client log, status, screenshots (`01_overworld`, `02_scene_overworld`, `03_age_arrival`, `04_scene_age`, `05_age_night`) |
+| `out/client-smoke.log`, `out/client-smoke-status.txt`, `out/screenshots/selfcheck_*.png` | client log, status, screenshots (`01_overworld`, `02_scene_overworld`, `02a`–`02g` close-ups, `02z_screen_*` every GUI, `03_age_arrival`, `04_scene_age`, `04b_age_book`, `05_age_night`) |
 
 
 
@@ -35,7 +35,7 @@ All stages export into `out/` (gitignored) and keep the Docker build output in `
 ## Log markers
 
 The mod logs the decisions that matter for bug reports at INFO under bracketed tags, so a report only needs the
-`debug.log` (client: `<instance>/.minecraft/logs/debug.log`; server: `logs/debug.log`). `grep -E "\[(spawn|link|portal|worldgen|scene|clientcheck|selfcheck)\]"` is the first thing to run on any log.
+`debug.log` (client: `<instance>/.minecraft/logs/debug.log`; server: `logs/debug.log`). `grep -E "\[(spawn|link|age|panel|portal|worldgen|scene|clientcheck|selfcheck)\]"` is the first thing to run on any log.
 
 
 | Tag                                                                     | Where                                     | Meaning                                                                                        |
@@ -43,6 +43,8 @@ The mod logs the decisions that matter for bug reports at INFO under bracketed t
 | `[spawn]`                                                               | `AgeSpawn`, `LinkController.defaultSpawn` | spawn determination (biome hit / fissure / none), ground snap, arrival platform counts         |
 | `[link] refused <entity> -> <dim>: <reason>`                            | `LinkListeners.isLinkPermitted`           | every refused link with its reason, rate-limited per entity + reason (portals retry each tick) |
 | `[worldgen]`                                                            | populators                                | star fissure position per Age                                                                  |
+| `[age] <name> ticking: time, celestials, celestial angle (day/night)`    | `AgeTicker`                               | first tick of an Age level after load; new Ages are moved to morning here                      |
+| `[panel]`                                                               | `PanelImageStorage`, `PanelImages`        | link panel photo requests, uploads and storage                                                 |
 | `[scene]`                                                               | `/myst-scene`                             | where the debug scene was built and where the viewer stands                                    |
 | `[clientcheck]` / `CLIENT SELFCHECK PASSED                              | FAILED`                                   | `ClientSelfCheck`                                                                              |
 | `[selfcheck]` / `SELFCHECK PASSED                                       | FAILED`                                   | `SelfCheck`                                                                                    |
@@ -56,6 +58,7 @@ Debug commands (OP, also used by the client smoke):
 | Command                                                                   | Effect                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/myst-scene`                                                             | builds the showcase in front of you: writing desk, bookstand + book, lectern + book, ink mixer, book binder, link modifier, ink pool, every decay block, a crystal column, a powered crystal portal, star fissure blocks; teleports you to the viewpoint |
+| `/myst-scene closeup <element>`, `/myst-scene open <element>`, `/myst-scene use <item>` | teleport to one scene element, right-click it (opens its screen), or put an item in hand and use it (`linking_book`, `descriptive_book`, `folder`, `notebook`, `current_age_book`) |
 | `/myst-visit [name]`                                                      | creates a new Age and links you into it through the normal link path (spawn search, ground snap, platform); gives you the bound Descriptive Book                                                                                                         |
 | `/myst-create [name]`, `/myst-agebook [dim]`, `/tpx`, `/myst-time set day | night`,` /myst-twi`,` /myst-spawnmeteor`,` /myst-dbg`                                                                                                                                                                                                    |
 
@@ -76,81 +79,97 @@ Run a single test locally without Docker (JDK 25): `./gradlew runGameTestServer`
 
 ## What the headless layers already verify (reported bugs)
 
-
-| Report                                                          | Root cause                                                                                                                            | Headless check                                                                                                                                     |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sun/moon racing across the sky                                  | `SkyRenderState` angles are radians; degrees were written                                                                             | client smoke screenshots `03`/`05` (visual); no automated angle check possible without a GPU oracle                                                |
-| Ages never got dark                                             | lighting comes from world-clock timelines (global), the Age tag was empty; attribute layers are not synced                            | `AgeClientEnvironment` installs per-Age day/night layers on the client level (AT on `ClientLevel.environmentAttributes`); screenshot `05` is night |
-| Desk: floating half-size top, stubby legs                       | `BoxRenderer` resolved block items in the FIXED context (scale 0.5)                                                                   | replaced by the ported original `ModelWritingDesk`; screenshot `02`                                                                                |
-| Bookstand / lectern missing textures                            | entity textures not in the block/item atlases (`assets/minecraft/atlases/*.json`), 64x64 bookstand texture was a doubled+flipped copy | `AssetIntegrityTest` atlas checks; client smoke fails on `Missing textures`; original models ported                                                |
-| Portal does nothing                                             | receptacle inventory hands out copies; a Descriptive Book bound on contact was never stored → "book is not bound"                     | `portalBindsUnboundBook`, `portalLinksEntity`                                                                                                      |
-| Portal renders as separate cubes                                | faces shared between portal blocks not culled                                                                                         | `LinkPortalBlock.skipRendering`; screenshot `02`/`04`                                                                                              |
-| Spawn floating / no platform                                    | Age arrival used the overworld respawn point                                                                                          | `arrivalLandsOnPlatform`, `ageDefaultSpawnIsGrounded`, `[spawn]` log lines                                                                         |
-| Effect timers flicker                                           | potion re-applied every chunk tick                                                                                                    | `potionEffectNotReappliedEveryTick`                                                                                                                |
-| Stuck in ink                                                    | custom fluid had no movement logic (`isWaterLike`)                                                                                    | `inkIsSwimmable`                                                                                                                                   |
-| No star fissures                                                | generated in chunk (0,0) while arrivals landed elsewhere                                                                              | `starFissureGeneratesAtOrigin` (fissure present, spawn kept near it), `[worldgen]` log                                                             |
-| World failed to reopen (`AgeBiomeSource used without a server`) | level.dat validated on the client before the server exists                                                                            | client smoke creates and reopens worlds; smoke/gametest exercise the codec                                                                         |
-| Client ERROR spam `biome_native failed to register logic`       | client built server-only biome controller                                                                                             | no ERROR lines in `client-smoke.log` (checked by the stage)                                                                                        |
+Every bug from a playtest gets a headless check before it is fixed, so it stays fixed. The table maps reports to the
+check that would catch a regression; the manual checklist below no longer repeats these.
 
 
+| Report                                                      | Headless check                                                                                                            |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Sun/moon racing, Ages never dark, every Age dark on arrival | `randomAgesStartAtVaryingTimes`, `ageTimeAdvances`; client smoke asserts the client sky light follows the Age's celestial angle and logs `[age]` + `[clientcheck] client Age controller ok` |
+| Desk / bookstand / lectern models and textures              | ported original models; `AssetIntegrityTest` atlas checks; client smoke close-ups `02a`–`02c` (fails on `Missing textures`) |
+| Portal does nothing / renders as cubes / too small to walk   | `portalBindsUnboundBook`, `portalLinksEntity`, `portalCollapsesWhenFrameBroken`; scene portal is a 2x3 walkable field (`02d`) |
+| Spawn floating / buried / no platform                       | `arrivalLandsOnPlatform`, `ageDefaultSpawnIsGrounded`, `spawnSearchFindsGround`, `[spawn]` lines                          |
+| Effect timers flicker                                       | `potionEffectNotReappliedEveryTick`                                                                                       |
+| Stuck in ink                                                | `inkIsSwimmable`                                                                                                          |
+| No star fissures / fissure washed away by water             | `starFissureGeneratesAtOrigin`, `fissureSurvivesWater`                                                                    |
+| Ink vial / bucket not accepted by desk or mixer             | `deskAcceptsInkBucket`, `deskAcceptsInkVial`, `mixerAcceptsInkBucket`, `mixerAcceptsInkVial`, `inkContainersReportContents` |
+| Decay blocks do nothing in Ages                             | decay blocks random-tick (`ModBlocks`); `InstabilityTests`                                                                |
+| Pages without symbol icons                                  | item frames with pages in the scene, close-up `02g_closeup_pages`                                                         |
+| World failed to reopen, client ERROR spam                   | client smoke creates/reopens a world and fails on any mod ERROR line                                                      |
+| GUIs                                                        | client smoke opens every screen (`02z_screen_*` screenshots) and fails if one does not open                               |
+| Link panel pictures                                         | client smoke checks a picture was captured on arrival and shown in the Age's book (`04b_age_book`)                        |
 
 
 ## Manual checklist
 
-Build (`scripts/build.sh`), copy `out/*.jar` into the instance, start a **new** creative world, run `/myst-scene`
-first — it puts every renderable block in front of you. Then `/myst-visit`.
+What a human still has to judge: look & feel on a real GPU, sound, input feel and anything that needs more than a
+minute of play. Organised by game mechanic; work through it top to bottom in a **new** creative world.
 
-Report format: one line per failed item + the `debug.log` of that session (zip the `logs/` folder); screenshots help for
-anything visual. Lines tagged `[spawn]`, `[link]`, `[scene]` are what I will read first.
+Setup: build (`scripts/build.sh`), copy `out/*.jar` into the instance, start the world, run `/myst-scene` (puts every
+block in front of you), then play through the mechanics below. Report one line per failed item plus the session's
+`debug.log` (zip the `logs/` folder); `[spawn]`, `[link]`, `[age]`, `[panel]`, `[scene]` lines are read first.
 
-### A. Rendering (overworld, `/myst-scene`)
+### 1. Pages and ink (Ink Mixer)
 
-- [ ] Writing desk: the original desk model (shelves, side panels, back, paper stack grows with paper count, backboard with the top blocks) spans head + foot, textured, from all sides and for all four facings. (Was: half-size floating top + stubby legs — a display-transform scale bug.)
-- [ ] Bookstand and Lectern: original models (post + two tilted arms; sloped lectern top with ledge), textured, rotate with placement; book shown on top, title readable. Inventory icons are simplified hand-made models.
-- [ ] Ink mixer, book binder, link modifier: textured on all sides.
-- [ ] Ink pool: dark liquid, animated surface; **walk into it: you can swim, move and jump out**.
-- [ ] Bucket of Black Ink in hand/inventory shows a dark fluid overlay on the bucket.
-- [ ] Decay blocks: five distinct textures.
-- [ ] Crystal portal: visible, tinted, renders as **one** translucent volume (no inner cube faces). Walking through links you into the scene's Age.
-- [ ] Star fissure block: renders (sky/void look), no missing texture.
-- [ ] Falling blocks (hit a crystal column or wait for instability crumble): real block model, lit.
+- [ ] Fill the mixer: ink vial or Bucket of Black Ink into the **Ink in** slot; the basin shows ink, the emptied container appears in **Out**.
+- [ ] Hover the basin: tooltip lists the current link effects; hold an ingredient (e.g. feather, gold nugget) over it: tooltip says what it adds; click adds it, the basin colour changes.
+- [ ] Paper in the **Paper** slot produces a Link Panel page in the output slot; the panel page carries the mixed effects (hover it).
+- [ ] Pour a bucket of ink into the world: it forms a pool you can swim in and climb out of; you cannot scoop it back up (by design: ink is consumed, not collected).
 
+### 2. Writing (Writing Desk)
 
+- [ ] Put a notebook / symbol portfolio / folder in a tab: its symbols appear on the writing surface with readable glyphs; search and AZ/ALL filters work.
+- [ ] Put paper, an ink container and a blank Descriptive Book (from the binder) in the slots; click symbols: pages are written into the book (paper and ink are consumed; ink well level drops).
+- [ ] Shift-click a symbol takes the page itself out of the notebook.
+- [ ] Rename the book in the name field; the title shows on the item and later on lecterns.
+- [ ] Empty slots show faded example items and a tooltip saying what goes there; the empty surface and target area explain themselves.
 
-### B. Linking
+### 3. Binding (Book Binder)
 
-- [ ] Right-click an untitled Descriptive Book: Age named "Age N" (not "???"); book title follows.
-- [ ] Arrival: standing on a 3×3 cobblestone pad at ground level with 2 blocks of head room, never floating, never buried. Repeat for 5 Ages (`/myst-visit` each time).
-- [ ] Linking Book back to the overworld returns you to the exact spot.
-- [ ] Portal with an **unused** Descriptive Book: first contact creates the Age; the book in the receptacle is now bound (take it out: it has the Age name).
-- [ ] Linking while riding (horse/boat): refused with a `[link] refused ...` line in the log; dismount and retry works.
+- [ ] Leather in **Cover**, a title typed, pages dragged into the strip with a Link Panel first: the finished book appears in the output slot. Without a title or link panel it does not (red outline / pulsing icon explain why).
+- [ ] Pages can be re-ordered / taken back out of the strip.
 
+### 4. Linking
 
+- [ ] Right-click an unused Descriptive Book: you arrive in a new Age standing on a 3x3 cobblestone pad with head room, never floating or buried. Repeat for 5 Ages (`/myst-visit` is a shortcut).
+- [ ] Linking Book (right-click an Unlinked Book where you stand): returns you to that exact spot; the book stays behind unless it has the Following effect.
+- [ ] Open a book: the link panel shows a photo of the destination (several photos cycle after repeated visits); hovering shows the Age name; unvisited Ages show the plain dark panel.
+- [ ] Link Modifier: insert a book; title/seed editable; each effect is a labelled check box with a tooltip; **Mark Age dead** asks for confirmation and cannot be undone.
+- [ ] Linking while riding is refused with a `[link] refused ...` line; dismount and retry works.
 
-### C. Sky / time (inside an Age)
+### 5. Books in the world
 
-- [ ] Sun and moon move at vanilla speed (full day ≈ 20 min at period 1.0); `/myst-time set night` darkens the sky **and the world lighting** (blocks go dark, mobs can spawn); stars appear; `/myst-time set day` restores it.
-- [ ] Sky and fog colours change at sunrise/sunset; no flicker.
-- [ ] Ages with colour symbols (write a book with a grass/foliage colour page): grass blocks and leaves take the colour; **water does not yet** (documented gap).
-- [ ] Weather: rain/thunder in an Age with the matching symbols; no client errors.
+- [ ] Bookstand and Lectern: place a book by right-click; the book lies on the stand / slope, title label hovers above (if server labels are on); right-click with an empty hand links you. Models look right from all sides and for all facings; the lectern's low edge faces you when placed.
+- [ ] Book receptacle + crystal frame: book in the receptacle lights the portal; walking through links you; breaking a frame crystal or removing the book collapses the portal (no crumble effect: crystal is plain glass-like block).
+- [ ] Star fissure (Age with the Star Fissure symbol, or the scene): the thin starry plane at bedrock level; falling onto it sends you home; water flowing onto it does not remove it.
 
+### 6. Ages: sky, time, weather, colours
 
+- [ ] A new Age starts in daylight (unless it has no light-giving sun). Sun/moon move at a sensible speed; `/myst-time set night` darkens sky and world lighting (stars, mobs); `/myst-time set day` restores it. Time survives leaving and re-entering the Age and reopening the world.
+- [ ] Sunrise/sunset tint the sky and fog smoothly, no flicker.
+- [ ] Weather symbols (rain/snow/storm): precipitation and thunder in the Age; `/myst-toggledownfall` toggles it.
+- [ ] Colour symbols (grass/foliage/water/sky/fog): the Age's blocks and sky take the colour.
+- [ ] Terrain/biome symbols: an Age written with specific terrain, biome, feature and block pages shows them (flat, skylands, floating islands, dense ores, obelisks, spheres…).
 
-### D. Instability
+### 7. Instability
 
-- [ ] Unstable Age (many pages / `/myst-twi`): potion effects appear with **stable** HUD timers (no per-tick reset); meteors, lightning, decay spread, crumble each visible at least once over ~10 minutes.
-- [ ] Performance: no "Can't keep up" spam in the server log while standing in a loaded Age.
+- [ ] A very unstable Age (many conflicting pages, or `/myst-twi` on): symptoms appear over ~10 minutes: potion effects with stable HUD timers, meteors, lightning, decay spreading, crumbling blocks, scorched terrain.
+- [ ] Decay blocks placed by hand inside an Age spread/decay over time; outside Ages they vanish on placement (by design).
+- [ ] No "Can't keep up" spam in the server log while standing in a loaded Age.
 
+### 8. Items and inventory
 
+- [ ] Pages show their symbol glyph as the item icon (inventory, hand, item frame, dropped); link panel pages show the dark panel; blank pages the plain parchment.
+- [ ] Books show the right cover; Bucket of Black Ink shows a dark fluid overlay; folders/portfolios show their contents when opened.
+- [ ] Notebook / folder screens: page grid, search, shift-click moves pages.
 
-### E. Persistence
+### 9. Persistence and multiplayer
 
-- [ ] Quit to title and reopen the world: no "Failed to load level data" error; every Age dimension reloads; `[link]` into a previously visited Age lands you on the same platform.
-- [ ] Dedicated server (optional): same as above over LAN.
+- [ ] Quit to title and reopen: every Age reloads, Age time continues where it was, link panel pictures are still there, books still link to the same places.
+- [ ] Dedicated server / LAN (optional): the same flows work for a second player; no client errors on join while inside an Age.
 
+### 10. Performance and feel
 
-
-### F. UI
-
-- [ ] Writing desk screen: notebook tabs, page surface, search, name field, ink tank all render inside the window texture; nothing is cut off at 1920×1080 and GUI scale 2/3.
-- [ ] Book binder, ink mixer, link modifier, folder, book screens open and close without log errors.
+- [ ] No stutter when a new Age generates its first chunks around the arrival point.
+- [ ] GUI scale 2 and 3 at 1920x1080: nothing cut off in the writing desk, link modifier (wide side panel) and book screens.
+- [ ] Sounds: link sound on departure/arrival, portal hum, ink pour.

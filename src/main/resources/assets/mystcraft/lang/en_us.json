@@ -483,9 +483,6 @@
   "gui.mystcraft.link_modifier.kill.tooltip2": "This cannot be undone.",
   "gui.mystcraft.link_modifier.confirm_kill.tooltip": "Click to permanently mark the Age dead.",
   "gui.mystcraft.writing_desk.surface.hint": "You know no symbols yet. Study a symbol page (use it in your hand) or visit an Age: every symbol you learn appears here, grouped by category. Click a symbol to write a copy into the folder (one paper and some ink).",
-  "gui.mystcraft.writing_desk.undo": "Undo last page",
-  "gui.mystcraft.writing_desk.undo.tooltip": "Erases the page written most recently and refunds its paper and ink.",
-  "gui.mystcraft.writing_desk.undo.tooltip2": "Pages written here stay drafts (grey) until the folder is taken out of the desk.",
   "gui.mystcraft.book.draft": "draft - not yet permanent",
   "gui.mystcraft.writing_desk.page.write": "Click: write a copy into the folder (paper + ink)",
   "gui.mystcraft.writing_desk.page.cannot_write": "To write copies: add ink, paper and a folder",
@@ -547,7 +544,7 @@
   "gui.mystcraft.book.summary.instability": "Instability: base %s, symbols %s",
   "gui.mystcraft.book.summary.score": "Current score: %s",
   "gui.mystcraft.book.summary.dead": "This Age has been marked dead.",
-  "gui.mystcraft.book.summary.effects": "Active instability effects:",
+  "gui.mystcraft.book.summary.effects": "Active instability effects",
   "gui.mystcraft.book.summary.effects.none": "none",
   "gui.mystcraft.book.summary.effects.unknown": "unknown until the Age is loaded",
   "gui.mystcraft.book.summary.discovered": "%s of %s pages discovered at the first link.",
@@ -586,7 +583,8 @@
   "gui.mystcraft.writing_desk.page.attach": "Click: attach to the selected %s page (uses ink)",
   "gui.mystcraft.writing_desk.strip.select": "Click: select this page (modifiers clicked on the surface attach to it)",
   "gui.mystcraft.writing_desk.strip.deselect": "Click: deselect this page",
-  "gui.mystcraft.writing_desk.strip.take": "Shift-click: take this page out",
-  "gui.mystcraft.writing_desk.strip.detach": "Right-click: remove the last attached modifier",
-  "gui.mystcraft.writing_desk.surface.empty_tab": "No known symbols in this tab."
+  "gui.mystcraft.writing_desk.strip.detach": "Shift + right-click: remove the last attached modifier",
+  "gui.mystcraft.writing_desk.surface.empty_tab": "No known symbols in this tab.",
+  "gui.mystcraft.writing_desk.strip.erase": "Right-click: erase this draft (paper and ink come back)",
+  "gui.mystcraft.writing_desk.strip.remove": "Right-click: take this page out"
 }

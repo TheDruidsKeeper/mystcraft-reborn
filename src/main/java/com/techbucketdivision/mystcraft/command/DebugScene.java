@@ -122,16 +122,36 @@ public final class DebugScene {
         return result.consumesAction();
     }
 
+    /**
+     * Replaces every block of the box with air from the top down, without drops or neighbour reactions, and removes
+     * item entities already lying in it - so building a scene does not scatter seeds, flowers and grass around.
+     */
+    public static void clearWithoutDrops(ServerLevel level, BlockPos min, BlockPos max) {
+        int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS;
+        for (int y = max.getY(); y >= min.getY(); y--) {
+            for (int x = min.getX(); x <= max.getX(); x++) {
+                for (int z = min.getZ(); z <= max.getZ(); z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    if (!level.getBlockState(pos).isAir()) level.setBlock(pos, Blocks.AIR.defaultBlockState(), flags);
+                }
+            }
+        }
+        for (var item : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new net.minecraft.world.phys.AABB(min.getX(), min.getY(), min.getZ(), max.getX() + 1, max.getY() + 2, max.getZ() + 1))) {
+            item.discard();
+        }
+    }
+
     /** Builds the scene with its south-west corner at {@code origin} (pad surface = origin.y - 1). */
     public static BlockPos build(ServerLevel level, BlockPos origin, ServerPlayer viewer) {
         MinecraftServer server = level.getServer();
         int x0 = origin.getX(), y = origin.getY(), z0 = origin.getZ();
 
-        // Pad + clear volume above.
+        // Clear the volume first (top-down, no drops: grass, flowers and seeds would litter the scene), then the pad.
+        clearWithoutDrops(level, new BlockPos(x0, y - 1, z0 - DEPTH + 1), new BlockPos(x0 + WIDTH - 1, y + 6, z0));
         for (int dx = 0; dx < WIDTH; dx++) {
             for (int dz = 0; dz < DEPTH; dz++) {
                 level.setBlock(new BlockPos(x0 + dx, y - 1, z0 - dz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
-                for (int dy = 0; dy < 7; dy++) level.setBlock(new BlockPos(x0 + dx, y + dy, z0 - dz), Blocks.AIR.defaultBlockState(), 2);
             }
         }
 
@@ -255,12 +275,7 @@ public final class DebugScene {
 
     /** A Descriptive Book bound to a fresh Age (so receptacles power portals and lecterns show a title). */
     private static ItemStack descriptiveBook(MinecraftServer server, String name) {
-        AgeData data = AgeManager.createAge(server);
-        data.setName(name);
-        data.setPages(List.of(PageItem.createLinkPanel(Set.of())));
-        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
-        DescriptiveBookItem.initializeForAge(book, data);
-        return book;
+        return DescriptiveBookItem.createBound(server, name, 0, List.of());
     }
 
 }

@@ -232,34 +232,40 @@ public class BookElement extends GuiElement {
     }
 
     /**
-     * The summary page (plan §2 rule 7): seed, instability (base + symbols, the live score when the Age is loaded),
-     * the instability effects active in the Age, authors and how many pages were discovered. Right page.
+     * The summary (plan §2 rule 7) spread over both pages: left - seed, instability (base + symbols, the live score
+     * when the Age is loaded), discovered count and authors; right - the instability effects active in the Age.
      */
     private void drawSummary(GuiGraphicsExtractor g, Font font, AgeSummary summary) {
-        int px = 172, py = 22, pw = 136;
-        int y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary"), px, py, pw, 0xFF1A1A1A);
-        g.fill(px, y + 1, px + pw, y + 2, 0x60000000);
+        int lx = 24, ly = 28, lw = 118;
+        int y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary"), lx, ly, lw, 0xFF1A1A1A);
+        g.fill(lx, y + 1, lx + lw, y + 2, 0x60000000);
         y += 6;
-        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.seed", Long.toString(summary.seed())), px, y, pw, 0xFF3A3A3A);
-        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.instability", summary.baseInstability(), summary.symbolInstability()), px, y, pw, 0xFF3A3A3A);
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.seed", Long.toString(summary.seed())), lx, y, lw, 0xFF3A3A3A);
+        y += 2;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.instability", summary.baseInstability(), summary.symbolInstability()), lx, y, lw, 0xFF3A3A3A);
         if (summary.score() >= 0) {
-            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.score", summary.score()), px, y, pw, summary.score() > 0 ? 0xFF7A1A1A : 0xFF3A3A3A);
+            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.score", summary.score()), lx, y, lw, summary.score() > 0 ? 0xFF7A1A1A : 0xFF3A3A3A);
         }
-        if (summary.dead()) y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.dead"), px, y, pw, 0xFF7A1A1A);
-        y += 3;
-        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.effects"), px, y, pw, 0xFF1A1A1A);
+        if (summary.dead()) y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.dead"), lx, y, lw, 0xFF7A1A1A);
+        y += 4;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.discovered", summary.discovered(), summary.total()), lx, y, lw, 0xFF3A3A3A);
+        if (!summary.authors().isEmpty()) {
+            y += 2;
+            drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.authors", String.join(", ", summary.authors())), lx, y, lw, 0xFF3A3A3A);
+        }
+
+        int rx = 172, ry = 22, rw = 136;
+        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.effects"), rx, ry, rw, 0xFF1A1A1A);
+        g.fill(rx, y + 1, rx + rw, y + 2, 0x60000000);
+        y += 6;
         if (summary.activeEffects().isEmpty()) {
-            y = drawWrapped(g, font, Component.translatable(summary.score() >= 0 ? "gui.mystcraft.book.summary.effects.none" : "gui.mystcraft.book.summary.effects.unknown"), px + 4, y, pw - 4, 0xFF5A5A5A);
+            drawWrapped(g, font, Component.translatable(summary.score() >= 0 ? "gui.mystcraft.book.summary.effects.none" : "gui.mystcraft.book.summary.effects.unknown"), rx, y, rw, 0xFF5A5A5A);
         } else {
             for (String effect : summary.activeEffects()) {
+                if (y > 170) break; // the page is full; the rest is in the log / debug command
                 String name = effect.replace(",g", " (global)").replace('_', ' ');
-                y = drawWrapped(g, font, Component.literal("- " + name), px + 4, y, pw - 4, 0xFF7A1A1A);
+                y = drawWrapped(g, font, Component.literal("- " + name), rx, y, rw, 0xFF7A1A1A);
             }
-        }
-        y += 3;
-        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.discovered", summary.discovered(), summary.total()), px, y, pw, 0xFF3A3A3A);
-        if (!summary.authors().isEmpty()) {
-            y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.authors", String.join(", ", summary.authors())), px, y, pw, 0xFF3A3A3A);
         }
     }
 

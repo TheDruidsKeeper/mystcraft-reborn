@@ -140,8 +140,8 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
 
     /**
      * A page written at this desk that is not yet permanent: {@code index} into the target's page list, and whether a
-     * sheet of paper was spent on it (Reborn: writing is provisional until the target leaves the slot, so a slip can
-     * be undone with its paper and ink refunded).
+     * sheet of paper was spent on it (Reborn: writing is provisional until the folder leaves the slot, so a slip can
+     * be erased by right-clicking it with its paper and ink refunded).
      */
     public record Draft(int index, boolean paperUsed) {
         public static final com.mojang.serialization.Codec<Draft> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create(i -> i.group(
@@ -185,30 +185,25 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
     }
 
     /**
-     * Erases the most recently written draft: the page is removed from the folder and the ink and paper it cost come
-     * back. Returns false when there is nothing to undo.
+     * Removes the folder page at {@code index} (server only). A draft written here is erased and its ink and paper
+     * come back (the page never existed); any other page is handed back as the returned stack. Empty when nothing
+     * was removed.
      */
-    public boolean undoLastDraft(Player player) {
-        if (!isServer() || drafts.isEmpty()) return false;
+    public ItemStack removePage(Player player, int index) {
+        if (!isServer()) return ItemStack.EMPTY;
         ItemStack target = getTarget();
-        if (target.isEmpty()) {
-            commitDrafts();
-            return false;
-        }
-        Draft draft = drafts.remove(drafts.size() - 1);
-        boolean removed = false;
-        if (target.getItem() instanceof ItemBehaviours.OrderablePageProvider p) {
-            List<ItemStack> pages = p.getPageList(player, target);
-            if (draft.index() >= 0 && draft.index() < pages.size()) {
-                p.removePage(player, target, draft.index());
-                removed = true;
-            }
-        }
-        if (!removed) {
-            markForUpdate();
-            return false;
-        }
+        if (!(target.getItem() instanceof ItemBehaviours.OrderablePageProvider p)) return ItemStack.EMPTY;
+        List<ItemStack> pages = p.getPageList(player, target);
+        if (index < 0 || index >= pages.size() || pages.get(index).isEmpty()) return ItemStack.EMPTY;
+        Draft draft = null;
+        for (Draft d : drafts) if (d.index() == index) draft = d;
+        ItemStack removed = p.removePage(player, target, index);
         main.setStack(SLOT_TARGET, target);
+        if (draft == null) {
+            markForUpdate();
+            return removed;
+        }
+        drafts.remove(draft);
         try (Transaction tx = Transaction.openRoot()) {
             inkwell.insert(0, FluidResource.of(ModFluids.BLACK_INK.get()), INK_COST, tx);
             tx.commit();
@@ -220,9 +215,9 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
             else if (!player.getInventory().add(new ItemStack(Items.PAPER))) player.drop(new ItemStack(Items.PAPER), false);
         }
         if (drafts.isEmpty()) draftTargetId = 0;
-        Mystcraft.LOGGER.debug("[desk] {} undid draft page {} (paper refunded: {})", player.getPlainTextName(), draft.index(), draft.paperUsed());
+        Mystcraft.LOGGER.debug("[desk] {} erased draft page {} (paper refunded: {})", player.getPlainTextName(), index, draft.paperUsed());
         markForUpdate();
-        return true;
+        return ItemStack.EMPTY;
     }
 
     private void recordDraft(int index, boolean paperUsed) {

@@ -50,6 +50,24 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         return book;
     }
 
+    /**
+     * Command / creative / debug: a new book with the given symbol pages, bound right away through the normal first
+     * link (so the blueprint completes it and the Age is a real description, not an empty one). {@code seed} 0 = random.
+     */
+    public static ItemStack createBound(MinecraftServer server, String title, long seed, List<ItemStack> symbolPages) {
+        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
+        LinkInfo info = LinkInfo.EMPTY.withDisplayName(title).withFlag(LinkProperty.GENERATE_PLATFORM, true);
+        if (seed != 0) info = info.withProp(LinkProperty.PROP_SEED, Long.toString(seed));
+        setLinkInfo(book, info);
+        List<ItemStack> pages = new ArrayList<>();
+        pages.add(PageItem.createLinkPanel());
+        pages.addAll(symbolPages);
+        setPages(book, pages);
+        book.set(ModDataComponents.BOOK_HEALTH.get(), BookHealth.FULL);
+        checkFirstLink(book, server);
+        return book;
+    }
+
     /** Command / creative: a book bound to an existing Age. */
     public static void initializeForAge(ItemStack book, AgeData data) {
         LinkInfo info = LinkInfo.EMPTY

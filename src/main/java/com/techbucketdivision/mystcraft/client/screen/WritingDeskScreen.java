@@ -1,6 +1,7 @@
 package com.techbucketdivision.mystcraft.client.screen;
 
 import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.techbucketdivision.mystcraft.client.screen.gui.GuiElement;
 import com.techbucketdivision.mystcraft.client.screen.gui.HintText;
 import com.techbucketdivision.mystcraft.client.screen.gui.InkTank;
 import com.techbucketdivision.mystcraft.client.screen.gui.ScrollablePages;
@@ -29,7 +30,7 @@ import java.util.List;
 /**
  * Writing Desk screen (REQUIREMENTS §8.1, Reborn rework: world-building plan §4). Left (228 px): search box, category
  * tabs and the symbol surface listing what the player knows; right: the 176×166 desk window shifted by (233, 20) with
- * the folder's page strip, name field, undo button and ink tank. A page selected in the strip takes the modifiers
+ * the folder's page strip, name field and ink tank. A page selected in the strip takes the modifiers
  * clicked on the surface.
  */
 public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> {
@@ -47,7 +48,6 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     private @Nullable EditBox nameBox;
     private @Nullable SymbolSurface surface;
     private @Nullable ScrollablePages pageStrip;
-    private @Nullable ToggleButton undoButton;
     private final List<ToggleButton> tabButtons = new ArrayList<>();
     private boolean syncingName;
     private int selectedPage = -1;
@@ -101,13 +101,6 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         });
         syncName(true);
 
-        // --- drafts: undo the last page written here (pages become permanent when the folder leaves the desk)
-        undoButton = addElement(new ToggleButton(gx + CENTER + 28, gy + MAIN_TOP + 77, WINDOW_W - 48 - 9 - 20, 12, null, () -> false,
-                () -> sendOnly(WritingDeskMenu.MSG_UNDO_DRAFT))
-                .label(Component.translatable("gui.mystcraft.writing_desk.undo"))
-                .tooltip(List.of(Component.translatable("gui.mystcraft.writing_desk.undo.tooltip"),
-                        Component.translatable("gui.mystcraft.writing_desk.undo.tooltip2").withStyle(ChatFormatting.GRAY))));
-
         // --- what goes where
         hintSlot(WritingDeskMenu.SLOT_TARGET, ModItems.COLLATION_FOLDER.get(), "gui.mystcraft.writing_desk.slot.target");
         hintSlot(WritingDeskMenu.SLOT_PAPER, Items.PAPER, "gui.mystcraft.writing_desk.slot.paper");
@@ -143,7 +136,6 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
     protected void containerTick() {
         super.containerTick();
         syncName(false);
-        if (undoButton != null) undoButton.setVisible(!menu.getDrafts().isEmpty());
         List<ItemStack> pages = menu.getBookPageList();
         if (pages == null || selectedPage >= pages.size() || (selectedPage >= 0 && !PageItem.isSymbolPage(pages.get(selectedPage)))) {
             selectedPage = -1;
@@ -240,9 +232,11 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
 
         @Override
         public void rightClick(int index) {
+            // right-click removes the page (a draft is erased and refunded); shift + right-click detaches its last modifier
+            if (selectedPage == index && !GuiElement.isShiftHeld()) selectedPage = -1;
             CompoundTag tag = new CompoundTag();
             tag.putInt("Index", index);
-            send(WritingDeskMenu.MSG_DETACH_MODIFIER, tag);
+            send(GuiElement.isShiftHeld() ? WritingDeskMenu.MSG_DETACH_MODIFIER : WritingDeskMenu.MSG_REMOVE_PAGE, tag);
         }
 
         @Override
@@ -251,7 +245,7 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
             if (pages == null || index < 0 || index >= pages.size() || !PageItem.isSymbolPage(pages.get(index))) return List.of();
             List<Component> out = new ArrayList<>();
             out.add(Component.translatable(selectedPage == index ? "gui.mystcraft.writing_desk.strip.deselect" : "gui.mystcraft.writing_desk.strip.select").withStyle(ChatFormatting.GRAY));
-            out.add(Component.translatable("gui.mystcraft.writing_desk.strip.take").withStyle(ChatFormatting.GRAY));
+            out.add(Component.translatable(menu.isDraftPage(index) ? "gui.mystcraft.writing_desk.strip.erase" : "gui.mystcraft.writing_desk.strip.remove").withStyle(ChatFormatting.GRAY));
             if (!PageItem.getModifiers(pages.get(index)).isEmpty()) {
                 out.add(Component.translatable("gui.mystcraft.writing_desk.strip.detach").withStyle(ChatFormatting.GRAY));
             }

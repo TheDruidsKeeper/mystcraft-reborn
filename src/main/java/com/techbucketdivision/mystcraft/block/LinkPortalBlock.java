@@ -141,6 +141,7 @@ public class LinkPortalBlock extends Block implements FluidProof {
             if (!ItemStack.matches(book, receptacle.getBook())) {
                 receptacle.updateBook(book);
                 receptacle.setChanged();
+                level.sendBlockUpdated(receptacle.getBlockPos(), receptacle.getBlockState(), receptacle.getBlockState(), Block.UPDATE_ALL);
             }
         }
     }

@@ -166,11 +166,7 @@ public final class MystcraftCommands {
     private static int visitAge(CommandContext<CommandSourceStack> ctx, @Nullable String name) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         MinecraftServer server = ctx.getSource().getServer();
-        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
-        LinkingItem.setLinkInfo(book, LinkInfo.EMPTY.withDisplayName(name == null || name.isBlank() ? LinkInfo.DEFAULT_NAME : name)
-                .withFlag(LinkProperty.GENERATE_PLATFORM, true));
-        DescriptiveBookItem.setPages(book, List.of(PageItem.createLinkPanel(Set.of())));
-        DescriptiveBookItem.checkFirstLink(book, server);
+        ItemStack book = DescriptiveBookItem.createBound(server, name == null || name.isBlank() ? LinkInfo.DEFAULT_NAME : name, 0, List.of());
         LinkInfo info = LinkingItem.getLinkInfo(book);
         AgeData data = DescriptiveBookItem.getAgeData(server, book);
         if (data == null) throw NOT_AN_AGE.create();
@@ -271,11 +267,9 @@ public final class MystcraftCommands {
 
     private static int createAge(CommandContext<CommandSourceStack> ctx, @Nullable String name) {
         MinecraftServer server = ctx.getSource().getServer();
-        AgeData data = AgeManager.createAge(server);
-        if (name != null && !name.isBlank()) data.setName(name);
-        List<ItemStack> pages = new ArrayList<>();
-        pages.add(PageItem.createLinkPanel(Set.of()));
-        data.setPages(pages);
+        ItemStack book = DescriptiveBookItem.createBound(server, name == null || name.isBlank() ? LinkInfo.DEFAULT_NAME : name, 0, List.of());
+        AgeData data = DescriptiveBookItem.getAgeData(server, book);
+        if (data == null) throw new IllegalStateException("book did not bind");
         AgeManager.getOrCreateLevel(server, data);
         success(ctx.getSource(), "commands.mystcraft.create.success", data.name(), data.levelKey().identifier().toString());
         return 1;

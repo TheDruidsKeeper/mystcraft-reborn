@@ -28,7 +28,8 @@ import java.util.List;
  * inventory: it lists the player's known symbols (or all of them at a Scholar's desk) from the synced knowledge.
  * <p>
  * Messages client→server: {@code SetTitle(Title)}, {@code WriteSymbol(Symbol)}, {@code AttachModifier(Symbol, Index)},
- * {@code DetachModifier(Index)}, {@code TakeFromSlider(Index)}, {@code InsertHeldAt(Index, Single)}, {@code UndoDraft}.
+ * {@code DetachModifier(Index)}, {@code TakeFromSlider(Index)}, {@code InsertHeldAt(Index, Single)},
+ * {@code RemovePage(Index)} (right-click: a draft is erased with its paper and ink refunded, other pages go to the cursor).
  * Server→client: {@code SetFluid(Fluid)}, {@code SetTitle(Title)}.
  */
 public class WritingDeskMenu extends AbstractMystcraftMenu {
@@ -39,7 +40,7 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
     public static final String MSG_SET_FLUID = "SetFluid";
     public static final String MSG_TAKE_FROM_SLIDER = "TakeFromSlider";
     public static final String MSG_INSERT_HELD_AT = "InsertHeldAt";
-    public static final String MSG_UNDO_DRAFT = "UndoDraft";
+    public static final String MSG_REMOVE_PAGE = "RemovePage";
 
     public static final int X_SHIFT = 228 + 5;
     public static final int Y_SHIFT = 20;
@@ -136,8 +137,9 @@ public class WritingDeskMenu extends AbstractMystcraftMenu {
                     desk.setInk(cachedFluid);
                 }
             }
-            case MSG_UNDO_DRAFT -> {
-                if (isServer()) desk.undoLastDraft(player);
+            case MSG_REMOVE_PAGE -> {
+                if (!isServer() || !cursor().isEmpty()) return;
+                setCursor(player, desk.removePage(player, data.getIntOr("Index", -1)));
             }
             case MSG_TAKE_FROM_SLIDER -> {
                 if (!cursor().isEmpty()) return;

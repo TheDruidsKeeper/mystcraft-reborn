@@ -2,16 +2,12 @@ package com.techbucketdivision.mystcraft.command;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.block.LecternBlock;
 import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.item.component.SymbolPage;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@code /myst-qa-shelf}: a row of lecterns, each with a Descriptive Book already bound (fixed seed, fixed pages) to an
@@ -98,6 +93,11 @@ public final class QaShelf {
         Direction facing = player.getDirection();
         Direction right = facing.getClockWise();
         BlockPos origin = player.blockPosition().relative(facing, 3);
+        int count = cases().size();
+        BlockPos last = origin.relative(right, (count - 1) * 2);
+        DebugScene.clearWithoutDrops(level,
+                new BlockPos(Math.min(origin.getX(), last.getX()), origin.getY() - 1, Math.min(origin.getZ(), last.getZ())),
+                new BlockPos(Math.max(origin.getX(), last.getX()), origin.getY() + 2, Math.max(origin.getZ(), last.getZ())));
         int placed = 0;
         for (Case qa : cases()) {
             BlockPos pos = origin.relative(right, placed * 2);
@@ -120,15 +120,8 @@ public final class QaShelf {
 
     /** An unbound book with the case's pages and seed, bound right away so the Age is fixed and inspectable. */
     private static ItemStack bind(MinecraftServer server, Case qa) {
-        ItemStack book = new ItemStack(ModItems.DESCRIPTIVE_BOOK.get());
-        LinkingItem.setLinkInfo(book, LinkInfo.EMPTY.withDisplayName(qa.title())
-                .withFlag(LinkProperty.GENERATE_PLATFORM, true)
-                .withProp(LinkProperty.PROP_SEED, Long.toString(qa.seed())));
         List<ItemStack> pages = new ArrayList<>();
-        pages.add(PageItem.createLinkPanel(Set.of()));
         for (SymbolPage page : qa.pages()) pages.add(PageItem.createSymbolPage(page));
-        DescriptiveBookItem.setPages(book, pages);
-        DescriptiveBookItem.checkFirstLink(book, server);
-        return book;
+        return DescriptiveBookItem.createBound(server, qa.title(), qa.seed(), pages);
     }
 }

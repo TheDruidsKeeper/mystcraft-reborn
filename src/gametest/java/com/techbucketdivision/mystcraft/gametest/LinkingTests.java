@@ -87,6 +87,25 @@ public class LinkingTests {
 
     @GameTest(timeoutTicks = AGE_TIMEOUT)
     @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Linking from a lectern binds the book it holds: the lectern keeps the bound copy with its discovered pages (playtest: book in the receptacle had no symbols)")
+    static void displayLinkKeepsBoundBook(ExtendedGameTestHelper helper) {
+        helper.setBlock(1, 1, 1, com.techbucketdivision.mystcraft.registry.ModBlocks.LECTERN.get());
+        var lectern = helper.getBlockEntity(1, 1, 1, com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity.class);
+        lectern.setBook(TestBooks.unboundDescriptiveBook("Lectern bound", com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat")));
+        var pig = helper.spawn(EntityType.PIG, 1, 2, 1);
+        pig.setNoAi(true);
+        lectern.link(pig);
+        ItemStack held = lectern.getBook();
+        LinkInfo info = LinkingItem.getLinkInfo(held);
+        helper.assertTrue(info.isBound(), "lectern book is bound after the link");
+        var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(held);
+        helper.assertTrue(pages.stream().anyMatch(com.techbucketdivision.mystcraft.item.PageItem::isDiscovered), "lectern book carries the discovered pages (" + pages.size() + ")");
+        helper.assertTrue(com.techbucketdivision.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "lectern book describes a complete Age");
+        helper.succeed();
+    }
+
+    @GameTest(timeoutTicks = AGE_TIMEOUT)
+    @EmptyTemplate(value = "3x3x3", floor = true)
     @TestHolder(description = "A titled Descriptive Book names its Age after the title")
     static void titledBookNamesAge(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
@@ -188,6 +207,9 @@ public class LinkingTests {
                 .thenWaitUntil(() -> {
                     LinkInfo info = LinkingItem.getLinkInfo(receptacle.getBook());
                     helper.assertTrue(info.isBound(), "receptacle book is bound");
+                    var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(receptacle.getBook());
+                    helper.assertTrue(pages.stream().anyMatch(com.techbucketdivision.mystcraft.item.PageItem::isDiscovered),
+                            "the receptacle keeps the bound book with its discovered pages (" + pages.size() + " pages)");
                     ServerLevel age = server.getLevel(info.dimension().orElseThrow());
                     helper.assertNotNull(age, "Age level exists");
                     helper.assertNotNull(age.getEntity(id), "pig linked through the portal");

@@ -186,3 +186,59 @@ Removed: mushroom stew, bottle o' enchanting, fire charge, `c:dusts/*` tag bindi
 Decisions are taken (§7); implementation follows the order in §6 with the usual cycle (Docker pipeline green per
 phase, gametests + selfcheck coverage, TESTING.md / REQUIREMENTS.md updated, logical commits, jar copied to the
 instance). A new session continues at the first phase not marked done under §6 "Progress".
+
+---
+
+## 10. Creatures category (proposal, awaiting decisions)
+
+Goal: let the author of an Age say what lives in it. Today an Age takes the mob spawns of its biomes unchanged.
+
+### 10.1 Symbols
+
+New category **Creatures** (`CREATURES`, optional, 0–3, after Effects in build order; desk tab "Cre"). Primary symbols,
+one per spawn group, each taking **modifiers** of three new slots:
+
+| Symbol | Group | Default when the symbol is absent |
+|---|---|---|
+| `creatures_passive` | animals (`MobCategory.CREATURE`, ambient, water creatures) | biome spawns as vanilla |
+| `creatures_neutral` | neutral mobs (endermen, bees, wolves, piglins, …) | biome spawns as vanilla |
+| `creatures_hostile` | monsters (`MobCategory.MONSTER`) | biome spawns as vanilla |
+| `creatures_none` | – | – (writes "nothing spawns at all"; stands alone, takes no modifier) |
+
+Writing a group symbol **without** modifiers means "this group spawns as in the biomes". Modifiers change it:
+
+| Slot | Modifier symbols | Effect on the group |
+|---|---|---|
+| **Spawn rate** (`RATE`) | `mod_rate_none`, `mod_rate_sparse` (×0.25), `mod_rate_normal`, `mod_rate_dense` (×2), `mod_rate_swarm` (×4) | multiplies the spawn weights of the group; `none` removes the group's spawns |
+| **Cap** (`CAP`) | `mod_cap_few` (¼ of vanilla cap), `mod_cap_normal`, `mod_cap_many` (×2), `mod_cap_horde` (×4) | per-chunk mob cap of the group (`MobCategory` max instances scaled) |
+| **Difficulty** (`DIFFICULTY`, hostile only) | `mod_difficulty_easy`, `mod_difficulty_normal`, `mod_difficulty_hard`, `mod_difficulty_brutal` | regional difficulty clamp for the Age: easy = always Easy, hard = always Hard, brutal = Hard + equipment / extra health via attribute modifiers on spawn |
+
+The existing modifier mechanism is reused: each modifier pushes a pending modifier (`rate`, `cap`, `difficulty`),
+the group symbol pops them (so `AgeSymbol.accepts` / `takes` and the desk UI work unchanged). Materials-style
+gating: `creatures_passive` does not take a difficulty modifier.
+
+### 10.2 Runtime
+
+* `CreatureController` (new logic interface, one per group; registered via `AgeDirector`) is consulted by
+  `AgeChunkGenerator.getMobsAt` (biome spawn list filtered/rescaled per group) and by a `MobSpawnEvent`/
+  `FinalizeSpawnEvent` listener for caps and difficulty; the regional difficulty comes from
+  `ServerLevel.getCurrentDifficultyAt` → overridden per Age level through the dimension's level data hook we
+  already use for weather.
+* **Instability:** `mod_difficulty_hard` = +250, `brutal` = +500 symbol instability; `mod_rate_swarm` on hostiles =
+  +250; `creatures_none` = +100 (a lifeless world is unstable). Conversely an **instability effect** "Frenzy"
+  (deck harsh, cost 1000) raises the hostile difficulty by one step and the rate ×1.5 while active - so a very
+  unstable Age becomes dangerous even without creature symbols (that is the "increased difficulty as instability
+  effect" idea).
+* Blueprint fill: optional, 15 % of Ages: one group symbol with a random rate/cap modifier (weights normal 50 /
+  sparse 20 / dense 20 / swarm 5 / none 5; difficulty only for hostiles: normal 60 / easy 20 / hard 15 / brutal 5),
+  budget rules as usual (brutal never fits the default budget of 500 together with anything else).
+
+### 10.3 Decisions
+
+1. Groups: the three above + `creatures_none`, or split water creatures / ambient out as their own group?
+2. Difficulty **as a modifier** on the hostile symbol (proposal) vs a standalone symbol in the Effects category?
+3. Caps: per-chunk cap scaling (proposal) vs an absolute per-Age cap?
+4. Frenzy instability effect: include (proposal) or keep instability to the existing decks?
+5. Should `creatures_none` exist (a dead-quiet Age), or is `mod_rate_none` on each group enough?
+6. Pages for these symbols: discoverable in Ages like all others (proposal) and sold by the Archivist at rank 3?
+

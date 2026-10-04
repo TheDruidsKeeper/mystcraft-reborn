@@ -261,7 +261,7 @@ public class WorkstationTests {
 
     @GameTest(timeoutTicks = 100)
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "Writing desk drafts: a written page is a draft, undo refunds ink and paper, taking the target out makes drafts permanent")
+    @TestHolder(description = "Writing desk drafts: a written page is a draft, right-click erases it and refunds ink and paper, taking the folder out makes drafts permanent")
     static void deskDraftsUndoAndCommit(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
@@ -279,21 +279,27 @@ public class WorkstationTests {
         helper.assertValueEqual(desk.getInkAmount(), 950, "ink used");
         helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 2, "paper used");
 
-        // undo: page gone, ink and paper back
-        helper.assertTrue(desk.undoLastDraft(player), "undo succeeds");
-        helper.assertValueEqual(desk.getDrafts().size(), 0, "no drafts after undo");
+        // right-click on the draft: page gone, ink and paper back, nothing handed to the player
+        helper.assertTrue(desk.removePage(player, 0).isEmpty(), "erasing a draft hands nothing back");
+        helper.assertValueEqual(desk.getDrafts().size(), 0, "no drafts after erasing");
         helper.assertValueEqual(desk.getInkAmount(), 1000, "ink refunded");
         helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 3, "paper refunded");
         var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
         helper.assertTrue(pages.isEmpty(), "folder is empty again (got " + pages + ")");
 
-        // write again, take the folder out: the draft is committed on the next tick
+        // write again, take the folder out: the draft is committed on the next tick; a committed page is handed back on removal
         desk.writeSymbol(player, symbol);
         helper.assertValueEqual(desk.getDrafts().size(), 1, "draft written again");
+        ItemStack folderOut = desk.getTarget();
         desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, ItemStack.EMPTY);
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertValueEqual(desk.getDrafts().size(), 0, "drafts committed once the target left the slot"))
-                .thenExecute(() -> helper.assertFalse(desk.undoLastDraft(player), "nothing left to undo"))
+                .thenExecute(() -> {
+                    desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, folderOut);
+                    ItemStack back = desk.removePage(player, 0);
+                    helper.assertTrue(symbol.id().equals(PageItem.getSymbolId(back)), "a permanent page is handed back when removed");
+                    helper.assertValueEqual(desk.getInkAmount(), 950, "no refund for a permanent page");
+                })
                 .thenSucceed();
     }
 

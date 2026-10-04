@@ -97,6 +97,12 @@ public class BookDisplayBlockEntity extends MystBlockEntity {
         ItemStack book = getBook();
         if (book.isEmpty() || !BookUtil.isLinkingItem(book)) return;
         BookUtil.activate(book, serverLevel, entity);
+        // a Descriptive Book binds to its Age (and gets its discovered pages) on the first link: keep that copy
+        if (!ItemStack.matches(book, getBook())) {
+            updateBook(book);
+            setChanged();
+            serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), net.minecraft.world.level.block.Block.UPDATE_ALL);
+        }
     }
 
     // --- rotation ------------------------------------------------------------------------------------------------------

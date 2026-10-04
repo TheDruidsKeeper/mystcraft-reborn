@@ -149,6 +149,76 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
+// Facility datapack: template pools + credits are generated from the piece manifest written by
+// scripts/structures/import.py, so adding a room never means hand-editing pool JSON (docs/STRUCTURES.md).
+var facilityPackDir = file('src/main/resources/datapacks/mystcraft_facility')
+var generateStructurePools = tasks.register('generateStructurePools') {
+    var manifestFile = new File(facilityPackDir, 'manifest.json')
+    var outDir = file('build/generated/sources/structurePools')
+    inputs.file manifestFile
+    outputs.dir outDir
+    doLast {
+        var manifest = new groovy.json.JsonSlurper().parse(manifestFile)
+        var ns = manifest.namespace
+        var packOut = new File(outDir, 'datapacks/mystcraft_facility')
+        var poolDir = new File(packOut, "data/${ns}/worldgen/template_pool")
+        outDir.deleteDir()
+        poolDir.mkdirs()
+
+        var elementsByPool = [:].withDefault { [] }
+        manifest.pieces.each { piece ->
+            var poolCfg = manifest.pools[piece.pool] ?: [:]
+            var processors = piece.processors ?: poolCfg.processors ?: [processors: []]
+            elementsByPool[piece.pool] << [
+                    weight : piece.weight ?: 1,
+                    element: [
+                            element_type: 'minecraft:single_pool_element',
+                            location    : "${ns}:${piece.file}".toString(),
+                            processors  : processors,
+                            projection  : piece.projection ?: 'rigid',
+                    ],
+            ]
+        }
+        (manifest.external ?: []).each { ext ->
+            var poolCfg = manifest.pools[ext.pool] ?: [:]
+            elementsByPool[ext.pool] << [
+                    weight : ext.weight ?: 1,
+                    element: [
+                            element_type: 'minecraft:single_pool_element',
+                            location    : ext.location,
+                            processors  : ext.processors ?: poolCfg.processors ?: [processors: []],
+                            projection  : ext.projection ?: 'rigid',
+                    ],
+            ]
+        }
+        manifest.pools.each { poolName, cfg ->
+            var pool = [
+                    fallback: cfg.fallback ?: 'minecraft:empty',
+                    elements: elementsByPool[poolName],
+            ]
+            var f = new File(poolDir, "${poolName}.json")
+            f.parentFile.mkdirs()
+            f.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(pool)) + '\n'
+        }
+        var unknown = elementsByPool.keySet() - manifest.pools.keySet()
+        if (!unknown.isEmpty()) throw new GradleException("manifest pieces reference undeclared pools: ${unknown}")
+
+        // Attribution shipped inside the pack.
+        var credits = new StringBuilder('# Facility structure credits\n\nPieces imported by scripts/structures/import.py. ')
+        credits << 'Each file keeps its upstream license; see the mod NOTICE.md for the full texts.\n\n'
+        manifest.pieces.groupBy { it.source.pack }.each { pack, pieces ->
+            var s = pieces[0].source
+            credits << "## ${pack} — ${s.author} (${s.license}) ${s.url}\n\n"
+            pieces.sort { it.file }.each { credits << "- `${it.file}` ← `${it.source.path}`\n" }
+            credits << '\n'
+        }
+        new File(packOut, 'CREDITS.md').text = credits.toString()
+        logger.lifecycle("generateStructurePools: ${manifest.pools.size()} pools, ${manifest.pieces.size()} pieces")
+    }
+}
+sourceSets.main.resources.srcDir generateStructurePools
+neoForge.ideSyncTask generateStructurePools
+
 publishing {
     publications {
         register('mavenJava', MavenPublication) {

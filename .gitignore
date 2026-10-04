@@ -47,3 +47,4 @@ repo/
 !**/src/**/repo/
 client-docker.log
 *-docker.log
+*-done.txt

@@ -24,11 +24,17 @@ import com.techbucketdivision.mystcraft.registry.ModRecipes;
 import com.techbucketdivision.mystcraft.registry.ModSounds;
 import com.techbucketdivision.mystcraft.registry.ModVillagers;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.techbucketdivision.mystcraft.util.MystIds;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.slf4j.Logger;
 
 /**
@@ -67,6 +73,17 @@ public final class Mystcraft {
 
         modBus.addListener(Payloads::register);
         modBus.addListener(this::commonSetup);
+        modBus.addListener(this::addPackFinders);
+    }
+
+    /**
+     * The Facility rooms ship as a built-in data pack (src/main/resources/datapacks/mystcraft_facility; pools generated
+     * by the {@code generateStructurePools} Gradle task). Enabled by default, but a separate pack so players can
+     * disable it or layer their own room packs on top (docs/STRUCTURES.md).
+     */
+    private void addPackFinders(AddPackFindersEvent event) {
+        event.addPackFinders(MystIds.id("datapacks/mystcraft_facility"), PackType.SERVER_DATA,
+                Component.literal("Mystcraft Reborn: Facility rooms"), PackSource.BUILT_IN, false, Pack.Position.TOP);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

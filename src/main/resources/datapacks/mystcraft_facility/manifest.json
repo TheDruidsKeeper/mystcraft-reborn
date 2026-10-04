@@ -1,0 +1,484 @@
+{
+  "namespace": "mystcraft",
+  "pools": {
+    "facility/entrance": {
+      "fallback": "minecraft:empty",
+      "processors": "mystcraft:facility/weathering",
+      "comment": "start pool: surface entrance"
+    },
+    "facility/shaft": {
+      "fallback": "minecraft:empty",
+      "processors": "mystcraft:facility/weathering"
+    },
+    "facility/shaft_long": {
+      "fallback": "minecraft:empty",
+      "processors": "mystcraft:facility/weathering"
+    },
+    "facility/lobby": {
+      "fallback": "minecraft:empty",
+      "processors": "mystcraft:facility/weathering"
+    },
+    "facility/rooms": {
+      "fallback": "mystcraft:facility/vault",
+      "processors": "mystcraft:facility/weathering",
+      "comment": "chained; the vault is the fallback once depth runs out"
+    },
+    "facility/sv_three_way_blocker": {
+      "fallback": "mystcraft:facility/sv_three_way_blocker",
+      "processors": "mystcraft:facility/weathering"
+    },
+    "facility/vault": {
+      "fallback": "mystcraft:facility/vault",
+      "processors": "mystcraft:facility/weathering"
+    }
+  },
+  "pieces": [
+    {
+      "file": "facility/entrance/sv_entrance_1",
+      "pool": "facility/entrance",
+      "weight": 2,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/entrances/entrance_1.nbt"
+      }
+    },
+    {
+      "file": "facility/entrance/sv_entrance_1_long",
+      "pool": "facility/entrance",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/entrances/entrance_1_long.nbt"
+      }
+    },
+    {
+      "file": "facility/entrance/sv_entrance_2",
+      "pool": "facility/entrance",
+      "weight": 2,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/entrances/entrance_2.nbt"
+      }
+    },
+    {
+      "file": "facility/entrance/sv_entrance_2_long",
+      "pool": "facility/entrance",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/entrances/entrance_2_long.nbt"
+      }
+    },
+    {
+      "file": "facility/lobby/sv_lobby_01",
+      "pool": "facility/lobby",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/lobby/lobby_01.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_combination_lock",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "puzzle"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/combination_lock.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_drowned_junction",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/drowned_junction.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_husk_temple",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/husk_temple.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_item_combination_lock",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "puzzle"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/item_combination_lock.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_lava_parkour",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "puzzle"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/lava_parkour.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_lava_trap",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/lava_trap.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_library",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/library.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_pressure_plate_lock",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "puzzle"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/pressure_plate_lock.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_skeleton_trap",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/skeleton_trap.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_stairs",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/stairs.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_tight_maze",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "puzzle"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/tight_maze.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_tnt_plate_trap",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/tnt_plate_trap.nbt"
+      }
+    },
+    {
+      "file": "facility/rooms/sv_zombie_three_way_temple",
+      "pool": "facility/rooms",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [
+        "trap"
+      ],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple.nbt"
+      }
+    },
+    {
+      "file": "facility/shaft/sv_fall_01",
+      "pool": "facility/shaft",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/stairway/fall_01.nbt"
+      }
+    },
+    {
+      "file": "facility/shaft_long/sv_fall_long",
+      "pool": "facility/shaft_long",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/stairway/fall_long.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_01",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/01.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_02",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/02.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_03",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/03.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_04",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/04.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_05",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/05.nbt"
+      }
+    },
+    {
+      "file": "facility/sv_three_way_blocker/sv_blocker_06",
+      "pool": "facility/sv_three_way_blocker",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple/06.nbt"
+      }
+    },
+    {
+      "file": "facility/vault/sv_egg",
+      "pool": "facility/vault",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/treasure/egg.nbt"
+      }
+    },
+    {
+      "file": "facility/vault/sv_mooshroom_king",
+      "pool": "facility/vault",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/treasure/mooshroom_king.nbt"
+      }
+    },
+    {
+      "file": "facility/vault/sv_parrot",
+      "pool": "facility/vault",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/treasure/parrot.nbt"
+      }
+    },
+    {
+      "file": "facility/vault/sv_tiny_cap",
+      "pool": "facility/vault",
+      "weight": 1,
+      "projection": "rigid",
+      "tags": [],
+      "source": {
+        "pack": "Stonevaults",
+        "author": "TheGrimsey",
+        "license": "MIT",
+        "url": "https://github.com/TheGrimsey/Stonevaults",
+        "path": "data/stonevaults/structure/dungeon/treasure/tiny_cap.nbt"
+      }
+    }
+  ],
+  "external": []
+}

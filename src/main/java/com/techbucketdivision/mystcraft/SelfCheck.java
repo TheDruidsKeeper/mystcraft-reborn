@@ -18,6 +18,7 @@ import com.techbucketdivision.mystcraft.registry.ModItems;
 import com.techbucketdivision.mystcraft.registry.ModMenus;
 import com.techbucketdivision.mystcraft.registry.ModSounds;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -26,6 +27,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -59,6 +66,7 @@ public final class SelfCheck {
             checkSymbols();
             checkBlueprint();
             checkDimensionType(server);
+            checkFacilityPack(server);
             checkAgeCreationAndGeneration(server);
         } catch (Throwable t) {
             fail("uncaught exception: " + t);
@@ -156,6 +164,37 @@ public final class SelfCheck {
         boolean present = server.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE)
                 .get(AgeDimensionType.AGE).isPresent();
         check("dimension type mystcraft:age loaded from the datapack", present);
+    }
+
+    /**
+     * The Facility built-in datapack (docs/STRUCTURES.md): the jigsaw structure, every generated template pool and
+     * every template file the pools reference must load. Catches a stale manifest, a missing .nbt or a bad remap.
+     */
+    private static void checkFacilityPack(MinecraftServer server) {
+        var structures = server.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+        check("facility structure loaded from the built-in datapack", structures.get(MystIds.id("facility")).isPresent());
+        var pools = server.registryAccess().lookupOrThrow(Registries.TEMPLATE_POOL);
+        StructureTemplateManager templates = server.getStructureManager();
+        int poolCount = 0;
+        int elements = 0;
+        List<String> missing = new ArrayList<>();
+        for (var ref : pools.listElements().toList()) {
+            Identifier id = ref.key().identifier();
+            if (!id.getNamespace().equals(Mystcraft.MOD_ID) || !id.getPath().startsWith("facility/")) continue;
+            poolCount++;
+            StructureTemplatePool pool = ref.value();
+            for (var entry : pool.getTemplates()) {
+                elements++;
+                StructurePoolElement element = entry.getFirst();
+                // A missing .nbt resolves to an empty template (StructureTemplateManager#getOrCreate), i.e. size 0.
+                if (element instanceof SinglePoolElement && element.getSize(templates, Rotation.NONE).equals(Vec3i.ZERO)) {
+                    missing.add(id + " -> " + element);
+                }
+            }
+        }
+        check("facility template pools generated (" + poolCount + " pools, " + elements + " elements)", poolCount >= 7 && elements >= 30);
+        check("every facility pool element has a loadable template", missing.isEmpty());
+        if (!missing.isEmpty()) fail("missing templates: " + missing);
     }
 
     /**

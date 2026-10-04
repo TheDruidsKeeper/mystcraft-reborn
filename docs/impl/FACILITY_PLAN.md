@@ -1,6 +1,7 @@
 # Facility (puzzle vault) structures — plan
 
-Status: **approved — all decisions taken (§8); ready for Phase 1**. Nothing in this document is implemented yet.
+Status: **in progress** — Phase 1 (pipeline, built-in pack, Stonevaults room set) and Phase 2 (Vault symbol, `near_origin`
+placement, spawn relation, `/myst-locate`) are implemented; Phase 3 (puzzle framework) is next. All decisions taken (§8).
 
 Goal: one large, hard, puzzle-driven structure ("the Facility") near the arrival point of an Age. Solving it yields a
 Linking Book back to overworld spawn plus worthwhile loot. Rooms are *not* hand-designed by us: they come from
@@ -132,8 +133,8 @@ Mixed vanilla content needs no files at all: pool JSON can reference `minecraft:
 
 | Phase | Work | Exit criterion |
 |---|---|---|
-| **1 Pipeline** | `scripts/structures/*`, Gradle task, built-in datapack registration, `docs/STRUCTURES.md`, NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
-| **2 Worldgen** | `near_origin` placement, facility `Structure` + set + biome tag, `createState` wiring, `AgeSpawn` alignment, `/myst-locate facility` | gametest: every new Age has exactly one facility within R of origin; spawn relation holds; smoke green |
+| **1 Pipeline** ✅ | `scripts/structures/*`, Gradle task, built-in datapack registration, `docs/STRUCTURES.md`, NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
+| **2 Worldgen** ✅ | `near_origin` placement, facility `Structure` + set + biome tag, `createState` wiring, `AgeSpawn` alignment, `/myst-locate facility` | gametest: every new Age has exactly one facility within R of origin; spawn relation holds; smoke green |
 | **3 Puzzle framework** | marker processor, Warded Door, Symbol Altar, sequence lock + clues, offering pedestal, trial/vault loot, protection rule, `AgeData` flags, reward linkbook loot function | gametests per lock type (placed room → lock satisfied → door opens; break cancelled inside bounds) |
 | **4 Content v1** | import 2–3 entrances, 6–10 puzzle rooms, 2 vaults from §1.2 sources + vanilla trial-chamber corridors; marker retrofit; weights | client-smoke screenshot of an entrance + a puzzle room; manual run-through solvable in TESTING.md |
 | **5 Ship** | TESTING.md checklist (by mechanic), REQUIREMENTS "Reborn revision" §11.x, config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
@@ -149,9 +150,14 @@ Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specif
 ## 6. Risks
 * **26.1 jigsaw/structure JSON schema**: verify field names against the 26.1 vanilla datapack (`trial_chambers`
   structure JSON in the client jar) before writing ours; add to API_CHEATSHEET.
-* **Custom chunk generator + structures**: `createForFlat` state already carries vanilla sets, so starts/references
-  work; `terrain_adaptation` relies on `Beardifier` input in `fillFromNoise` — our legacy terrain gens may ignore it,
-  in which case the entrance gets a flat-fill foundation like the Library instead.
+* **Custom chunk generator + structures**: verified — the jigsaw assembles 36 pieces on the dedicated server (bbox
+  ~143×57×169). `terrain_adaptation: beard_thin` is declared but our legacy terrain gens ignore the Beardifier, so the
+  entrance may float / be buried on rough terrain: Phase 4 adds a flat-fill foundation processor or marker if playtests
+  show it.
+* **GameTest server has `generateStructures=false`**: tests call `ChunkGenerator#createStructures` directly
+  (FacilityTests); the smoke SelfCheck covers real generation.
+* **`Level#getHeight` never generates**: it answers `minY` for unloaded chunks, so any spawn search outside the
+  pre-generated area must `getChunk` first (AgeSpawn.groundAt(load=true)).
 * **Old-version `.nbt` (1.18/1.20) imports**: DataFixer handles blocks; block entities with removed fields may log
   warnings — the importer normalises and the smoke test catches hard failures.
 * **Spawn-inside-structure cold start**: the origin chunks must be generated before the first link so the structure

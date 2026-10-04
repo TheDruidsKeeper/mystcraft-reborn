@@ -48,3 +48,4 @@ repo/
 client-docker.log
 *-docker.log
 *-done.txt
+*-run.log

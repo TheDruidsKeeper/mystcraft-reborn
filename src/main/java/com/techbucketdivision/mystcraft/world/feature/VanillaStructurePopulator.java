@@ -1,6 +1,7 @@
 package com.techbucketdivision.mystcraft.world.feature;
 
 import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
+import com.techbucketdivision.mystcraft.registry.ModStructures;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -14,13 +15,15 @@ import java.util.Locale;
  * "Villages" / "Strongholds" / "Mineshafts" / "Nether Fortress" (REQUIREMENTS §4.3.8). Vanilla structures are
  * placed by the chunk generator's structure state, so this populator is a marker: {@code AgeChunkGenerator} builds its
  * {@code ChunkGeneratorStructureState} from the structure sets enabled by the populators registered on the Age
- * (see {@code AgeChunkGenerator#createState}). {@link #populate} itself does nothing.
+ * (see {@code AgeChunkGenerator#createState}). {@link #populate} itself does nothing. The {@code vault} kind enables
+ * the mod's own Facility structure set (docs/impl/FACILITY_PLAN.md) the same way.
  */
 public final class VanillaStructurePopulator implements Populator {
     public static final String VILLAGES = "villages";
     public static final String STRONGHOLDS = "strongholds";
     public static final String MINESHAFTS = "mineshafts";
     public static final String NETHER_FORTRESS = "nether_fortress";
+    public static final String VAULT = "vault";
 
     private final String kind;
     private final @Nullable ResourceKey<StructureSet> structureSet;
@@ -32,6 +35,7 @@ public final class VanillaStructurePopulator implements Populator {
             case STRONGHOLDS -> BuiltinStructureSets.STRONGHOLDS;
             case MINESHAFTS -> BuiltinStructureSets.MINESHAFTS;
             case NETHER_FORTRESS -> BuiltinStructureSets.NETHER_COMPLEXES;
+            case VAULT -> ModStructures.FACILITY_SET;
             default -> null;
         };
     }

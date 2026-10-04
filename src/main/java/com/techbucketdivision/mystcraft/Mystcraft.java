@@ -22,6 +22,7 @@ import com.techbucketdivision.mystcraft.registry.ModMenus;
 import com.techbucketdivision.mystcraft.registry.ModParticles;
 import com.techbucketdivision.mystcraft.registry.ModRecipes;
 import com.techbucketdivision.mystcraft.registry.ModSounds;
+import com.techbucketdivision.mystcraft.registry.ModStructures;
 import com.techbucketdivision.mystcraft.registry.ModVillagers;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
 import com.techbucketdivision.mystcraft.util.MystIds;
@@ -65,6 +66,7 @@ public final class Mystcraft {
         ModRecipes.SERIALIZERS.register(modBus);
         ModVillagers.POI_TYPES.register(modBus);
         ModVillagers.PROFESSIONS.register(modBus);
+        ModStructures.PLACEMENT_TYPES.register(modBus);
 
         // Config
         container.registerConfig(ModConfig.Type.COMMON, MystcraftConfig.SPEC);

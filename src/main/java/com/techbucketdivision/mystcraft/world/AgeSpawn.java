@@ -6,11 +6,13 @@ import com.techbucketdivision.mystcraft.age.AgeController;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
 import com.techbucketdivision.mystcraft.world.feature.StarFissurePopulator;
+import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -33,6 +35,10 @@ public final class AgeSpawn {
     private static final int SEARCH_RADIUS = 256;
     private static final int RANDOM_TRIES = 1000;
     private static final int RANDOM_SPREAD = 64;
+    /** Facility Ages: arrival distance from the entrance chunk centre, and how many candidates are tried. */
+    public static final int FACILITY_MIN = 60;
+    public static final int FACILITY_MAX = 120;
+    private static final int FACILITY_TRIES = 200;
     private static final Set<String> SPAWN_BIOME_PATHS = Set.of("forest", "plains", "taiga", "jungle", "birch_forest",
             "flower_forest", "sunflower_plains", "sparse_jungle", "meadow", "cherry_grove");
 
@@ -60,21 +66,33 @@ public final class AgeSpawn {
 
         BlockPos result = null;
         int tries = 0;
+        // Facility Ages (Vault symbol): arrive FACILITY_MIN..FACILITY_MAX blocks from the Facility entrance so it is
+        // in view but not under the feet (FACILITY_PLAN.md decision 2). The chunk is known without generating it.
+        ChunkPos facility = FacilityLocator.facilityChunk(level);
+        if (facility != null) {
+            BlockPos entrance = facility.getMiddleBlockPosition(0);
+            for (int i = 0; i < FACILITY_TRIES && result == null; i++) {
+                tries++;
+                double angle = rand.nextDouble() * Math.PI * 2;
+                int distance = FACILITY_MIN + rand.nextInt(FACILITY_MAX - FACILITY_MIN + 1);
+                int x = entrance.getX() + (int) Math.round(Math.cos(angle) * distance);
+                int z = entrance.getZ() + (int) Math.round(Math.sin(angle) * distance);
+                result = groundAt(level, x, z, true);
+            }
+            if (result != null) {
+                Mystcraft.LOGGER.info("[spawn] Age '{}' has a Facility at chunk {} (entrance near {}); spawning {} blocks away",
+                        data.name(), facility, entrance.toShortString(), (int) Math.sqrt(entrance.distSqr(result)));
+            }
+        }
         // MOTION_BLOCKING_NO_LEAVES counts water as blocking, so an ocean surface is not "ground": require a block
         // with a collision shape under the feet. The spread widens after the first half of the tries so ocean or
         // void Ages still find a shore / island.
-        for (int i = 0; i < RANDOM_TRIES; i++) {
+        for (int i = 0; i < RANDOM_TRIES && result == null; i++) {
             tries++;
             int spread = i < RANDOM_TRIES / 2 ? RANDOM_SPREAD : RANDOM_SPREAD * 3;
             int x = cx + rand.nextInt(spread * 2 + 1) - spread;
             int z = cz + rand.nextInt(spread * 2 + 1) - spread;
-            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
-            if (top < level.getMinY()) continue;
-            BlockPos ground = new BlockPos(x, top, z);
-            BlockState state = level.getBlockState(ground);
-            if (state.is(Blocks.BEDROCK) || !state.getFluidState().isEmpty() || state.getCollisionShape(level, ground).isEmpty()) continue;
-            result = ground.above();
-            break;
+            result = groundAt(level, x, z, false);
         }
         if (result == null) {
             result = new BlockPos(cx, Math.max(seaLevel, level.getMinY() + 1), cz);
@@ -89,6 +107,21 @@ public final class AgeSpawn {
         Mystcraft.LOGGER.info("[spawn] Age '{}' spawn determined at {} after {} tries ({}, platform placed)", data.name(), result.toShortString(), tries,
                 nearOrigin ? "kept near the star fissure at chunk 0,0" : biomePos == null ? "no preferred biome found" : "preferred biome at " + biomePos.toShortString());
         return result;
+    }
+
+    /**
+     * The first air block above solid, non-bedrock, dry ground at (x,z), or {@code null} if the column has none.
+     * {@code Level#getHeight} answers {@code minY} for a chunk that is not loaded (it never generates), so callers
+     * looking outside the pre-generated spawn area pass {@code load} to force the chunk first.
+     */
+    private static @Nullable BlockPos groundAt(ServerLevel level, int x, int z, boolean load) {
+        if (load) level.getChunk(x >> 4, z >> 4);
+        int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
+        if (top < level.getMinY()) return null;
+        BlockPos ground = new BlockPos(x, top, z);
+        BlockState state = level.getBlockState(ground);
+        if (state.is(Blocks.BEDROCK) || !state.getFluidState().isEmpty() || state.getCollisionShape(level, ground).isEmpty()) return null;
+        return ground.above();
     }
 
     private static @Nullable BlockPos findSpawnBiome(ServerLevel level, AgeController controller, RandomSource rand, int y) {

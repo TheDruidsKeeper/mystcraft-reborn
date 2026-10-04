@@ -20,6 +20,14 @@ import com.techbucketdivision.mystcraft.registry.ModSounds;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.ChunkPos;
+import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
+import com.techbucketdivision.mystcraft.world.AgeSpawn;
+import com.techbucketdivision.mystcraft.registry.ModStructures;
+import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -68,6 +76,7 @@ public final class SelfCheck {
             checkDimensionType(server);
             checkFacilityPack(server);
             checkAgeCreationAndGeneration(server);
+            checkFacilityGeneration(server);
         } catch (Throwable t) {
             fail("uncaught exception: " + t);
             Mystcraft.LOGGER.error("[selfcheck] uncaught", t);
@@ -257,6 +266,36 @@ public final class SelfCheck {
      * Informational terrain sample. A Void Age legitimately has no blocks at all, so nothing here is fatal; the point
      * is to make "the generator ran but produced nothing sensible" visible in the CI log.
      */
+    /**
+     * A Vault Age on a real server (structures enabled): the Facility start exists in the chunk NearOriginPlacement
+     * names, with pieces, and the arrival point is FACILITY_MIN..MAX blocks from it.
+     */
+    private static void checkFacilityGeneration(MinecraftServer server) {
+        ItemStack book = DescriptiveBookItem.createBound(server, "Selfcheck Vault", 777L, List.of(PageItem.createSymbolPage(MystIds.id("vault"))));
+        AgeData data = DescriptiveBookItem.getAgeData(server, book);
+        check("vault age created", data != null);
+        if (data == null) return;
+        ServerLevel level = AgeManager.getOrCreateLevel(server, data);
+        ChunkPos facility = FacilityLocator.facilityChunk(level);
+        check("vault age has a facility placement", facility != null);
+        if (facility == null) return;
+        long t0 = System.currentTimeMillis();
+        ChunkAccess chunk = level.getChunk(facility.x(), facility.z(), ChunkStatus.STRUCTURE_STARTS);
+        Structure structure = server.registryAccess().lookupOrThrow(Registries.STRUCTURE).getOrThrow(ModStructures.FACILITY).value();
+        StructureStart start = chunk.getStartForStructure(structure);
+        boolean valid = start != null && start.isValid();
+        check("facility start generated in chunk " + facility + " (" + (System.currentTimeMillis() - t0) + " ms)", valid);
+        if (valid) {
+            check("facility assembled " + start.getPieces().size() + " pieces (entrance, shaft, lobby, rooms, vault)", start.getPieces().size() >= 4);
+            Mystcraft.LOGGER.info("[selfcheck] facility bounding box {}", start.getBoundingBox());
+        }
+        BlockPos spawn = AgeSpawn.findSpawn(level, AgeControllers.server(level));
+        double distance = Math.sqrt(facility.getMiddleBlockPosition(spawn.getY()).distSqr(spawn));
+        check("vault age spawn " + spawn.toShortString() + " is " + (int) distance + " blocks from the facility", distance >= AgeSpawn.FACILITY_MIN - 16 && distance <= AgeSpawn.FACILITY_MAX + 16);
+        AgeManager.markDead(server, data.levelKey());
+        check("vault age retired", true);
+    }
+
     private static void describeTerrain(ServerLevel level, ChunkAccess chunk) {
         int minY = level.getMinY();
         int maxY = minY + level.getHeight();

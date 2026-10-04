@@ -70,7 +70,7 @@ public final class WorldBuildingConfig {
                 List.of("weather_fast=25", "weather_slow=25", "weather_off=15", "weather_cloudy=15", "weather_rain=8", "weather_snow=8",
                         "weather_on=3", "weather_storm=1")));
         CATEGORIES.put(SymbolCategory.STRUCTURES, new Category(SymbolCategory.STRUCTURES, 40, List.of(),
-                List.of("villages=30", "mineshafts=25", "dungeons=25", "strongholds=10", "ravines=10", "nether_fortress=5")));
+                List.of("villages=30", "mineshafts=25", "dungeons=25", "strongholds=10", "ravines=10", "nether_fortress=5", "vault=15")));
         CATEGORIES.put(SymbolCategory.FEATURES, new Category(SymbolCategory.FEATURES, 50, List.of("caves", "lakes_surface"),
                 List.of("lakes_deep=10", "huge_trees=10", "floating_islands=8", "skylands=6", "tendrils=5", "crystal_formations=5",
                         "obelisks=4", "spheres=3", "spikes=3", "dense_ores=2")));

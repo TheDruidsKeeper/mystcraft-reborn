@@ -512,6 +512,17 @@ All pop `blocklist` for a SEA block then a TERRAIN block (defaults water/stone).
 | NetherFort | Nether Fortress | 3 | Civilization, Machine, Power, Entropy | (2) | count>3 → +100 | Vanilla `MapGenNetherBridge`; locator "Fortress". |
 | Ravines | Ravines | 2 | Terrain, Transform, Void, Weave | (1) | 0 | `MapGenRavineMyst` (AIR): 1/50 per chunk, y = rand(rand(40)+8)+20, vanilla ravine shape (avoids water). |
 | Dungeons | Dungeons | 2 | Civilization, Constraint, Chain, Resurrect | (2) | 0 | 8 vanilla `WorldGenDungeons` attempts per chunk at random y 0–255. |
+
+> **Reborn revision (Vault symbol, `vault`):** new medium structure symbol (rank 3, Civilization, Question, Constraint,
+> Discover; same overuse instability as the vanilla structure symbols; Structures category, random-fill weight 15).
+> It enables the mod's own `mystcraft:facility` structure set in the Age (`VanillaStructurePopulator` kind `vault`):
+> one jigsaw **Facility** (entrance → shaft → lobby → chained puzzle/trap rooms → vault) placed by the
+> `mystcraft:near_origin` placement exactly once per Age, 2–5 chunks from the origin, never on chunk (0,0). The Age
+> *seed* (not the level seed) drives the structure state so layouts differ between Ages. Arrival in such an Age is
+> 60–120 blocks from the entrance chunk centre (`AgeSpawn.FACILITY_MIN/MAX`), falling back to the normal search when no
+> ground is found there. `/myst-locate facility` prints the entrance chunk. Rooms are imported third-party pieces shipped
+> in the built-in data pack `mystcraft_facility` (docs/STRUCTURES.md, docs/impl/FACILITY_PLAN.md); puzzle locks, the
+> protection rule and the Linking Book reward are Phase 3 of that plan.
 | TerModSpheres | Spheres | 2 | Terrain, Transform, Form, Cycle | `→ BlockStructure, TerModSpheres` (3) | 0 | `MapGenSpheresMyst`: 5% per chunk (range 8), one node at y=32+rand(rand(192)+1), radius scalar 1–5, made of STRUCTURE block (default cobblestone). |
 | GenSpikes | Spikes | 3 | Nature, Encourage, Entropy, Structure | `→ BlockStructure, GenSpikes` (3) | 0 | Populator 1/18 per chunk: at surface, if the whole base circle (width 1–4, r²≤w²+1) is supported: columns of height `rand(rand(6..37)+1)+1` of STRUCTURE block (default stone). |
 | FeatureMediumDummy | Lacking Medium Features | 4 | Contradict, Chaos, Exist, Balance | `FeatureMediums0 → FeatureMediumExt, FeatureMediumDummy` (5); `FeatureMediumExt → FeatureMediumDummy` (–) | +1000 | – |

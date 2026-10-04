@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "mystcraft:near_origin",
+    "salt": 41937281,
+    "min_chunk_radius": 2,
+    "max_chunk_radius": 5
+  },
+  "structures": [
+    {
+      "structure": "mystcraft:facility",
+      "weight": 1
+    }
+  ]
+}

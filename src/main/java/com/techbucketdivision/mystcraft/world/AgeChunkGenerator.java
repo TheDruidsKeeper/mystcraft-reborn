@@ -11,6 +11,8 @@ import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainAlteration;
 import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
 import com.techbucketdivision.mystcraft.world.biome.BiomeHeights;
 import com.techbucketdivision.mystcraft.world.biome.SurfaceBlocks;
+import com.techbucketdivision.mystcraft.config.MystcraftConfig;
+import com.techbucketdivision.mystcraft.registry.ModStructures;
 import com.techbucketdivision.mystcraft.world.feature.VanillaStructurePopulator;
 import com.techbucketdivision.mystcraft.world.gen.ChunkBlocks;
 import com.techbucketdivision.mystcraft.world.gen.HeightEstimator;
@@ -140,12 +142,18 @@ public final class AgeChunkGenerator extends ChunkGenerator {
         AgeController c = controller();
         if (c != null) {
             for (Populator p : c.populators()) {
-                if (p instanceof VanillaStructurePopulator vsp && vsp.structureSet() != null) enabled.add(vsp.structureSet());
+                if (p instanceof VanillaStructurePopulator vsp && vsp.structureSet() != null) {
+                    if (vsp.structureSet() == ModStructures.FACILITY_SET && !MystcraftConfig.FACILITY_ENABLED.get()) continue;
+                    enabled.add(vsp.structureSet());
+                }
             }
         }
         // Explicit-override factory (the "flat" one) so that only the symbol-enabled sets exist in this Age.
         // Caveat: the concentric-ring (stronghold) seed extension is 0 in this factory, so ring angles are shared between Ages.
-        return ChunkGeneratorStructureState.createForFlat(randomState, legacyLevelSeed, getBiomeSource(),
+        // The Age seed (not the shared level seed) drives placement and piece selection, so two Ages never get the
+        // same structure layout; NearOriginPlacement / FacilityLocator rely on this being the state's level seed.
+        long structureSeed = c != null ? c.seed() : legacyLevelSeed;
+        return ChunkGeneratorStructureState.createForFlat(randomState, structureSeed, getBiomeSource(),
                 structureSets.listElements().filter(ref -> enabled.contains(ref.key())).map(ref -> (Holder<StructureSet>) ref));
     }
 

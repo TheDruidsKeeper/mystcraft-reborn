@@ -24,6 +24,7 @@ import com.techbucketdivision.mystcraft.instability.ChunkProfiler;
 import com.techbucketdivision.mystcraft.instability.InstabilityController;
 import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
 import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.linking.LinkController;
@@ -41,7 +42,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -74,6 +77,7 @@ public final class MystcraftCommands {
         dispatcher.register(tpx());
         dispatcher.register(create());
         dispatcher.register(agebook());
+        dispatcher.register(locate());
         dispatcher.register(toggleInstability("myst-twi"));
         dispatcher.register(toggleInstability("myst-toggleworldinstability"));
         if (MystcraftConfig.SPAWN_METEOR_COMMAND.get()) dispatcher.register(spawnMeteor());
@@ -273,6 +277,27 @@ public final class MystcraftCommands {
         AgeManager.getOrCreateLevel(server, data);
         success(ctx.getSource(), "commands.mystcraft.create.success", data.name(), data.levelKey().identifier().toString());
         return 1;
+    }
+
+    // --- /myst-locate ----------------------------------------------------------------------------------------------
+
+    /** {@code /myst-locate facility}: where this Age's Facility entrance is (FacilityLocator; nothing is generated). */
+    private static LiteralArgumentBuilder<CommandSourceStack> locate() {
+        return Commands.literal("myst-locate")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(Commands.literal("facility").executes(ctx -> {
+                    ServerLevel level = senderAgeLevel(ctx.getSource());
+                    ChunkPos chunk = FacilityLocator.facilityChunk(level);
+                    if (chunk == null) {
+                        ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.locate.facility.none"));
+                        return 0;
+                    }
+                    int x = chunk.getMiddleBlockX();
+                    int z = chunk.getMiddleBlockZ();
+                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+                    success(ctx.getSource(), "commands.mystcraft.locate.facility.success", chunk.toString(), x + " " + y + " " + z);
+                    return 1;
+                }));
     }
 
     // --- /myst-agebook -------------------------------------------------------------------------------------------

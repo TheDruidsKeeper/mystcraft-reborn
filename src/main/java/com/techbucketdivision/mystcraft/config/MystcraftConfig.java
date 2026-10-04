@@ -21,6 +21,8 @@ public final class MystcraftConfig {
             .define("respawning.respawnInAges", true);
     public static final ModConfigSpec.BooleanValue VILLAGE_DESK_GEN = B.comment("Archivist houses contain a Writing Desk")
             .define("generation.villageDeskGen", true);
+    public static final ModConfigSpec.BooleanValue FACILITY_ENABLED = B.comment("Generate the Facility (puzzle vault) in Ages written with the Vault symbol; the symbol stays writable when off")
+            .define("generation.facility", true);
     public static final ModConfigSpec.BooleanValue REQUIRE_UUID_TEST = B.comment("Strict dimension UUID check on login (players without a stored UUID are sent home)")
             .define("teleportation.requireUUIDTest", false);
     public static final ModConfigSpec.ConfigValue<String> HOME_DIMENSION = B.comment("Home dimension (Star Fissure target, ejection target)")

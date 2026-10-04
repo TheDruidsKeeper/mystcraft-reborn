@@ -182,6 +182,13 @@ block in front of you; it clears its volume without dropping grass, flowers or s
 - [ ] Terrain/biome symbols: an Age written with specific terrain, biome, feature and block pages shows them (flat, skylands, floating islands, dense ores, obelisks, spheres…). A category you wrote is never changed by the first link (write only a dark lighting page: it stays the only lighting page; write a moon and no sun: no sun is added).
 - [ ] Config `mystcraft-worldbuilding.toml`: set `fill.terrain.weights = ["terrain_flat=1"]` and bind an empty book: the Age is flat; set `fill.starFissureChance = 100`: every new Age has a star fissure.
 
+### 6a. Facility (Vault symbol)
+
+- [ ] Write a book with the Vault page (or bind until `/myst-agebook` shows `vault`): on arrival the surface entrance of the Facility (small cobblestone/stone-brick building) is in view 60–120 blocks away; `/myst-locate facility` points at it and the `[spawn]` log line names the chunk. Two Ages with the Vault symbol have different room layouts.
+- [ ] Entrance → stair shaft → lobby with four exits → rooms (combination lock, pressure plates, lava parkour, maze, traps, mob rooms) → a treasure room ends every branch; chests use the `facility_common/uncommon/rare` tables.
+- [ ] No Vault page: `/myst-locate facility` reports none, no Facility generates near the origin.
+- [ ] Data packs screen (`/datapack list`): `mod/mystcraft:datapacks/mystcraft_facility` is enabled; disabling it and rejoining removes the structure without errors.
+
 ### 6b. QA shelf (`/myst-qa-shelf`)
 
 - [ ] Run `/myst-qa-shelf` in a creative world: 17 lecterns appear in front of you, each titled "QA NN …". Right-click each lectern's book (empty hand) and compare the Age with the `[qa]` line in the log ("look for …"): dark sun + bright light, sky gradient / fog / night sky, world colours, celestial modifiers (sun from the west, half day, green sunset), storm, obsidian flatland without sea, skylands + ice islands, nether Age with fortress and lava sea, end Age, tiny biomes, unstable Age, void + star fissure, amplified lava lakes, brutal hostile swarm, lifeless Age, peaceful meadow.

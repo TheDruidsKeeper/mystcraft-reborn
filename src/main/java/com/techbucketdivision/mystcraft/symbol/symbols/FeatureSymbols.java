@@ -165,6 +165,11 @@ public final class FeatureSymbols {
         return new VanillaStructure("nether_fortress", "nether_fortress", CIVILIZATION, MACHINE, POWER, ENTROPY);
     }
 
+    /** The Facility: one sealed puzzle vault near the arrival point, holding a Linking Book home (FACILITY_PLAN.md). */
+    public static VanillaStructure vault() {
+        return new VanillaStructure("vault", VanillaStructurePopulator.VAULT, CIVILIZATION, QUESTION, CONSTRAINT, DISCOVER);
+    }
+
     /** Ravines. */
     public static final class Ravines extends SimpleSymbol {
         public Ravines() { super("ravines", 2, TERRAIN, TRANSFORM, VOID, WEAVE); }

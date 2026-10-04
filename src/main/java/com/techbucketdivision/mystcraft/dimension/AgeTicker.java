@@ -2,6 +2,7 @@ package com.techbucketdivision.mystcraft.dimension;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeController;
+import com.techbucketdivision.mystcraft.creature.CreatureEvents;
 import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.age.AgeManager;
@@ -111,6 +112,7 @@ public final class AgeTicker {
         if (!players.isEmpty()) {
             tickChunks(level, controller, weather, players);
             handleSleep(level, controller, data, players);
+            CreatureEvents.extraSpawns(level, controller);
         }
 
         // Periodic / on-change resend.

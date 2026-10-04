@@ -168,6 +168,7 @@ public final class InstabilityManager {
         card("explosions", EffectProviders.explosions(), 1000).add(DECK_DESTRUCTIVE, 8);
         card("lightning", EffectProviders.lightning(), 1000).add(DECK_HARSH, 4).add(DECK_DESTRUCTIVE, 4);
         card("meteors", EffectProviders.meteors(), 1000).add(DECK_DESTRUCTIVE, 4);
+        card(com.techbucketdivision.mystcraft.creature.CreatureRules.FRENZY_CARD, EffectProviders.frenzy(), 1000).add(DECK_HARSH, 3);
 
         // Registered but not dealt (as in the original): burning,g / crumblebedrock / decayblack / erosion.
         card("burning,g", EffectProviders.scorchedGlobal(), 1000);

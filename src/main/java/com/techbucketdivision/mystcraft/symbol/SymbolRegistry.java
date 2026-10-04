@@ -8,6 +8,7 @@ import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
 import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
 import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
+import com.techbucketdivision.mystcraft.api.symbol.logic.CreatureController;
 import com.techbucketdivision.mystcraft.api.symbol.logic.DynamicColorProvider;
 import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
 import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
@@ -109,7 +110,7 @@ public final class SymbolRegistry {
 
     /** Which produced modifier names a modifier symbol's slot when it produces several (the gradient also pops colours). */
     private static final List<ModifierSlot> FILL_PRIORITY = List.of(ModifierSlot.GRADIENT, ModifierSlot.SUNSET, ModifierSlot.COLOR,
-            ModifierSlot.DIRECTION, ModifierSlot.PHASE, ModifierSlot.LENGTH, ModifierSlot.BLOCK);
+            ModifierSlot.DIRECTION, ModifierSlot.PHASE, ModifierSlot.LENGTH, ModifierSlot.BLOCK, ModifierSlot.RATE, ModifierSlot.CAP, ModifierSlot.DIFFICULTY);
 
     /** Category for symbols registered without one (add-ons): by the logic they provide, else by what they push. */
     private static SymbolCategory inferCategory(SymbolProfiler.Profile profile) {
@@ -119,6 +120,7 @@ public final class SymbolRegistry {
         if (profile.provides(WeatherController.class)) return SymbolCategory.WEATHER;
         if (profile.provides(Celestial.class)) return SymbolCategory.CELESTIALS;
         if (profile.provides(EnvironmentalEffect.class)) return SymbolCategory.EFFECTS;
+        if (profile.provides(CreatureController.class)) return SymbolCategory.CREATURES;
         if (profile.provides(Populator.class) || profile.provides(TerrainAlteration.class) || profile.provides(ChunkFinalizer.class)) {
             return SymbolCategory.FEATURES;
         }
@@ -196,6 +198,7 @@ public final class SymbolRegistry {
     /** Registers every built-in symbol. Called once from common setup. */
     public static void bootstrapBuiltins() {
         com.techbucketdivision.mystcraft.symbol.symbols.BuiltinSymbols.registerAll();
+        com.techbucketdivision.mystcraft.symbol.symbols.CreatureSymbols.registerAll();
         com.techbucketdivision.mystcraft.symbol.modifiers.ModifierSymbols.registerAll();
         BlockSymbols.registerAll();
     }

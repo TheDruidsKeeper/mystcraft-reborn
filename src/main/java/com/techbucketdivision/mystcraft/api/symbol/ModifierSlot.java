@@ -16,7 +16,11 @@ public enum ModifierSlot {
     GRADIENT(Modifier.GRADIENT),
     SUNSET(Modifier.SUNSET),
     /** A block (material); {@link AgeSymbol#blockCategories()} says which block categories are involved. */
-    BLOCK(Modifier.BLOCKLIST);
+    BLOCK(Modifier.BLOCKLIST),
+    /** Creature spawn rate, cap and difficulty (plan §10). */
+    RATE(Modifier.RATE),
+    CAP(Modifier.CAP),
+    DIFFICULTY(Modifier.DIFFICULTY);
 
     private final String modifierId;
 

@@ -76,6 +76,8 @@ public final class WorldBuildingConfig {
                         "obelisks=4", "spheres=3", "spikes=3", "dense_ores=2")));
         CATEGORIES.put(SymbolCategory.EFFECTS, new Category(SymbolCategory.EFFECTS, 12, List.of(),
                 List.of("env_accelerated=40", "env_lightning=25", "pvp_off=20", "env_meteors=8", "env_explosions=4", "env_scorched=3")));
+        CATEGORIES.put(SymbolCategory.CREATURES, new Category(SymbolCategory.CREATURES, 15, List.of(),
+                List.of("creatures_passive=30", "creatures_neutral=20", "creatures_hostile=45", "creatures_none=5")));
     }
 
     // --- biomes ----------------------------------------------------------------------------------------------------
@@ -110,6 +112,14 @@ public final class WorldBuildingConfig {
             .defineInRange("fill.materials.exoticChance", 5, 0, 100);
     public static final ModConfigSpec.IntValue NO_SEA_CHANCE = B.comment("Chance in percent that the terrain gets No Sea attached")
             .defineInRange("fill.materials.noSeaChance", 3, 0, 100);
+
+    // --- creatures -------------------------------------------------------------------------------------------------
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> CREATURE_RATE_WEIGHTS = B.comment("Spawn-rate modifier of a creature group, \"none|mod_rate_none|mod_rate_sparse|mod_rate_dense|mod_rate_swarm=weight\" (none = no modifier)")
+            .defineListAllowEmpty("fill.creatures.rateWeights", List.of("none=50", "mod_rate_sparse=20", "mod_rate_dense=20", "mod_rate_swarm=5", "mod_rate_none=5"), () -> "", o -> o instanceof String);
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> CREATURE_CAP_WEIGHTS = B.comment("Population-cap modifier of a creature group, \"none|mod_cap_few|mod_cap_many|mod_cap_horde=weight\"")
+            .defineListAllowEmpty("fill.creatures.capWeights", List.of("none=60", "mod_cap_few=15", "mod_cap_many=20", "mod_cap_horde=5"), () -> "", o -> o instanceof String);
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> CREATURE_DIFFICULTY_WEIGHTS = B.comment("Difficulty modifier of the hostile group, \"none|mod_difficulty_easy|mod_difficulty_hard|mod_difficulty_brutal=weight\"")
+            .defineListAllowEmpty("fill.creatures.difficultyWeights", List.of("none=60", "mod_difficulty_easy=20", "mod_difficulty_hard=15", "mod_difficulty_brutal=5"), () -> "", o -> o instanceof String);
 
     public static final ModConfigSpec SPEC = B.build();
 

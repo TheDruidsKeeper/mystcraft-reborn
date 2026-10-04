@@ -46,6 +46,7 @@ public class SymbolSurface extends GuiElement {
         FEATURES("features", EnumSet.of(SymbolCategory.FEATURES, SymbolCategory.STRUCTURES)),
         MATERIALS("materials", EnumSet.of(SymbolCategory.MATERIALS)),
         EFFECTS("effects", EnumSet.of(SymbolCategory.EFFECTS)),
+        CREATURES("creatures", EnumSet.of(SymbolCategory.CREATURES)),
         MODIFIERS("modifiers", EnumSet.of(SymbolCategory.MODIFIERS));
 
         public final String id;

@@ -10,6 +10,7 @@ import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
 import com.techbucketdivision.mystcraft.config.MystcraftConfig;
 import com.techbucketdivision.mystcraft.dimension.AgeEnvironment;
 import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
+import com.techbucketdivision.mystcraft.creature.CreatureEvents;
 import com.techbucketdivision.mystcraft.instability.BaselineProfiler;
 import com.techbucketdivision.mystcraft.instability.InstabilityController;
 import com.techbucketdivision.mystcraft.item.LinkingBookItem;
@@ -109,6 +110,7 @@ public final class CommonEvents {
     public static void onServerStopped(ServerStoppedEvent event) {
         AgeControllers.clearServer();
         InstabilityController.clearAll();
+        CreatureEvents.forgetAll();
         synchronized (PENDING_EJECTIONS) {
             PENDING_EJECTIONS.clear();
         }
@@ -321,6 +323,7 @@ public final class CommonEvents {
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
             InstabilityController.invalidate(level.dimension());
+            CreatureEvents.forget(level.dimension());
         }
     }
 

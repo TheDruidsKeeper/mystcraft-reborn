@@ -189,56 +189,54 @@ instance). A new session continues at the first phase not marked done under §6 
 
 ---
 
-## 10. Creatures category (proposal, awaiting decisions)
+## 10. Creatures category (decided: defaults, no symbol instability, Frenzy card)
 
-Goal: let the author of an Age say what lives in it. Today an Age takes the mob spawns of its biomes unchanged.
+Goal: let the author of an Age say what lives in it. Without creature pages an Age takes the mob spawns of its
+biomes unchanged.
 
 ### 10.1 Symbols
 
-New category **Creatures** (`CREATURES`, optional, 0–3, after Effects in build order; desk tab "Cre"). Primary symbols,
-one per spawn group, each taking **modifiers** of three new slots:
+Category **Creatures** (`CREATURES`, optional, 0–3, after Effects in build order; desk tab "Cre"). Primary symbols,
+one per spawn group, each taking **modifiers** of three slots (`RATE`, `CAP`, `DIFFICULTY`):
 
-| Symbol | Group | Default when the symbol is absent |
+| Symbol | Group (`CreatureGroup`) | Default when the symbol is absent |
 |---|---|---|
-| `creatures_passive` | animals (`MobCategory.CREATURE`, ambient, water creatures) | biome spawns as vanilla |
-| `creatures_neutral` | neutral mobs (endermen, bees, wolves, piglins, …) | biome spawns as vanilla |
-| `creatures_hostile` | monsters (`MobCategory.MONSTER`) | biome spawns as vanilla |
-| `creatures_none` | – | – (writes "nothing spawns at all"; stands alone, takes no modifier) |
+| `creatures_passive` | everything that is not a monster and not tagged neutral (animals, ambient, water creatures) | biome spawns as vanilla |
+| `creatures_neutral` | entity types in `#mystcraft:neutral_creatures` (endermen, piglins, zombified piglins, spiders, wolves, bees, polar bears, llamas, pandas, dolphins, goats, iron golems) | biome spawns as vanilla |
+| `creatures_hostile` | `MobCategory.MONSTER` (minus the neutral tag) | biome spawns as vanilla |
+| `creatures_none` ("Lifeless") | – | – (silences all three groups; stands alone, takes no modifier) |
 
-Writing a group symbol **without** modifiers means "this group spawns as in the biomes". Modifiers change it:
+A group symbol **without** modifiers means "this group spawns as in the biomes". Modifiers change it:
 
 | Slot | Modifier symbols | Effect on the group |
 |---|---|---|
-| **Spawn rate** (`RATE`) | `mod_rate_none`, `mod_rate_sparse` (×0.25), `mod_rate_normal`, `mod_rate_dense` (×2), `mod_rate_swarm` (×4) | multiplies the spawn weights of the group; `none` removes the group's spawns |
-| **Cap** (`CAP`) | `mod_cap_few` (¼ of vanilla cap), `mod_cap_normal`, `mod_cap_many` (×2), `mod_cap_horde` (×4) | per-chunk mob cap of the group (`MobCategory` max instances scaled) |
-| **Difficulty** (`DIFFICULTY`, hostile only) | `mod_difficulty_easy`, `mod_difficulty_normal`, `mod_difficulty_hard`, `mod_difficulty_brutal` | regional difficulty clamp for the Age: easy = always Easy, hard = always Hard, brutal = Hard + equipment / extra health via attribute modifiers on spawn |
+| **Spawn rate** (`RATE`) | `mod_rate_none` (×0), `mod_rate_sparse` (×0.25), `mod_rate_dense` (×2), `mod_rate_swarm` (×4) | multiplies the biome spawn weights of the group (`AgeChunkGenerator.getMobsAt` → `CreatureRules.scaleSpawns`); ×0 drops the group's spawns |
+| **Cap** (`CAP`) | `mod_cap_few` (×0.25), `mod_cap_many` (×2), `mod_cap_horde` (×4) | population cap of the group: vanilla per-category cap × loaded spawn chunks / 289 × factor. Factor < 1: `MobSpawnEvent.PositionCheck` refuses natural spawns once the census reaches the cap; factor > 1: the Age ticker runs extra `NaturalSpawner.spawnCategoryForChunk` passes every second while below the cap |
+| **Difficulty** (`DIFFICULTY`, hostile only) | `mod_difficulty_easy` (health ×0.75, damage ×0.75), `mod_difficulty_hard` (×1.5 / ×1.25), `mod_difficulty_brutal` (×2 / ×1.5) | attribute modifiers on every hostile finalised in the Age (`FinalizeSpawnEvent`, idempotent per mob) |
 
-The existing modifier mechanism is reused: each modifier pushes a pending modifier (`rate`, `cap`, `difficulty`),
-the group symbol pops them (so `AgeSymbol.accepts` / `takes` and the desk UI work unchanged). Materials-style
-gating: `creatures_passive` does not take a difficulty modifier.
+"Normal" is the absence of a modifier (no `mod_rate_normal` etc.). The modifier mechanism is the general one: each
+modifier pushes a pending modifier, the group symbol pops them, so `accepts` / `takes`, the desk and the blueprint
+work unchanged; `creatures_passive` / `neutral` do not pop a difficulty and therefore do not take one.
 
 ### 10.2 Runtime
 
-* `CreatureController` (new logic interface, one per group; registered via `AgeDirector`) is consulted by
-  `AgeChunkGenerator.getMobsAt` (biome spawn list filtered/rescaled per group) and by a `MobSpawnEvent`/
-  `FinalizeSpawnEvent` listener for caps and difficulty; the regional difficulty comes from
-  `ServerLevel.getCurrentDifficultyAt` → overridden per Age level through the dimension's level data hook we
-  already use for weather.
-* **Instability:** `mod_difficulty_hard` = +250, `brutal` = +500 symbol instability; `mod_rate_swarm` on hostiles =
-  +250; `creatures_none` = +100 (a lifeless world is unstable). Conversely an **instability effect** "Frenzy"
-  (deck harsh, cost 1000) raises the hostile difficulty by one step and the rate ×1.5 while active - so a very
-  unstable Age becomes dangerous even without creature symbols (that is the "increased difficulty as instability
-  effect" idea).
-* Blueprint fill: optional, 15 % of Ages: one group symbol with a random rate/cap modifier (weights normal 50 /
-  sparse 20 / dense 20 / swarm 5 / none 5; difficulty only for hostiles: normal 60 / easy 20 / hard 15 / brutal 5),
-  budget rules as usual (brutal never fits the default budget of 500 together with anything else).
+* `CreatureController` (logic interface: group, rate, cap factor, difficulty; `CreatureSymbols.Settings`) - one per
+  group, registered through `AgeDirector`, a second one for the same group is an extra-controller instability like
+  any duplicate. `AgeController.creatures(group)`; the rules live in `CreatureRules`, the hooks in `CreatureEvents`.
+* **No symbol instability**: creature symbols and their modifiers cost 0. A dangerous Age comes from the
+  **Frenzy** instability card (`"frenzy"`, harsh deck, weight 3, cost 1000): while dealt, hostiles spawn ×1.5 and
+  are one difficulty step harder than written (`CreatureRules.frenzy`, `difficulty(...).harder()`).
+* Blueprint (`AgeBlueprint.fillCreatures`, `fill.creatures.*`): 15 % of Ages; `creatures_none` by its weight (5 of
+  100) stands alone, otherwise 1–3 distinct groups (passive 30 / neutral 20 / hostile 45) each with a rate from
+  `rateWeights` (none 50 / sparse 20 / dense 20 / swarm 5 / no spawning 5), a cap from `capWeights` (none 60 / few
+  15 / many 20 / horde 5) and, for hostiles, a difficulty from `difficultyWeights` (none 60 / easy 20 / hard 15 /
+  brutal 5).
 
-### 10.3 Decisions
+### 10.3 Decisions (taken: defaults)
 
-1. Groups: the three above + `creatures_none`, or split water creatures / ambient out as their own group?
-2. Difficulty **as a modifier** on the hostile symbol (proposal) vs a standalone symbol in the Effects category?
-3. Caps: per-chunk cap scaling (proposal) vs an absolute per-Age cap?
-4. Frenzy instability effect: include (proposal) or keep instability to the existing decks?
-5. Should `creatures_none` exist (a dead-quiet Age), or is `mod_rate_none` on each group enough?
-6. Pages for these symbols: discoverable in Ages like all others (proposal) and sold by the Archivist at rank 3?
-
+1. Groups: passive / neutral / hostile + Lifeless; neutral is a data tag so packs can move mobs between groups.
+2. Difficulty is a modifier on the hostile symbol.
+3. Caps scale the vanilla per-category cap over the loaded spawn area.
+4. Frenzy card included; it is the only instability tied to creatures.
+5. `creatures_none` exists.
+6. Pages are discoverable in Ages like all others.

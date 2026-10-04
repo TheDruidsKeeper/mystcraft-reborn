@@ -26,6 +26,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.server.level.ServerLevel;
+import com.techbucketdivision.mystcraft.creature.CreatureRules;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -299,6 +304,21 @@ public final class AgeChunkGenerator extends ChunkGenerator {
         if (spawn != null && (spawn.getX() >> 4) == chunkX && (spawn.getZ() >> 4) == chunkZ) {
             AgeSpawn.placePlatform(level, spawn);
         }
+    }
+
+    /** Biome spawn lists rescaled by the Age's creature controllers (plan §10); frenzy is read from the live level. */
+    @Override
+    public WeightedList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager structureManager, MobCategory category, BlockPos pos) {
+        WeightedList<MobSpawnSettings.SpawnerData> spawns = super.getMobsAt(biome, structureManager, category, pos);
+        AgeController controller = controller();
+        if (controller == null || spawns.isEmpty()) return spawns;
+        boolean frenzy = false;
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            ServerLevel level = server.getLevel(controller.ageData().levelKey());
+            frenzy = level != null && CreatureRules.frenzy(level);
+        }
+        return CreatureRules.scaleSpawns(spawns, controller::creatures, frenzy);
     }
 
     @Override

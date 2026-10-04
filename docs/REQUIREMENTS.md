@@ -719,6 +719,8 @@ Population: `chunk.setTerrainPopulated(false)`; seed like vanilla; scattered fea
 
 Creature spawns: chunk provider returns the biome's spawn list (spawn modifiers are a no-op hook).
 
+> **Reborn revision (Creatures category, world-building plan §10):** the biome's spawn list is rescaled per creature group by the Age's `CreatureController`s (`AgeChunkGenerator.getMobsAt` → `CreatureRules.scaleSpawns`). Groups: passive (animals, ambient, water), neutral (`#mystcraft:neutral_creatures` entity-type tag) and hostile (monsters); the pages `creatures_passive / neutral / hostile` take rate (`mod_rate_none|sparse|dense|swarm` ×0/0.25/2/4), cap (`mod_cap_few|many|horde` ×0.25/2/4 of the vanilla per-category cap over the loaded spawn area; enforced in `MobSpawnEvent.PositionCheck` for smaller caps and by extra `NaturalSpawner` passes from the Age ticker for larger ones) and, hostiles only, difficulty (`mod_difficulty_easy|hard|brutal`: health/damage attribute modifiers on `FinalizeSpawnEvent`); `creatures_none` ("Lifeless") silences every group. An unwritten group spawns as vanilla. None of these pages carries symbol instability; the harsh-deck **Frenzy** card (cost 1000) instead makes hostiles spawn ×1.5 and one difficulty step harder while dealt. `[creatures]` log lines (DEBUG) record cap refusals and extra spawns.
+
 ### 5.5 AgeController construction
 
 * `reconstruct()` runs on creation and whenever `AgeData.isUpdated()` (after an NBT reload) — guarded by a semaphore; other threads wait.
@@ -789,6 +791,7 @@ score *= {difficulty 0: 0.25, 1: 0.5, 2: 1.0, 3: 1.75}      // balance.cfg insta
 | explosions | `EffectExplosions` | 1000 | | | 8 | | |
 | lightning | `EffectLightning` | 1000 | | 4 | 4 | | |
 | meteors | `EffectMeteor` | 1000 | | | 4 | | |
+| frenzy *(Reborn)* | hostiles spawn ×1.5, one difficulty step harder (`CreatureRules`) | 1000 | | 3 | | | |
 
 (Registered but unused/commented: `burning,g` 1000, `crumblebedrock` 5000, `decayblack` 5000, `erosion` 2000.)
 

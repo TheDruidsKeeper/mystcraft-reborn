@@ -25,6 +25,7 @@ public enum SymbolCategory {
     STRUCTURES("structures", Kind.OPTIONAL, 0, 3),
     FEATURES("features", Kind.OPTIONAL, 0, 3),
     EFFECTS("effects", Kind.OPTIONAL, 0, 2),
+    CREATURES("creatures", Kind.OPTIONAL, 0, 3),
     MATERIALS("materials", Kind.MODIFIER, 0, 0),
     MODIFIERS("modifiers", Kind.MODIFIER, 0, 0);
 

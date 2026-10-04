@@ -7,7 +7,9 @@ import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
 import com.techbucketdivision.mystcraft.api.symbol.BlockDescriptor;
 import com.techbucketdivision.mystcraft.api.symbol.Modifier;
 import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
+import com.techbucketdivision.mystcraft.api.symbol.CreatureGroup;
 import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
+import com.techbucketdivision.mystcraft.api.symbol.logic.CreatureController;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
 import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
 import com.techbucketdivision.mystcraft.api.symbol.logic.DynamicColorProvider;
@@ -74,6 +76,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
     private final List<ChunkFinalizer> finalizers = new ArrayList<>();
     private final List<Celestial> celestials = new ArrayList<>();
     private final List<EnvironmentalEffect> effects = new ArrayList<>();
+    private final Map<CreatureGroup, CreatureController> creatures = new EnumMap<>(CreatureGroup.class);
     private final Map<ColorKind, List<DynamicColorProvider>> dynamicColors = new EnumMap<>(ColorKind.class);
     private final Map<ColorKind, List<StaticColorProvider>> staticColors = new EnumMap<>(ColorKind.class);
     private final SkyOptions sky = new SkyOptions();
@@ -122,6 +125,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
         finalizers.clear();
         celestials.clear();
         effects.clear();
+        creatures.clear();
         dynamicColors.clear();
         staticColors.clear();
         cloudHeights.clear();
@@ -229,6 +233,10 @@ public final class AgeController implements AgeDirector, TerrainContext {
         if (logic instanceof ChunkFinalizer cf) { finalizers.add(cf); any = true; }
         if (logic instanceof Celestial c) { celestials.add(c); any = true; }
         if (logic instanceof EnvironmentalEffect ee) { effects.add(ee); any = true; }
+        if (logic instanceof CreatureController cc) {
+            if (creatures.put(cc.group(), cc) != null) symbolInstability += EXTRA_CONTROLLER_INSTABILITY;
+            any = true;
+        }
         if (logic instanceof DynamicColorProvider dc) { dynamicColors.computeIfAbsent(dc.kind(), k -> new ArrayList<>()).add(dc); any = true; }
         if (logic instanceof StaticColorProvider sc) { staticColors.computeIfAbsent(sc.kind(), k -> new ArrayList<>()).add(sc); any = true; }
         if (!any) {
@@ -374,6 +382,8 @@ public final class AgeController implements AgeDirector, TerrainContext {
     public List<ChunkFinalizer> finalizers() { return Collections.unmodifiableList(finalizers); }
     public List<Celestial> celestials() { return Collections.unmodifiableList(celestials); }
     public List<EnvironmentalEffect> effects() { return Collections.unmodifiableList(effects); }
+    /** The creature controller written for a group, or {@code null} (the group spawns as in the biomes). */
+    public @Nullable CreatureController creatures(CreatureGroup group) { return creatures.get(group); }
     public SkyOptions sky() { return sky; }
     public int symbolInstability() { return symbolInstability; }
     public boolean isPvPEnabled() { return sky.pvpEnabled; }

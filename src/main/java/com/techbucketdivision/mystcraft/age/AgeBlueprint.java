@@ -54,6 +54,7 @@ public final class AgeBlueprint {
     private static final Identifier LIGHTING_NORMAL = MystIds.id("lighting_normal");
     private static final Identifier STAR_FISSURE = MystIds.id("star_fissure");
     private static final Identifier NO_SEA = MystIds.id("no_sea");
+    private static final Identifier CREATURES_NONE = MystIds.id("creatures_none");
     private static final Identifier GRADIENT = MystIds.id("mod_gradient");
     private static final Identifier SUNSET = MystIds.id("color_horizon");
     private static final List<Identifier> DIRECTIONS = List.of(MystIds.id("mod_north"), MystIds.id("mod_east"), MystIds.id("mod_south"), MystIds.id("mod_west"));
@@ -212,6 +213,7 @@ public final class AgeBlueprint {
             fillSimple(SymbolCategory.STRUCTURES);
             fillFeatures();
             fillSimple(SymbolCategory.EFFECTS);
+            fillCreatures();
         }
 
         // --- helpers --------------------------------------------------------------------------------------------
@@ -435,28 +437,35 @@ public final class AgeBlueprint {
                 out.add(PHASES.get(random.nextInt(PHASES.size())));
             }
             if (symbol.accepts().contains(ModifierSlot.LENGTH)) {
-                Map<String, Integer> lengths = WorldBuildingConfig.parseKeyedWeights(WorldBuildingConfig.CELESTIAL_LENGTH_WEIGHTS.get());
-                int total = 0;
-                for (int w : lengths.values()) total += w;
-                if (total > 0) {
-                    int roll = random.nextInt(total);
-                    for (Map.Entry<String, Integer> e : lengths.entrySet()) {
-                        roll -= e.getValue();
-                        if (roll < 0) {
-                            if (!e.getKey().equals("none")) {
-                                Identifier length = WorldBuildingConfig.parseId(e.getKey());
-                                if (length != null && SymbolRegistry.contains(length)) out.add(length);
-                            }
-                            break;
-                        }
-                    }
-                }
+                Identifier length = keyedModifier(random, WorldBuildingConfig.CELESTIAL_LENGTH_WEIGHTS.get());
+                if (length != null) out.add(length);
             }
             if (sunset && symbol.accepts().contains(ModifierSlot.SUNSET) && chance(random, WorldBuildingConfig.CELESTIAL_SUNSET_CHANCE.get())) {
                 out.add(randomColor(random));
                 out.add(SUNSET);
             }
             return out;
+        }
+
+        /**
+         * Rolls one entry of a {@code "key=weight"} list and returns it as a registered symbol id, or {@code null}
+         * for the {@code none} entry or an unknown symbol.
+         */
+        static @Nullable Identifier keyedModifier(RandomSource random, List<? extends String> entries) {
+            Map<String, Integer> weights = WorldBuildingConfig.parseKeyedWeights(entries);
+            int total = 0;
+            for (int w : weights.values()) total += w;
+            if (total <= 0) return null;
+            int roll = random.nextInt(total);
+            for (Map.Entry<String, Integer> e : weights.entrySet()) {
+                roll -= e.getValue();
+                if (roll < 0) {
+                    if (e.getKey().equals("none")) return null;
+                    Identifier id = WorldBuildingConfig.parseId(e.getKey());
+                    return id != null && SymbolRegistry.contains(id) ? id : null;
+                }
+            }
+            return null;
         }
 
         static Identifier randomColor(RandomSource random) {
@@ -542,6 +551,49 @@ public final class AgeBlueprint {
             int count = rollCount(random, config, added);
             addRandom(SymbolCategory.FEATURES, random, weights(SymbolCategory.FEATURES), count, this::allowed,
                     id -> new SymbolPage(id, materials(random, id, false), true));
+        }
+
+        /**
+         * Creatures: an empty category leaves vanilla spawning alone. When filled, either {@code creatures_none}
+         * alone (by its weight) or one to three distinct group pages, each with rate / cap (/ difficulty for
+         * hostiles) modifiers rolled from the keyed weight lists.
+         */
+        void fillCreatures() {
+            if (written(SymbolCategory.CREATURES)) return;
+            RandomSource random = random(SymbolCategory.CREATURES);
+            WorldBuildingConfig.Category config = WorldBuildingConfig.CATEGORIES.get(SymbolCategory.CREATURES);
+            int added = addDefaults(SymbolCategory.CREATURES, config);
+            if (!chance(random, config.chance.get())) return;
+            Map<Identifier, Integer> weights = weights(SymbolCategory.CREATURES);
+            Integer noneWeight = weights.remove(CREATURES_NONE);
+            int total = noneWeight == null ? 0 : noneWeight;
+            for (int w : weights.values()) total += w;
+            if (total <= 0) return;
+            if (noneWeight != null && random.nextInt(total) < noneWeight) {
+                add(SymbolPage.of(CREATURES_NONE));
+                return;
+            }
+            int count = rollCount(random, config, added);
+            addRandom(SymbolCategory.CREATURES, random, weights, count, this::allowed, id -> new SymbolPage(id, creatureModifiers(random, id), true));
+        }
+
+        List<Identifier> creatureModifiers(RandomSource random, Identifier id) {
+            AgeSymbol symbol = SymbolRegistry.get(id);
+            List<Identifier> out = new ArrayList<>();
+            if (symbol == null) return out;
+            if (symbol.accepts().contains(ModifierSlot.RATE)) {
+                Identifier rate = keyedModifier(random, WorldBuildingConfig.CREATURE_RATE_WEIGHTS.get());
+                if (rate != null) out.add(rate);
+            }
+            if (symbol.accepts().contains(ModifierSlot.CAP)) {
+                Identifier cap = keyedModifier(random, WorldBuildingConfig.CREATURE_CAP_WEIGHTS.get());
+                if (cap != null) out.add(cap);
+            }
+            if (symbol.accepts().contains(ModifierSlot.DIFFICULTY)) {
+                Identifier difficulty = keyedModifier(random, WorldBuildingConfig.CREATURE_DIFFICULTY_WEIGHTS.get());
+                if (difficulty != null) out.add(difficulty);
+            }
+            return out;
         }
     }
 

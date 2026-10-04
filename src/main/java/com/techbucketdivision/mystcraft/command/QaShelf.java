@@ -81,7 +81,13 @@ public final class QaShelf {
                 Case.of("QA 13 Void with star fissure", 1013L, "void terrain (nothing but the arrival platform) with a star fissure to fall into",
                         "terrain_void", "star_fissure"),
                 Case.of("QA 14 Amplified deep lakes", 1014L, "amplified terrain, deep lakes of lava, tendrils, cloudy weather, no horizon band",
-                        "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "weather_cloudy", "no_horizon"));
+                        "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "weather_cloudy", "no_horizon"),
+                Case.of("QA 15 Brutal hostile swarm", 1015L, "monsters spawn 4x as often, 4x the usual number, double health and hit hard; passives sparse",
+                        page("creatures_hostile", "mod_rate_swarm", "mod_cap_horde", "mod_difficulty_brutal"), page("creatures_passive", "mod_rate_sparse", "mod_cap_few")),
+                Case.of("QA 16 Lifeless", 1016L, "no creature spawns naturally at all (watch at night); creatures_none must show no modifiers",
+                        "creatures_none"),
+                Case.of("QA 17 Peaceful meadow", 1017L, "no hostiles ever, dense animals; neutrals normal",
+                        page("creatures_hostile", "mod_rate_none"), page("creatures_passive", "mod_rate_dense", "mod_cap_many"), "creatures_neutral"));
     }
 
     /**

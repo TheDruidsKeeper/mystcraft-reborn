@@ -16,6 +16,10 @@ public final class Modifier {
     public static final String SUNSET = "sunset";
     public static final String BLOCKLIST = "blocklist";
     public static final String BIOMELIST = "biomelist";
+    /** Creature modifiers (plan §10): spawn rate factor, cap factor, {@code CreatureDifficulty}. */
+    public static final String RATE = "rate";
+    public static final String CAP = "cap";
+    public static final String DIFFICULTY = "difficulty";
 
     public static final int DEFAULT_DANGLING = 100;
 

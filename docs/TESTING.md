@@ -35,7 +35,7 @@ All stages export into `out/` (gitignored) and keep the Docker build output in `
 ## Log markers
 
 The mod logs the decisions that matter for bug reports at INFO under bracketed tags, so a report only needs the
-`debug.log` (client: `<instance>/.minecraft/logs/debug.log`; server: `logs/debug.log`). `grep -E "\[(spawn|link|age|ink|blueprint|knowledge|desk|qa|panel|portal|worldgen|scene|clientcheck|selfcheck)\]"` is the first thing to run on any log.
+`debug.log` (client: `<instance>/.minecraft/logs/debug.log`; server: `logs/debug.log`). `grep -E "\[(spawn|link|age|ink|blueprint|knowledge|desk|creatures|qa|panel|portal|worldgen|scene|clientcheck|selfcheck)\]"` is the first thing to run on any log.
 
 
 | Tag                                                                     | Where                                     | Meaning                                                                                        |
@@ -47,6 +47,7 @@ The mod logs the decisions that matter for bug reports at INFO under bracketed t
 | `[knowledge]`                                                           | `SymbolKnowledge`, client handler         | every symbol a player learns (from a page or an Age) and the client's synced count                |
 | `[desk]`                                                                | `WritingDeskBlockEntity`                  | pages written / modifiers attached, drafts committed or undone (DEBUG level)                     |
 | `[qa]`                                                                  | `/myst-qa-shelf`                          | one line per lectern: case, seed, Age, what to look for                                          |
+| `[creatures]`                                                           | `CreatureEvents`, `CreatureRules`         | natural spawns refused by a group cap, extra spawn passes for raised caps, difficulty applied (DEBUG level) |
 | `[blueprint]`                                                           | `AgeBlueprint`, `AgeController`           | every first-link fill (seed, written/discovered pages, instability), picks dropped for the budget, rejected config entries, controller fallbacks (should never fire) |
 | `[age] <name> ticking: time, celestials, celestial angle (day/night)`    | `AgeTicker`                               | first tick of an Age level after load; new Ages are moved to morning here                      |
 | `[panel]`                                                               | `PanelImageStorage`, `PanelImages`        | link panel photo requests, uploads and storage                                                 |
@@ -65,7 +66,7 @@ Debug commands (OP, also used by the client smoke):
 | `/myst-scene`                                                             | builds the showcase in front of you: writing desk, bookstand + book, lectern + book, ink mixer, book binder, link modifier, every decay block, a crystal column, a powered crystal portal (receptacle on the front at eye height), an ink pool between the portal and the star fissure, item frames; puts you on the ground south of the pad (nothing floats) |
 | `/myst-scene closeup <element>`, `/myst-scene open <element>`, `/myst-scene use <item>` | teleport to one scene element, right-click it (opens its screen), or put an item in hand and use it (`linking_book`, `descriptive_book`, `folder`, `notebook`, `current_age_book`) |
 | `/myst-visit [name]`                                                      | creates a new Age and links you into it through the normal link path (spawn search, ground snap, platform); gives you the bound Descriptive Book                                                                                                         |
-| `/myst-qa-shelf`                                                          | builds a row of 14 lecterns in front of you, each with a Descriptive Book bound to a fixed-seed Age that shows one thing only eyes can judge (sky gradient, world colours, celestial modifiers, storm, obsidian flatland, skylands, nether / end Ages, tiny biomes, instability, void + fissure, amplified lava lakes); `[qa]` log lines say what to look for per lectern |
+| `/myst-qa-shelf`                                                          | builds a row of 17 lecterns in front of you, each with a Descriptive Book bound to a fixed-seed Age that shows one thing only eyes can judge (sky gradient, world colours, celestial modifiers, storm, obsidian flatland, skylands, nether / end Ages, tiny biomes, instability, void + fissure, amplified lava lakes, brutal hostile swarm, lifeless, peaceful meadow); `[qa]` log lines say what to look for per lectern |
 | `/myst-create [name]`, `/myst-agebook [dim]`, `/tpx`, `/myst-time set day | night`,` /myst-twi`,` /myst-spawnmeteor`,` /myst-dbg`                                                                                                                                                                                                    |
 
 
@@ -106,6 +107,7 @@ check that would catch a regression; the manual checklist below no longer repeat
 | Desk writes unknown symbols / books as target / wrong modifier | `deskWritesKnownSymbolsIntoFolder`, `deskAttachesModifiers`, `deskDraftsUndoAndCommit`; client smoke checks the Scholar's desk lists > 50 symbols (`02z_screen_desk`, `02y_desk_tab_*`) |
 | Pages / Ages do not teach symbols                            | `studyingAPageTeachesItsSymbols`, `arrivingInAnAgeTeachesItsSymbols`; client smoke fails when no symbols are known after arriving in the Age |
 | QA shelf case uses a wrong id / modifier                     | `qaShelfCasesResolve`                                                                                                     |
+| Creature pages: wrong slots, modifiers ignored, spawn lists / caps / difficulty not scaled, Lifeless not alone | `creatureSchema`, `controllersResolve`, `spawnListsScale`, `capsAndDifficulty`, `blueprintFillsCreatures` (120 seeds; also asserts the Frenzy card is in the harsh deck); client smoke checks the Creatures tab lists 4 symbols (`02y_desk_tab_creatures`) |
 | Book in a lectern / receptacle stays unbound, no symbols added | `displayLinkKeepsBoundBook`, `portalBindsUnboundBook` (asserts discovered pages in the receptacle); `/myst-scene`, `/myst-create`, `/myst-visit`, the QA shelf all bind through `DescriptiveBookItem.createBound` |
 | Book not organised / no summary page                         | client smoke pages the Age book to page 1 (terrain) and to the summary (`04c`, `04d`), fails without a synced summary |
 | Decay blocks do nothing in Ages                             | decay blocks random-tick (`ModBlocks`); `InstabilityTests`                                                                |
@@ -182,8 +184,14 @@ block in front of you; it clears its volume without dropping grass, flowers or s
 
 ### 6b. QA shelf (`/myst-qa-shelf`)
 
-- [ ] Run `/myst-qa-shelf` in a creative world: 14 lecterns appear in front of you, each titled "QA NN …". Right-click each lectern's book (empty hand) and compare the Age with the `[qa]` line in the log ("look for …"): dark sun + bright light, sky gradient / fog / night sky, world colours, celestial modifiers (sun from the west, half day, green sunset), storm, obsidian flatland without sea, skylands + ice islands, nether Age with fortress and lava sea, end Age, tiny biomes, unstable Age, void + star fissure, amplified lava lakes.
+- [ ] Run `/myst-qa-shelf` in a creative world: 17 lecterns appear in front of you, each titled "QA NN …". Right-click each lectern's book (empty hand) and compare the Age with the `[qa]` line in the log ("look for …"): dark sun + bright light, sky gradient / fog / night sky, world colours, celestial modifiers (sun from the west, half day, green sunset), storm, obsidian flatland without sea, skylands + ice islands, nether Age with fortress and lava sea, end Age, tiny biomes, unstable Age, void + star fissure, amplified lava lakes, brutal hostile swarm, lifeless Age, peaceful meadow.
 - [ ] The same shelf built again (new world, same command) gives the same Ages (fixed seeds); the book of each shelf Age is organised by category and ends with the summary page.
+
+### 6c. Creatures
+
+- [ ] QA 15 (brutal hostile swarm): at night monsters are everywhere (4× rate, 4× cap) and a zombie takes twice the hits (40 health) and hits noticeably harder; animals are rare. QA 16 (Lifeless): nothing spawns naturally, day or night (`/kill @e[type=!player]` then wait a minute). QA 17 (peaceful meadow): never a monster at night, animals dense (2× rate and cap), neutrals (endermen, wolves, bees) as usual.
+- [ ] Write `creatures_passive` + `mod_cap_few` at a Scholar's desk: in the Age animals stay sparse even after a long wait; `[creatures]` DEBUG lines show cap refusals. The hostile page takes a difficulty modifier, the passive and neutral pages refuse it (dimmed on the Modifiers tab), Lifeless refuses every modifier.
+- [ ] A very unstable Age drawing the Frenzy card (`/myst-dbg` shows the dealt cards): monsters spawn more often and are harder than the pages say.
 
 ### 7. Instability
 

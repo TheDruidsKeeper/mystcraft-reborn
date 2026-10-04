@@ -42,6 +42,14 @@ public final class EffectProviders {
         };
     }
 
+    /**
+     * Frenzy (plan §10): no chunk effect of its own - while the card is dealt the creature rules make hostiles one
+     * difficulty step harder and spawn 1.5× as often ({@code CreatureRules.frenzy}).
+     */
+    public static InstabilityProvider frenzy() {
+        return (director, level) -> {};
+    }
+
     public static InstabilityProvider meteors() {
         return (director, level) -> {
             for (int i = 0; i < level; i++) director.registerEffect(new MeteorEffect());

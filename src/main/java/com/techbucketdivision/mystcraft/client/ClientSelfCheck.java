@@ -150,11 +150,17 @@ public final class ClientSelfCheck {
                         screenshot(mc, "02y_desk_tab_sky");
                         desk.selectPage(0);
                         desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.MODIFIERS);
-                    } else if (stepTicks == 38 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen) {
+                    } else if (stepTicks == 38 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
                         screenshot(mc, "02y_desk_tab_modifiers");
-                    } else if (stepTicks == 40) {
+                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.CREATURES);
+                    } else if (stepTicks == 42 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        int creatures = desk.listedSymbols();
+                        Mystcraft.LOGGER.info("[clientcheck] creatures tab lists {} symbols", creatures);
+                        if (creatures != 4) failures.add("creatures tab lists " + creatures + " symbols, expected 4");
+                        screenshot(mc, "02y_desk_tab_creatures");
+                    } else if (stepTicks == 44) {
                         if (mc.screen != null) mc.screen.onClose();
-                    } else if (stepTicks > 44) {
+                    } else if (stepTicks > 48) {
                         screenIndex++;
                         stepTicks = 0;
                     }

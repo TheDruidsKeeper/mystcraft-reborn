@@ -11,6 +11,7 @@ import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import com.techbucketdivision.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -18,29 +19,37 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StandingSignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code /myst-qa-shelf}: a row of lecterns, each with a Descriptive Book already bound (fixed seed, fixed pages) to an
- * Age that exercises something only a human can judge - the look of sky and world colours, celestial modifiers,
- * weather, terrain features with materials, nether / end terrain, instability effects. Everything structural about
- * these Ages is covered by the headless tests; the shelf is for the eyes. Logged under {@code [qa]}.
+ * {@code /myst-dev qa-shelf}: the visual QA matrix (docs/QA.md). One lectern per QA world, each holding a Descriptive
+ * Book already bound (fixed seed, fixed pages) to an Age that exercises something only a human can judge. Worlds are
+ * grouped in sections (one coloured row each, labelled with a sign, walkways all round). Everything block-level about
+ * these Ages is asserted by {@code QaWorldTests} on the same seeds; the shelf is for the eyes. Logged under {@code [qa]}.
  */
 public final class QaShelf {
     private QaShelf() {}
 
-    /** One shelf entry: title, seed and the pages the author "wrote" (the blueprint fills the rest deterministically). */
-    public record Case(String title, long seed, List<SymbolPage> pages, String lookFor) {
-        static Case of(String title, long seed, String lookFor, Object... pages) {
+    /** A section of the matrix: a row of related worlds on a floor of one colour. */
+    public record Section(String id, String name, Block floor, List<Case> cases) {}
+
+    /** One QA world: id (section letter + number), title, seed, the pages the author "wrote", what to look for. */
+    public record Case(String id, String title, long seed, List<SymbolPage> pages, String lookFor) {
+        public static Case of(String id, String title, long seed, String lookFor, Object... pages) {
             List<SymbolPage> list = new ArrayList<>();
             for (Object page : pages) {
                 if (page instanceof SymbolPage sp) list.add(sp);
                 else list.add(SymbolPage.of(MystIds.id((String) page)));
             }
-            return new Case(title, seed, list, lookFor);
+            return new Case(id, title, seed, list, lookFor);
         }
     }
 
@@ -50,84 +59,177 @@ public final class QaShelf {
         return new SymbolPage(MystIds.id(symbol), mods, false);
     }
 
-    /** The QA matrix. Seeds are fixed so a report ("shelf 4 looks wrong") is reproducible. */
-    public static List<Case> cases() {
+    /**
+     * The QA matrix. Rules: attributes that interfere visually never share a world; orthogonal ones are stacked so
+     * each world checks several things; seeds are fixed so a report ("B2 looks wrong") is reproducible.
+     */
+    public static List<Section> sections() {
         return List.of(
-                Case.of("QA 01 Empty book", 1001L, "a plain, stable Age: terrain, sun, biomes - the blueprint defaults"),
-                Case.of("QA 02 Dark sun, bright light", 1002L, "no sun disc, world fully lit (bright lighting), stars visible all day",
-                        "sun_dark", "lighting_bright", "stars_normal"),
-                Case.of("QA 03 Sky gradient", 1003L, "sky red->blue over the day, fog yellow, night sky purple",
-                        page("color_sky", "mod_color_red", "mod_gradient", "mod_color_blue", "mod_gradient"),
-                        page("color_fog", "mod_color_yellow"), page("color_sky_night", "mod_color_purple")),
-                Case.of("QA 04 World colours", 1004L, "magenta grass, cyan foliage, red water",
-                        page("color_grass", "mod_color_magenta"), page("color_foliage", "mod_color_cyan"), page("color_water", "mod_color_red")),
-                Case.of("QA 05 Celestial modifiers", 1005L, "sun rising in the west (east direction = 90 deg), half-length day, green sunset; moon zenith phase",
-                        page("sun_normal", "mod_east", "mod_half", "mod_color_green", "color_horizon"), page("moon_normal", "mod_noon"),
-                        page("stars_twinkle", "mod_double"), "rainbow"),
-                Case.of("QA 06 Storm", 1006L, "permanent thunderstorm with lightning effect, dark lighting",
-                        "weather_storm", "lighting_dark", "env_lightning"),
-                Case.of("QA 07 Flat obsidian, no sea", 1007L, "flat obsidian terrain without any sea, obelisks of glowstone",
-                        page("terrain_flat", "block_obsidian", "no_sea"), page("obelisks", "block_glowstone")),
-                Case.of("QA 08 Skylands + islands", 1008L, "skylands with floating islands of ice, huge trees, crystal formations",
-                        "terrain_normal", "skylands", page("floating_islands", "block_ice"), "huge_trees", "crystal_formations"),
-                Case.of("QA 09 Nether age", 1009L, "nether (cave) terrain with nether biomes, a nether fortress, lava sea",
-                        page("terrain_nether", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress"),
-                Case.of("QA 10 End age", 1010L, "end island terrain, end sky, end biome, spikes",
-                        "terrain_end", "stars_end_sky", "biome_single", "biome_minecraft_end_highlands", page("spikes", "block_obsidian")),
-                Case.of("QA 11 Tiny biomes", 1011L, "tiny biome patches of desert / jungle / ice spikes side by side, villages and ravines",
-                        "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages", "ravines"),
-                Case.of("QA 12 Unstable", 1012L, "meteors + accelerated + explosions: instability symptoms within minutes (decay, crumbling, effects)",
-                        "env_meteors", "env_accelerated", "env_explosions", "dense_ores"),
-                Case.of("QA 13 Void with star fissure", 1013L, "void terrain (nothing but the arrival platform) with a star fissure to fall into",
-                        "terrain_void", "star_fissure"),
-                Case.of("QA 14 Amplified deep lakes", 1014L, "amplified terrain, deep lakes of lava, tendrils, cloudy weather, no horizon band",
-                        "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "weather_cloudy", "no_horizon"),
-                Case.of("QA 15 Brutal hostile swarm", 1015L, "monsters spawn 4x as often, 4x the usual number, double health and hit hard; passives sparse",
-                        page("creatures_hostile", "mod_rate_swarm", "mod_cap_horde", "mod_difficulty_brutal"), page("creatures_passive", "mod_rate_sparse", "mod_cap_few")),
-                Case.of("QA 16 Lifeless", 1016L, "no creature spawns naturally at all (watch at night); creatures_none must show no modifiers",
-                        "creatures_none"),
-                Case.of("QA 17 Peaceful meadow", 1017L, "no hostiles ever, dense animals; neutrals normal",
-                        page("creatures_hostile", "mod_rate_none"), page("creatures_passive", "mod_rate_dense", "mod_cap_many"), "creatures_neutral"));
+                new Section("A", "Baseline", Blocks.WHITE_CONCRETE, List.of(
+                        Case.of("A1", "Empty book", 2001L, "a plain, stable Age: terrain, sun, biomes - the blueprint defaults; nothing odd"))),
+                new Section("B", "Sky & celestials", Blocks.LIGHT_BLUE_CONCRETE, List.of(
+                        Case.of("B1", "Sky colours", 2011L, "sky red->blue over the day, fog yellow, night sky purple; smooth sunrise/sunset, no flicker",
+                                page("color_sky", "mod_color_red", "mod_gradient", "mod_color_blue", "mod_gradient"),
+                                page("color_fog", "mod_color_yellow"), page("color_sky_night", "mod_color_purple")),
+                        Case.of("B2", "Celestial modifiers", 2012L, "sun rises in the west on a half-length day with a green sunset; moon at zenith phase; stars twinkle at double speed; rainbow arc",
+                                page("sun_normal", "mod_east", "mod_half", "mod_color_green", "color_horizon"), page("moon_normal", "mod_noon"),
+                                page("stars_twinkle", "mod_double"), "rainbow"),
+                        Case.of("B3", "Dark sun, bright light", 2013L, "no sun disc, world fully lit (bright lighting), stars visible all day",
+                                "sun_dark", "lighting_bright", "stars_normal"),
+                        Case.of("B4", "Dark light, end sky", 2014L, "dark lighting level, end-sky star texture, cloudy weather cover",
+                                "lighting_dark", "stars_end_sky", "weather_cloudy"))),
+                new Section("C", "World colours & weather", Blocks.LIME_CONCRETE, List.of(
+                        Case.of("C1", "World colours", 2021L, "magenta grass, cyan foliage, red water; colours blend at biome borders",
+                                page("color_grass", "mod_color_magenta"), page("color_foliage", "mod_color_cyan"), page("color_water", "mod_color_red")),
+                        Case.of("C2", "Rain", 2022L, "permanent rain: precipitation visuals, puddle-free ground, darker sky", "weather_rain"),
+                        Case.of("C3", "Snow", 2023L, "permanent snowfall: snow layers accumulate, ice forms on water", "weather_snow"),
+                        Case.of("C4", "Storm", 2024L, "permanent thunderstorm with the lightning effect; storm sky", "weather_storm", "env_lightning"))),
+                new Section("D", "Terrain & features", Blocks.ORANGE_CONCRETE, List.of(
+                        Case.of("D1", "Flat obsidian, no sea", 2031L, "flat obsidian terrain without any sea, obelisks of glowstone (silhouettes at dusk)",
+                                page("terrain_flat", "block_obsidian", "no_sea"), page("obelisks", "block_glowstone")),
+                        Case.of("D2", "Skylands + islands", 2032L, "skylands with floating islands of ice, huge trees, crystal formations: island shapes, tree scale, crystal clusters",
+                                "terrain_normal", "skylands", page("floating_islands", "block_ice"), "huge_trees", "crystal_formations"),
+                        Case.of("D3", "Amplified deep lakes", 2033L, "amplified cliffs, deep lakes of lava, tendrils of nether bricks, no horizon band",
+                                "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "no_horizon"),
+                        Case.of("D4", "Nether age", 2034L, "nether (cave) terrain with nether biomes, lava sea, a nether fortress integrated into the caves",
+                                page("terrain_nether", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress"),
+                        Case.of("D5", "End age", 2035L, "end island terrain, end biome, obsidian spikes: island edge, spike shapes",
+                                "terrain_end", "biome_single", "biome_minecraft_end_highlands", page("spikes", "block_obsidian")),
+                        Case.of("D6", "Void with star fissure", 2036L, "void terrain (nothing but the arrival platform) with a star fissure visible from the platform",
+                                "terrain_void", "star_fissure"))),
+                new Section("E", "Biomes & structures", Blocks.YELLOW_CONCRETE, List.of(
+                        Case.of("E1", "Tiny biomes", 2041L, "tiny patches of desert / jungle / ice spikes side by side, villages and ravines: patchwork look, village placement",
+                                "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages", "ravines"),
+                        Case.of("E2", "Large biomes + Facility", 2042L, "large biome scale; the Facility entrance in view 60-120 blocks from arrival, sitting on the terrain, not floating or buried",
+                                "biome_large", "vault"))),
+                new Section("F", "Creatures", Blocks.RED_CONCRETE, List.of(
+                        Case.of("F1", "Brutal hostile swarm", 2051L, "monsters spawn 4x as often, 4x the usual number, double health and hit hard; passives sparse: night pressure",
+                                page("creatures_hostile", "mod_rate_swarm", "mod_cap_horde", "mod_difficulty_brutal"), page("creatures_passive", "mod_rate_sparse", "mod_cap_few")),
+                        Case.of("F2", "Peaceful meadow", 2052L, "no hostiles ever, dense animals; neutrals normal",
+                                page("creatures_hostile", "mod_rate_none"), page("creatures_passive", "mod_rate_dense", "mod_cap_many"), "creatures_neutral"),
+                        Case.of("F3", "Lifeless", 2053L, "no creature spawns naturally at all (watch at night)", "creatures_none"))),
+                new Section("G", "Instability", Blocks.PURPLE_CONCRETE, List.of(
+                        Case.of("G1", "Unstable", 2061L, "meteors + accelerated + explosions: instability symptoms within minutes (decay spread, crumbling, meteor visuals, effect pacing)",
+                                "env_meteors", "env_accelerated", "env_explosions", "dense_ores"))));
     }
 
+    /** All cases in shelf order (for tests and the client smoke tour). */
+    public static List<Case> cases() {
+        List<Case> all = new ArrayList<>();
+        for (Section s : sections()) all.addAll(s.cases());
+        return all;
+    }
+
+    // Layout (in blocks): a section row is 3 deep (walkway, lectern line, walkway) on its coloured floor, then a
+    // stone-brick path; lecterns 2 apart on 1-high pedestals; the section sign stands at the row's left end.
+    private static final int ROW_PITCH = 4;
+    private static final int LECTERN_PITCH = 2;
+
     /**
-     * Builds the shelf in front of the player: one lectern per case, 2 blocks apart, facing the player, each holding
-     * a bound book titled with the case. Returns the number of lecterns placed.
+     * Builds the shelf in front of the player: sections as rows going away from the player, lecterns left to right.
+     * Clears only its own footprint. Returns the number of lecterns placed.
      */
     public static int build(ServerLevel level, ServerPlayer player) {
         MinecraftServer server = level.getServer();
         Direction facing = player.getDirection();
         Direction right = facing.getClockWise();
-        BlockPos origin = player.blockPosition().relative(facing, 3);
-        int count = cases().size();
-        BlockPos last = origin.relative(right, (count - 1) * 2);
+        List<Section> sections = sections();
+        int widest = sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1);
+        int width = (widest - 1) * LECTERN_PITCH + 3;          // floor: one block each side of the outer lecterns
+        int depth = sections.size() * ROW_PITCH;
+        BlockPos origin = player.blockPosition().relative(facing, 2).relative(right, -1); // front-left floor corner
+        BlockPos farCorner = origin.relative(facing, depth - 1).relative(right, width);
+        int y = origin.getY();
         DebugScene.clearWithoutDrops(level,
-                new BlockPos(Math.min(origin.getX(), last.getX()), origin.getY() - 1, Math.min(origin.getZ(), last.getZ())),
-                new BlockPos(Math.max(origin.getX(), last.getX()), origin.getY() + 2, Math.max(origin.getZ(), last.getZ())));
+                new BlockPos(Math.min(origin.getX(), farCorner.getX()), y - 1, Math.min(origin.getZ(), farCorner.getZ())),
+                new BlockPos(Math.max(origin.getX(), farCorner.getX()), y + 3, Math.max(origin.getZ(), farCorner.getZ())));
+
         int placed = 0;
-        for (Case qa : cases()) {
-            BlockPos pos = origin.relative(right, placed * 2);
-            level.setBlock(pos.below(), Blocks.STONE_BRICKS.defaultBlockState(), 3);
-            level.setBlock(pos, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, facing.getOpposite()), 3);
-            ItemStack book = bind(server, qa);
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof BookDisplayBlockEntity display) {
-                display.setBook(book);
-                display.setChanged();
-                level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);
+        for (int s = 0; s < sections.size(); s++) {
+            Section section = sections.get(s);
+            BlockPos rowStart = origin.relative(facing, s * ROW_PITCH);
+            // Floor: 3 deep of the section colour, then one row of path.
+            for (int d = 0; d < ROW_PITCH; d++) {
+                BlockState floor = d < 3 ? section.floor().defaultBlockState() : Blocks.STONE_BRICKS.defaultBlockState();
+                for (int w = -1; w < width; w++) {
+                    level.setBlock(rowStart.relative(facing, d).relative(right, w).below(), floor, 3);
+                }
             }
-            AgeData data = DescriptiveBookItem.getAgeData(server, book);
-            Mystcraft.LOGGER.info("[qa] shelf {} '{}' seed {} -> {} ({} symbols): look for {}", placed + 1, qa.title(), qa.seed(),
-                    data == null ? "?" : data.levelKey().identifier(), data == null ? 0 : data.symbols().size(), qa.lookFor());
-            placed++;
+            BlockPos lecternLine = rowStart.relative(facing, 1);
+            // Section sign at the left end of the lectern line, facing the player.
+            placeStandingSign(level, lecternLine.relative(right, -1), facing.getOpposite(),
+                    "Section " + section.id(), section.name(), "", "");
+            for (int i = 0; i < section.cases().size(); i++) {
+                Case qa = section.cases().get(i);
+                BlockPos pedestal = lecternLine.relative(right, 1 + i * LECTERN_PITCH);
+                level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
+                BlockPos lectern = pedestal.above();
+                level.setBlock(lectern, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, facing.getOpposite()), 3);
+                ItemStack book = bind(server, qa);
+                BlockEntity be = level.getBlockEntity(lectern);
+                if (be instanceof BookDisplayBlockEntity display) {
+                    display.setBook(book);
+                    display.setChanged();
+                    level.sendBlockUpdated(lectern, level.getBlockState(lectern), level.getBlockState(lectern), Block.UPDATE_ALL);
+                }
+                String[] lines = wrap(qa.title(), 3);
+                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), qa.id(), lines[0], lines[1], lines[2]);
+                AgeData data = DescriptiveBookItem.getAgeData(server, book);
+                Mystcraft.LOGGER.info("[qa] {} '{}' seed {} -> {} ({} symbols): look for {}", qa.id(), qa.title(), qa.seed(),
+                        data == null ? "?" : data.levelKey().identifier(), data == null ? 0 : data.symbols().size(), qa.lookFor());
+                placed++;
+            }
         }
         return placed;
     }
 
     /** An unbound book with the case's pages and seed, bound right away so the Age is fixed and inspectable. */
-    private static ItemStack bind(MinecraftServer server, Case qa) {
+    public static ItemStack bind(MinecraftServer server, Case qa) {
         List<ItemStack> pages = new ArrayList<>();
         for (SymbolPage page : qa.pages()) pages.add(PageItem.createSymbolPage(page));
-        return DescriptiveBookItem.createBound(server, qa.title(), qa.seed(), pages);
+        return DescriptiveBookItem.createBound(server, qa.id() + " " + qa.title(), qa.seed(), pages);
+    }
+
+    private static void placeStandingSign(ServerLevel level, BlockPos pos, Direction toward, String... lines) {
+        int rotation = switch (toward) {
+            case SOUTH -> 0;
+            case WEST -> 4;
+            case NORTH -> 8;
+            default -> 12;
+        };
+        level.setBlock(pos, Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION, rotation), 3);
+        writeSign(level, pos, lines);
+    }
+
+    private static void placeWallSign(ServerLevel level, BlockPos pos, Direction facing, String... lines) {
+        level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState().setValue(WallSignBlock.FACING, facing), 3);
+        writeSign(level, pos, lines);
+    }
+
+    private static void writeSign(ServerLevel level, BlockPos pos, String... lines) {
+        if (level.getBlockEntity(pos) instanceof SignBlockEntity sign) {
+            SignText text = new SignText();
+            for (int i = 0; i < Math.min(4, lines.length); i++) text = text.setMessage(i, Component.literal(lines[i]));
+            sign.setText(text, true);
+            sign.setWaxed(true);
+            sign.setChanged();
+            level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);
+        }
+    }
+
+    /** Greedy word wrap into {@code n} lines of at most 15 characters (a sign line). */
+    private static String[] wrap(String text, int n) {
+        String[] out = new String[n];
+        java.util.Arrays.fill(out, "");
+        int line = 0;
+        for (String word : text.split(" ")) {
+            if (line >= n) break;
+            if (!out[line].isEmpty() && out[line].length() + 1 + word.length() > 15) {
+                line++;
+                if (line >= n) break;
+            }
+            out[line] = out[line].isEmpty() ? word : out[line] + " " + word;
+        }
+        return out;
     }
 }

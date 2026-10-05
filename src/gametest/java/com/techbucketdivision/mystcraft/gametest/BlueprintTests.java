@@ -163,7 +163,7 @@ public class BlueprintTests {
 
     @GameTest
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "QA shelf: every symbol of the /myst-qa-shelf matrix is registered and every modifier is taken by its page")
+    @TestHolder(description = "QA shelf: every symbol of the /myst-dev qa-shelf matrix is registered and every modifier is taken by its page")
     static void qaShelfCasesResolve(ExtendedGameTestHelper helper) {
         Check.run(helper, () -> {
             for (var qa : com.techbucketdivision.mystcraft.command.QaShelf.cases()) {

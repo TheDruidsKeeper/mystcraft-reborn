@@ -9,13 +9,13 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 
-/** Common config (REQUIREMENTS §13 core.cfg). */
+/** Common config (original spec §13 core.cfg). */
 public final class MystcraftConfig {
     private MystcraftConfig() {}
 
     private static final ModConfigSpec.Builder B = new ModConfigSpec.Builder();
 
-    public static final ModConfigSpec.BooleanValue SPAWN_METEOR_COMMAND = B.comment("Register the /myst-spawnmeteor command")
+    public static final ModConfigSpec.BooleanValue SPAWN_METEOR_COMMAND = B.comment("Register the /myst instability meteor command")
             .define("commands.spawnmeteor.enabled", false);
     public static final ModConfigSpec.BooleanValue RESPAWN_IN_AGES = B.comment("Players respawn inside Ages instead of being sent home")
             .define("respawning.respawnInAges", true);

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Per-player link permissions (REQUIREMENTS §7.3, §12 {@code /myst-permissions}), server-global SavedData
+ * Per-player link permissions (original spec §7.3, §12 {@code /myst permissions}), server-global SavedData
  * {@code data/mystcraft/link_permissions.dat}. Keyed by player name like the original.
  * <p>
  * Semantics per direction (entry / departure): a player with a <em>permit</em> set may only use the dimensions in

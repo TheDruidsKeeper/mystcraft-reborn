@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@code /myst-scene}: builds a showcase of every renderable Mystcraft block in front of the player, on a stone pad,
+ * {@code /myst-dev scene}: builds a showcase of every renderable Mystcraft block in front of the player, on a stone pad,
  * and positions the player to look at it. Used by the headless client self check for screenshots and by hand for
- * quick visual regression checks (docs/TESTING.md). Layout (player looks north, x grows to the right):
+ * quick visual regression checks (docs/QA.md). Layout (player looks north, x grows to the right):
  *
  * <pre>
  *   row z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | ink pool 3x3 | star fissure 2x2 | item frames
@@ -46,7 +46,7 @@ public final class DebugScene {
     public static final int WIDTH = 23;
     public static final int DEPTH = 12;
 
-    /** Last scene origin per level (for {@code /myst-scene closeup}). */
+    /** Last scene origin per level (for {@code /myst-dev scene closeup}). */
     private static final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, BlockPos> ORIGINS = new java.util.HashMap<>();
 
     /** Elements of the scene a close-up can target: offset of the element from the origin. */
@@ -90,7 +90,7 @@ public final class DebugScene {
         return result.consumesAction();
     }
 
-    /** Items whose screens the self check opens with {@code /myst-scene use <item>}. */
+    /** Items whose screens the self check opens with {@code /myst-dev scene use <item>}. */
     public enum UsableItem { LINKING_BOOK, DESCRIPTIVE_BOOK, FOLDER, CURRENT_AGE_BOOK }
 
     /** Puts a fresh item of that kind in the player's main hand and uses it (opens its screen). */

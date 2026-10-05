@@ -18,8 +18,8 @@ import java.util.Optional;
  * from the level seed (for Ages: the Age seed, see {@code AgeChunkGenerator#createState}) in the ring
  * {@code min_chunk_radius..max_chunk_radius} chunks around chunk (0,0). Used by the Facility structure set so every
  * Age that writes the Vault symbol gets one Facility within walking distance of the arrival point
- * (docs/impl/FACILITY_PLAN.md §2.4). {@link #candidate(long)} is the shared math for the spawn search and
- * {@code /myst-locate}.
+ * (docs/plans/FACILITY_PLAN.md §2.4). {@link #candidate(long)} is the shared math for the spawn search and
+ * {@code /myst locate facility}.
  */
 public final class NearOriginPlacement extends StructurePlacement {
     public static final MapCodec<NearOriginPlacement> CODEC = RecordCodecBuilder.mapCodec(i -> placementCodec(i)

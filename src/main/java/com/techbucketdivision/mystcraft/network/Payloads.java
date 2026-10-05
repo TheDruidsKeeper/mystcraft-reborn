@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.network;
+package com.tbd.mystcraft.network;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
+import com.tbd.mystcraft.Mystcraft;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 

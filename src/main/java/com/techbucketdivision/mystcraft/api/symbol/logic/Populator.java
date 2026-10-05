@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;

@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client.render.blockentity;
+package com.tbd.mystcraft.client.render.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.techbucketdivision.mystcraft.blockentity.StarFissureBlockEntity;
+import com.tbd.mystcraft.blockentity.StarFissureBlockEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

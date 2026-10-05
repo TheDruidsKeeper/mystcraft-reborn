@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.client.screen.gui.BookElement;
-import com.techbucketdivision.mystcraft.menu.BookMenu;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.client.screen.gui.BookElement;
+import com.tbd.mystcraft.menu.BookMenu;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
@@ -50,7 +50,7 @@ public class BookScreen extends AbstractMystcraftScreen<BookMenu> {
         @Override public int getCurrentPageIndex() { return menu.getCurrentPageIndex(); }
         @Override public ItemStack getCurrentPage() { return menu.getCurrentPage(); }
         @Override public int getPageCount() { return menu.getPageCount(); }
-        @Override public com.techbucketdivision.mystcraft.age.@Nullable AgeSummary getSummary() { return menu.getSummary(); }
+        @Override public com.tbd.mystcraft.age.@Nullable AgeSummary getSummary() { return menu.getSummary(); }
         @Override public boolean isLinkPermitted() { return menu.isLinkPermitted(); }
         @Override public boolean isTargetWorldVisited() { return menu.isTargetWorldVisited(); }
         @Override public String getBookTitle() { return menu.getBookTitle(); }

@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.age;
+package com.tbd.mystcraft.age;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.blockentity.BookUtil;
-import com.techbucketdivision.mystcraft.instability.InstabilityController;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.blockentity.BookUtil;
+import com.tbd.mystcraft.instability.InstabilityController;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.PageItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;

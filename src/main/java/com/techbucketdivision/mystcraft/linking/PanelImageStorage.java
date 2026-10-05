@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.network.PanelImagePayloads;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkEvent;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.network.PanelImagePayloads;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;

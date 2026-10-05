@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.component.SlotPages;
-import com.techbucketdivision.mystcraft.menu.FolderMenu;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.item.component.SlotPages;
+import com.tbd.mystcraft.menu.FolderMenu;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;

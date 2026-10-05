@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.age;
+package com.tbd.mystcraft.age;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.dimension.AgeDimensionType;
-import com.techbucketdivision.mystcraft.dimension.DynamicDimensions;
-import com.techbucketdivision.mystcraft.network.AgeDataSyncPayload;
-import com.techbucketdivision.mystcraft.world.AgeBiomeSource;
-import com.techbucketdivision.mystcraft.world.AgeChunkGenerator;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.dimension.AgeDimensionType;
+import com.tbd.mystcraft.dimension.DynamicDimensions;
+import com.tbd.mystcraft.network.AgeDataSyncPayload;
+import com.tbd.mystcraft.world.AgeBiomeSource;
+import com.tbd.mystcraft.world.AgeChunkGenerator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.Biomes;
@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.OptionalLong;

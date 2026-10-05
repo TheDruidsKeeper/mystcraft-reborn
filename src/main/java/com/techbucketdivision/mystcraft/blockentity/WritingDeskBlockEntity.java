@@ -1,18 +1,18 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
+import com.tbd.mystcraft.Mystcraft;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.item.FolderItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.menu.WritingDeskMenu;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
-import com.techbucketdivision.mystcraft.registry.ModCriteria;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.block.WritingDeskBlock;
+import com.tbd.mystcraft.item.FolderItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.menu.WritingDeskMenu;
+import com.tbd.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.registry.ModCriteria;
+import com.tbd.mystcraft.registry.ModFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

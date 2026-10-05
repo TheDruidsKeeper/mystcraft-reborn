@@ -1,33 +1,33 @@
-package com.techbucketdivision.mystcraft;
+package com.tbd.mystcraft;
 
-import com.techbucketdivision.mystcraft.age.AgeBlueprint;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.dimension.AgeDimensionType;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModCreativeTabs;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
-import com.techbucketdivision.mystcraft.registry.ModSounds;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.age.AgeBlueprint;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.dimension.AgeDimensionType;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModCreativeTabs;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.registry.ModSounds;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.ChunkPos;
-import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
-import com.techbucketdivision.mystcraft.world.AgeSpawn;
-import com.techbucketdivision.mystcraft.registry.ModStructures;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.world.structure.FacilityLocator;
+import com.tbd.mystcraft.world.AgeSpawn;
+import com.tbd.mystcraft.registry.ModStructures;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -148,7 +148,7 @@ public final class SelfCheck {
         if (!unresolved.isEmpty()) fail("unresolved symbols: " + unresolved);
         check("no required category is missing after the fill", AgeBlueprint.missing(result.pages()).isEmpty());
         check("discovered instability within budget (" + result.discoveredInstability() + ")",
-                result.discoveredInstability() <= com.techbucketdivision.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get());
+                result.discoveredInstability() <= com.tbd.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get());
 
         // Determinism: the same seed must yield the same Age, or saved Ages would not survive a restart.
         List<Identifier> again = AgeBlueprint.flatten(AgeBlueprint.fill(empty, 1234L).pages());
@@ -163,7 +163,7 @@ public final class SelfCheck {
                     && ids.stream().anyMatch(id -> id.getPath().startsWith("terrain_"))
                     && ids.stream().anyMatch(id -> id.getPath().startsWith("sun_"))
                     && AgeBlueprint.missing(r.pages()).isEmpty()
-                    && r.discoveredInstability() <= com.techbucketdivision.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get();
+                    && r.discoveredInstability() <= com.tbd.mystcraft.config.WorldBuildingConfig.INSTABILITY_BUDGET.get();
             if (!ok) badSeeds++;
         }
         check("200 random fills: terrain + sun present, never void, within budget (" + badSeeds + " bad)", badSeeds == 0);
@@ -301,7 +301,7 @@ public final class SelfCheck {
                 else if (state.is(ModBlocks.SYMBOL_ALTAR.get()) || state.is(ModBlocks.OFFERING_PEDESTAL.get()) || state.is(ModBlocks.SEQUENCE_DIAL.get())) locks++;
                 else if (state.is(ModBlocks.FACILITY_CACHE.get())) {
                     caches++;
-                    if (level.getBlockEntity(pos) instanceof com.techbucketdivision.mystcraft.blockentity.FacilityCacheBlockEntity cache && cache.isLinkbook()) linkbooks++;
+                    if (level.getBlockEntity(pos) instanceof com.tbd.mystcraft.blockentity.FacilityCacheBlockEntity cache && cache.isLinkbook()) linkbooks++;
                 } else if (state.is(net.minecraft.world.level.block.Blocks.VAULT)) vaults++;
             }
             Mystcraft.LOGGER.info("[selfcheck] facility generated in {} ms: {} warded doors, {} locks, {} caches ({} linkbook), {} vaults",
@@ -309,7 +309,7 @@ public final class SelfCheck {
             check("facility rooms carry puzzle blocks (" + doors + " doors, " + locks + " locks)", doors > 0 && locks > 0);
             check("facility has a Linking Book cache", linkbooks >= 1);
             BlockPos probe = start.getPieces().getLast().getBoundingBox().getCenter();
-            check("facility interior is protected until solved", com.techbucketdivision.mystcraft.facility.FacilityProtection.protects(level, probe));
+            check("facility interior is protected until solved", com.tbd.mystcraft.facility.FacilityProtection.protects(level, probe));
         }
         BlockPos spawn = AgeSpawn.findSpawn(level, AgeControllers.server(level));
         double distance = Math.sqrt(facility.getMiddleBlockPosition(spawn.getY()).distSqr(spawn));

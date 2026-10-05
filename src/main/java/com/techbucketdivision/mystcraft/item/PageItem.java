@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.symbol.SymbolRemapper;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.symbol.SymbolRemapper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -242,7 +242,7 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
         if (page == null) return;
         if (page.discovered()) builder.accept(Component.translatable("item.mystcraft.page.discovered").withStyle(net.minecraft.ChatFormatting.DARK_AQUA));
         // tooltips are built on the client; the hook keeps the Minecraft class out of this common class
-        Player holder = context.level() != null && context.level().isClientSide() ? com.techbucketdivision.mystcraft.client.ClientHooks.player() : null;
+        Player holder = context.level() != null && context.level().isClientSide() ? com.tbd.mystcraft.client.ClientHooks.player() : null;
         if (holder != null) {
             builder.accept(Component.translatable(SymbolKnowledge.knowsPage(holder, stack) ? "item.mystcraft.page.known" : "item.mystcraft.page.study")
                     .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));

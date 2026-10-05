@@ -1,6 +1,6 @@
 # Architecture
 
-Mod id `mystcraft`, root package `com.techbucketdivision.mystcraft`, NeoForge 26.1 / Java 25. Read the classes named
+Mod id `mystcraft`, root package `com.tbd.mystcraft`, NeoForge 26.1 / Java 25. Read the classes named
 here before changing a subsystem; this page only says what each part is for.
 
 ## Principles

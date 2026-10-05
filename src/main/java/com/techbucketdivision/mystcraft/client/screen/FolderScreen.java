@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.client.screen.gui.PageSurface;
-import com.techbucketdivision.mystcraft.menu.FolderMenu;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.client.screen.gui.PageSurface;
+import com.tbd.mystcraft.menu.FolderMenu;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;

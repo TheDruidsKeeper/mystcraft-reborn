@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
 import com.mojang.serialization.Codec;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.linking.InkEffects;
-import com.techbucketdivision.mystcraft.menu.InkMixerMenu;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.linking.InkEffects;
+import com.tbd.mystcraft.menu.InkMixerMenu;
+import com.tbd.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.registry.ModFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;

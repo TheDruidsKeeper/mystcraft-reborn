@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 /** Which colour a colour provider supplies. */
 public enum ColorKind {

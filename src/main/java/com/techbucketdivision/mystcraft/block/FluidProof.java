@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;

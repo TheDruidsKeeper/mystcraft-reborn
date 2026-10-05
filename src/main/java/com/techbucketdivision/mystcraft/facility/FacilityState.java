@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.facility;
+package com.tbd.mystcraft.facility;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;

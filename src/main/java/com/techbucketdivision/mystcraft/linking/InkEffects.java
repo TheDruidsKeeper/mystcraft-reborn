@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;

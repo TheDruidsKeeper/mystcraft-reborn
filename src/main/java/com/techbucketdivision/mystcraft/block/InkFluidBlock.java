@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.registry.ModFluids;
 import net.minecraft.world.level.block.LiquidBlock;
 
 /**

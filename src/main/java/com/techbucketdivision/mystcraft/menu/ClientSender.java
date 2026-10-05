@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
+import com.tbd.mystcraft.network.MenuMessagePayload;
 
 /**
  * Client → server transport hook. Implemented by {@code client.ClientNetwork} and installed with

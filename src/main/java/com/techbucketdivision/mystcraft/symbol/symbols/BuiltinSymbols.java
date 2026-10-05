@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
 
 /**
  * Registers every built-in symbol of original spec §4.3.1–4.3.11 in its world-building category. Modifier symbols

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability;
+package com.tbd.mystcraft.instability;
 
-import com.techbucketdivision.mystcraft.api.instability.InstabilityBonus;
+import com.tbd.mystcraft.api.instability.InstabilityBonus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

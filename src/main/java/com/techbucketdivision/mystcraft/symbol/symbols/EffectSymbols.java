@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.instability.effects.ExplosionsEffect;
-import com.techbucketdivision.mystcraft.instability.effects.ExtraTicksEffect;
-import com.techbucketdivision.mystcraft.instability.effects.LightningEffect;
-import com.techbucketdivision.mystcraft.instability.effects.MeteorEffect;
-import com.techbucketdivision.mystcraft.instability.effects.ScorchedEffect;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.instability.effects.ExplosionsEffect;
+import com.tbd.mystcraft.instability.effects.ExtraTicksEffect;
+import com.tbd.mystcraft.instability.effects.LightningEffect;
+import com.tbd.mystcraft.instability.effects.MeteorEffect;
+import com.tbd.mystcraft.instability.effects.ScorchedEffect;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Environmental effect symbols (original spec §4.3.10). Grammar rank null: never generated randomly. */
 public final class EffectSymbols {

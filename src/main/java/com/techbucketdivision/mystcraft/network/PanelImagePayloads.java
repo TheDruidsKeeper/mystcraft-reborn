@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.network;
+package com.tbd.mystcraft.network;
 
-import com.techbucketdivision.mystcraft.linking.PanelImageStorage;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.linking.PanelImageStorage;
+import com.tbd.mystcraft.util.MystIds;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

@@ -1,16 +1,16 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.world.AgeSpawn;
-import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
-import com.techbucketdivision.mystcraft.item.LinkingBookItem;
-import com.techbucketdivision.mystcraft.network.LinkParticlesPayload;
-import com.techbucketdivision.mystcraft.registry.ModCriteria;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.linking.LinkEvent;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.world.AgeSpawn;
+import com.tbd.mystcraft.entity.LinkbookEntity;
+import com.tbd.mystcraft.item.LinkingBookItem;
+import com.tbd.mystcraft.network.LinkParticlesPayload;
+import com.tbd.mystcraft.registry.ModCriteria;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -31,7 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 
 import java.util.HashMap;
 import java.util.Map;

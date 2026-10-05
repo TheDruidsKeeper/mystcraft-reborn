@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

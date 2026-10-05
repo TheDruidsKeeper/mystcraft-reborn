@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;

@@ -1,18 +1,18 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.world.gen.TerrainEndGen;
-import com.techbucketdivision.mystcraft.world.gen.TerrainFlatGen;
-import com.techbucketdivision.mystcraft.world.gen.TerrainNetherGen;
-import com.techbucketdivision.mystcraft.world.gen.TerrainNormalGen;
-import com.techbucketdivision.mystcraft.world.gen.TerrainVoidGen;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.world.gen.TerrainEndGen;
+import com.tbd.mystcraft.world.gen.TerrainFlatGen;
+import com.tbd.mystcraft.world.gen.TerrainNetherGen;
+import com.tbd.mystcraft.world.gen.TerrainNormalGen;
+import com.tbd.mystcraft.world.gen.TerrainVoidGen;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /**
  * Terrain generator symbols (original spec §4.3.6). The terrain material is always stone and the sea water (air for

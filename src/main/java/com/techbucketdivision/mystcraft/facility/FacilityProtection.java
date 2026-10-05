@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.facility;
+package com.tbd.mystcraft.facility;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.registry.ModStructures;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.registry.ModStructures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

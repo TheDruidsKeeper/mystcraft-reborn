@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.world.gen;
+package com.tbd.mystcraft.world.gen;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainContext;
+import com.tbd.mystcraft.api.symbol.logic.TerrainContext;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;

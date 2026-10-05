@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.render.tint;
+package com.tbd.mystcraft.client.render.tint;
 
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.fluid.FluidTintSource;

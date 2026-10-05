@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.menu.LinkModifierMenu;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.menu.LinkModifierMenu;
+import com.tbd.mystcraft.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.util.Colors;
 
 /** Time-dependent sky/fog/cloud colour. Multiple providers of the same kind are averaged. */
 public interface DynamicColorProvider {

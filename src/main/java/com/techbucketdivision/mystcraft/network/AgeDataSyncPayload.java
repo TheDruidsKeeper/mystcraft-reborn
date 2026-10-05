@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.network;
+package com.tbd.mystcraft.network;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

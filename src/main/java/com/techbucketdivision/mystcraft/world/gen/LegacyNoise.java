@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.world.gen;
+package com.tbd.mystcraft.world.gen;
 
 import java.util.Random;
 

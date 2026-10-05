@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.util.MystIds;
 import org.jspecify.annotations.Nullable;
 
 /** Convenience base for built-in symbols: id {@code mystcraft:<path>}. */

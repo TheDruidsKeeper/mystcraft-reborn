@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.world.biome;
+package com.tbd.mystcraft.world.biome;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
+import com.tbd.mystcraft.api.symbol.logic.BiomeController;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 

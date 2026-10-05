@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.world.AgeSpawn;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.linking.LinkEvent;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.world.AgeSpawn;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;

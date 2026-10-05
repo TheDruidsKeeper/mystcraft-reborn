@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.config;
+package com.tbd.mystcraft.config;
 
-import com.techbucketdivision.mystcraft.linking.InkEffects;
+import com.tbd.mystcraft.linking.InkEffects;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;

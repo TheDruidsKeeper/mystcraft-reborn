@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.config;
+package com.tbd.mystcraft.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 

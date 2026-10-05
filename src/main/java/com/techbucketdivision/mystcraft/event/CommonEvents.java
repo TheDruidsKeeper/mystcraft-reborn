@@ -1,30 +1,30 @@
-package com.techbucketdivision.mystcraft.event;
+package com.tbd.mystcraft.event;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.dimension.AgeEnvironment;
-import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
-import com.techbucketdivision.mystcraft.creature.CreatureEvents;
-import com.techbucketdivision.mystcraft.instability.BaselineProfiler;
-import com.techbucketdivision.mystcraft.instability.InstabilityController;
-import com.techbucketdivision.mystcraft.item.LinkingBookItem;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.linking.LinkController;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.network.ServerConfigPayload;
-import com.techbucketdivision.mystcraft.registry.ModAttachments;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.registry.ModCriteria;
-import com.techbucketdivision.mystcraft.symbol.BiomeSymbols;
-import com.techbucketdivision.mystcraft.symbol.FluidSymbols;
-import com.techbucketdivision.mystcraft.world.AgeSpawn;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.dimension.AgeEnvironment;
+import com.tbd.mystcraft.entity.LinkbookEntity;
+import com.tbd.mystcraft.creature.CreatureEvents;
+import com.tbd.mystcraft.instability.BaselineProfiler;
+import com.tbd.mystcraft.instability.InstabilityController;
+import com.tbd.mystcraft.item.LinkingBookItem;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.linking.LinkController;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.network.ServerConfigPayload;
+import com.tbd.mystcraft.registry.ModAttachments;
+import com.tbd.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.registry.ModCriteria;
+import com.tbd.mystcraft.symbol.BiomeSymbols;
+import com.tbd.mystcraft.symbol.FluidSymbols;
+import com.tbd.mystcraft.world.AgeSpawn;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -64,7 +64,7 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -101,8 +101,8 @@ public final class CommonEvents {
         BaselineProfiler.initialize(server);
         AgeManager.restoreAll(server);
         // Headless end-to-end verification for the Docker smoke test / CI. Never runs in normal play.
-        if (com.techbucketdivision.mystcraft.SelfCheck.enabled()) {
-            com.techbucketdivision.mystcraft.SelfCheck.run(server);
+        if (com.tbd.mystcraft.SelfCheck.enabled()) {
+            com.tbd.mystcraft.SelfCheck.run(server);
         }
     }
 

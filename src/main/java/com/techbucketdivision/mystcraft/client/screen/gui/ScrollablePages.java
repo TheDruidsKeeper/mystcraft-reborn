@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.client.screen.gui;
+package com.tbd.mystcraft.client.screen.gui;
 
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
+import com.tbd.mystcraft.client.render.SymbolGlyphs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;

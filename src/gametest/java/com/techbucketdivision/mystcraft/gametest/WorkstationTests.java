@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.blockentity.InkMixerBlockEntity;
-import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.util.MystIds;
-import com.techbucketdivision.mystcraft.linking.InkEffects;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.block.WritingDeskBlock;
+import com.tbd.mystcraft.blockentity.InkMixerBlockEntity;
+import com.tbd.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.util.MystIds;
+import com.tbd.mystcraft.linking.InkEffects;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -81,9 +81,9 @@ public class WorkstationTests {
             var access = net.neoforged.neoforge.transfer.access.ItemAccess.forStack(stack.copy());
             var handler = access.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Fluid.ITEM);
             var contained = net.neoforged.neoforge.transfer.fluid.FluidUtil.getFirstStackContained(stack);
-            com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] {}: handler={} contained={} x{} isInkContainer={}",
+            com.tbd.mystcraft.Mystcraft.LOGGER.info("[gametest] {}: handler={} contained={} x{} isInkContainer={}",
                     stack.getItem(), handler == null ? "null" : handler.getClass().getName(), contained.getFluid(), contained.getAmount(),
-                    com.techbucketdivision.mystcraft.blockentity.BookUtil.isInkContainer(stack));
+                    com.tbd.mystcraft.blockentity.BookUtil.isInkContainer(stack));
             helper.assertNotNull(handler, stack.getItem() + " has a fluid handler");
             helper.assertTrue(!contained.isEmpty(), stack.getItem() + " reports contained fluid");
         }
@@ -99,7 +99,7 @@ public class WorkstationTests {
         java.util.Set<LinkProperty> effects = new java.util.HashSet<>();
         int clearing = 0;
         for (var ingredient : table) {
-            com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] ink ingredient {} -> {}", ingredient.item(), ingredient.clears() ? "clear" : ingredient.effect());
+            com.tbd.mystcraft.Mystcraft.LOGGER.info("[gametest] ink ingredient {} -> {}", ingredient.item(), ingredient.clears() ? "clear" : ingredient.effect());
             helper.assertTrue(items.add(ingredient.item()), ingredient.item() + " listed once");
             if (ingredient.clears()) clearing++;
             else helper.assertTrue(effects.add(ingredient.effect()), ingredient.effect() + " has one ingredient");
@@ -176,7 +176,7 @@ public class WorkstationTests {
         helper.setBlock(2, 1, 2, ModBlocks.BLACK_INK.get());
         var pos2 = helper.absolutePos(new net.minecraft.core.BlockPos(2, 1, 2));
         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.GLASS_BOTTLE));
-        helper.assertTrue(com.techbucketdivision.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos2), "bottle scoops ink");
+        helper.assertTrue(com.tbd.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos2), "bottle scoops ink");
         helper.assertTrue(player.getMainHandItem().is(ModItems.INK_VIAL.get()), "bottle became an Ink Vial (got " + player.getMainHandItem() + ")");
         helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR, 2, 1, 2);
 
@@ -185,8 +185,8 @@ public class WorkstationTests {
         var pos3 = helper.absolutePos(new net.minecraft.core.BlockPos(1, 1, 1));
         helper.assertTrue(ModBlocks.BLACK_INK.get().pickupBlock(player, level, pos3, level.getBlockState(pos3)).isEmpty(), "flowing ink gives no bucket");
         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.GLASS_BOTTLE));
-        helper.assertFalse(com.techbucketdivision.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos3), "flowing ink gives no vial");
-        com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] ink scooping: bucket={} vial={}", picked.getItem(), ModItems.INK_VIAL.get());
+        helper.assertFalse(com.tbd.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos3), "flowing ink gives no vial");
+        com.tbd.mystcraft.Mystcraft.LOGGER.info("[gametest] ink scooping: bucket={} vial={}", picked.getItem(), ModItems.INK_VIAL.get());
         helper.succeed();
     }
 
@@ -196,18 +196,18 @@ public class WorkstationTests {
     static void deskWritesKnownSymbolsIntoFolder(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
-        var menu = new com.techbucketdivision.mystcraft.menu.WritingDeskMenu(1, player.getInventory(), desk);
-        var flat = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
-        var north = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
+        var menu = new com.tbd.mystcraft.menu.WritingDeskMenu(1, player.getInventory(), desk);
+        var flat = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
+        var north = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
 
         helper.assertFalse(WritingDeskBlockEntity.isTargetItem(new ItemStack(ModItems.DESCRIPTIVE_BOOK.get())), "a book is not a desk target any more");
         helper.assertFalse(WritingDeskBlockEntity.isTargetItem(PageItem.createBlankPage()), "a page is not a desk target");
-        helper.assertTrue(WritingDeskBlockEntity.isTargetItem(com.techbucketdivision.mystcraft.item.FolderItem.create("", java.util.List.of())), "a folder is the desk target");
+        helper.assertTrue(WritingDeskBlockEntity.isTargetItem(com.tbd.mystcraft.item.FolderItem.create("", java.util.List.of())), "a folder is the desk target");
         helper.assertFalse(menu.canWriteSymbol(), "empty desk cannot write");
 
-        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.techbucketdivision.mystcraft.item.FolderItem.create("Desk test", java.util.List.of()));
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.tbd.mystcraft.item.FolderItem.create("Desk test", java.util.List.of()));
         desk.main.setStack(WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(Items.PAPER, 4));
-        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
+        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
         helper.assertTrue(menu.canWriteSymbol(), "folder + paper + ink can write");
 
         helper.assertFalse(desk.writeSymbol(player, flat), "an unknown symbol is refused");
@@ -215,14 +215,14 @@ public class WorkstationTests {
         SymbolKnowledge.unlock(player, java.util.List.of(flat.id(), north.id()), "test");
         helper.assertTrue(SymbolKnowledge.knows(player, flat), "player knows terrain_flat now");
         helper.assertTrue(desk.writeSymbol(player, flat), "a known symbol is written");
-        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        var pages = ((com.tbd.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
         helper.assertTrue(pages.size() == 1 && flat.id().equals(PageItem.getSymbolId(pages.getFirst())), "folder holds the written page: " + pages);
         helper.assertValueEqual(desk.getInkAmount(), 1000 - WritingDeskBlockEntity.INK_COST, "ink used per symbol");
         helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 3, "paper used");
         helper.assertFalse(desk.writeSymbol(player, north), "a modifier is never written as a page of its own");
 
         desk.setScholar(true);
-        var meteors = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("env_meteors"));
+        var meteors = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("env_meteors"));
         helper.assertFalse(SymbolKnowledge.knows(player, meteors), "player does not know meteors");
         helper.assertTrue(desk.writeSymbol(player, meteors), "a Scholar's desk writes any symbol");
         helper.succeed();
@@ -235,12 +235,12 @@ public class WorkstationTests {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
         var sun = MystIds.id("sun_normal");
-        var north = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
-        var red = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_color_red"));
-        var half = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_half"));
-        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.techbucketdivision.mystcraft.item.FolderItem.create("Mods", java.util.List.of(
+        var north = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_north"));
+        var red = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_color_red"));
+        var half = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("mod_half"));
+        desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, com.tbd.mystcraft.item.FolderItem.create("Mods", java.util.List.of(
                 PageItem.createSymbolPage(sun), PageItem.createSymbolPage(MystIds.id("terrain_flat")))));
-        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
+        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
 
         helper.assertFalse(desk.attachModifier(player, 0, north), "unknown modifier refused");
         SymbolKnowledge.unlock(player, java.util.List.of(north.id(), red.id(), half.id()), "test");
@@ -249,11 +249,11 @@ public class WorkstationTests {
         helper.assertFalse(desk.attachModifier(player, 1, red), "a colour does not attach to terrain");
         helper.assertTrue(desk.attachModifier(player, 0, half), "half length attaches to the sun");
         helper.assertFalse(desk.attachModifier(player, 5, half), "no page at index 5");
-        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        var pages = ((com.tbd.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
         helper.assertValueEqual(PageItem.getModifiers(pages.get(0)), java.util.List.of(north.id(), half.id()), "sun page carries north then half");
         helper.assertValueEqual(desk.getInkAmount(), 1000 - 2 * WritingDeskBlockEntity.INK_COST, "ink per attached modifier, no paper");
         helper.assertTrue(desk.detachLastModifier(player, 0), "detach the last modifier");
-        pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        pages = ((com.tbd.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
         helper.assertValueEqual(PageItem.getModifiers(pages.get(0)), java.util.List.of(north.id()), "only north left");
         helper.assertFalse(desk.detachLastModifier(player, 1), "nothing to detach on the terrain page");
         helper.succeed();
@@ -265,12 +265,12 @@ public class WorkstationTests {
     static void deskDraftsUndoAndCommit(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
         var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
-        var symbol = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
+        var symbol = com.tbd.mystcraft.symbol.SymbolRegistry.get(MystIds.id("terrain_flat"));
         SymbolKnowledge.unlock(player, java.util.List.of(symbol.id()), "test");
-        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
+        desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 1000));
 
         // folder target + paper: writing appends a draft page
-        ItemStack folder = com.techbucketdivision.mystcraft.item.FolderItem.create("Drafts", java.util.List.of());
+        ItemStack folder = com.tbd.mystcraft.item.FolderItem.create("Drafts", java.util.List.of());
         desk.main.setStack(WritingDeskBlockEntity.SLOT_TARGET, folder);
         desk.main.setStack(WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(Items.PAPER, 3));
         desk.writeSymbol(player, symbol);
@@ -284,7 +284,7 @@ public class WorkstationTests {
         helper.assertValueEqual(desk.getDrafts().size(), 0, "no drafts after erasing");
         helper.assertValueEqual(desk.getInkAmount(), 1000, "ink refunded");
         helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_PAPER).getCount(), 3, "paper refunded");
-        var pages = ((com.techbucketdivision.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
+        var pages = ((com.tbd.mystcraft.api.item.ItemBehaviours.PageProvider) desk.getTarget().getItem()).getPageList(player, desk.getTarget());
         helper.assertTrue(pages.isEmpty(), "folder is empty again (got " + pages + ")");
 
         // write again, take the folder out: the draft is committed on the next tick; a committed page is handed back on removal

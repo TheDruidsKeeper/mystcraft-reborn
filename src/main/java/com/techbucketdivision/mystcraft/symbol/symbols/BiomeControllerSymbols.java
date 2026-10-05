@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.world.biome.LayeredBiomeController;
-import com.techbucketdivision.mystcraft.world.biome.NativeBiomeController;
-import com.techbucketdivision.mystcraft.world.biome.SingleBiomeController;
-import com.techbucketdivision.mystcraft.world.biome.TiledBiomeController;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.world.biome.LayeredBiomeController;
+import com.tbd.mystcraft.world.biome.NativeBiomeController;
+import com.tbd.mystcraft.world.biome.SingleBiomeController;
+import com.tbd.mystcraft.world.biome.TiledBiomeController;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Biome distribution symbols (original spec §4.3.5). */
 public final class BiomeControllerSymbols {

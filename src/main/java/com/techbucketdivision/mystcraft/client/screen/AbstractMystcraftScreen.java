@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
 import com.mojang.serialization.DynamicOps;
-import com.techbucketdivision.mystcraft.client.screen.gui.GuiElement;
-import com.techbucketdivision.mystcraft.menu.AbstractMystcraftMenu;
-import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
+import com.tbd.mystcraft.client.screen.gui.GuiElement;
+import com.tbd.mystcraft.menu.AbstractMystcraftMenu;
+import com.tbd.mystcraft.network.MenuMessagePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;

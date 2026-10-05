@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModAttachments;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
-import com.techbucketdivision.mystcraft.villager.ArchivistShop;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModAttachments;
+import com.tbd.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.villager.ArchivistShop;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;

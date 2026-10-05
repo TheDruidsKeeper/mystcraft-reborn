@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.render.model;
+package com.tbd.mystcraft.client.render.model;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;

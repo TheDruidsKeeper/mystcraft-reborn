@@ -1,16 +1,16 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.age.celestial.EndSkyCelestial;
-import com.techbucketdivision.mystcraft.age.celestial.MoonCelestial;
-import com.techbucketdivision.mystcraft.age.celestial.StarfieldCelestial;
-import com.techbucketdivision.mystcraft.age.celestial.SunCelestial;
-import com.techbucketdivision.mystcraft.age.celestial.TwinkleStarfieldCelestial;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.age.celestial.EndSkyCelestial;
+import com.tbd.mystcraft.age.celestial.MoonCelestial;
+import com.tbd.mystcraft.age.celestial.StarfieldCelestial;
+import com.tbd.mystcraft.age.celestial.SunCelestial;
+import com.tbd.mystcraft.age.celestial.TwinkleStarfieldCelestial;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.util.Colors;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Sun / moon / starfield symbols (original spec §4.3.2). Dark variants are {@link DummySymbol}s. */
 public final class CelestialSymbols {

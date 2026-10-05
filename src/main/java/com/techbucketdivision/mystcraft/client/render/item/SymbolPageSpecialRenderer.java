@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.client.render.item;
+package com.tbd.mystcraft.client.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.MapCodec;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.WordData;
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.WordData;
+import com.tbd.mystcraft.client.render.SymbolGlyphs;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;

@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;

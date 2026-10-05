@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;

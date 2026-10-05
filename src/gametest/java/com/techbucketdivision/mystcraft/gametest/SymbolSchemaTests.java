@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierSlot;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.age.AgeBlueprint;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.ModifierSlot;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.age.AgeBlueprint;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.testframework.annotation.ForEachTest;

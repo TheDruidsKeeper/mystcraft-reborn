@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.item;
+package com.tbd.mystcraft.api.item;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;

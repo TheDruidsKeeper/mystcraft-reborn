@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.world.structure;
+package com.tbd.mystcraft.world.structure;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.symbol.CardRanks;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.logic.Populator;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.symbol.CardRanks;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;

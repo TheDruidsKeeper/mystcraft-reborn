@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability;
+package com.tbd.mystcraft.instability;
 
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;

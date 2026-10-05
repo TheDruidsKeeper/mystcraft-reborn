@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
 import com.mojang.serialization.MapCodec;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.world.AgeBiomeSource;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.world.AgeBiomeSource;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.neoforged.neoforge.registries.DeferredRegister;

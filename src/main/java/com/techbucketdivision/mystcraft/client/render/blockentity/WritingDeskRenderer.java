@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.client.render.blockentity;
+package com.tbd.mystcraft.client.render.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookUtil;
-import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
-import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
-import com.techbucketdivision.mystcraft.client.render.model.LegacyModels;
+import com.tbd.mystcraft.block.WritingDeskBlock;
+import com.tbd.mystcraft.blockentity.BookUtil;
+import com.tbd.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.tbd.mystcraft.client.render.ItemRenderHelper;
+import com.tbd.mystcraft.client.render.model.LegacyModels;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.rendertype.RenderTypes;

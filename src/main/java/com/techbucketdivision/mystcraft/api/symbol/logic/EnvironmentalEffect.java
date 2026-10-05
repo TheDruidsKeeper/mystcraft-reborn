@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;

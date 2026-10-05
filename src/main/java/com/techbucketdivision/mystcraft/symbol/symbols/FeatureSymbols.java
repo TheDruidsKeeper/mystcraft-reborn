@@ -1,29 +1,29 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.world.feature.CavesAlteration;
-import com.techbucketdivision.mystcraft.world.feature.CrystalFormationPopulator;
-import com.techbucketdivision.mystcraft.world.feature.DenseOresPopulator;
-import com.techbucketdivision.mystcraft.world.feature.DungeonsPopulator;
-import com.techbucketdivision.mystcraft.world.feature.FloatingIslandsAlteration;
-import com.techbucketdivision.mystcraft.world.feature.HugeTreesAlteration;
-import com.techbucketdivision.mystcraft.world.feature.LakesPopulator;
-import com.techbucketdivision.mystcraft.world.feature.ObelisksPopulator;
-import com.techbucketdivision.mystcraft.world.feature.RavinesAlteration;
-import com.techbucketdivision.mystcraft.world.feature.SkylandsAlteration;
-import com.techbucketdivision.mystcraft.world.feature.SpheresAlteration;
-import com.techbucketdivision.mystcraft.world.feature.SpikesPopulator;
-import com.techbucketdivision.mystcraft.world.feature.StarFissurePopulator;
-import com.techbucketdivision.mystcraft.world.feature.VanillaStructurePopulator;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.world.feature.CavesAlteration;
+import com.tbd.mystcraft.world.feature.CrystalFormationPopulator;
+import com.tbd.mystcraft.world.feature.DenseOresPopulator;
+import com.tbd.mystcraft.world.feature.DungeonsPopulator;
+import com.tbd.mystcraft.world.feature.FloatingIslandsAlteration;
+import com.tbd.mystcraft.world.feature.HugeTreesAlteration;
+import com.tbd.mystcraft.world.feature.LakesPopulator;
+import com.tbd.mystcraft.world.feature.ObelisksPopulator;
+import com.tbd.mystcraft.world.feature.RavinesAlteration;
+import com.tbd.mystcraft.world.feature.SkylandsAlteration;
+import com.tbd.mystcraft.world.feature.SpheresAlteration;
+import com.tbd.mystcraft.world.feature.SpikesPopulator;
+import com.tbd.mystcraft.world.feature.StarFissurePopulator;
+import com.tbd.mystcraft.world.feature.VanillaStructurePopulator;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Large / medium / small feature symbols (original spec §4.3.7–4.3.9). */
 public final class FeatureSymbols {

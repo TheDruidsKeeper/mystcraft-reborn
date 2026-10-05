@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.linking;
+package com.tbd.mystcraft.api.linking;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

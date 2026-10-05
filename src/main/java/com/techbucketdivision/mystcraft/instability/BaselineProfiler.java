@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.instability;
+package com.tbd.mystcraft.instability;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.config.BalanceConfig;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.config.BalanceConfig;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;

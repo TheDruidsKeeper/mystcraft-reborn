@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.api.instability.InstabilityDirector;
-import com.techbucketdivision.mystcraft.api.instability.InstabilityProvider;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.instability.InstabilityDirector;
+import com.tbd.mystcraft.api.instability.InstabilityProvider;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;

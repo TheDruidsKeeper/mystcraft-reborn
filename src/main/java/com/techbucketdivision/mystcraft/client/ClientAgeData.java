@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import org.jspecify.annotations.Nullable;

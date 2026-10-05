@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.instability;
+package com.tbd.mystcraft.instability;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;

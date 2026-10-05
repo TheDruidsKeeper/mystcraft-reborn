@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.api.linking;
+package com.tbd.mystcraft.api.linking;
 
 import com.mojang.serialization.Codec;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.util.Colors;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

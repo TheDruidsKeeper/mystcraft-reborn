@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.blockentity.BookUtil;
-import com.techbucketdivision.mystcraft.blockentity.LinkModifierBlockEntity;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.blockentity.BookUtil;
+import com.tbd.mystcraft.blockentity.LinkModifierBlockEntity;
+import com.tbd.mystcraft.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;

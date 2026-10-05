@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.client.render.tint;
+package com.tbd.mystcraft.client.render.tint;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.client.ClientAgeData;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.client.ClientAgeData;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.jspecify.annotations.Nullable;
 

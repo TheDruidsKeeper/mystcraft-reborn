@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.age.lighting.BrightLighting;
-import com.techbucketdivision.mystcraft.age.lighting.DarkLighting;
-import com.techbucketdivision.mystcraft.age.lighting.NormalLighting;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.age.lighting.BrightLighting;
+import com.tbd.mystcraft.age.lighting.DarkLighting;
+import com.tbd.mystcraft.age.lighting.NormalLighting;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Lighting symbols (original spec §4.3.3). */
 public final class LightingSymbols {

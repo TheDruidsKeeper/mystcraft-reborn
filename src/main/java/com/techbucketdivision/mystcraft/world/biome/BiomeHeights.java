@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.world.biome;
+package com.tbd.mystcraft.world.biome;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;

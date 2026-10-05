@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.client.render.tint;
+package com.tbd.mystcraft.client.render.tint;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;

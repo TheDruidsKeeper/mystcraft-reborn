@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.instability.effects.PotionEffectProvider;
+import com.tbd.mystcraft.instability.effects.PotionEffectProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;

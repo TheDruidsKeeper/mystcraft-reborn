@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.symbol.color;
+package com.tbd.mystcraft.symbol.color;
 
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.api.symbol.logic.DynamicColorProvider;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.api.symbol.logic.DynamicColorProvider;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.util.Mth;
 
 /**

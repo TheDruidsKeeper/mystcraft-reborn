@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;

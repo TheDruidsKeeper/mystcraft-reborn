@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.dimension;
+package com.tbd.mystcraft.dimension;
 
 import com.mojang.serialization.Lifecycle;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.network.UpdateDimensionsPayload;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.network.UpdateDimensionsPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
@@ -32,7 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 

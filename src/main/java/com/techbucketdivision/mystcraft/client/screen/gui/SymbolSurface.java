@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.client.screen.gui;
+package com.tbd.mystcraft.client.screen.gui;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierSlot;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.ModifierSlot;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.client.render.SymbolGlyphs;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

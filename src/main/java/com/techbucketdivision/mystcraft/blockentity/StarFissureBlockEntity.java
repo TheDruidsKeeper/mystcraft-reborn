@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;

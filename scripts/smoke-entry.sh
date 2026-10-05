@@ -56,8 +56,8 @@ if grep -q 'Done (' "${LOG}"; then
 fi
 
 echo "----- mod stack traces -----"
-grep -B2 -A25 -E "co\.te\.my|com\.techbucketdivision" "${LOG}" \
-    | grep -E "Exception|Error|at (com\.techbucketdivision|net\.minecraft|net\.neoforged)|\.\.\. [0-9]+ more" \
+grep -B2 -A25 -E "co\.te\.my|com\.tbd" "${LOG}" \
+    | grep -E "Exception|Error|at (com\.tbd|net\.minecraft|net\.neoforged)|\.\.\. [0-9]+ more" \
     | head -60 || true
 
 echo "----- SMOKE FAILED: server never finished loading -----"

@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.age;
+package com.tbd.mystcraft.age;
 
 import com.mojang.serialization.Codec;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;

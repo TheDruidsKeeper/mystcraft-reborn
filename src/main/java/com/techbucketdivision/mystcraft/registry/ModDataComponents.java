@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
 import com.mojang.serialization.Codec;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.item.component.BookHealth;
-import com.techbucketdivision.mystcraft.item.component.PageList;
-import com.techbucketdivision.mystcraft.item.component.SlotPages;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.item.component.BookHealth;
+import com.tbd.mystcraft.item.component.PageList;
+import com.tbd.mystcraft.item.component.SlotPages;
+import com.tbd.mystcraft.item.component.SymbolPage;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;

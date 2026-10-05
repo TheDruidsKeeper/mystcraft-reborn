@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
 import com.mojang.serialization.DynamicOps;
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.tbd.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.age.lighting;
+package com.tbd.mystcraft.age.lighting;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
+import com.tbd.mystcraft.api.symbol.logic.LightingController;
 
 /** Dark lighting (original spec §4.3.3 LightingDark): {@code t[i] = vanilla / 2}; {@code scale(v) = v / 2}. */
 public final class DarkLighting implements LightingController {

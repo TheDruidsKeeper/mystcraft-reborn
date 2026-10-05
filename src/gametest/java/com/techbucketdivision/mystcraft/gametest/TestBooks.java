@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;

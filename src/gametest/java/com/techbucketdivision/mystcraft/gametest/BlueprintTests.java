@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeBlueprint;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.config.WorldBuildingConfig;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeBlueprint;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.config.WorldBuildingConfig;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.testframework.annotation.ForEachTest;
@@ -166,7 +166,7 @@ public class BlueprintTests {
     @TestHolder(description = "QA shelf: every symbol of the /myst-dev qa-shelf matrix is registered and every modifier is taken by its page")
     static void qaShelfCasesResolve(ExtendedGameTestHelper helper) {
         Check.run(helper, () -> {
-            for (var qa : com.techbucketdivision.mystcraft.command.QaShelf.cases()) {
+            for (var qa : com.tbd.mystcraft.command.QaShelf.cases()) {
                 for (SymbolPage page : qa.pages()) {
                     AgeSymbol symbol = page.resolve();
                     helper.assertNotNull(symbol, qa.title() + ": unknown symbol " + page.symbol());

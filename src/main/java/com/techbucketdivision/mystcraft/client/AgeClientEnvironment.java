@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.util.ARGB;
-import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
+import com.tbd.mystcraft.api.symbol.logic.LightingController;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.age.celestial.AgeDayCurves;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.attribute.EnvironmentAttributes;

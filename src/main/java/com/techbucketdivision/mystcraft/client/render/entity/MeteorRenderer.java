@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.client.render.entity;
+package com.tbd.mystcraft.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.techbucketdivision.mystcraft.entity.MeteorEntity;
+import com.tbd.mystcraft.entity.MeteorEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

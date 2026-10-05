@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.dimension;
+package com.tbd.mystcraft.dimension;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.celestial.AgeDayCurves;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;

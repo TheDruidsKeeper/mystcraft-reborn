@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.linking.LinkController;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.linking.LinkController;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

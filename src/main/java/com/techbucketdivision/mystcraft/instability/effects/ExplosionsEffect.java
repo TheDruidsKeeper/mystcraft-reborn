@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;

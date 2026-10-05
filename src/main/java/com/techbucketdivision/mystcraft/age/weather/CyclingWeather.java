@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.age.weather;
+package com.tbd.mystcraft.age.weather;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RAINING;
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RAIN_COUNTER;
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.THUNDERING;
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.THUNDER_COUNTER;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.RAINING;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.RAIN_COUNTER;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.THUNDERING;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.THUNDER_COUNTER;
 
 /**
  * Vanilla-like rain/thunder cycle (original spec §4.3.4 WeatherNorm / WeatherFast / WeatherSlow). Each phase lasts

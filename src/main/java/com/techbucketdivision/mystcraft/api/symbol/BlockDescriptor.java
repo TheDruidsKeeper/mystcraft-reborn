@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
 import net.minecraft.world.level.block.state.BlockState;
 

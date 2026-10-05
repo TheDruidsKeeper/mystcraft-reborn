@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
 import com.google.common.collect.ImmutableSet;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.util.MystIds;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

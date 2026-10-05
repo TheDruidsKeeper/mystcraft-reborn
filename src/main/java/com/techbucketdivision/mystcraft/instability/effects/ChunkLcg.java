@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
 import java.util.Random;
 

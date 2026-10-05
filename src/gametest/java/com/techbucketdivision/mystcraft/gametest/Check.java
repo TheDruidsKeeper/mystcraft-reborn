@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
+import com.tbd.mystcraft.Mystcraft;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.neoforged.testframework.gametest.ExtendedGameTestHelper;
 

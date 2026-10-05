@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.item.component;
+package com.tbd.mystcraft.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

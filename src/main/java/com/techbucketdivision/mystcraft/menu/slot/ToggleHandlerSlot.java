@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.menu.slot;
+package com.tbd.mystcraft.menu.slot;
 
 import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;

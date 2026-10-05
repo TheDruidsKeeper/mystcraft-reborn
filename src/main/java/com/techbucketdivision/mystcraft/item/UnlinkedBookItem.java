@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

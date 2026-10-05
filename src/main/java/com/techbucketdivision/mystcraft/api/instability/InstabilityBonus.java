@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.instability;
+package com.tbd.mystcraft.api.instability;
 
 import net.minecraft.server.level.ServerLevel;
 

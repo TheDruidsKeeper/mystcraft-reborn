@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainAlteration;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainContext;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
+import com.tbd.mystcraft.api.symbol.logic.BiomeController;
+import com.tbd.mystcraft.api.symbol.logic.ChunkFinalizer;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.Populator;
+import com.tbd.mystcraft.api.symbol.logic.TerrainAlteration;
+import com.tbd.mystcraft.api.symbol.logic.TerrainContext;
+import com.tbd.mystcraft.api.symbol.logic.TerrainGenerator;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Lightweight logic instances registered while a symbol is being <em>profiled</em> (original spec §4.1 step 3), so
- * the {@link com.techbucketdivision.mystcraft.symbol.SymbolProfiler} learns which interfaces the symbol provides without
+ * the {@link com.tbd.mystcraft.symbol.SymbolProfiler} learns which interfaces the symbol provides without
  * the symbol touching registries or constructing world-gen objects. Never used to generate anything.
  */
 public final class Markers {

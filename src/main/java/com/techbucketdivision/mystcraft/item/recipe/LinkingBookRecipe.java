@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.item.recipe;
+package com.tbd.mystcraft.item.recipe;
 
 import com.mojang.serialization.MapCodec;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.UnlinkedBookItem;
-import com.techbucketdivision.mystcraft.registry.ModRecipes;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.UnlinkedBookItem;
+import com.tbd.mystcraft.registry.ModRecipes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;

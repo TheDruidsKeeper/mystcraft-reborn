@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.dimension;
+package com.tbd.mystcraft.dimension;
 
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.DimensionType;

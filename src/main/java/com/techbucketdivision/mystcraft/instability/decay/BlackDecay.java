@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.instability.decay;
+package com.tbd.mystcraft.instability.decay;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.config.BalanceConfig;
-import com.techbucketdivision.mystcraft.entity.MystFallingBlockEntity;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.config.BalanceConfig;
+import com.tbd.mystcraft.entity.MystFallingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

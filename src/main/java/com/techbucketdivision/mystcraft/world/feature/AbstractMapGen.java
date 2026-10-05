@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.world.feature;
+package com.tbd.mystcraft.world.feature;
 
-import com.techbucketdivision.mystcraft.world.gen.ChunkBlocks;
+import com.tbd.mystcraft.world.gen.ChunkBlocks;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;

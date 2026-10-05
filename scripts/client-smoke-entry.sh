@@ -54,8 +54,8 @@ WARNINGS=$(grep -E "Missing textures|Missing FluidModel|Unable to load model|Mis
 echo "mod resource warnings: ${WARNINGS}"
 
 echo "----- mystcraft errors -----"
-grep -E "ERROR.*(mystcraft|Mystcraft)|com\.techbucketdivision" "${LOG}" | grep -vE "^\s+at " | head -40 || true
-ERRORS=$(grep -E "\]/ERROR\]|/ERROR\] \[com\.techbucketdivision|ERROR\] \[com\.techbucketdivision" "${LOG}" | grep -c "techbucketdivision" || true)
+grep -E "ERROR.*(mystcraft|Mystcraft)|com\.tbd" "${LOG}" | grep -vE "^\s+at " | head -40 || true
+ERRORS=$(grep -E "\]/ERROR\]|/ERROR\] \[com\.tbd|ERROR\] \[com\.tbd" "${LOG}" | grep -c "tbd" || true)
 
 echo "----- QA shelf visual regression (scripts/qa/compare.py) -----"
 VISUAL=0

@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.block.WritingDeskBlock;
+import com.tbd.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;

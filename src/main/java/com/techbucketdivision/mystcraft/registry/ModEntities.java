@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.entity.ColoredLightningBolt;
-import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
-import com.techbucketdivision.mystcraft.entity.MeteorEntity;
-import com.techbucketdivision.mystcraft.entity.MystFallingBlockEntity;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.entity.ColoredLightningBolt;
+import com.tbd.mystcraft.entity.LinkbookEntity;
+import com.tbd.mystcraft.entity.MeteorEntity;
+import com.tbd.mystcraft.entity.MystFallingBlockEntity;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;

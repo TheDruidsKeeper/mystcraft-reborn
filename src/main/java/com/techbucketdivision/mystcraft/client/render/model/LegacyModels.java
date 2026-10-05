@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.client.render.model;
+package com.tbd.mystcraft.client.render.model;
 
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

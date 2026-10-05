@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.instability;
+package com.tbd.mystcraft.api.instability;
 
 /**
  * A card in the instability decks (original spec §6.4). Registered with

@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.linking;
+package com.tbd.mystcraft.api.linking;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

@@ -1,24 +1,24 @@
-package com.techbucketdivision.mystcraft.command;
+package com.tbd.mystcraft.command;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.block.BookReceptacleBlock;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.block.LecternBlock;
-import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.LinkingBookItem;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.block.BookReceptacleBlock;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.block.LecternBlock;
+import com.tbd.mystcraft.block.WritingDeskBlock;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.LinkingBookItem;
 import java.util.ArrayList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -106,9 +106,9 @@ public final class DebugScene {
             case DESCRIPTIVE_BOOK -> descriptiveBook(level.getServer(), "Scene Book");
             case FOLDER -> {
                 ItemStack folder = new ItemStack(ModItems.COLLATION_FOLDER.get());
-                folder.set(com.techbucketdivision.mystcraft.registry.ModDataComponents.SLOT_PAGES.get(),
-                        com.techbucketdivision.mystcraft.item.component.SlotPages.EMPTY
-                                .with(0, PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")))
+                folder.set(com.tbd.mystcraft.registry.ModDataComponents.SLOT_PAGES.get(),
+                        com.tbd.mystcraft.item.component.SlotPages.EMPTY
+                                .with(0, PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("sun_normal")))
                                 .with(1, PageItem.createLinkPanel()));
                 yield folder;
             }
@@ -193,17 +193,17 @@ public final class DebugScene {
         level.setBlock(desk.above(), deskHead.setValue(WritingDeskBlock.TOP, true), 3);
         level.setBlock(desk.east().above(), deskHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
         // stock the desk so the renderer's shelf books and inkwell show up in screenshots
-        if (level.getBlockEntity(desk) instanceof com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity deskBe) {
+        if (level.getBlockEntity(desk) instanceof com.tbd.mystcraft.blockentity.WritingDeskBlockEntity deskBe) {
             // a Scholar's desk (every symbol on the surface, full shelves) with a folder holding a page that carries modifiers
             deskBe.setScholar(true);
-            deskBe.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.techbucketdivision.mystcraft.registry.ModFluids.BLACK_INK.get(), 700));
-            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_TARGET,
-                    com.techbucketdivision.mystcraft.item.FolderItem.create("Scene folder", List.of(
-                            PageItem.createSymbolPage(new com.techbucketdivision.mystcraft.item.component.SymbolPage(
-                                    com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal"),
-                                    List.of(com.techbucketdivision.mystcraft.util.MystIds.id("mod_north")), false)),
-                            PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat")))));
-            deskBe.main.setStack(com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(net.minecraft.world.item.Items.PAPER, 16));
+            deskBe.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 700));
+            deskBe.main.setStack(com.tbd.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_TARGET,
+                    com.tbd.mystcraft.item.FolderItem.create("Scene folder", List.of(
+                            PageItem.createSymbolPage(new com.tbd.mystcraft.item.component.SymbolPage(
+                                    com.tbd.mystcraft.util.MystIds.id("sun_normal"),
+                                    List.of(com.tbd.mystcraft.util.MystIds.id("mod_north")), false)),
+                            PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("terrain_flat")))));
+            deskBe.main.setStack(com.tbd.mystcraft.blockentity.WritingDeskBlockEntity.SLOT_PAPER, new ItemStack(net.minecraft.world.item.Items.PAPER, 16));
             deskBe.markForUpdate();
         }
 
@@ -248,13 +248,13 @@ public final class DebugScene {
 
         // Row C east end: a wall of item frames showing the item icons that are rendered dynamically (pages, books).
         List<ItemStack> framed = List.of(
-                PageItem.createSymbolPage(com.techbucketdivision.mystcraft.util.MystIds.id("sun_normal")),
+                PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("sun_normal")),
                 // a page with attached modifiers (overlays on the corners) and a discovered page (different ink)
-                PageItem.createSymbolPage(new com.techbucketdivision.mystcraft.item.component.SymbolPage(
-                        com.techbucketdivision.mystcraft.util.MystIds.id("color_sky"),
-                        List.of(com.techbucketdivision.mystcraft.util.MystIds.id("mod_color_red"), com.techbucketdivision.mystcraft.util.MystIds.id("mod_gradient"),
-                                com.techbucketdivision.mystcraft.util.MystIds.id("mod_color_blue")), false)),
-                PageItem.createDiscoveredPage(com.techbucketdivision.mystcraft.util.MystIds.id("terrain_normal"), List.of()),
+                PageItem.createSymbolPage(new com.tbd.mystcraft.item.component.SymbolPage(
+                        com.tbd.mystcraft.util.MystIds.id("color_sky"),
+                        List.of(com.tbd.mystcraft.util.MystIds.id("mod_color_red"), com.tbd.mystcraft.util.MystIds.id("mod_gradient"),
+                                com.tbd.mystcraft.util.MystIds.id("mod_color_blue")), false)),
+                PageItem.createDiscoveredPage(com.tbd.mystcraft.util.MystIds.id("terrain_normal"), List.of()),
                 PageItem.createLinkPanel(),
                 PageItem.createBlankPage(),
                 descriptiveBook(server, "Framed"),

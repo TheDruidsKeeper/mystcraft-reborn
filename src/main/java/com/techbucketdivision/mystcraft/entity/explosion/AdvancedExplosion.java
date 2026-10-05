@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.entity.explosion;
+package com.tbd.mystcraft.entity.explosion;
 
-import com.techbucketdivision.mystcraft.network.ExplosionEffectsPayload;
+import com.tbd.mystcraft.network.ExplosionEffectsPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;

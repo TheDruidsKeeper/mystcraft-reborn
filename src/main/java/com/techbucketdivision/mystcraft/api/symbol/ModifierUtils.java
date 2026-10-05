@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
@@ -131,7 +131,7 @@ public final class ModifierUtils {
     }
 
     public static Holder<Biome> randomBiome(AgeDirector d, long seed) {
-        List<Holder<Biome>> all = com.techbucketdivision.mystcraft.symbol.BiomeSymbols.selectableBiomes(d.registries());
+        List<Holder<Biome>> all = com.tbd.mystcraft.symbol.BiomeSymbols.selectableBiomes(d.registries());
         if (all.isEmpty()) {
             return d.registries().lookupOrThrow(net.minecraft.core.registries.Registries.BIOME)
                     .getOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS);

@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.age.celestial;
+package com.tbd.mystcraft.age.celestial;
 
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.logic.Celestial;
+import com.tbd.mystcraft.util.Colors;
 import org.jspecify.annotations.Nullable;
 
 /**

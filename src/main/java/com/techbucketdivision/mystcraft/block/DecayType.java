@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.MapColor;

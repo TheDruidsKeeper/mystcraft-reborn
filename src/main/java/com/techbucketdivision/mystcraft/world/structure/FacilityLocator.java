@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.world.structure;
+package com.tbd.mystcraft.world.structure;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.facility.FacilityPoolElement;
-import com.techbucketdivision.mystcraft.registry.ModStructures;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.facility.FacilityPoolElement;
+import com.tbd.mystcraft.registry.ModStructures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;

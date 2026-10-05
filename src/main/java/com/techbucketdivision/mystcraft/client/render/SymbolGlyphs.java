@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.client.render;
+package com.tbd.mystcraft.client.render;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.WordData;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
-import com.techbucketdivision.mystcraft.symbol.modifiers.ModifierSymbols;
-import com.techbucketdivision.mystcraft.util.Colors;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.WordData;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.symbol.modifiers.ModifierSymbols;
+import com.tbd.mystcraft.util.Colors;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;

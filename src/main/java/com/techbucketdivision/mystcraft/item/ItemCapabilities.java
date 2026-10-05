@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;

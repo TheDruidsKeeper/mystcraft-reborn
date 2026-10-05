@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.menu.ArchivistShopMenu;
-import com.techbucketdivision.mystcraft.menu.BookBinderMenu;
-import com.techbucketdivision.mystcraft.menu.BookMenu;
-import com.techbucketdivision.mystcraft.menu.FolderMenu;
-import com.techbucketdivision.mystcraft.menu.InkMixerMenu;
-import com.techbucketdivision.mystcraft.menu.LinkModifierMenu;
-import com.techbucketdivision.mystcraft.menu.WritingDeskMenu;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.menu.ArchivistShopMenu;
+import com.tbd.mystcraft.menu.BookBinderMenu;
+import com.tbd.mystcraft.menu.BookMenu;
+import com.tbd.mystcraft.menu.FolderMenu;
+import com.tbd.mystcraft.menu.InkMixerMenu;
+import com.tbd.mystcraft.menu.LinkModifierMenu;
+import com.tbd.mystcraft.menu.WritingDeskMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;

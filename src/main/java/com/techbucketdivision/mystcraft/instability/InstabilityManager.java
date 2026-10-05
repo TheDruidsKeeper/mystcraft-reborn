@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.instability;
+package com.tbd.mystcraft.instability;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.instability.InstabilityDirector;
-import com.techbucketdivision.mystcraft.api.instability.InstabilityProvider;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.instability.effects.CrumbleEffect;
-import com.techbucketdivision.mystcraft.instability.effects.EffectProviders;
-import com.techbucketdivision.mystcraft.instability.effects.PotionEffectProvider;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.instability.InstabilityDirector;
+import com.tbd.mystcraft.api.instability.InstabilityProvider;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.instability.effects.CrumbleEffect;
+import com.tbd.mystcraft.instability.effects.EffectProviders;
+import com.tbd.mystcraft.instability.effects.PotionEffectProvider;
 import net.minecraft.world.effect.MobEffects;
 import org.jspecify.annotations.Nullable;
 
@@ -168,7 +168,7 @@ public final class InstabilityManager {
         card("explosions", EffectProviders.explosions(), 1000).add(DECK_DESTRUCTIVE, 8);
         card("lightning", EffectProviders.lightning(), 1000).add(DECK_HARSH, 4).add(DECK_DESTRUCTIVE, 4);
         card("meteors", EffectProviders.meteors(), 1000).add(DECK_DESTRUCTIVE, 4);
-        card(com.techbucketdivision.mystcraft.creature.CreatureRules.FRENZY_CARD, EffectProviders.frenzy(), 1000).add(DECK_HARSH, 3);
+        card(com.tbd.mystcraft.creature.CreatureRules.FRENZY_CARD, EffectProviders.frenzy(), 1000).add(DECK_HARSH, 3);
 
         // Registered but not dealt (as in the original): burning,g / crumblebedrock / decayblack / erosion.
         card("burning,g", EffectProviders.scorchedGlobal(), 1000);

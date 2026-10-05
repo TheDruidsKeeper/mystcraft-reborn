@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
+import com.tbd.mystcraft.Mystcraft;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;

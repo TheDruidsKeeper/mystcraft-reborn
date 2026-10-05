@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.instability;
+package com.tbd.mystcraft.api.instability;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
 
 /** Handed to {@link InstabilityProvider}s so they can register effects against the Age's instability controller. */
 public interface InstabilityDirector {

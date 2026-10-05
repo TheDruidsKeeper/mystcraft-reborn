@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.blockentity.FacilityLockBlockEntity;
+import com.tbd.mystcraft.blockentity.FacilityLockBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;

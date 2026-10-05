@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.BlockDescriptor;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.BlockDescriptor;
 import net.minecraft.world.level.block.Blocks;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Misc symbols (original spec §4.3.11). */
 public final class MiscSymbols {

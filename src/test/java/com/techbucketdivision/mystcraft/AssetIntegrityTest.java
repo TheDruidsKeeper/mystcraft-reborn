@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft;
+package com.tbd.mystcraft;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

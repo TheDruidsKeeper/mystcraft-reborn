@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.command;
+package com.tbd.mystcraft.command;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.block.LecternBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.block.LecternBlock;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

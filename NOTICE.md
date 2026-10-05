@@ -12,7 +12,7 @@ The word/glyph tables (`WordData`) and gameplay constants are derived from the o
 Copyright Commoble. Licensed under the MIT License.
 https://github.com/Commoble/infiniverse
 
-`com.techbucketdivision.mystcraft.dimension.DynamicDimensions` and `UpdateDimensionsPayload` are adapted from
+`com.tbd.mystcraft.dimension.DynamicDimensions` and `UpdateDimensionsPayload` are adapted from
 Infiniverse's `DimensionManager` and `UpdateDimensionsPacket` (MC 26.1 branch).
 
 MIT License

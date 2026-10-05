@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * A symbol that can be written on a page and contributes logic to an Age.
  * <p>
- * Symbols are registered into {@link com.techbucketdivision.mystcraft.symbol.SymbolRegistry}. Each symbol has a
+ * Symbols are registered into {@link com.tbd.mystcraft.symbol.SymbolRegistry}. Each symbol has a
  * four-word "poem" (rendered as the page glyph), a card rank (rarity tier, {@code null} = never traded) and an
  * instability contribution.
  * <p>

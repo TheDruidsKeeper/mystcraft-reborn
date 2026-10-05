@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 

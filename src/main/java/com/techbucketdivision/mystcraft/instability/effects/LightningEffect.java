@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
-import com.techbucketdivision.mystcraft.entity.ColoredLightningBolt;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.entity.ColoredLightningBolt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;

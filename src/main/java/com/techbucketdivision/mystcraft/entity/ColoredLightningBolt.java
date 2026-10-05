@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.entity;
+package com.tbd.mystcraft.entity;
 
-import com.techbucketdivision.mystcraft.network.LightningPayload;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.network.LightningPayload;
+import com.tbd.mystcraft.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;

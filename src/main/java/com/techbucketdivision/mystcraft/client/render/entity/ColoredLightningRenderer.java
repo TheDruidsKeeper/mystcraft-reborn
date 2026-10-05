@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client.render.entity;
+package com.tbd.mystcraft.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.techbucketdivision.mystcraft.entity.ColoredLightningBolt;
+import com.tbd.mystcraft.entity.ColoredLightningBolt;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

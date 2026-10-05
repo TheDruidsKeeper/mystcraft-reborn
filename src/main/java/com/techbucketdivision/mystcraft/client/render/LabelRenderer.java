@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client.render;
+package com.tbd.mystcraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.techbucketdivision.mystcraft.client.ClientPayloadHandlers;
-import com.techbucketdivision.mystcraft.config.ClientConfig;
+import com.tbd.mystcraft.client.ClientPayloadHandlers;
+import com.tbd.mystcraft.config.ClientConfig;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.network.chat.Component;

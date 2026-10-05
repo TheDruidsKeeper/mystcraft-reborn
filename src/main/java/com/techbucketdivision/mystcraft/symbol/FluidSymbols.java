@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.WordData;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.WordData;
+import com.tbd.mystcraft.registry.ModFluids;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;

@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.world;
+package com.tbd.mystcraft.world;
 
 import com.mojang.datafixers.util.Pair;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
-import com.techbucketdivision.mystcraft.world.feature.StarFissurePopulator;
-import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.api.symbol.logic.BiomeController;
+import com.tbd.mystcraft.world.feature.StarFissurePopulator;
+import com.tbd.mystcraft.world.structure.FacilityLocator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;

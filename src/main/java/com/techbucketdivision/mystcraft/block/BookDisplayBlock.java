@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
-import com.techbucketdivision.mystcraft.menu.BookMenu;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.menu.BookMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;

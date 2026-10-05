@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
-import com.techbucketdivision.mystcraft.age.AgeSummary;
-import com.techbucketdivision.mystcraft.blockentity.BookUtil;
-import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
-import com.techbucketdivision.mystcraft.menu.slot.ToggleHandlerSlot;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
+import com.tbd.mystcraft.age.AgeSummary;
+import com.tbd.mystcraft.blockentity.BookUtil;
+import com.tbd.mystcraft.entity.LinkbookEntity;
+import com.tbd.mystcraft.menu.slot.ToggleHandlerSlot;
+import com.tbd.mystcraft.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;

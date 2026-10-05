@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability.decay;
+package com.tbd.mystcraft.instability.decay;
 
-import com.techbucketdivision.mystcraft.block.DecayType;
+import com.tbd.mystcraft.block.DecayType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;

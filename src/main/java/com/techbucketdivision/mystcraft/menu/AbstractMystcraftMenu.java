@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.menu.slot.ToggleSlot;
-import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
+import com.tbd.mystcraft.menu.slot.ToggleSlot;
+import com.tbd.mystcraft.network.MenuMessagePayload;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import com.techbucketdivision.mystcraft.network.Network;
+import com.tbd.mystcraft.network.Network;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;

@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.blockentity.BookBinderBlockEntity;
-import com.techbucketdivision.mystcraft.item.FolderItem;
-import com.techbucketdivision.mystcraft.menu.slot.CraftOutputSlot;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.blockentity.BookBinderBlockEntity;
+import com.tbd.mystcraft.item.FolderItem;
+import com.tbd.mystcraft.menu.slot.CraftOutputSlot;
+import com.tbd.mystcraft.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;

@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 /** Sky rendering options collected by the director (mutable during construction, read by the client). */
 public final class SkyOptions {

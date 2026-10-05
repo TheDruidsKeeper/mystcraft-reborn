@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.world.structure;
+package com.tbd.mystcraft.world.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.registry.ModStructures;
+import com.tbd.mystcraft.registry.ModStructures;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;

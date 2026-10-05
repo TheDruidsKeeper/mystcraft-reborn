@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.creature;
+package com.tbd.mystcraft.creature;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.api.symbol.CreatureDifficulty;
-import com.techbucketdivision.mystcraft.api.symbol.CreatureGroup;
-import com.techbucketdivision.mystcraft.api.symbol.logic.CreatureController;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.api.symbol.CreatureDifficulty;
+import com.tbd.mystcraft.api.symbol.CreatureGroup;
+import com.tbd.mystcraft.api.symbol.logic.CreatureController;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

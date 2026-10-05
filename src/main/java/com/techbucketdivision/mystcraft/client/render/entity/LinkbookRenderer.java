@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.client.render.entity;
+package com.tbd.mystcraft.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
-import com.techbucketdivision.mystcraft.client.render.LabelRenderer;
-import com.techbucketdivision.mystcraft.entity.LinkbookEntity;
+import com.tbd.mystcraft.client.render.ItemRenderHelper;
+import com.tbd.mystcraft.client.render.LabelRenderer;
+import com.tbd.mystcraft.entity.LinkbookEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

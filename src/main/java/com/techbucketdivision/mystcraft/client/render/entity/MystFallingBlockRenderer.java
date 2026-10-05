@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.client.render.entity;
+package com.tbd.mystcraft.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.techbucketdivision.mystcraft.entity.MystFallingBlockEntity;
+import com.tbd.mystcraft.entity.MystFallingBlockEntity;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.util;
+package com.tbd.mystcraft.util;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
+import com.tbd.mystcraft.Mystcraft;
 import net.minecraft.resources.Identifier;
 
 /** Identifier helpers. */

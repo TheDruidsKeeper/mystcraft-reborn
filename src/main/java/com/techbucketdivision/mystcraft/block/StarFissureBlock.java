@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.blockentity.StarFissureBlockEntity;
-import com.techbucketdivision.mystcraft.linking.StarFissureLinker;
+import com.tbd.mystcraft.blockentity.StarFissureBlockEntity;
+import com.tbd.mystcraft.linking.StarFissureLinker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

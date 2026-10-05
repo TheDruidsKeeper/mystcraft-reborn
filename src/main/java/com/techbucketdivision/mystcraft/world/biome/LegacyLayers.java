@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.world.biome;
+package com.tbd.mystcraft.world.biome;
 
 /**
  * Minimal, thread-safe port of the pre-1.13 {@code GenLayer} stack used by the Mystcraft "Tiny…Huge" biome

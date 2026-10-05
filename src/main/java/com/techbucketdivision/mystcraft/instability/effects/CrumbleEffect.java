@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;

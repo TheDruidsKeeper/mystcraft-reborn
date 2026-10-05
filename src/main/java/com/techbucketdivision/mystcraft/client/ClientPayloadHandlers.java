@@ -1,19 +1,19 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.entity.ColoredLightningBolt;
-import com.techbucketdivision.mystcraft.network.AgeDataSyncPayload;
-import com.techbucketdivision.mystcraft.network.ExplosionEffectsPayload;
-import com.techbucketdivision.mystcraft.network.LightningPayload;
-import com.techbucketdivision.mystcraft.network.LinkParticlesPayload;
-import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
-import com.techbucketdivision.mystcraft.network.ProfilingStatePayload;
-import com.techbucketdivision.mystcraft.network.KnowledgePayload;
-import com.techbucketdivision.mystcraft.network.ServerConfigPayload;
-import com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge;
-import com.techbucketdivision.mystcraft.network.UpdateDimensionsPayload;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
-import com.techbucketdivision.mystcraft.registry.ModParticles;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.entity.ColoredLightningBolt;
+import com.tbd.mystcraft.network.AgeDataSyncPayload;
+import com.tbd.mystcraft.network.ExplosionEffectsPayload;
+import com.tbd.mystcraft.network.LightningPayload;
+import com.tbd.mystcraft.network.LinkParticlesPayload;
+import com.tbd.mystcraft.network.MenuMessagePayload;
+import com.tbd.mystcraft.network.ProfilingStatePayload;
+import com.tbd.mystcraft.network.KnowledgePayload;
+import com.tbd.mystcraft.network.ServerConfigPayload;
+import com.tbd.mystcraft.knowledge.SymbolKnowledge;
+import com.tbd.mystcraft.network.UpdateDimensionsPayload;
+import com.tbd.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.registry.ModParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -47,8 +47,8 @@ public final class ClientPayloadHandlers {
         event.register(LightningPayload.TYPE, ClientPayloadHandlers::handleLightning);
         event.register(ProfilingStatePayload.TYPE, ClientPayloadHandlers::handleProfilingState);
         event.register(MenuMessagePayload.TYPE, ClientPayloadHandlers::handleMenuMessage);
-        event.register(com.techbucketdivision.mystcraft.network.PanelImagePayloads.CaptureRequest.TYPE, (p, ctx) -> PanelImages.onCaptureRequest(p.key()));
-        event.register(com.techbucketdivision.mystcraft.network.PanelImagePayloads.Images.TYPE, (p, ctx) -> PanelImages.onImages(p.key(), p.frames()));
+        event.register(com.tbd.mystcraft.network.PanelImagePayloads.CaptureRequest.TYPE, (p, ctx) -> PanelImages.onCaptureRequest(p.key()));
+        event.register(com.tbd.mystcraft.network.PanelImagePayloads.Images.TYPE, (p, ctx) -> PanelImages.onImages(p.key(), p.frames()));
     }
 
     private static void handleAgeData(AgeDataSyncPayload payload, IPayloadContext ctx) {

@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.item.recipe.LinkingBookRecipe;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.item.recipe.LinkingBookRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.registries.DeferredHolder;

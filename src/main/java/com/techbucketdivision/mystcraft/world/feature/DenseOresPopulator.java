@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.world.feature;
+package com.tbd.mystcraft.world.feature;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
+import com.tbd.mystcraft.api.symbol.logic.Populator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;

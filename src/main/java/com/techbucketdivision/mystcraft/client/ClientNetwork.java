@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.menu.ClientSender;
-import com.techbucketdivision.mystcraft.network.MenuMessagePayload;
+import com.tbd.mystcraft.menu.ClientSender;
+import com.tbd.mystcraft.network.MenuMessagePayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 

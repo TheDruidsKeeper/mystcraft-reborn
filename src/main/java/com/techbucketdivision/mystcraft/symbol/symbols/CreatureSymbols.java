@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.CreatureDifficulty;
-import com.techbucketdivision.mystcraft.api.symbol.CreatureGroup;
-import com.techbucketdivision.mystcraft.api.symbol.Modifier;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.api.symbol.logic.CreatureController;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.CreatureDifficulty;
+import com.tbd.mystcraft.api.symbol.CreatureGroup;
+import com.tbd.mystcraft.api.symbol.Modifier;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.api.symbol.logic.CreatureController;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /**
  * Creature symbols (world-building plan §10). {@code creatures_passive / neutral / hostile} each register a

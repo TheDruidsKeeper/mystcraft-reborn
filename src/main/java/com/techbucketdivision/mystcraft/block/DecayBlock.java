@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.instability.decay.DecayHandlers;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.instability.decay.DecayHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;

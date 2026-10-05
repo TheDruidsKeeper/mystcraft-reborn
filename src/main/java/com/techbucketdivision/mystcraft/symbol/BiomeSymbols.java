@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.api.symbol.WordData;
-import com.techbucketdivision.mystcraft.util.MystIds;
-import com.techbucketdivision.mystcraft.world.biome.BiomeHeights;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.api.symbol.WordData;
+import com.tbd.mystcraft.util.MystIds;
+import com.tbd.mystcraft.world.biome.BiomeHeights;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

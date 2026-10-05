@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
-import com.techbucketdivision.mystcraft.linking.PortalUtils;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.linking.PortalUtils;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;

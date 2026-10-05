@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.registry.ModFluids;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

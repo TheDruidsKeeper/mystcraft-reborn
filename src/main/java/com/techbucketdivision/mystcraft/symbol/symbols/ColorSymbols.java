@@ -1,16 +1,16 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.age.celestial.RainbowCelestial;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.symbol.color.FixedStaticColor;
-import com.techbucketdivision.mystcraft.symbol.color.GradientDynamicColor;
-import com.techbucketdivision.mystcraft.symbol.color.NaturalDynamicColor;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.age.celestial.RainbowCelestial;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.symbol.color.FixedStaticColor;
+import com.tbd.mystcraft.symbol.color.GradientDynamicColor;
+import com.tbd.mystcraft.symbol.color.NaturalDynamicColor;
+import com.tbd.mystcraft.util.Colors;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Visual / colour symbols (original spec §4.3.1). */
 public final class ColorSymbols {

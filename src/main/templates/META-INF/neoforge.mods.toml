@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="[3,)"
 license="${mod_license}"
-issueTrackerURL="https://github.com/techbucketdivision/mystcraft-reborn/issues"
+issueTrackerURL="https://github.com/TheDruidsKeeper/mystcraft-reborn/issues"
 
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
-displayURL="https://github.com/techbucketdivision/mystcraft-reborn"
+displayURL="https://github.com/TheDruidsKeeper/mystcraft-reborn"
 logoFile="mystcraft_logo.png"
 credits="Original Mystcraft by XCompWiz (LGPL-3.0). Dynamic dimension technique after Commoble's Infiniverse (MIT)."
 authors="${mod_authors}"

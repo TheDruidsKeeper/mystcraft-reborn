@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
@@ -61,7 +61,7 @@ public final class ClientSelfCheck {
             "use linking_book", "use descriptive_book", "use folder"};
     private static int screenIndex;
     /** QA shelf tour (docs/QA.md): every case is visited and screenshotted by day and by night for scripts/qa/compare.py. */
-    private static final List<com.techbucketdivision.mystcraft.command.QaShelf.Case> TOUR = com.techbucketdivision.mystcraft.command.QaShelf.cases();
+    private static final List<com.tbd.mystcraft.command.QaShelf.Case> TOUR = com.tbd.mystcraft.command.QaShelf.cases();
     private static int tourIndex;
     private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> tourFrom;
     private static final List<String> failures = new ArrayList<>();
@@ -143,21 +143,21 @@ public final class ClientSelfCheck {
                             Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
                         }
                         screenshot(mc, "02z_screen_" + name);
-                    } else if (stepTicks == 30 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                    } else if (stepTicks == 30 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         // the scene desk is a Scholar's desk: the surface lists every symbol; then the Sky tab and the
                         // Modifiers tab with the folder's sun page selected (modifiers that fit it are highlighted)
                         int listed = desk.listedSymbols();
                         Mystcraft.LOGGER.info("[clientcheck] scholar's desk lists {} symbols", listed);
                         if (listed < 50) failures.add("scholar's desk surface lists only " + listed + " symbols");
-                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.SKY);
-                    } else if (stepTicks == 34 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        desk.selectTab(com.tbd.mystcraft.client.screen.gui.SymbolSurface.Tab.SKY);
+                    } else if (stepTicks == 34 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         screenshot(mc, "02y_desk_tab_sky");
                         desk.selectPage(0);
-                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.MODIFIERS);
-                    } else if (stepTicks == 38 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        desk.selectTab(com.tbd.mystcraft.client.screen.gui.SymbolSurface.Tab.MODIFIERS);
+                    } else if (stepTicks == 38 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         screenshot(mc, "02y_desk_tab_modifiers");
-                        desk.selectTab(com.techbucketdivision.mystcraft.client.screen.gui.SymbolSurface.Tab.CREATURES);
-                    } else if (stepTicks == 42 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.WritingDeskScreen desk) {
+                        desk.selectTab(com.tbd.mystcraft.client.screen.gui.SymbolSurface.Tab.CREATURES);
+                    } else if (stepTicks == 42 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         int creatures = desk.listedSymbols();
                         Mystcraft.LOGGER.info("[clientcheck] creatures tab lists {} symbols", creatures);
                         if (creatures != 4) failures.add("creatures tab lists " + creatures + " symbols, expected 4");
@@ -191,7 +191,7 @@ public final class ClientSelfCheck {
                 case SCENE_AGE -> {
                     if (stepTicks == 60) {
                         screenshot(mc, "04_scene_age");
-                        int known = mc.player == null ? 0 : com.techbucketdivision.mystcraft.knowledge.SymbolKnowledge.known(mc.player).size();
+                        int known = mc.player == null ? 0 : com.tbd.mystcraft.knowledge.SymbolKnowledge.known(mc.player).size();
                         Mystcraft.LOGGER.info("[clientcheck] symbols known after arriving in the Age: {}", known);
                         if (known == 0) failures.add("arriving in an Age taught no symbols (knowledge not synced to the client)");
                     }
@@ -200,9 +200,9 @@ public final class ClientSelfCheck {
                     if (stepTicks == 95) {
                         if (mc.screen == null) failures.add("current Age book screen did not open");
                         var level = mc.level;
-                        var info = level == null ? null : new com.techbucketdivision.mystcraft.api.linking.LinkInfo(
+                        var info = level == null ? null : new com.tbd.mystcraft.api.linking.LinkInfo(
                                 java.util.Optional.of(level.dimension()),
-                                java.util.Optional.ofNullable(com.techbucketdivision.mystcraft.age.AgeData.uuidFromLevelKey(level.dimension())),
+                                java.util.Optional.ofNullable(com.tbd.mystcraft.age.AgeData.uuidFromLevelKey(level.dimension())),
                                 java.util.Optional.empty(), 0f, "", java.util.Set.of(), java.util.Map.of());
                         int frames = PanelImages.frameCount(info);
                         Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {}", frames);
@@ -210,21 +210,21 @@ public final class ClientSelfCheck {
                         screenshot(mc, "04b_age_book");
                     }
                     // page to the first symbol page (category label + glyph) and to the summary page after the last page
-                    if (stepTicks == 100 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                    if (stepTicks == 100 && mc.screen instanceof com.tbd.mystcraft.client.screen.BookScreen book) {
                         book.jumpToPage(1);
                     }
-                    if (stepTicks == 110 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                    if (stepTicks == 110 && mc.screen instanceof com.tbd.mystcraft.client.screen.BookScreen book) {
                         if (book.getMenu().getCurrentPageIndex() != 1) failures.add("book did not turn to page 1");
                         var page = book.getMenu().getCurrentPage();
-                        var symbol = com.techbucketdivision.mystcraft.item.PageItem.getSymbol(page);
+                        var symbol = com.tbd.mystcraft.item.PageItem.getSymbol(page);
                         if (symbol == null) failures.add("page 1 of the Age book is not a symbol page");
-                        else if (symbol.category() != com.techbucketdivision.mystcraft.api.symbol.SymbolCategory.TERRAIN) {
+                        else if (symbol.category() != com.tbd.mystcraft.api.symbol.SymbolCategory.TERRAIN) {
                             failures.add("page 1 of the Age book is not the terrain page (organised by category); got " + symbol.id());
                         }
                         screenshot(mc, "04c_age_book_page");
                         book.jumpToPage(book.getMenu().getPageCount());
                     }
-                    if (stepTicks == 125 && mc.screen instanceof com.techbucketdivision.mystcraft.client.screen.BookScreen book) {
+                    if (stepTicks == 125 && mc.screen instanceof com.tbd.mystcraft.client.screen.BookScreen book) {
                         var summary = book.getMenu().getSummary();
                         Mystcraft.LOGGER.info("[clientcheck] Age book summary: {}", summary);
                         if (summary == null) failures.add("no Age summary synced for the bound book");
@@ -365,10 +365,10 @@ public final class ClientSelfCheck {
         Mystcraft.LOGGER.info("[clientcheck] client Age controller ok: seed {}, {} symbols, celestials [{}], age time {}, "
                         + "celestial angle {}, brightness {}, sky_light_level {}, sky_light_factor {}, skyDarken {}",
                 data == null ? "?" : data.seed(), data == null ? -1 : data.symbols().size(), celestials.toString().trim(),
-                time, angle, com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.brightness(angle), skyLight,
+                time, angle, com.tbd.mystcraft.age.celestial.AgeDayCurves.brightness(angle), skyLight,
                 skyFactor, level.getSkyDarken());
         if (angle < 0f || angle > 1f) failures.add("celestial angle out of range: " + angle);
-        float expectedLight = 15f * com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.skyLightLevelFactor(angle);
+        float expectedLight = 15f * com.tbd.mystcraft.age.celestial.AgeDayCurves.skyLightLevelFactor(angle);
         // vanilla weather layers darken on top of the Age curve (rain: blend towards 4 by 0.3125, thunder by 0.527)
         float thunder = level.getThunderLevel(1f), rain = level.getRainLevel(1f) - thunder;
         if (rain > 0f) expectedLight += (4f - expectedLight) * 0.3125f * rain;

@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.client.render;
+package com.tbd.mystcraft.client.render;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.logic.Celestial;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 

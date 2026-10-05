@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.menu.slot.BannedSlot;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.menu.slot.BannedSlot;
+import com.tbd.mystcraft.registry.ModMenus;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;

@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.age.weather.CyclingWeather;
-import com.techbucketdivision.mystcraft.age.weather.ToggleableWeather;
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.age.weather.CyclingWeather;
+import com.tbd.mystcraft.age.weather.ToggleableWeather;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
 
 import java.util.function.Supplier;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /** Weather symbols (original spec §4.3.4). */
 public final class WeatherSymbols {

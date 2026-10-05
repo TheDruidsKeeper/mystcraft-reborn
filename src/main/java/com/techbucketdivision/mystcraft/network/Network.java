@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.network;
+package com.tbd.mystcraft.network;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;

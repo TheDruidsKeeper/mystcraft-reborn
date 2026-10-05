@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.client.screen.gui.CheckBoxRow;
-import com.techbucketdivision.mystcraft.client.screen.gui.ToggleButton;
-import com.techbucketdivision.mystcraft.linking.InkEffects;
-import com.techbucketdivision.mystcraft.menu.LinkModifierMenu;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.client.screen.gui.CheckBoxRow;
+import com.tbd.mystcraft.client.screen.gui.ToggleButton;
+import com.tbd.mystcraft.linking.InkEffects;
+import com.tbd.mystcraft.menu.LinkModifierMenu;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;

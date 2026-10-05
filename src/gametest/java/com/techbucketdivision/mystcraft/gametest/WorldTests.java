@@ -1,14 +1,14 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
-import com.techbucketdivision.mystcraft.registry.ModFluids;
-import com.techbucketdivision.mystcraft.util.MystIds;
-import com.techbucketdivision.mystcraft.world.feature.StarFissurePopulator;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.util.MystIds;
+import com.tbd.mystcraft.world.feature.StarFissurePopulator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -55,7 +55,7 @@ public class WorldTests {
         }
         helper.assertTrue(found > 0, "no star_fissure blocks at y=0 around chunk (0,0)");
 
-        BlockPos spawn = com.techbucketdivision.mystcraft.linking.LinkController.defaultSpawn(age);
+        BlockPos spawn = com.tbd.mystcraft.linking.LinkController.defaultSpawn(age);
         helper.assertTrue(Math.abs(spawn.getX()) <= 80 && Math.abs(spawn.getZ()) <= 80,
                 "spawn " + spawn.toShortString() + " should stay near the fissure at the origin");
         helper.succeed();
@@ -77,7 +77,7 @@ public class WorldTests {
             controller.ensureCurrent();
             boolean anyLight = controller.celestials().stream().anyMatch(c -> c.providesLight());
             float angle = controller.celestialAngle(data.worldTime(), 0f);
-            float brightness = com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves.brightness(angle);
+            float brightness = com.tbd.mystcraft.age.celestial.AgeDayCurves.brightness(angle);
             String celestialSymbols = data.symbols().stream().map(id -> id.getPath())
                     .filter(p -> p.startsWith("sun") || p.startsWith("moon") || p.startsWith("stars") || p.startsWith("mod_"))
                     .toList().toString();

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.age.lighting;
+package com.tbd.mystcraft.age.lighting;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
+import com.tbd.mystcraft.api.symbol.logic.LightingController;
 
 /**
  * Bright lighting (original spec §4.3.3 LightingBright): {@code t[i] = vanilla * 0.75 + 0.25};

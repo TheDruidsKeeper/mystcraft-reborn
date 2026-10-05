@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.linking.PanelImageStorage;
-import com.techbucketdivision.mystcraft.network.PanelImagePayloads;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.linking.PanelImageStorage;
+import com.tbd.mystcraft.network.PanelImagePayloads;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.client.Screenshot;

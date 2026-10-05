@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.age.celestial;
+package com.tbd.mystcraft.age.celestial;
 
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;

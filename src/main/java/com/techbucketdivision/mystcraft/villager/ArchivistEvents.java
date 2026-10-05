@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.villager;
+package com.tbd.mystcraft.villager;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.menu.ArchivistShopMenu;
-import com.techbucketdivision.mystcraft.registry.ModVillagers;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.menu.ArchivistShopMenu;
+import com.tbd.mystcraft.registry.ModVillagers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.npc.villager.Villager;

@@ -1,17 +1,17 @@
-package com.techbucketdivision.mystcraft.item;
+package com.tbd.mystcraft.item;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeBlueprint;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.item.ItemBehaviours;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.component.BookHealth;
-import com.techbucketdivision.mystcraft.item.component.PageList;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeBlueprint;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.item.ItemBehaviours;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.item.component.BookHealth;
+import com.tbd.mystcraft.item.component.PageList;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -208,7 +208,7 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
         data.setSymbols(symbols);
         // Build the Age once now so any controller fallback (only possible with add-on symbols that fail) is recorded.
         try {
-            new com.techbucketdivision.mystcraft.age.AgeController(data, server.registryAccess(), false);
+            new com.tbd.mystcraft.age.AgeController(data, server.registryAccess(), false);
         } catch (RuntimeException e) {
             Mystcraft.LOGGER.warn("Could not pre-build Age {} to settle its symbols", data.uuid(), e);
         }

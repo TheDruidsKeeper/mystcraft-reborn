@@ -1,6 +1,6 @@
 # Mystcraft Reborn — working notes for agents
 
-NeoForge 26.1 / Minecraft 26.1 / Java 25 mod, id `mystcraft`, package `com.techbucketdivision.mystcraft`.
+NeoForge 26.1 / Minecraft 26.1 / Java 25 mod, id `mystcraft`, package `com.tbd.mystcraft`.
 The code is the source of truth; the docs say what and why and point at where.
 
 ## Read first

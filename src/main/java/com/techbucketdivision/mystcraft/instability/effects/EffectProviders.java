@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.api.instability.InstabilityProvider;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.api.instability.InstabilityProvider;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 

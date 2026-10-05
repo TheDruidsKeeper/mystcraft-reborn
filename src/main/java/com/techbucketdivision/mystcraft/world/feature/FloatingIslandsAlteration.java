@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.world.feature;
+package com.tbd.mystcraft.world.feature;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainAlteration;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainContext;
-import com.techbucketdivision.mystcraft.world.biome.SurfaceBlocks;
-import com.techbucketdivision.mystcraft.world.gen.ChunkBlocks;
-import com.techbucketdivision.mystcraft.world.gen.LegacyNoise;
+import com.tbd.mystcraft.api.symbol.logic.ChunkFinalizer;
+import com.tbd.mystcraft.api.symbol.logic.TerrainAlteration;
+import com.tbd.mystcraft.api.symbol.logic.TerrainContext;
+import com.tbd.mystcraft.world.biome.SurfaceBlocks;
+import com.tbd.mystcraft.world.gen.ChunkBlocks;
+import com.tbd.mystcraft.world.gen.LegacyNoise;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;

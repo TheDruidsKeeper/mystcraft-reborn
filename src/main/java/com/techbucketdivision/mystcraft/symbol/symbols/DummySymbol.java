@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.symbol.symbols;
+package com.tbd.mystcraft.symbol.symbols;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.instability.decay;
+package com.tbd.mystcraft.instability.decay;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.block.DecayType;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.block.DecayType;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;

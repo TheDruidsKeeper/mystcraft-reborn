@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.villager;
+package com.tbd.mystcraft.villager;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModAttachments;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.symbol.CardRanks;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModAttachments;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.symbol.CardRanks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;

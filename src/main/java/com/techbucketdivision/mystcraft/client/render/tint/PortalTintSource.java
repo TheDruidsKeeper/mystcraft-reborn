@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.client.render.tint;
+package com.tbd.mystcraft.client.render.tint;
 
-import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
-import com.techbucketdivision.mystcraft.linking.PortalUtils;
+import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.linking.PortalUtils;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;

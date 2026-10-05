@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.block;
+package com.tbd.mystcraft.block;
 
-import com.techbucketdivision.mystcraft.blockentity.WardedDoorBlockEntity;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.blockentity.WardedDoorBlockEntity;
+import com.tbd.mystcraft.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;

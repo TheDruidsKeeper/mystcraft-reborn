@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.config;
+package com.tbd.mystcraft.config;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.ModConfigSpec;
 

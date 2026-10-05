@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.screen.gui;
+package com.tbd.mystcraft.client.screen.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

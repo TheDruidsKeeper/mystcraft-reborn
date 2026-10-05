@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.age.weather;
+package com.tbd.mystcraft.age.weather;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;

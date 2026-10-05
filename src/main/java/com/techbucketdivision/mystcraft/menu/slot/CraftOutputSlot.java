@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.menu.slot;
+package com.tbd.mystcraft.menu.slot;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

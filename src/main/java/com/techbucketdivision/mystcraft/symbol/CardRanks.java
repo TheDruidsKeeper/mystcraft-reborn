@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;

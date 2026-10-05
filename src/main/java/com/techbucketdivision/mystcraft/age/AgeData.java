@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.age;
+package com.tbd.mystcraft.age;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
@@ -105,7 +105,7 @@ public final class AgeData {
 
     public static @Nullable UUID uuidFromLevelKey(ResourceKey<Level> key) {
         Identifier id = key.identifier();
-        if (!id.getNamespace().equals(com.techbucketdivision.mystcraft.Mystcraft.MOD_ID) || !id.getPath().startsWith("age_")) return null;
+        if (!id.getNamespace().equals(com.tbd.mystcraft.Mystcraft.MOD_ID) || !id.getPath().startsWith("age_")) return null;
         try {
             return UUID.fromString(id.getPath().substring(4).replace('_', '-'));
         } catch (IllegalArgumentException e) {

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability.decay;
+package com.tbd.mystcraft.instability.decay;
 
-import com.techbucketdivision.mystcraft.block.DecayType;
+import com.tbd.mystcraft.block.DecayType;
 
 import java.util.EnumMap;
 import java.util.Map;

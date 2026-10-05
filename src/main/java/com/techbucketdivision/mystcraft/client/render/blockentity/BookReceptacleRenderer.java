@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.client.render.blockentity;
+package com.tbd.mystcraft.client.render.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.techbucketdivision.mystcraft.block.BookReceptacleBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
-import com.techbucketdivision.mystcraft.client.render.ItemRenderHelper;
-import com.techbucketdivision.mystcraft.client.render.LabelRenderer;
+import com.tbd.mystcraft.block.BookReceptacleBlock;
+import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.client.render.ItemRenderHelper;
+import com.tbd.mystcraft.client.render.LabelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;

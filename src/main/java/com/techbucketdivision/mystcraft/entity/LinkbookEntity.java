@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.entity;
+package com.tbd.mystcraft.entity;
 
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.item.component.BookHealth;
-import com.techbucketdivision.mystcraft.menu.BookMenu;
-import com.techbucketdivision.mystcraft.registry.ModDataComponents;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.item.component.BookHealth;
+import com.tbd.mystcraft.menu.BookMenu;
+import com.tbd.mystcraft.registry.ModDataComponents;
+import com.tbd.mystcraft.registry.ModEntities;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;

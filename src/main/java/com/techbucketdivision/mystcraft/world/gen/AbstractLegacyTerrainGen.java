@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.world.gen;
+package com.tbd.mystcraft.world.gen;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainContext;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
+import com.tbd.mystcraft.api.symbol.logic.TerrainContext;
+import com.tbd.mystcraft.api.symbol.logic.TerrainGenerator;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.ChunkPos;

@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.instability.effects;
+package com.tbd.mystcraft.instability.effects;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;

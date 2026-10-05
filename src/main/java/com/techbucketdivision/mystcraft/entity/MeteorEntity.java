@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.entity;
+package com.tbd.mystcraft.entity;
 
-import com.techbucketdivision.mystcraft.entity.explosion.AdvancedExplosion;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
-import com.techbucketdivision.mystcraft.registry.ModSounds;
+import com.tbd.mystcraft.entity.explosion.AdvancedExplosion;
+import com.tbd.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;

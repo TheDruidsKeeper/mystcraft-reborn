@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
 import org.jspecify.annotations.Nullable;
 
 /**

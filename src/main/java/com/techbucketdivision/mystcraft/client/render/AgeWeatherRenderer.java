@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.render;
+package com.tbd.mystcraft.client.render;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.state.level.LevelRenderState;

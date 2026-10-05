@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft;
+package com.tbd.mystcraft;
 
-import com.techbucketdivision.mystcraft.client.ClientSetup;
-import com.techbucketdivision.mystcraft.config.ClientConfig;
+import com.tbd.mystcraft.client.ClientSetup;
+import com.tbd.mystcraft.config.ClientConfig;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;

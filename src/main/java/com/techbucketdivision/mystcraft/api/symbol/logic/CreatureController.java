@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
-import com.techbucketdivision.mystcraft.api.symbol.CreatureDifficulty;
-import com.techbucketdivision.mystcraft.api.symbol.CreatureGroup;
+import com.tbd.mystcraft.api.symbol.CreatureDifficulty;
+import com.tbd.mystcraft.api.symbol.CreatureGroup;
 
 /**
  * Age logic for one creature group (world-building plan §10): how often its mobs spawn, how many may exist and - for

@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.facility.FacilityPoolElement;
-import com.techbucketdivision.mystcraft.util.MystIds;
-import com.techbucketdivision.mystcraft.world.structure.NearOriginPlacement;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.facility.FacilityPoolElement;
+import com.tbd.mystcraft.util.MystIds;
+import com.tbd.mystcraft.world.structure.NearOriginPlacement;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.structure.Structure;

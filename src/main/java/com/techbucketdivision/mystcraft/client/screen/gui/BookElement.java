@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.client.screen.gui;
+package com.tbd.mystcraft.client.screen.gui;
 
-import com.techbucketdivision.mystcraft.age.AgeSummary;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.item.component.SymbolPage;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.age.AgeSummary;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.client.render.SymbolGlyphs;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.item.component.SymbolPage;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -186,7 +186,7 @@ public class BookElement extends GuiElement {
     private void drawLinkPanel(GuiGraphicsExtractor g, int w, int h) {
         // A photograph of the destination (taken by whoever last arrived there, slideshow over the last few) when
         // one exists; otherwise the classic panel: dark gradient for a visited target, black for an unknown one.
-        Identifier picture = com.techbucketdivision.mystcraft.client.PanelImages.current(container.getLinkInfo());
+        Identifier picture = com.tbd.mystcraft.client.PanelImages.current(container.getLinkInfo());
         if (picture != null) {
             g.blit(picture, 0, 0, w, h, 0f, 1f, 0f, 1f); // stretch the whole picture over the panel
             g.fillGradient(0, 0, w, h, 0x30000000, 0x60000000); // the panel's ink tint over the picture
@@ -224,7 +224,7 @@ public class BookElement extends GuiElement {
             y += 4;
             y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.modifiers"), px, y, pw, 0xFF1A1A1A);
             for (Identifier id : symbolPage.modifiers()) {
-                AgeSymbol modifier = com.techbucketdivision.mystcraft.symbol.SymbolRegistry.get(id);
+                AgeSymbol modifier = com.tbd.mystcraft.symbol.SymbolRegistry.get(id);
                 Component name = modifier == null ? Component.literal(id.toString()) : modifier.displayName();
                 y = drawWrapped(g, font, Component.literal("+ ").append(name), px + 4, y, pw - 4, SymbolGlyphs.modifierTint(modifier));
             }

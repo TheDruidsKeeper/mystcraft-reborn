@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.age;
+package com.tbd.mystcraft.age;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;

@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 /** Controls the light curve of an Age. Exactly one per Age. */
 public interface LightingController {

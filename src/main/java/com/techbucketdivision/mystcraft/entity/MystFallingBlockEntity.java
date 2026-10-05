@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.entity;
+package com.tbd.mystcraft.entity;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.registry.ModEntities;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

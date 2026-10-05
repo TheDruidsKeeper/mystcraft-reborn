@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.dimension;
+package com.tbd.mystcraft.dimension;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.creature.CreatureEvents;
-import com.techbucketdivision.mystcraft.age.AgeControllers;
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
-import com.techbucketdivision.mystcraft.instability.InstabilityBonusManager;
-import com.techbucketdivision.mystcraft.instability.InstabilityController;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.creature.CreatureEvents;
+import com.tbd.mystcraft.age.AgeControllers;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.instability.InstabilityBonusManager;
+import com.tbd.mystcraft.instability.InstabilityController;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.resources.ResourceKey;

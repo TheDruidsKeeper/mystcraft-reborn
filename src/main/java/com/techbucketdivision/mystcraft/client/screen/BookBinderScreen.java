@@ -1,9 +1,9 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.client.screen.gui.GuiElement;
-import com.techbucketdivision.mystcraft.client.screen.gui.ScrollablePages;
-import com.techbucketdivision.mystcraft.menu.BookBinderMenu;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.client.screen.gui.GuiElement;
+import com.tbd.mystcraft.client.screen.gui.ScrollablePages;
+import com.tbd.mystcraft.menu.BookBinderMenu;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -58,10 +58,10 @@ public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
             }
         }));
         addElement(new MissingPanelIcon(gx + 27, gy + 26));
-        addElement(new com.techbucketdivision.mystcraft.client.screen.gui.HintText(gx + 7, gy + 45, imageWidth - 14, 40,
+        addElement(new com.tbd.mystcraft.client.screen.gui.HintText(gx + 7, gy + 45, imageWidth - 14, 40,
                 () -> Component.translatable("gui.mystcraft.book_binder.pages.hint"), () -> menu.getPageList().isEmpty(), CAPTION_LIGHT, true));
         hintSlot(BookBinderMenu.SLOT_COVER, net.minecraft.world.item.Items.LEATHER, "gui.mystcraft.book_binder.slot.cover");
-        hintSlot(BookBinderMenu.SLOT_OUTPUT, com.techbucketdivision.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.book_binder.slot.output");
+        hintSlot(BookBinderMenu.SLOT_OUTPUT, com.tbd.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.book_binder.slot.output");
     }
 
     @Override

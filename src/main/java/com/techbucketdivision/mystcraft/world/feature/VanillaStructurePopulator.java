@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.world.feature;
+package com.tbd.mystcraft.world.feature;
 
-import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
-import com.techbucketdivision.mystcraft.registry.ModStructures;
+import com.tbd.mystcraft.api.symbol.logic.Populator;
+import com.tbd.mystcraft.registry.ModStructures;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;

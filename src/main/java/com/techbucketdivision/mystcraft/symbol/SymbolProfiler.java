@@ -1,15 +1,15 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.BlockCategory;
-import com.techbucketdivision.mystcraft.api.symbol.BlockDescriptor;
-import com.techbucketdivision.mystcraft.api.symbol.Modifier;
-import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
-import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.BlockCategory;
+import com.tbd.mystcraft.api.symbol.BlockDescriptor;
+import com.tbd.mystcraft.api.symbol.Modifier;
+import com.tbd.mystcraft.api.symbol.logic.BiomeController;
+import com.tbd.mystcraft.api.symbol.logic.Celestial;
+import com.tbd.mystcraft.api.symbol.logic.LightingController;
+import com.tbd.mystcraft.api.symbol.logic.TerrainGenerator;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;

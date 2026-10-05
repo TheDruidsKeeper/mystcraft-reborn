@@ -1,6 +1,6 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.util.Colors;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,8 @@
-package com.techbucketdivision.mystcraft.event;
+package com.tbd.mystcraft.event;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.blockentity.BlockEntityCapabilities;
-import com.techbucketdivision.mystcraft.item.ItemCapabilities;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.blockentity.BlockEntityCapabilities;
+import com.tbd.mystcraft.item.ItemCapabilities;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;

@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol;
+package com.tbd.mystcraft.api.symbol;
 
 /** How dangerous an Age's hostile creatures are (plan §10): health and damage multipliers applied when they spawn. */
 public enum CreatureDifficulty {

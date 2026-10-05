@@ -1,12 +1,12 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.block.SequenceDialBlock;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
-import com.techbucketdivision.mystcraft.facility.FacilityState;
-import com.techbucketdivision.mystcraft.item.PageItem;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
-import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.block.SequenceDialBlock;
+import com.tbd.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.facility.FacilityState;
+import com.tbd.mystcraft.item.PageItem;
+import com.tbd.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.symbol.SymbolRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

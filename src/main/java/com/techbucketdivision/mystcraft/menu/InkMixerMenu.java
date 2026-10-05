@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.menu;
+package com.tbd.mystcraft.menu;
 
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.blockentity.InkMixerBlockEntity;
-import com.techbucketdivision.mystcraft.linking.InkEffects;
-import com.techbucketdivision.mystcraft.menu.slot.CraftOutputSlot;
-import com.techbucketdivision.mystcraft.registry.ModMenus;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.blockentity.InkMixerBlockEntity;
+import com.tbd.mystcraft.linking.InkEffects;
+import com.tbd.mystcraft.menu.slot.CraftOutputSlot;
+import com.tbd.mystcraft.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

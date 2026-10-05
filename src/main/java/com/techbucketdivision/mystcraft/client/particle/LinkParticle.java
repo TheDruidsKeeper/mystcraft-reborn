@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.particle;
+package com.tbd.mystcraft.client.particle;
 
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SmokeParticle;

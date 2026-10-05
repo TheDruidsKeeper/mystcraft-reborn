@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.age.weather;
+package com.tbd.mystcraft.age.weather;
 
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -8,9 +8,9 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jspecify.annotations.Nullable;
 
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.DISABLED;
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RESET_COOLDOWN;
-import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RESET_COUNTER;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.DISABLED;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.RESET_COOLDOWN;
+import static com.tbd.mystcraft.age.weather.WeatherStorageKeys.RESET_COUNTER;
 
 /**
  * Fixed weather that can be toggled off for {@link WeatherStorageKeys#RESET_COOLDOWN} ticks (original spec §4.3.4

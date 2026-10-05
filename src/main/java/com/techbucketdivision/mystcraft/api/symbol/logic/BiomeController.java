@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.api.symbol.logic;
+package com.tbd.mystcraft.api.symbol.logic;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;

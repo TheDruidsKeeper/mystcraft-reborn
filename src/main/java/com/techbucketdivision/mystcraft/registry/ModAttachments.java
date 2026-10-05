@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.registry;
+package com.tbd.mystcraft.registry;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.villager.ArchivistShop;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.villager.ArchivistShop;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.attachment.AttachmentType;

@@ -1,23 +1,23 @@
-package com.techbucketdivision.mystcraft.symbol;
+package com.tbd.mystcraft.symbol;
 
-import com.techbucketdivision.mystcraft.Mystcraft;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.Modifier;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierSlot;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.api.symbol.logic.BiomeController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ChunkFinalizer;
-import com.techbucketdivision.mystcraft.api.symbol.logic.CreatureController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.DynamicColorProvider;
-import com.techbucketdivision.mystcraft.api.symbol.logic.EnvironmentalEffect;
-import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Populator;
-import com.techbucketdivision.mystcraft.api.symbol.logic.StaticColorProvider;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainAlteration;
-import com.techbucketdivision.mystcraft.api.symbol.logic.TerrainGenerator;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
-import com.techbucketdivision.mystcraft.config.MystcraftConfig;
+import com.tbd.mystcraft.Mystcraft;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.Modifier;
+import com.tbd.mystcraft.api.symbol.ModifierSlot;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.api.symbol.logic.BiomeController;
+import com.tbd.mystcraft.api.symbol.logic.Celestial;
+import com.tbd.mystcraft.api.symbol.logic.ChunkFinalizer;
+import com.tbd.mystcraft.api.symbol.logic.CreatureController;
+import com.tbd.mystcraft.api.symbol.logic.DynamicColorProvider;
+import com.tbd.mystcraft.api.symbol.logic.EnvironmentalEffect;
+import com.tbd.mystcraft.api.symbol.logic.LightingController;
+import com.tbd.mystcraft.api.symbol.logic.Populator;
+import com.tbd.mystcraft.api.symbol.logic.StaticColorProvider;
+import com.tbd.mystcraft.api.symbol.logic.TerrainAlteration;
+import com.tbd.mystcraft.api.symbol.logic.TerrainGenerator;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.config.MystcraftConfig;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
@@ -197,9 +197,9 @@ public final class SymbolRegistry {
 
     /** Registers every built-in symbol. Called once from common setup. */
     public static void bootstrapBuiltins() {
-        com.techbucketdivision.mystcraft.symbol.symbols.BuiltinSymbols.registerAll();
-        com.techbucketdivision.mystcraft.symbol.symbols.CreatureSymbols.registerAll();
-        com.techbucketdivision.mystcraft.symbol.modifiers.ModifierSymbols.registerAll();
+        com.tbd.mystcraft.symbol.symbols.BuiltinSymbols.registerAll();
+        com.tbd.mystcraft.symbol.symbols.CreatureSymbols.registerAll();
+        com.tbd.mystcraft.symbol.modifiers.ModifierSymbols.registerAll();
         BlockSymbols.registerAll();
     }
 

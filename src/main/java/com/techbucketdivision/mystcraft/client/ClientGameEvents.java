@@ -1,13 +1,13 @@
-package com.techbucketdivision.mystcraft.client;
+package com.tbd.mystcraft.client;
 
-import com.techbucketdivision.mystcraft.age.AgeController;
-import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
-import com.techbucketdivision.mystcraft.api.symbol.logic.Celestial;
-import com.techbucketdivision.mystcraft.api.symbol.logic.ColorKind;
-import com.techbucketdivision.mystcraft.api.symbol.logic.WeatherController;
-import com.techbucketdivision.mystcraft.client.render.AgeSkyMath;
-import com.techbucketdivision.mystcraft.client.render.tint.AgeBiomeTints;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.age.AgeController;
+import com.tbd.mystcraft.age.celestial.AgeDayCurves;
+import com.tbd.mystcraft.api.symbol.logic.Celestial;
+import com.tbd.mystcraft.api.symbol.logic.ColorKind;
+import com.tbd.mystcraft.api.symbol.logic.WeatherController;
+import com.tbd.mystcraft.client.render.AgeSkyMath;
+import com.tbd.mystcraft.client.render.tint.AgeBiomeTints;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.state.level.LevelRenderState;

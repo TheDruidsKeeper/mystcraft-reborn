@@ -1,11 +1,11 @@
-package com.techbucketdivision.mystcraft.client.screen;
+package com.tbd.mystcraft.client.screen;
 
-import com.techbucketdivision.mystcraft.client.render.SymbolGlyphs;
-import com.techbucketdivision.mystcraft.client.screen.gui.GuiElement;
-import com.techbucketdivision.mystcraft.client.screen.gui.ToggleButton;
-import com.techbucketdivision.mystcraft.menu.ArchivistShopMenu;
-import com.techbucketdivision.mystcraft.registry.ModItems;
-import com.techbucketdivision.mystcraft.util.MystIds;
+import com.tbd.mystcraft.client.render.SymbolGlyphs;
+import com.tbd.mystcraft.client.screen.gui.GuiElement;
+import com.tbd.mystcraft.client.screen.gui.ToggleButton;
+import com.tbd.mystcraft.menu.ArchivistShopMenu;
+import com.tbd.mystcraft.registry.ModItems;
+import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;

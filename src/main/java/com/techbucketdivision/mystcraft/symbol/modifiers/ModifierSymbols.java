@@ -1,20 +1,20 @@
-package com.techbucketdivision.mystcraft.symbol.modifiers;
+package com.tbd.mystcraft.symbol.modifiers;
 
-import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
-import com.techbucketdivision.mystcraft.api.symbol.AgeSymbol;
-import com.techbucketdivision.mystcraft.api.symbol.ColorGradient;
-import com.techbucketdivision.mystcraft.api.symbol.Modifier;
-import com.techbucketdivision.mystcraft.api.symbol.ModifierUtils;
-import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
-import com.techbucketdivision.mystcraft.symbol.symbols.BuiltinSymbols;
-import com.techbucketdivision.mystcraft.symbol.symbols.SimpleSymbol;
-import com.techbucketdivision.mystcraft.util.Colors;
+import com.tbd.mystcraft.api.symbol.AgeDirector;
+import com.tbd.mystcraft.api.symbol.AgeSymbol;
+import com.tbd.mystcraft.api.symbol.ColorGradient;
+import com.tbd.mystcraft.api.symbol.Modifier;
+import com.tbd.mystcraft.api.symbol.ModifierUtils;
+import com.tbd.mystcraft.api.symbol.SymbolCategory;
+import com.tbd.mystcraft.symbol.symbols.BuiltinSymbols;
+import com.tbd.mystcraft.symbol.symbols.SimpleSymbol;
+import com.tbd.mystcraft.util.Colors;
 import net.minecraft.network.chat.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
+import static com.tbd.mystcraft.api.symbol.WordData.*;
 
 /**
  * Modifier symbols (original spec §4.3.12): directions, phases, lengths, gradient, sunset colour and the 16 colours.

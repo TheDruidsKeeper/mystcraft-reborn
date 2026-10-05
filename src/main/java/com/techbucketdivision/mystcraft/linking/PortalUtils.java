@@ -1,10 +1,10 @@
-package com.techbucketdivision.mystcraft.linking;
+package com.tbd.mystcraft.linking;
 
-import com.techbucketdivision.mystcraft.block.BookReceptacleBlock;
-import com.techbucketdivision.mystcraft.block.CrystalBlock;
-import com.techbucketdivision.mystcraft.block.LinkPortalBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.block.BookReceptacleBlock;
+import com.tbd.mystcraft.block.CrystalBlock;
+import com.tbd.mystcraft.block.LinkPortalBlock;
+import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;

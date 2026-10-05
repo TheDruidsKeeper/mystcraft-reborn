@@ -1,17 +1,17 @@
-package com.techbucketdivision.mystcraft.gametest;
+package com.tbd.mystcraft.gametest;
 
-import com.techbucketdivision.mystcraft.age.AgeData;
-import com.techbucketdivision.mystcraft.age.AgeManager;
-import com.techbucketdivision.mystcraft.api.linking.LinkEvent;
-import com.techbucketdivision.mystcraft.api.linking.LinkInfo;
-import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
-import com.techbucketdivision.mystcraft.block.BookReceptacleBlock;
-import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
-import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
-import com.techbucketdivision.mystcraft.item.LinkingItem;
-import com.techbucketdivision.mystcraft.linking.LinkController;
-import com.techbucketdivision.mystcraft.linking.LinkListeners;
-import com.techbucketdivision.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.linking.LinkEvent;
+import com.tbd.mystcraft.api.linking.LinkInfo;
+import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.block.BookReceptacleBlock;
+import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
+import com.tbd.mystcraft.item.LinkingItem;
+import com.tbd.mystcraft.linking.LinkController;
+import com.tbd.mystcraft.linking.LinkListeners;
+import com.tbd.mystcraft.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -64,23 +64,23 @@ public class LinkingTests {
     static void bindingWritesGeneratedSymbolsIntoBook(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         // partially written: one terrain symbol, the rest is up to the blueprint
-        ItemStack book = TestBooks.unboundDescriptiveBook("Half written", com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat"));
-        int pagesBefore = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(book).size();
+        ItemStack book = TestBooks.unboundDescriptiveBook("Half written", com.tbd.mystcraft.util.MystIds.id("terrain_flat"));
+        int pagesBefore = com.tbd.mystcraft.item.DescriptiveBookItem.getPages(book).size();
         AgeData data = TestBooks.bind(book, server);
-        var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(book);
-        var flat = com.techbucketdivision.mystcraft.age.AgeBlueprint.flatten(pages);
-        com.techbucketdivision.mystcraft.Mystcraft.LOGGER.info("[gametest] bound book pages {} -> {}; age symbols {}; book symbols {}",
+        var pages = com.tbd.mystcraft.item.DescriptiveBookItem.getPages(book);
+        var flat = com.tbd.mystcraft.age.AgeBlueprint.flatten(pages);
+        com.tbd.mystcraft.Mystcraft.LOGGER.info("[gametest] bound book pages {} -> {}; age symbols {}; book symbols {}",
                 pagesBefore, pages.size(), data.symbols(), flat);
         helper.assertTrue(pages.size() > pagesBefore, "pages were added to the book");
-        helper.assertTrue(com.techbucketdivision.mystcraft.item.PageItem.isLinkPanel(pages.getFirst()), "link panel stays first");
-        helper.assertValueEqual(com.techbucketdivision.mystcraft.item.PageItem.getSymbolId(pages.get(1)),
-                com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat"), "author's terrain page comes first (terrain is the first category)");
-        helper.assertTrue(!com.techbucketdivision.mystcraft.item.PageItem.isDiscovered(pages.get(1)), "author's page is not marked discovered");
+        helper.assertTrue(com.tbd.mystcraft.item.PageItem.isLinkPanel(pages.getFirst()), "link panel stays first");
+        helper.assertValueEqual(com.tbd.mystcraft.item.PageItem.getSymbolId(pages.get(1)),
+                com.tbd.mystcraft.util.MystIds.id("terrain_flat"), "author's terrain page comes first (terrain is the first category)");
+        helper.assertTrue(!com.tbd.mystcraft.item.PageItem.isDiscovered(pages.get(1)), "author's page is not marked discovered");
         int discovered = 0;
-        for (var page : pages) if (com.techbucketdivision.mystcraft.item.PageItem.isDiscovered(page)) discovered++;
+        for (var page : pages) if (com.tbd.mystcraft.item.PageItem.isDiscovered(page)) discovered++;
         helper.assertValueEqual(discovered, pages.size() - pagesBefore, "every added page is marked discovered");
         helper.assertValueEqual(data.symbols(), flat, "the Age is built from the book's pages in order (modifiers then symbol)");
-        helper.assertTrue(com.techbucketdivision.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "no required category is missing");
+        helper.assertTrue(com.tbd.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "no required category is missing");
         helper.assertValueEqual(data.pages().size(), pages.size(), "Age keeps the same page list");
         helper.succeed();
     }
@@ -89,18 +89,18 @@ public class LinkingTests {
     @EmptyTemplate(value = "3x3x3", floor = true)
     @TestHolder(description = "Linking from a lectern binds the book it holds: the lectern keeps the bound copy with its discovered pages (playtest: book in the receptacle had no symbols)")
     static void displayLinkKeepsBoundBook(ExtendedGameTestHelper helper) {
-        helper.setBlock(1, 1, 1, com.techbucketdivision.mystcraft.registry.ModBlocks.LECTERN.get());
-        var lectern = helper.getBlockEntity(1, 1, 1, com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity.class);
-        lectern.setBook(TestBooks.unboundDescriptiveBook("Lectern bound", com.techbucketdivision.mystcraft.util.MystIds.id("terrain_flat")));
+        helper.setBlock(1, 1, 1, com.tbd.mystcraft.registry.ModBlocks.LECTERN.get());
+        var lectern = helper.getBlockEntity(1, 1, 1, com.tbd.mystcraft.blockentity.BookDisplayBlockEntity.class);
+        lectern.setBook(TestBooks.unboundDescriptiveBook("Lectern bound", com.tbd.mystcraft.util.MystIds.id("terrain_flat")));
         var pig = helper.spawn(EntityType.PIG, 1, 2, 1);
         pig.setNoAi(true);
         lectern.link(pig);
         ItemStack held = lectern.getBook();
         LinkInfo info = LinkingItem.getLinkInfo(held);
         helper.assertTrue(info.isBound(), "lectern book is bound after the link");
-        var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(held);
-        helper.assertTrue(pages.stream().anyMatch(com.techbucketdivision.mystcraft.item.PageItem::isDiscovered), "lectern book carries the discovered pages (" + pages.size() + ")");
-        helper.assertTrue(com.techbucketdivision.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "lectern book describes a complete Age");
+        var pages = com.tbd.mystcraft.item.DescriptiveBookItem.getPages(held);
+        helper.assertTrue(pages.stream().anyMatch(com.tbd.mystcraft.item.PageItem::isDiscovered), "lectern book carries the discovered pages (" + pages.size() + ")");
+        helper.assertTrue(com.tbd.mystcraft.age.AgeBlueprint.missing(pages).isEmpty(), "lectern book describes a complete Age");
         helper.succeed();
     }
 
@@ -207,8 +207,8 @@ public class LinkingTests {
                 .thenWaitUntil(() -> {
                     LinkInfo info = LinkingItem.getLinkInfo(receptacle.getBook());
                     helper.assertTrue(info.isBound(), "receptacle book is bound");
-                    var pages = com.techbucketdivision.mystcraft.item.DescriptiveBookItem.getPages(receptacle.getBook());
-                    helper.assertTrue(pages.stream().anyMatch(com.techbucketdivision.mystcraft.item.PageItem::isDiscovered),
+                    var pages = com.tbd.mystcraft.item.DescriptiveBookItem.getPages(receptacle.getBook());
+                    helper.assertTrue(pages.stream().anyMatch(com.tbd.mystcraft.item.PageItem::isDiscovered),
                             "the receptacle keeps the bound book with its discovered pages (" + pages.size() + " pages)");
                     ServerLevel age = server.getLevel(info.dimension().orElseThrow());
                     helper.assertNotNull(age, "Age level exists");

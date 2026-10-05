@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.world.gen;
+package com.tbd.mystcraft.world.gen;
 
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;

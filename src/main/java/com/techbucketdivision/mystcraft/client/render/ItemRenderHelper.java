@@ -1,4 +1,4 @@
-package com.techbucketdivision.mystcraft.client.render;
+package com.tbd.mystcraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;

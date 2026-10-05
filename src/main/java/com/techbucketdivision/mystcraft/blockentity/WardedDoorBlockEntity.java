@@ -1,7 +1,7 @@
-package com.techbucketdivision.mystcraft.blockentity;
+package com.tbd.mystcraft.blockentity;
 
-import com.techbucketdivision.mystcraft.facility.FacilityState;
-import com.techbucketdivision.mystcraft.registry.ModBlockEntities;
+import com.tbd.mystcraft.facility.FacilityState;
+import com.tbd.mystcraft.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;

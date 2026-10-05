@@ -85,21 +85,21 @@ public final class QaShelf {
                         Case.of("C3", "Snow", 2023L, "permanent snowfall: snow layers accumulate, ice forms on water", "weather_snow"),
                         Case.of("C4", "Storm", 2024L, "permanent thunderstorm with the lightning effect; storm sky", "weather_storm", "env_lightning"))),
                 new Section("D", "Terrain & features", Blocks.ORANGE_CONCRETE, List.of(
-                        Case.of("D1", "Flat obsidian, no sea", 2031L, "flat obsidian terrain without any sea, obelisks of glowstone (silhouettes at dusk)",
-                                page("terrain_flat", "block_obsidian", "no_sea"), page("obelisks", "block_glowstone")),
+                        Case.of("D1", "Flat, no sea, ravines", 2031L, "flat stone plane without any sea, split by ravines, obelisks of glowstone (silhouettes at dusk)",
+                                page("terrain_flat", "no_sea"), "ravines", page("obelisks", "block_glowstone")),
                         Case.of("D2", "Skylands + islands", 2032L, "skylands with floating islands of ice, huge trees, crystal formations: island shapes, tree scale, crystal clusters",
                                 "terrain_normal", "skylands", page("floating_islands", "block_ice"), "huge_trees", "crystal_formations"),
                         Case.of("D3", "Amplified deep lakes", 2033L, "amplified cliffs, deep lakes of lava, tendrils of nether bricks, no horizon band",
                                 "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "no_horizon"),
-                        Case.of("D4", "Nether age", 2034L, "nether (cave) terrain with nether biomes, lava sea, a nether fortress integrated into the caves",
-                                page("terrain_nether", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress"),
+                        Case.of("D4", "Nether age", 2034L, "nether (cave) terrain with nether biomes, deep lava lakes, a nether fortress integrated into the caves",
+                                "terrain_nether", page("lakes_deep", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress"),
                         Case.of("D5", "End age", 2035L, "end island terrain, end biome, obsidian spikes: island edge, spike shapes",
                                 "terrain_end", "biome_single", "biome_minecraft_end_highlands", page("spikes", "block_obsidian")),
                         Case.of("D6", "Void with star fissure", 2036L, "void terrain (nothing but the arrival platform) with a star fissure visible from the platform",
                                 "terrain_void", "star_fissure"))),
                 new Section("E", "Biomes & structures", Blocks.YELLOW_CONCRETE, List.of(
-                        Case.of("E1", "Tiny biomes", 2041L, "tiny patches of desert / jungle / ice spikes side by side, villages and ravines: patchwork look, village placement",
-                                "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages", "ravines"),
+                        Case.of("E1", "Tiny biomes", 2041L, "tiny patches of desert / jungle / ice spikes side by side with villages: patchwork look, village placement",
+                                "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages"),
                         Case.of("E2", "Large biomes + Facility", 2042L, "large biome scale; the Facility entrance in view 60-120 blocks from arrival, sitting on the terrain, not floating or buried",
                                 "biome_large", "vault"))),
                 new Section("F", "Creatures", Blocks.RED_CONCRETE, List.of(
@@ -134,7 +134,7 @@ public final class QaShelf {
         Direction facing = player.getDirection();
         Direction right = facing.getClockWise();
         List<Section> sections = sections();
-        int widest = sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1);
+        int widest = Math.max(2, sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1));
         int width = (widest - 1) * LECTERN_PITCH + 3;          // floor: one block each side of the outer lecterns
         int depth = sections.size() * ROW_PITCH;
         BlockPos origin = player.blockPosition().relative(facing, 2).relative(right, -1); // front-left floor corner
@@ -178,6 +178,19 @@ public final class QaShelf {
                 Mystcraft.LOGGER.info("[qa] {} '{}' seed {} -> {} ({} symbols): look for {}", qa.id(), qa.title(), qa.seed(),
                         data == null ? "?" : data.levelKey().identifier(), data == null ? 0 : data.symbols().size(), qa.lookFor());
                 placed++;
+            }
+            if (s == 0) {
+                // Next to the baseline: a Linking Book back to the shelf (intra-linking + following) for the return trip.
+                BlockPos pedestal = lecternLine.relative(right, 1 + section.cases().size() * LECTERN_PITCH);
+                level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
+                BlockPos lectern = pedestal.above();
+                level.setBlock(lectern, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, facing.getOpposite()), 3);
+                if (level.getBlockEntity(lectern) instanceof BookDisplayBlockEntity display) {
+                    display.setBook(DebugScene.homeBook(player, "Back to the shelf"));
+                    display.setChanged();
+                    level.sendBlockUpdated(lectern, level.getBlockState(lectern), level.getBlockState(lectern), Block.UPDATE_ALL);
+                }
+                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), "HOME", "Linking Book", "back to the", "shelf");
             }
         }
         return placed;

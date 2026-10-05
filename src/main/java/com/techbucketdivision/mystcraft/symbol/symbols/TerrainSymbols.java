@@ -15,18 +15,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
 /**
- * Terrain generator symbols (original spec §4.3.6). All pop a SEA block then a TERRAIN block from the block list
- * (defaults water / stone; the island world defaults the sea to air).
+ * Terrain generator symbols (original spec §4.3.6). The terrain material is always stone and the sea water (air for
+ * the island world): terrain takes no block page. The only SEA-category material is {@code no_sea}, which the
+ * generators pop here; every other block category is consumed by feature symbols (see {@code FeatureSymbols}).
  */
 public final class TerrainSymbols {
     private TerrainSymbols() {}
 
-    /** Terrain/sea pair popped from the director. */
+    /** Terrain/sea pair: stone plus the sea block ({@code defaultSea} unless No Sea was written). */
     record Blocks2(BlockState terrain, BlockState sea) {}
 
     static Blocks2 popBlocks(AgeDirector director, BlockState defaultSea) {
         BlockState sea = ModifierUtils.popBlockState(director, defaultSea, BlockCategory.SEA);
-        BlockState terrain = ModifierUtils.popBlockState(director, Blocks.STONE.defaultBlockState(), BlockCategory.TERRAIN);
+        BlockState terrain = Blocks.STONE.defaultBlockState();
         if (director instanceof AgeController controller) controller.setTerrainBlocks(terrain, sea);
         return new Blocks2(terrain, sea);
     }

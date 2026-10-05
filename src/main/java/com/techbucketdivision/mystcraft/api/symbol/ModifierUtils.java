@@ -4,7 +4,6 @@ import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
@@ -119,14 +118,6 @@ public final class ModifierUtils {
     public static BlockState popBlockState(AgeDirector d, BlockState fallback, BlockCategory... categories) {
         BlockDescriptor desc = d.popBlockMatching(categories);
         return desc == null ? fallback : desc.state();
-    }
-
-    public static BlockState popTerrainBlock(AgeDirector d) {
-        return popBlockState(d, Blocks.STONE.defaultBlockState(), BlockCategory.TERRAIN);
-    }
-
-    public static BlockState popSeaBlock(AgeDirector d) {
-        return popBlockState(d, Blocks.WATER.defaultBlockState(), BlockCategory.SEA);
     }
 
     public static BlockState popStructureBlock(AgeDirector d, BlockState fallback) {

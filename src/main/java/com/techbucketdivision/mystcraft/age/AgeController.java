@@ -66,24 +66,25 @@ public final class AgeController implements AgeDirector, TerrainContext {
     private int symbolInstability;
     private long constructionSeed;
 
-    // compiled logic
+    // compiled logic. The collections are replaced, never cleared, by reconstruct(): chunk generation and renderers
+    // iterate them from other threads while a rebuild (AgeData revision bump) may be running.
     private @Nullable BiomeController biomeController;
     private @Nullable TerrainGenerator terrainGenerator;
     private @Nullable LightingController lighting;
     private @Nullable WeatherController weather;
-    private final List<TerrainAlteration> alterations = new ArrayList<>();
-    private final List<Populator> populators = new ArrayList<>();
-    private final List<ChunkFinalizer> finalizers = new ArrayList<>();
-    private final List<Celestial> celestials = new ArrayList<>();
-    private final List<EnvironmentalEffect> effects = new ArrayList<>();
-    private final Map<CreatureGroup, CreatureController> creatures = new EnumMap<>(CreatureGroup.class);
-    private final Map<ColorKind, List<DynamicColorProvider>> dynamicColors = new EnumMap<>(ColorKind.class);
-    private final Map<ColorKind, List<StaticColorProvider>> staticColors = new EnumMap<>(ColorKind.class);
+    private volatile List<TerrainAlteration> alterations = new ArrayList<>();
+    private volatile List<Populator> populators = new ArrayList<>();
+    private volatile List<ChunkFinalizer> finalizers = new ArrayList<>();
+    private volatile List<Celestial> celestials = new ArrayList<>();
+    private volatile List<EnvironmentalEffect> effects = new ArrayList<>();
+    private volatile Map<CreatureGroup, CreatureController> creatures = new EnumMap<>(CreatureGroup.class);
+    private volatile Map<ColorKind, List<DynamicColorProvider>> dynamicColors = new EnumMap<>(ColorKind.class);
+    private volatile Map<ColorKind, List<StaticColorProvider>> staticColors = new EnumMap<>(ColorKind.class);
     private final SkyOptions sky = new SkyOptions();
-    private final List<Float> cloudHeights = new ArrayList<>();
-    private final List<Float> horizons = new ArrayList<>();
-    private final List<Integer> groundLevels = new ArrayList<>();
-    private final List<Integer> seaLevels = new ArrayList<>();
+    private volatile List<Float> cloudHeights = new ArrayList<>();
+    private volatile List<Float> horizons = new ArrayList<>();
+    private volatile List<Integer> groundLevels = new ArrayList<>();
+    private volatile List<Integer> seaLevels = new ArrayList<>();
     private BlockState terrainBlock = Blocks.STONE.defaultBlockState();
     private BlockState seaBlock = Blocks.WATER.defaultBlockState();
 
@@ -120,18 +121,18 @@ public final class AgeController implements AgeDirector, TerrainContext {
         terrainGenerator = null;
         lighting = null;
         weather = null;
-        alterations.clear();
-        populators.clear();
-        finalizers.clear();
-        celestials.clear();
-        effects.clear();
-        creatures.clear();
-        dynamicColors.clear();
-        staticColors.clear();
-        cloudHeights.clear();
-        horizons.clear();
-        groundLevels.clear();
-        seaLevels.clear();
+        alterations = new ArrayList<>();
+        populators = new ArrayList<>();
+        finalizers = new ArrayList<>();
+        celestials = new ArrayList<>();
+        effects = new ArrayList<>();
+        creatures = new EnumMap<>(CreatureGroup.class);
+        dynamicColors = new EnumMap<>(ColorKind.class);
+        staticColors = new EnumMap<>(ColorKind.class);
+        cloudHeights = new ArrayList<>();
+        horizons = new ArrayList<>();
+        groundLevels = new ArrayList<>();
+        seaLevels = new ArrayList<>();
         sky.cloudHeight = 192f;
         sky.horizon = 63f;
         sky.drawHorizon = true;

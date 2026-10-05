@@ -10,6 +10,12 @@ import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
 import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import com.techbucketdivision.mystcraft.item.LinkingBookItem;
+import java.util.ArrayList;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import com.techbucketdivision.mystcraft.api.linking.LinkProperty;
+import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.item.PageItem;
 import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import com.techbucketdivision.mystcraft.registry.ModItems;
@@ -36,7 +42,7 @@ import java.util.Set;
  * <pre>
  *   row z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | ink pool 3x3 | star fissure 2x2 | item frames
  *   row z-6 : writing desk | bookstand+book | lectern+book | ink mixer | book binder | link modifier
- *   row z-3 : decay blocks (one of each type)        crystal column
+ *   row z-3 : decay blocks (one of each type)        supply chest | plain writing desk
  * The viewer stands on the ground (the pad replaces the surface, nothing floats) 6 blocks south of the pad.
  * </pre>
  */
@@ -161,7 +167,23 @@ public final class DebugScene {
             level.setBlock(new BlockPos(x0 + dx, y, z0 - 3), ModBlocks.decay(type).get().defaultBlockState(), 3);
             dx += 2;
         }
-        for (int dy = 0; dy < 3; dy++) level.setBlock(new BlockPos(x0 + WIDTH - 2, y + dy, z0 - 3), ModBlocks.CRYSTAL.get().defaultBlockState(), 3);
+        // Right end of row A: a plain (non-scholar) writing desk and a supply chest with every crafting input plus a
+        // Linking Book back to this spot (intra-linking + following), so a tester can build and travel from here.
+        BlockPos plainDesk = new BlockPos(x0 + WIDTH - 4, y, z0 - 3);
+        BlockState plainHead = ModBlocks.WRITING_DESK.get().defaultBlockState().setValue(WritingDeskBlock.FACING, Direction.EAST);
+        level.setBlock(plainDesk, plainHead, 3);
+        level.setBlock(plainDesk.east(), plainHead.setValue(WritingDeskBlock.FOOT, true), 3);
+        level.setBlock(plainDesk.above(), plainHead.setValue(WritingDeskBlock.TOP, true), 3);
+        level.setBlock(plainDesk.east().above(), plainHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
+        BlockPos chest = new BlockPos(x0 + WIDTH - 6, y, z0 - 3);
+        level.setBlock(chest, Blocks.CHEST.defaultBlockState().setValue(net.minecraft.world.level.block.ChestBlock.FACING, Direction.SOUTH), 3);
+        if (level.getBlockEntity(chest) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chestBe) {
+            int slot = 0;
+            for (ItemStack stack : supplies(viewer)) {
+                if (slot < chestBe.getContainerSize()) chestBe.setItem(slot++, stack);
+            }
+            chestBe.setChanged();
+        }
 
         // Row B (z0-6): workstations, all facing south (towards the player).
         BlockPos desk = new BlockPos(x0 + 1, y, z0 - 6);
@@ -260,6 +282,30 @@ public final class DebugScene {
         Mystcraft.LOGGER.info("[scene] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
                 origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString() + " (2x3)");
         return view;
+    }
+
+    /** Full stacks of every crafting input of the mod's recipes and ink effects, plus a Linking Book back to {@code here}. */
+    public static List<ItemStack> supplies(Entity here) {
+        List<ItemStack> out = new ArrayList<>();
+        out.add(homeBook(here, "Back to the scene"));
+        for (Item item : List.of(Items.PAPER, Items.LEATHER, Items.BOOK, Items.STICK, Items.STRING, Items.STONE, Items.IRON_INGOT,
+                Items.FEATHER, Items.BLACK_DYE, Items.GLASS_BOTTLE, Items.ITEM_FRAME, Items.CLAY_BALL, Items.GUNPOWDER, Items.COMPASS,
+                Items.ENDER_PEARL, Items.AMETHYST_SHARD, Items.ENDER_EYE, Items.GLOWSTONE_DUST, Items.REDSTONE, Items.GOLD_INGOT, Items.DIAMOND)) {
+            out.add(new ItemStack(item, item.getDefaultMaxStackSize()));
+        }
+        out.add(new ItemStack(Items.WATER_BUCKET));
+        out.add(new ItemStack(ModItems.BLACK_INK_BUCKET.get()));
+        out.add(new ItemStack(ModItems.INK_VIAL.get(), 16));
+        out.add(new ItemStack(ModBlocks.CRYSTAL.get(), 64));
+        return out;
+    }
+
+    /** A Linking Book bound to {@code here} with intra-linking and following, i.e. a way back for a whole party. */
+    public static ItemStack homeBook(Entity here, String title) {
+        ItemStack book = LinkingBookItem.createAt(here);
+        LinkingItem.setLinkInfo(book, LinkingItem.getLinkInfo(book).withDisplayName(title)
+                .withFlag(LinkProperty.INTRA_LINKING, true).withFlag(LinkProperty.FOLLOWING, true));
+        return book;
     }
 
     private static void putBook(ServerLevel level, BlockPos pos, ItemStack book) {

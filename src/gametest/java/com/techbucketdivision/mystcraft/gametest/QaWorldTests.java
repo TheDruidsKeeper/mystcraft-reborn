@@ -13,6 +13,7 @@ import com.techbucketdivision.mystcraft.registry.ModStructures;
 import com.techbucketdivision.mystcraft.world.feature.CrystalFormationPopulator;
 import com.techbucketdivision.mystcraft.world.feature.LakesPopulator;
 import com.techbucketdivision.mystcraft.world.feature.ObelisksPopulator;
+import com.techbucketdivision.mystcraft.world.feature.RavinesAlteration;
 import com.techbucketdivision.mystcraft.world.feature.SpikesPopulator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -168,27 +169,36 @@ public class QaWorldTests {
 
     @GameTest(timeoutTicks = 20 * 60)
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "D1: flat terrain of obsidian with no sea - every column the same height, obsidian on top, no water")
-    static void d1FlatObsidianNoSea(ExtendedGameTestHelper helper) {
+    @TestHolder(description = "D1: flat stone terrain with no sea, carved by ravines - a stone plane below the biome surface, no water, ravine cuts somewhere nearby")
+    static void d1FlatNoSeaRavines(ExtendedGameTestHelper helper) {
         World w = world(helper, "D1");
         generate(w.level(), 1);
-        // TerrainFlatGen: a plane of the terrain material; the only thing above it is biome decoration (trees).
-        int top = -1;
+        helper.assertTrue(w.controller().terrainBlock().is(Blocks.STONE), "terrain is stone: " + w.controller().terrainBlock());
+        helper.assertTrue(w.controller().seaBlock().isAir(), "no_sea makes the sea air: " + w.controller().seaBlock());
+        // TerrainFlatGen: a plane of stone up to the ground level; the biome surface (grass/dirt) sits on it.
+        int plane = -1;
         BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos(8, 0, 8);
         for (int y = w.level().getMaxY(); y >= w.level().getMinY(); y--) {
             at.setY(y);
-            if (w.level().getBlockState(at).is(Blocks.OBSIDIAN)) {
-                top = y;
+            if (w.level().getBlockState(at).is(Blocks.STONE)) {
+                plane = y;
                 break;
             }
         }
-        helper.assertTrue(top >= 0, "obsidian terrain in column (8,8): top " + top + ", surface " + w.level().getBlockState(at.setY(Math.max(top, 60))));
-        int topLayer = census(w.level(), 0, 0, top, top, s -> s.is(Blocks.OBSIDIAN));
-        int aboveLayer = census(w.level(), 0, 0, top + 1, top + 1, s -> s.is(Blocks.OBSIDIAN));
-        // The blueprint's default features (caves, lakes) may carve a few columns of the plane.
-        helper.assertTrue(topLayer >= 200 && aboveLayer == 0, "flat obsidian plane at y=" + top + ": " + topLayer + "/256 on it, " + aboveLayer + " above");
+        helper.assertTrue(plane >= 0, "stone plane in column (8,8)");
+        int onPlane = census(w.level(), 0, 0, plane, plane, s -> s.is(Blocks.STONE) || s.is(Blocks.DIRT) || s.is(Blocks.GRASS_BLOCK));
+        helper.assertTrue(onPlane >= 160, "flat plane at y=" + plane + ": " + onPlane + "/256 columns solid (caves/ravines carve the rest)");
         int water = census(w.level(), 0, 0, Blocks.WATER) + census(w.level(), 1, 1, Blocks.WATER);
         helper.assertTrue(water == 0, "no_sea leaves no water, found " + water);
+        // Ravines (a Features symbol) register a terrain alteration; a 6x6-chunk sweep hits at least one cut.
+        boolean ravines = w.controller().alterations().stream().anyMatch(a -> a instanceof RavinesAlteration);
+        helper.assertTrue(ravines, "ravines registered as a terrain alteration");
+        int carved = 0;
+        for (int cx = -3; cx < 3 && carved == 0; cx++) for (int cz = -3; cz < 3 && carved == 0; cz++) {
+            w.level().getChunk(cx, cz);
+            carved = census(w.level(), cx, cz, Math.max(w.level().getMinY() + 8, plane - 40), plane - 12, BlockState::isAir);
+        }
+        helper.assertTrue(carved > 0, "a ravine or cave cuts below the plane within 3 chunks of the origin");
         helper.succeed();
     }
 
@@ -205,16 +215,16 @@ public class QaWorldTests {
 
     @GameTest(timeoutTicks = 20 * 90)
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "D4: nether terrain is cave-like with a lava sea and netherrack")
-    static void d4NetherCavesAndLava(ExtendedGameTestHelper helper) {
+    @TestHolder(description = "D4: nether terrain is cave-like with netherrack from the nether biomes; the terrain itself is stone with a water sea at 32")
+    static void d4NetherCavesAndNetherrack(ExtendedGameTestHelper helper) {
         World w = world(helper, "D4");
         generate(w.level(), 1);
-        int lava = census(w.level(), 0, 0, Blocks.LAVA);
         int netherrack = census(w.level(), 0, 0, Blocks.NETHERRACK);
         int sea = w.controller().seaLevel();
         int airAboveSea = census(w.level(), 0, 0, sea + 1, sea + 40, BlockState::isAir);
         int solidAboveSea = census(w.level(), 0, 0, sea + 1, sea + 40, s -> !s.isAir() && s.getFluidState().isEmpty());
-        helper.assertTrue(lava > 0, "lava sea present (" + lava + ")");
+        helper.assertValueEqual(sea, 32, "cave world sea level");
+        helper.assertTrue(w.controller().terrainBlock().is(Blocks.STONE) && w.controller().seaBlock().is(Blocks.WATER), "terrain stone / sea water");
         helper.assertTrue(netherrack > 0, "netherrack present (" + netherrack + ")");
         helper.assertTrue(airAboveSea > 0 && solidAboveSea > 0, "cave terrain above the sea: air " + airAboveSea + ", solid " + solidAboveSea);
         helper.succeed();

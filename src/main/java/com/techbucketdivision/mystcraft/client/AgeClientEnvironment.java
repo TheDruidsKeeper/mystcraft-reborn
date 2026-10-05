@@ -2,6 +2,9 @@ package com.techbucketdivision.mystcraft.client;
 
 import com.techbucketdivision.mystcraft.Mystcraft;
 import com.techbucketdivision.mystcraft.age.AgeController;
+import org.jspecify.annotations.Nullable;
+import net.minecraft.util.ARGB;
+import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
 import com.techbucketdivision.mystcraft.age.AgeManager;
 import com.techbucketdivision.mystcraft.age.celestial.AgeDayCurves;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -32,8 +35,32 @@ public final class AgeClientEnvironment {
         builder.addTimeBasedLayer(EnvironmentAttributes.SKY_COLOR, (base, tick) -> AgeDayCurves.skyColor(base, angle(level)));
         builder.addTimeBasedLayer(EnvironmentAttributes.FOG_COLOR, (base, tick) -> AgeDayCurves.fogColor(base, angle(level)));
         builder.addTimeBasedLayer(EnvironmentAttributes.CLOUD_COLOR, (base, tick) -> AgeDayCurves.cloudColor(base, angle(level)));
+        // Lighting symbols: the controller's light curve is expressed through the lightmap attributes - a raised floor
+        // (bright) as ambient light, a lowered ceiling (dark) as sky-light factor and block-light tint. Time-based, not
+        // constant: constant layers are baked when the system is built, before the Age's pages have been synced.
+        builder.addTimeBasedLayer(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, (base, tick) -> {
+            LightingController lighting = lighting(level);
+            if (lighting == null) return base;
+            float floor = Math.clamp(lighting.scaleLighting(0f) / 15f, 0f, 1f);
+            return floor <= 0f ? base : ARGB.colorFromFloat(1f, floor, floor, floor);
+        });
+        builder.addTimeBasedLayer(EnvironmentAttributes.BLOCK_LIGHT_TINT, (base, tick) -> {
+            LightingController lighting = lighting(level);
+            if (lighting == null) return base;
+            float ceiling = Math.clamp(lighting.scaleLighting(15f) / 15f, 0f, 1f);
+            return ceiling >= 1f ? base : ARGB.scaleRGB(base, ceiling);
+        });
+        builder.addTimeBasedLayer(EnvironmentAttributes.SKY_LIGHT_FACTOR, (base, tick) -> {
+            LightingController lighting = lighting(level);
+            return lighting == null ? base : base * Math.clamp(lighting.scaleLighting(15f) / 15f, 0f, 1f);
+        });
         level.environmentAttributes = builder.build();
         Mystcraft.LOGGER.info("[clientenv] installed Age day/night attribute layers for {}", level.dimension().identifier());
+    }
+
+    private static @Nullable LightingController lighting(ClientLevel level) {
+        AgeController controller = ClientAgeData.controllerFor(level);
+        return controller == null ? null : controller.lighting();
     }
 
     /** Combined celestial angle of the level's Age; noon when the Age is not synced yet. */

@@ -20,8 +20,8 @@ import java.util.Set;
 /**
  * Fluid symbols (original spec §4.3.14): one block symbol per registered source fluid other than vanilla water/lava
  * (which are covered by the built-in block table). Word "Sea"; card rank 4, material rank 4 (config/balance table of
- * the original reduced to the built-in defaults, plus black ink = card 1 / rank 0). Categories: FLUID always, SEA
- * unless sea-banned (GAS instead of SEA for fluids lighter than air).
+ * the original reduced to the built-in defaults, plus black ink = card 1 / rank 0). Categories: FLUID always, plus
+ * GAS for fluids lighter than air. Fluids never serve as the terrain sea (see {@link BlockCategory#SEA}).
  */
 public final class FluidSymbols {
     private FluidSymbols() {}
@@ -30,17 +30,11 @@ public final class FluidSymbols {
     public static final int DEFAULT_RANK = 4;
 
     private static final Set<Identifier> BLACKLIST = new LinkedHashSet<>();
-    private static final Set<Identifier> SEA_BANNED = new LinkedHashSet<>();
     private static boolean registered;
 
     /** IMC-equivalent: never create a symbol for this fluid. */
     public static synchronized void blacklist(Identifier fluidId) {
         BLACKLIST.add(fluidId);
-    }
-
-    /** Fluid may be used as FLUID (lakes) but not as the sea. */
-    public static synchronized void banAsSea(Identifier fluidId) {
-        SEA_BANNED.add(fluidId);
     }
 
     /** Registers the fluid symbols once (idempotent). Called from {@link BiomeSymbols#registerAll}. */
@@ -67,21 +61,15 @@ public final class FluidSymbols {
                 gaseous = fluid.getFluidType().isLighterThanAir(); // FluidType#isLighterThanAir() is final: density <= 0
             } catch (RuntimeException ignored) {
             }
-            boolean seaBanned = SEA_BANNED.contains(fluidId);
             int card = DEFAULT_CARD_RANK;
             int rank = DEFAULT_RANK;
             if (fluid == ModFluids.BLACK_INK.get()) {
                 card = 1;
                 rank = 0;
-                seaBanned = true;
             }
             Map<BlockCategory, Integer> ranks = new LinkedHashMap<>();
             ranks.put(BlockCategory.FLUID, rank);
-            if (gaseous) {
-                ranks.put(BlockCategory.GAS, rank);
-            } else if (!seaBanned) {
-                ranks.put(BlockCategory.SEA, rank);
-            }
+            if (gaseous) ranks.put(BlockCategory.GAS, rank);
             AgeSymbol symbol = BlockSymbols.createBlockSymbol(block, WordData.SEA, card, ranks);
             if (SymbolRegistry.contains(symbol.id())) continue; // already a built-in block symbol
             if (BlockSymbols.register(symbol)) count++;

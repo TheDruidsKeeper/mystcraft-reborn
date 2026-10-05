@@ -89,8 +89,8 @@ public final class BuiltinSymbols {
         add(FeatureSymbols.mineshafts(), SymbolCategory.STRUCTURES);
         add(FeatureSymbols.netherFortress(), SymbolCategory.STRUCTURES);
         add(FeatureSymbols.vault(), SymbolCategory.STRUCTURES);
-        add(new FeatureSymbols.Ravines(), SymbolCategory.STRUCTURES);
         add(new FeatureSymbols.Dungeons(), SymbolCategory.STRUCTURES);
+        add(new FeatureSymbols.Ravines(), SymbolCategory.FEATURES);
         add(new FeatureSymbols.Spheres(), SymbolCategory.FEATURES);
         add(new FeatureSymbols.Spikes(), SymbolCategory.FEATURES);
 

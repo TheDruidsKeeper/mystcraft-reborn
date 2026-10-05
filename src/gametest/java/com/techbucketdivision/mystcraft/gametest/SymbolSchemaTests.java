@@ -58,13 +58,13 @@ public class SymbolSchemaTests {
 
     @GameTest
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "Built-in categories and slots: terrain takes materials, suns take direction/phase/length/sunset, sky colour takes colours and gradients, biomes/blocks are classified")
+    @TestHolder(description = "Built-in categories and slots: terrain takes No Sea, suns take direction/phase/length/sunset, sky colour takes colours and gradients, biomes/blocks are classified")
     static void builtinSchemaIsAsDesigned(ExtendedGameTestHelper helper) {
         Check.run(helper, () -> {
             AgeSymbol terrain = symbol(helper, "terrain_normal");
             helper.assertValueEqual(terrain.category(), SymbolCategory.TERRAIN, "terrain category");
             helper.assertTrue(terrain.accepts().contains(ModifierSlot.BLOCK), "terrain takes a material");
-            helper.assertTrue(terrain.blockCategories().containsAll(Set.of(BlockCategory.TERRAIN, BlockCategory.SEA)), "terrain takes terrain + sea blocks: " + terrain.blockCategories());
+            helper.assertValueEqual(terrain.blockCategories(), Set.of(BlockCategory.SEA), "terrain takes only the sea slot (No Sea)");
 
             AgeSymbol sun = symbol(helper, "sun_normal");
             helper.assertValueEqual(sun.category(), SymbolCategory.CELESTIALS, "sun category");
@@ -98,6 +98,7 @@ public class SymbolSchemaTests {
 
             helper.assertValueEqual(symbol(helper, "villages").category(), SymbolCategory.STRUCTURES, "villages are structures");
             helper.assertValueEqual(symbol(helper, "caves").category(), SymbolCategory.FEATURES, "caves are features");
+            helper.assertValueEqual(symbol(helper, "ravines").category(), SymbolCategory.FEATURES, "ravines are features, like caves");
             helper.assertValueEqual(symbol(helper, "env_meteors").category(), SymbolCategory.EFFECTS, "meteors are effects");
             helper.assertValueEqual(symbol(helper, "weather_rain").category(), SymbolCategory.WEATHER, "rain is weather");
             helper.assertValueEqual(symbol(helper, "lighting_dark").category(), SymbolCategory.LIGHTING, "dark lighting");
@@ -115,6 +116,62 @@ public class SymbolSchemaTests {
             helper.assertNotNull(block, "a block wrapper is registered");
             helper.assertValueEqual(block.category(), SymbolCategory.MATERIALS, "block wrapper category");
             helper.assertValueEqual(block.fills(), ModifierSlot.BLOCK, "block wrapper fills the material slot");
+        });
+        helper.succeed();
+    }
+
+    @GameTest
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Block support matrix: terrain takes no block page (only No Sea); structure blocks go to tendrils/islands/spheres/spikes/obelisks, crystals to crystal formations, fluids to lakes; nothing else takes a block")
+    static void blockSupportMatrix(ExtendedGameTestHelper helper) {
+        helper.startSequence().thenExecute(() -> {
+            AgeSymbol obsidian = symbol(helper, "block_obsidian");
+            AgeSymbol stone = symbol(helper, "block_stone");
+            AgeSymbol lava = symbol(helper, "block_lava");
+            AgeSymbol water = symbol(helper, "block_water");
+            AgeSymbol crystal = symbol(helper, "block_crystal");
+            AgeSymbol oak = symbol(helper, "block_oak_log");
+            AgeSymbol noSea = symbol(helper, "no_sea");
+            helper.assertValueEqual(crystal.id().getPath(), "block_crystal", "crystal block id");
+
+            // No built-in block ranks as terrain or sea; No Sea is the only SEA material.
+            for (AgeSymbol s : SymbolRegistry.inCategory(SymbolCategory.MATERIALS)) {
+                if (s == noSea) continue;
+                helper.assertTrue(!s.blockCategories().contains(BlockCategory.TERRAIN), s.id() + " ranks as TERRAIN");
+                helper.assertTrue(!s.blockCategories().contains(BlockCategory.SEA), s.id() + " ranks as SEA");
+            }
+            helper.assertValueEqual(noSea.blockCategories(), Set.of(BlockCategory.SEA), "no_sea supplies the sea only");
+
+            // Terrain generators: No Sea and nothing else.
+            for (String id : List.of("terrain_normal", "terrain_amplified", "terrain_flat", "terrain_nether", "terrain_end")) {
+                AgeSymbol terrain = symbol(helper, id);
+                helper.assertTrue(terrain.takes(noSea), id + " takes No Sea");
+                for (AgeSymbol block : List.of(obsidian, stone, lava, water, crystal, oak)) {
+                    helper.assertTrue(!terrain.takes(block), id + " must not take " + block.id());
+                }
+            }
+            helper.assertTrue(symbol(helper, "terrain_void").accepts().isEmpty(), "void takes nothing");
+
+            // Features that are built from a block.
+            for (String id : List.of("tendrils", "floating_islands", "spheres", "spikes", "obelisks")) {
+                AgeSymbol feature = symbol(helper, id);
+                helper.assertTrue(feature.takes(obsidian) && feature.takes(stone) && feature.takes(oak), id + " takes structure blocks");
+                helper.assertTrue(!feature.takes(lava) && !feature.takes(water) && !feature.takes(noSea), id + " takes no fluid / No Sea");
+            }
+            AgeSymbol crystals = symbol(helper, "crystal_formations");
+            helper.assertTrue(crystals.takes(crystal) && crystals.takes(obsidian) && !crystals.takes(stone) && !crystals.takes(lava), "crystal formations take crystal-ranked blocks only");
+            for (String id : List.of("lakes_surface", "lakes_deep")) {
+                AgeSymbol lakes = symbol(helper, id);
+                helper.assertTrue(lakes.takes(lava) && lakes.takes(water) && !lakes.takes(obsidian) && !lakes.takes(noSea), id + " takes fluids only");
+            }
+
+            // Everything else refuses every block.
+            Set<String> takers = Set.of("terrain_normal", "terrain_amplified", "terrain_flat", "terrain_nether", "terrain_end",
+                    "tendrils", "floating_islands", "spheres", "spikes", "obelisks", "crystal_formations", "lakes_surface", "lakes_deep");
+            for (AgeSymbol s : SymbolRegistry.all()) {
+                if (s.category().isModifier() || takers.contains(s.id().getPath())) continue;
+                helper.assertTrue(!s.accepts().contains(ModifierSlot.BLOCK), s.id() + " unexpectedly takes a block page");
+            }
         });
         helper.succeed();
     }

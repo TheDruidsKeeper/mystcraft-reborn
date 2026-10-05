@@ -170,7 +170,7 @@ public final class FeatureSymbols {
         return new VanillaStructure("vault", VanillaStructurePopulator.VAULT, CIVILIZATION, QUESTION, CONSTRAINT, DISCOVER);
     }
 
-    /** Ravines. */
+    /** Ravines: a carving terrain alteration like {@link Caves} (Features category). */
     public static final class Ravines extends SimpleSymbol {
         public Ravines() { super("ravines", 2, TERRAIN, TRANSFORM, VOID, WEAVE); }
 

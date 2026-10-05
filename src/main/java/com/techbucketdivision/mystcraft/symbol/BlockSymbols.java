@@ -157,28 +157,32 @@ public final class BlockSymbols {
         ore(Blocks.LAPIS_ORE, 3, 4);
         ore(Blocks.EMERALD_ORE, 4, 5);
 
-        add(Blocks.ICE, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.FLUID, 3, BlockCategory.SEA, 2,
-                BlockCategory.STRUCTURE, 3, BlockCategory.CRYSTAL, 3));
-        add(Blocks.PACKED_ICE, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.FLUID, 3, BlockCategory.TERRAIN, 3,
-                BlockCategory.SEA, 3, BlockCategory.STRUCTURE, 3, BlockCategory.CRYSTAL, 3));
+        add(Blocks.ICE, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.FLUID, 3, BlockCategory.STRUCTURE, 3,
+                BlockCategory.CRYSTAL, 3));
+        add(Blocks.PACKED_ICE, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.FLUID, 3, BlockCategory.STRUCTURE, 3,
+                BlockCategory.CRYSTAL, 3));
         add(Blocks.GLASS, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.STRUCTURE, 3, BlockCategory.CRYSTAL, 3));
         add(Blocks.SNOW_BLOCK, WordData.CHAIN, 2, ranks(BlockCategory.SOLID, 3, BlockCategory.STRUCTURE, 3, BlockCategory.CRYSTAL, 3));
-        add(Blocks.OBSIDIAN, WordData.CHAIN, 3, ranks(BlockCategory.SOLID, 4, BlockCategory.TERRAIN, 4, BlockCategory.STRUCTURE, 3,
-                BlockCategory.CRYSTAL, 3));
+        add(Blocks.OBSIDIAN, WordData.CHAIN, 3, ranks(BlockCategory.SOLID, 4, BlockCategory.STRUCTURE, 3, BlockCategory.CRYSTAL, 3));
         add(Blocks.GLOWSTONE, WordData.CHAIN, 3, ranks(BlockCategory.SOLID, 4, BlockCategory.STRUCTURE, 4, BlockCategory.CRYSTAL, 4));
         add(Blocks.NETHER_QUARTZ_ORE, WordData.CHAIN, 3, ranks(BlockCategory.SOLID, 4, BlockCategory.STRUCTURE, 4, BlockCategory.CRYSTAL, 4));
         add(ModBlocks.CRYSTAL.get(), WordData.CHAIN, 3, ranks(BlockCategory.SOLID, 4, BlockCategory.STRUCTURE, 4, BlockCategory.CRYSTAL, 4));
 
-        add(Blocks.WATER, WordData.SEA, 2, ranks(BlockCategory.FLUID, 1, BlockCategory.SEA, 1));
-        add(Blocks.LAVA, WordData.SEA, 3, ranks(BlockCategory.FLUID, 2, BlockCategory.SEA, 2));
+        add(Blocks.WATER, WordData.SEA, 2, ranks(BlockCategory.FLUID, 1));
+        add(Blocks.LAVA, WordData.SEA, 3, ranks(BlockCategory.FLUID, 2));
     }
 
+    /**
+     * Natural stones: usable as a feature's STRUCTURE block and as a generic SOLID. The {@code terrain} rank is the
+     * original table's and is kept for the record only - terrain symbols take no block page (see
+     * {@code TerrainSymbols}).
+     */
     private static void terrain(Block block, int card, int terrain, int structure, int solid) {
-        add(block, WordData.TERRAIN, card, ranks(BlockCategory.TERRAIN, terrain, BlockCategory.STRUCTURE, structure, BlockCategory.SOLID, solid));
+        add(block, WordData.TERRAIN, card, ranks(BlockCategory.STRUCTURE, structure, BlockCategory.SOLID, solid));
     }
 
     private static void structureStone(Block block) {
-        add(block, WordData.STRUCTURE, 2, ranks(BlockCategory.TERRAIN, 5, BlockCategory.STRUCTURE, 1, BlockCategory.SOLID, 1));
+        add(block, WordData.STRUCTURE, 2, ranks(BlockCategory.STRUCTURE, 1, BlockCategory.SOLID, 1));
     }
 
     private static void ore(Block block, int card, int rank) {

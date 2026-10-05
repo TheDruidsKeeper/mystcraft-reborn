@@ -4,7 +4,15 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** A usage category for block modifier symbols (what a block may be used as). Registerable by add-ons. */
+/**
+ * A usage category for block modifier symbols (what a block may be used as). Registerable by add-ons.
+ *
+ * <p>Support matrix (which primary symbols pop which category; {@code SymbolSchemaTests.blockSupportMatrix} asserts
+ * it): STRUCTURE - tendrils, floating islands, spheres, spikes, obelisks; CRYSTAL - crystal formations; FLUID -
+ * surface lakes, deep lakes (also GAS); SEA - the terrain generators, supplied only by {@code no_sea}. Terrain
+ * symbols take no block page: the terrain is stone and the sea water. TERRAIN is kept for add-ons; no built-in symbol
+ * pops it and no built-in block ranks in it.
+ */
 public final class BlockCategory {
     private static final Map<String, BlockCategory> REGISTRY = new LinkedHashMap<>();
 
@@ -13,6 +21,7 @@ public final class BlockCategory {
     public static final BlockCategory SOLID = register("solid");
     public static final BlockCategory ORGANIC = register("organic");
     public static final BlockCategory CRYSTAL = register("crystal");
+    /** The terrain generators' sea block; only {@code no_sea} supplies it (air). */
     public static final BlockCategory SEA = register("sea");
     public static final BlockCategory FLUID = register("fluid");
     public static final BlockCategory GAS = register("gas");

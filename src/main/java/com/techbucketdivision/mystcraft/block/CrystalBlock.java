@@ -14,7 +14,7 @@ import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Crystal (REQUIREMENTS §3.6): portal frame block. {@code SOURCE} points back toward the powering receptacle while
+ * Crystal (original spec §3.6): portal frame block. {@code SOURCE} points back toward the powering receptacle while
  * {@code ACTIVE}.
  */
 public class CrystalBlock extends Block {

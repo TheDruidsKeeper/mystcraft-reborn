@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-/** "Dungeons" (REQUIREMENTS §4.3.8): 8 vanilla monster-room attempts per chunk at random y 0–255. */
+/** "Dungeons" (original spec §4.3.8): 8 vanilla monster-room attempts per chunk at random y 0–255. */
 public final class DungeonsPopulator implements Populator {
     private final ConfiguredFeature<NoneFeatureConfiguration, ?> monsterRoom =
             new ConfiguredFeature<>(Feature.MONSTER_ROOM, NoneFeatureConfiguration.INSTANCE);

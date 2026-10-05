@@ -6,7 +6,7 @@ import net.minecraft.world.level.biome.Biome;
 
 import java.util.List;
 
-/** "Single" biome distribution (REQUIREMENTS §4.3.5): the whole Age is one biome. */
+/** "Single" biome distribution (original spec §4.3.5): the whole Age is one biome. */
 public final class SingleBiomeController implements BiomeController {
     private final Holder<Biome> biome;
     private final List<Holder<Biome>> possible;

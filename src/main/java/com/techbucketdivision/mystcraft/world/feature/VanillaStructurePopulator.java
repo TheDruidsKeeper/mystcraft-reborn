@@ -12,11 +12,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 /**
- * "Villages" / "Strongholds" / "Mineshafts" / "Nether Fortress" (REQUIREMENTS §4.3.8). Vanilla structures are
+ * "Villages" / "Strongholds" / "Mineshafts" / "Nether Fortress" (original spec §4.3.8). Vanilla structures are
  * placed by the chunk generator's structure state, so this populator is a marker: {@code AgeChunkGenerator} builds its
  * {@code ChunkGeneratorStructureState} from the structure sets enabled by the populators registered on the Age
  * (see {@code AgeChunkGenerator#createState}). {@link #populate} itself does nothing. The {@code vault} kind enables
- * the mod's own Facility structure set (docs/impl/FACILITY_PLAN.md) the same way.
+ * the mod's own Facility structure set (docs/plans/FACILITY_PLAN.md) the same way.
  */
 public final class VanillaStructurePopulator implements Populator {
     public static final String VILLAGES = "villages";

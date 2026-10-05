@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Random;
 
 /**
- * "Island World" terrain (REQUIREMENTS §4.3.6): End-style noise with a central island
+ * "Island World" terrain (original spec §4.3.6): End-style noise with a central island
  * ({@code distFactor = clamp(100 - dist*4, -100, 80)}), density crushed above mid-height and below y=8, no bedrock,
  * nothing below y=0. The symbol defaults the sea block to air and sets horizon 0 / sea level 49.
  */

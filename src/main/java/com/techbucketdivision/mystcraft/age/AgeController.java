@@ -44,7 +44,7 @@ import java.util.Random;
 
 /**
  * Compiles an {@link AgeData} symbol list into runtime logic. Exists on both sides (the client builds it from synced
- * data for rendering). Construction follows REQUIREMENTS §5.5 and §4.4.4.
+ * data for rendering). Construction follows original spec §5.5 and §4.4.4.
  */
 public final class AgeController implements AgeDirector, TerrainContext {
     /** Instability charged when a required controller is missing (original: 0) / when an extra one is registered. */
@@ -416,7 +416,7 @@ public final class AgeController implements AgeDirector, TerrainContext {
         return n == 0 ? null : new Colors.RGB(r / n, g / n, b / n);
     }
 
-    // --- celestial maths (REQUIREMENTS §4.3.2) -----------------------------------------------------------------
+    // --- celestial maths (original spec §4.3.2) -----------------------------------------------------------------
 
     /** Combined celestial angle 0..1 from all light-providing celestials; 0.5 (night) when there are none. */
     public float celestialAngle(long time, float partialTick) {

@@ -7,7 +7,7 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import org.jspecify.annotations.Nullable;
 
-/** Events posted on {@code NeoForge.EVENT_BUS} during a link (see REQUIREMENTS §7.3). */
+/** Events posted on {@code NeoForge.EVENT_BUS} during a link (see original spec §7.3). */
 public abstract class LinkEvent extends Event {
     private final ServerLevel origin;
     private final Entity entity;

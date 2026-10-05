@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Red decay: air → 20, else {@code max(1, explosionResistance)} (REQUIREMENTS §3.8). */
+/** Red decay: air → 20, else {@code max(1, explosionResistance)} (original spec §3.8). */
 public final class RedDecay extends SpreadingDecay {
     public RedDecay() {
         super(DecayType.RED);

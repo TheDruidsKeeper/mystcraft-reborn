@@ -1,83 +1,39 @@
 # Mystcraft Reborn
 
 A from-scratch, open-source recreation of [Mystcraft](https://github.com/Mystcraft/Mystcraft-Legacy) for
-**Minecraft 26.1 / NeoForge 26.1.2**. Write Descriptive Books from symbol pages, link into procedurally generated
-Ages, and survive their instability.
+**Minecraft 26.1 / NeoForge 26.1**: learn symbols, write Descriptive Books, link into procedurally generated Ages,
+survive their instability — and, with the Vault symbol, solve a Facility for the way home.
 
 | | |
 |---|---|
-| Minecraft | 26.1 (26.1.x) |
+| Minecraft | 26.1.x |
 | Loader | NeoForge 26.1.2.104+ |
 | Java | 25 |
-| License | LGPL-3.0-or-later (see `LICENSE`, `NOTICE.md`) |
+| License | LGPL-3.0-or-later (`LICENSE`, third-party notices in `NOTICE.md`) |
 
-## Building
+## Install
+Drop `mystcraft-neoforge-26.1-<version>.jar` into `mods/` on client and server. Config files appear in `config/`
+(`mystcraft-common.toml`, `-balance.toml`, `-worldbuilding.toml`, `-client.toml`); the Facility rooms are a built-in
+data pack that can be disabled in the world's data pack screen.
 
-Builds are reproducible inside Docker; CI uses the same `Dockerfile`.
+## Play
+1. Find symbol pages (loot, Archivist villagers, Sealed Notebooks) and **use** them to learn their symbols.
+2. At a **Writing Desk** write known symbols into a **Collation Folder** and attach modifiers; mix a **Link Panel** at
+   the **Ink Mixer**; bind a **Descriptive Book** at the **Book Binder**.
+3. Link. The first link completes your book: everything you left unwritten is discovered and recorded.
+4. Get back with a **Linking Book**, a **Star Fissure**, or the reward of a **Facility** (Vault symbol).
+5. Unstable Ages decay. Write better ones.
 
-```powershell
-# Windows
-.\scripts\build.ps1            # -> out\mystcraft-neoforge-26.1-<version>.jar
-.\scripts\build-log.ps1        # same, plus build-docker.log for sharing
-```
+`docs/GAMEPLAY.md` explains every mechanic.
 
-```bash
-# Linux / macOS
-scripts/build.sh
-```
+## Build and test
+Everything runs in Docker: `scripts/build.sh` (jar in `out/`), `scripts/smoke.sh`, `scripts/gametest.sh`,
+`scripts/client-smoke.sh`. See `docs/DEVELOPMENT.md`; the documentation index is in `CLAUDE.md`.
 
-Without Docker (JDK 25 required): `./gradlew build`, `./gradlew runClient`, `./gradlew runServer`,
-`./gradlew runData` (regenerates `src/generated/resources`), `./gradlew runGameTestServer`.
-
-### Smoke test
-
-Boots the NeoForge dedicated server with the mod installed and fails if it does not finish loading —
-this covers mod construction, every registry, the access transformer, datapack parsing and the
-server-start hooks. CI runs the same target on every push.
-
-```powershell
-.\scripts\smoke.ps1          # -> out\smoke.log, smoke-docker.log
-```
-
-```bash
-scripts/smoke.sh
-```
-
-### In-game tests and client smoke
-
-```bash
-scripts/gametest.sh        # GameTest server + src/gametest (behaviour: linking, portals, spawn, fluids, instability)
-scripts/client-smoke.sh    # dev client under Xvfb + Mesa, scripted by ClientSelfCheck, exports screenshots to out/screenshots
-```
-
-See `docs/TESTING.md` for the layers, log markers (`[spawn]`, `[link]`, ...) and the manual checklist.
-
-Client rendering on a real GPU (look & feel) is covered by the manual checklist; run `./gradlew runClient`
-locally for that.
-
-## Repository layout
-
-```
-docs/                 ARCHITECTURE.md (design), REQUIREMENTS.md (original behaviour, with numbers),
-                      TOOLCHAIN.md (versions), API_CHEATSHEET.md (verified 26.1 signatures)
-src/main/java         mod sources (com.techbucketdivision.mystcraft)
-src/main/resources    assets (textures/sounds reused from the original under LGPL), data packs
-src/main/templates    neoforge.mods.toml (expanded by Gradle)
-src/generated         datagen output (committed)
-scripts/              docker build helpers
-```
-
-## Gameplay summary
-
-1. Find symbol pages (loot, Archivist villagers, Sealed Notebooks).
-2. Copy symbols in a **Writing Desk** (ink + paper), mix a **Link Panel** in the **Ink Mixer**, bind a book in the
-   **Book Binder**.
-3. Use the **Descriptive Book** to link into a new Age; craft an **Unlinked Book** into a **Linking Book** to get back.
-4. Manage **instability**; **Crystal** portals with **Book Receptacles** and **Star Fissures** connect Ages.
-
-See `docs/REQUIREMENTS.md` for the complete mechanics reference and `docs/ARCHITECTURE.md` for the milestone plan.
+## Credits
+Original Mystcraft by XCompWiz (LGPL-3.0). Dynamic dimensions after Commoble's Infiniverse (MIT). Facility rooms
+imported from Stonevaults by TheGrimsey (MIT) and others listed in `NOTICE.md` and the pack's `CREDITS.md`.
 
 ## Contributing
-
-Issues and pull requests are welcome. Please keep new vanilla/NeoForge API usage consistent with
-`docs/API_CHEATSHEET.md` (26.1 renamed or removed a large part of the 1.21 API).
+Issues and pull requests are welcome. Verify vanilla/NeoForge calls against the 26.1 sources (`docs/API_NOTES.md`),
+keep tests green, and document behaviour by pointing at the code rather than restating it.

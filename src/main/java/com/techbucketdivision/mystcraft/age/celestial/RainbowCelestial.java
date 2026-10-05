@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 /**
- * Rainbow doodad (REQUIREMENTS §4.3.1 Rainbow): an arc rotated by -angle (random 0..360 when no angle was written).
+ * Rainbow doodad (original spec §4.3.1 Rainbow): an arc rotated by -angle (random 0..360 when no angle was written).
  * The renderer draws {@code renderRainbow(0, 50)} about the Y axis by {@link #angle()}. Provides no light.
  */
 public final class RainbowCelestial implements Celestial {

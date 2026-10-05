@@ -7,7 +7,7 @@ import com.techbucketdivision.mystcraft.api.symbol.AgeDirector;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Lighting symbols (REQUIREMENTS §4.3.3). */
+/** Lighting symbols (original spec §4.3.3). */
 public final class LightingSymbols {
     private LightingSymbols() {}
 

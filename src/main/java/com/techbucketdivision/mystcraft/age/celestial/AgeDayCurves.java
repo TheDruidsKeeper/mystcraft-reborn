@@ -4,7 +4,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 /**
- * Day/night curves as a function of the Age's combined celestial angle (0 = noon, 0.5 = midnight), REQUIREMENTS §4.3.
+ * Day/night curves as a function of the Age's combined celestial angle (0 = noon, 0.5 = midnight), original spec §4.3.
  * 26.1 drives all of this through data-driven timelines on a world clock, but clocks are global per server, so an
  * Age's own celestial periods cannot use them; instead these curves are installed as environment-attribute layers
  * on both the server level ({@code AgeEnvironment}) and the client level ({@code AgeClientEnvironment}). The

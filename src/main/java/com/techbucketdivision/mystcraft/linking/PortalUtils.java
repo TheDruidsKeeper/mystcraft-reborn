@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Crystal portal flood-fill, tension and pathing (REQUIREMENTS §7.7). Port of the original {@code PortalUtils}.
+ * Crystal portal flood-fill, tension and pathing (original spec §7.7). Port of the original {@code PortalUtils}.
  * <p>
  * Every crystal / portal block that is part of an active portal carries {@code ACTIVE=true} and a {@code SOURCE}
  * direction pointing one step back toward the Book Receptacle that powers it. The receptacle is found by following

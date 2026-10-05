@@ -12,7 +12,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Sun / moon / starfield symbols (REQUIREMENTS §4.3.2). Dark variants are {@link DummySymbol}s. */
+/** Sun / moon / starfield symbols (original spec §4.3.2). Dark variants are {@link DummySymbol}s. */
 public final class CelestialSymbols {
     private CelestialSymbols() {}
 

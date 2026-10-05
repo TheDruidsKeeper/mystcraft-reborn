@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * Link Modifier (REQUIREMENTS §3.9): edits link flags, seed and title of the held book and can mark its Age dead.
+ * Link Modifier (original spec §3.9): edits link flags, seed and title of the held book and can mark its Age dead.
  */
 public class LinkModifierBlockEntity extends BookDisplayBlockEntity implements MenuProvider {
     public LinkModifierBlockEntity(BlockPos pos, BlockState state) {

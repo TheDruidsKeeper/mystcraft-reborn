@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Decay (REQUIREMENTS §3.8). One block per {@link DecayType}; all behaviour is delegated to the instability package's
+ * Decay (original spec §3.8). One block per {@link DecayType}; all behaviour is delegated to the instability package's
  * {@code DecayHandlers.get(type)}. Placed outside a Mystcraft Age the block simply vanishes.
  */
 public class DecayBlock extends Block {

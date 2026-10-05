@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * A page (REQUIREMENTS §2.2). Three states, encoded in data components:
+ * A page (original spec §2.2). Three states, encoded in data components:
  * <ul>
  * <li>blank: neither {@link ModDataComponents#SYMBOL} nor {@link ModDataComponents#LINK_PANEL}</li>
  * <li>link panel: {@link ModDataComponents#LINK_PANEL} present (set of link properties, may be empty)</li>
@@ -165,7 +165,7 @@ public class PageItem extends Item implements ItemBehaviours.Writable, ItemBehav
         stack.set(ModDataComponents.LINK_PANEL.get(), props);
     }
 
-    // --- remapping (REQUIREMENTS §19.4) -------------------------------------------------------------------------
+    // --- remapping (original spec §19.4) -------------------------------------------------------------------------
 
     /**
      * Applies symbol remappings to a page. Returns the list of resulting pages: the page itself (unchanged) when no

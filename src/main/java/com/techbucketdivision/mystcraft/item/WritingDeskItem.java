@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Writing Desk item (REQUIREMENTS §2.8). {@code backboard == false} places the two-block desk (head + foot);
+ * Writing Desk item (original spec §2.8). {@code backboard == false} places the two-block desk (head + foot);
  * {@code backboard == true} extends an existing desk upwards with the two backboard blocks.
  * <p>
  * The foot block lies in the desk's facing direction: offsets (0,0,+1)/(−1,0,0)/(0,0,−1)/(+1,0,0) for horizontal

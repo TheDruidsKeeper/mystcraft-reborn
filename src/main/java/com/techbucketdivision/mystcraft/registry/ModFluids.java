@@ -13,7 +13,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
-/** Black ink fluid (REQUIREMENTS §3.12). */
+/** Black ink fluid (original spec §3.12). */
 public final class ModFluids {
     private ModFluids() {}
 

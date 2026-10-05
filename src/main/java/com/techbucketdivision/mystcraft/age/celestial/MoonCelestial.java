@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 /**
- * A moon (REQUIREMENTS §4.3.2 MoonNormal): like the sun but default period {@code 1.8*rand+0.2} days, size 20, phase
+ * A moon (original spec §4.3.2 MoonNormal): like the sun but default period {@code 1.8*rand+0.2} days, size 20, phase
  * {@code (time / period) mod 8}, no light; the horizon is drawn (alpha 0.3) only when a sunset gradient was given.
  */
 public final class MoonCelestial implements Celestial {

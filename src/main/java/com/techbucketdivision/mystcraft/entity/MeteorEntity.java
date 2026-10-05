@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A meteor (REQUIREMENTS §9): burns, roars, ray-traces along its motion; on impact it breaks the blocks in its box
+ * A meteor (original spec §9): burns, roars, ray-traces along its motion; on impact it breaks the blocks in its box
  * (+5 up), and once {@code inGroundTime >= penetration} performs eight {@link AdvancedExplosion}s and dies. Not saved.
  */
 public final class MeteorEntity extends Entity {
@@ -44,7 +44,7 @@ public final class MeteorEntity extends Entity {
         super(type, level);
     }
 
-    /** Spawns a meteor at y=500 over (x, z) with a random slight drift (REQUIREMENTS §4.3.10). */
+    /** Spawns a meteor at y=500 over (x, z) with a random slight drift (original spec §4.3.10). */
     public static @Nullable MeteorEntity spawn(ServerLevel level, double x, double z, float scale, int penetration) {
         double dx = level.getRandom().nextGaussian() * 0.25;
         double dy = level.getRandom().nextFloat() * -2 - 2;

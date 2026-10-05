@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/** Link flow (REQUIREMENTS §7.3): permission → destination → alter → teleport with passengers → listeners. */
+/** Link flow (original spec §7.3): permission → destination → alter → teleport with passengers → listeners. */
 public final class LinkController {
     private LinkController() {}
 

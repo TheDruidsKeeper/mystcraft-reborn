@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Item data components (replace the original NBT layouts, REQUIREMENTS §2).
+ * Item data components (replace the original NBT layouts, original spec §2).
  * <ul>
  * <li>Page: {@link #SYMBOL} (symbol + modifiers + discovered; absent = blank) or {@link #LINK_PANEL} (set of properties; present = link panel)</li>
  * <li>Books: {@link #LINK_INFO}, {@link #BOOK_HEALTH}, {@link #PAGES} (descriptive book), {@link #AUTHORS}</li>

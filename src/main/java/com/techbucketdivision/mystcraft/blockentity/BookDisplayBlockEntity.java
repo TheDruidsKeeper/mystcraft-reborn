@@ -18,7 +18,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 /**
- * One-slot book holder used by the Bookstand and Lectern (REQUIREMENTS §3.4) and as base for the Link Modifier. Keeps
+ * One-slot book holder used by the Bookstand and Lectern (original spec §3.4) and as base for the Link Modifier. Keeps
  * a yaw/pitch for rendering; yaw is quantised per block (45° stands, 90° lecterns / modifiers).
  */
 public class BookDisplayBlockEntity extends MystBlockEntity {

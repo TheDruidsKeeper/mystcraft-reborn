@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Large / medium / small feature symbols (REQUIREMENTS §4.3.7–4.3.9). */
+/** Large / medium / small feature symbols (original spec §4.3.7–4.3.9). */
 public final class FeatureSymbols {
     private FeatureSymbols() {}
 

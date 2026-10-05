@@ -49,7 +49,7 @@ public class BookReceptacleRenderer extends BookDisplayRenderer<BookReceptacleBl
             // slab occupies the 6 px behind the face; the book lies on the slab surface, 10 px from the block centre
             float off = 0.5f - 6f / 16f + 0.03f;
             poseStack.translate(0.5 + facing.getStepX() * off, 0.5 + facing.getStepY() * off, 0.5 + facing.getStepZ() * off);
-            poseStack.mulPose(facing.getRotation()); // Direction#getRotation() -> Quaternionf (API_CHEATSHEET L1b, verified); maps +Y onto the direction
+            poseStack.mulPose(facing.getRotation()); // Direction#getRotation() -> Quaternionf (API_NOTES L1b, verified); maps +Y onto the direction
             poseStack.mulPose(Axis.YP.rotationDegrees(-state.yaw));
             poseStack.mulPose(Axis.XP.rotationDegrees(-90f)); // FIXED items face +Z: turn them to lie in the slab plane
             poseStack.scale(state.scale, state.scale, state.scale);

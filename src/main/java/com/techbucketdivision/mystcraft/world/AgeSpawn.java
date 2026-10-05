@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Spawn search for Ages (REQUIREMENTS §5.3 {@code verifySpawn}) and the 5×5 cobblestone spawn platform
+ * Spawn search for Ages (original spec §5.3 {@code verifySpawn}) and the 5×5 cobblestone spawn platform
  * ({@code MystWorldGenerator}). Server thread only.
  */
 public final class AgeSpawn {

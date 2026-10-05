@@ -85,7 +85,7 @@ public final class ClientGameEvents {
     private static float biomeTemperature(ClientLevel level, Vec3 pos) {
         try {
             BlockPos bp = BlockPos.containing(pos);
-            return level.getBiome(bp).value().getBaseTemperature(); // API_CHEATSHEET I2: Biome#getBaseTemperature() verified
+            return level.getBiome(bp).value().getBaseTemperature(); // API_NOTES I2: Biome#getBaseTemperature() verified
         } catch (RuntimeException e) {
             return 0.5f;
         }

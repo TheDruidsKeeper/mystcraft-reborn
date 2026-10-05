@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 /**
- * Star Fissure travel (REQUIREMENTS §3.11): a Natural + External link to the configured home dimension's spawn,
+ * Star Fissure travel (original spec §3.11): a Natural + External link to the configured home dimension's spawn,
  * keeping the entity's yaw and playing {@code mystcraft:linking.link_fissure}.
  */
 public final class StarFissureLinker {

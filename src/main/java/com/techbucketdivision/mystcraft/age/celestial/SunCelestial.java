@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 /**
- * A sun (REQUIREMENTS §4.3.2 SunNormal). Provides light. Period = (wavelength or {@code 0.4*rand+0.8}) x 24000 ticks;
+ * A sun (original spec §4.3.2 SunNormal). Provides light. Period = (wavelength or {@code 0.4*rand+0.8}) x 24000 ticks;
  * angle = -(angle or random 360); offset = phase/360 (or random; if period == 0: {@code rand/2 + 0.25}) - 0.5.
  */
 public final class SunCelestial implements Celestial {

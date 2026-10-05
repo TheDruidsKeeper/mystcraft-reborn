@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Mystcraft Lectern (REQUIREMENTS §3.4): horizontal facing, accepts linking items, pages and filled maps; shape
+ * Mystcraft Lectern (original spec §3.4): horizontal facing, accepts linking items, pages and filled maps; shape
  * (0,0,0)-(1,0.4375,1).
  */
 public class LecternBlock extends BookDisplayBlock {

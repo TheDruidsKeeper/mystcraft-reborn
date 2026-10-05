@@ -7,7 +7,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Special recipe: Link Panel page + Leather → Unlinked Link Book (REQUIREMENTS §2.3.3). */
+/** Special recipe: Link Panel page + Leather → Unlinked Link Book (original spec §2.3.3). */
 public final class ModRecipes {
     private ModRecipes() {}
 

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Writing Desk container (REQUIREMENTS §8.1, Reborn rework: world-building plan §4). Slot indices: 0 target (folder),
+ * Writing Desk container (original spec §8.1, Reborn rework: world-building plan §4). Slot indices: 0 target (folder),
  * 1 paper, 2 ink container in, 3 container out, 4–30 player inventory, 31–39 hotbar. The symbol surface is not an
  * inventory: it lists the player's known symbols (or all of them at a Scholar's desk) from the synced knowledge.
  * <p>

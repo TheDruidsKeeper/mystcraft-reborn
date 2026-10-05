@@ -11,7 +11,7 @@ import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.TH
 import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.THUNDER_COUNTER;
 
 /**
- * Vanilla-like rain/thunder cycle (REQUIREMENTS §4.3.4 WeatherNorm / WeatherFast / WeatherSlow). Each phase lasts
+ * Vanilla-like rain/thunder cycle (original spec §4.3.4 WeatherNorm / WeatherFast / WeatherSlow). Each phase lasts
  * {@code base + rand(spread)} ticks; when the counter runs out the state flips and a new counter is rolled.
  */
 public final class CyclingWeather extends AbstractWeather {

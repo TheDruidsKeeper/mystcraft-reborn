@@ -19,7 +19,7 @@ import java.util.function.UnaryOperator;
 /**
  * Base menu: routes {@link MenuMessagePayload}s (both directions) and provides the shift-click routing used by every
  * Mystcraft container (internal slots → player inventory; player inventory → page receiver → internal slots → other
- * inventory half, REQUIREMENTS §8).
+ * inventory half, original spec §8).
  * <p>
  * Message names are the original ones ({@code "WriteSymbol"}, {@code "Link"}, ...); the name travels in the
  * {@code "msg"} key of the tag ({@link MenuMessagePayload#KEY_MESSAGE}). Screens call {@link #sendToServer} after

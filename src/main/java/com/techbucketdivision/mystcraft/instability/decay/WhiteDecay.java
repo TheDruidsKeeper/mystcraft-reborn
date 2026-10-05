@@ -7,7 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** White decay: converts everything (air → 50, else 1); entity contact deals 1 magic damage (REQUIREMENTS §3.8). */
+/** White decay: converts everything (air → 50, else 1); entity contact deals 1 magic damage (original spec §3.8). */
 public final class WhiteDecay extends SpreadingDecay {
     public WhiteDecay() {
         super(DecayType.WHITE);

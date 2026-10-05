@@ -7,7 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Advancement triggers (REQUIREMENTS §19.5). All are simple player triggers. */
+/** Advancement triggers (original spec §19.5). All are simple player triggers. */
 public final class ModCriteria {
     private ModCriteria() {}
 

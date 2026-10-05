@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** Ink Mixer (REQUIREMENTS §3.2). Non-opaque cube; right-click opens {@code InkMixerMenu}. */
+/** Ink Mixer (original spec §3.2). Non-opaque cube; right-click opens {@code InkMixerMenu}. */
 public class InkMixerBlock extends FacingEntityBlock {
     public InkMixerBlock(Properties properties) {
         super(properties);

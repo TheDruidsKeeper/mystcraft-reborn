@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Predicate;
 
 /**
- * Places decay blocks with probability {@code score / 1,000,000} per chunk tick (REQUIREMENTS §6.5 EffectDecayBasic).
+ * Places decay blocks with probability {@code score / 1,000,000} per chunk tick (original spec §6.5 EffectDecayBasic).
  * {@code maxY == null} means the surface height (or the Age's average ground level when that is not above minY).
  */
 public final class DecayEffect implements EnvironmentalEffect {

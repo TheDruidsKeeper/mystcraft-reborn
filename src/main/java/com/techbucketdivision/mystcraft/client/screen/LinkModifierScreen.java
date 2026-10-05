@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Link Modifier screen (REQUIREMENTS §8.4). Left: the book slot with the title and seed fields below it. Right: a
+ * Link Modifier screen (original spec §8.4). Left: the book slot with the title and seed fields below it. Right: a
  * side panel with a labelled check list of the link effects (each with a tooltip explaining what it does) and the
  * "mark Age dead" action with an explicit confirm step. Everything is disabled until a book is in the slot.
  */

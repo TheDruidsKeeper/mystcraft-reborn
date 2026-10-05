@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Bookstand (REQUIREMENTS §3.4): 8 rotation steps of 45°, accepts linking items only, shape
+ * Bookstand (original spec §3.4): 8 rotation steps of 45°, accepts linking items only, shape
  * (0.125,0,0.125)-(0.875,0.75,0.875).
  */
 public class BookstandBlock extends BookDisplayBlock {

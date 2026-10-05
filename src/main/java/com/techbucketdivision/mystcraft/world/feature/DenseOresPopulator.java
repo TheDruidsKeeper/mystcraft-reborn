@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 
 /**
- * "Dense Ores" (REQUIREMENTS §4.3.7): coal ×20 (size 16, y 0–128), iron ×20 (8, 0–64), gold ×2 (8, 0–32),
+ * "Dense Ores" (original spec §4.3.7): coal ×20 (size 16, y 0–128), iron ×20 (8, 0–64), gold ×2 (8, 0–32),
  * redstone ×8 (7, 0–16), diamond ×1 (7, 0–16), lapis ×1 (6, 0–16), emerald ×6 (1, 4–32), nether quartz ×10
  * (13 in netherrack, 10–256). Uses vanilla {@link Feature#ORE}.
  */

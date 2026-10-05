@@ -6,7 +6,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Ender starfield (REQUIREMENTS §4.3.2 StarsEndSky): the End sky box tinted by gradient(time/12000); default colour
+ * Ender starfield (original spec §4.3.2 StarsEndSky): the End sky box tinted by gradient(time/12000); default colour
  * 0x282828 = (0.156, 0.156, 0.156). Static (no rotation), no light.
  */
 public final class EndSkyCelestial implements Celestial {

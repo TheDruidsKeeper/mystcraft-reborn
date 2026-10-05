@@ -1,7 +1,7 @@
 package com.techbucketdivision.mystcraft.api.instability;
 
 /**
- * A card in the instability decks (REQUIREMENTS §6.4). Registered with
+ * A card in the instability decks (original spec §6.4). Registered with
  * {@code instability.InstabilityManager#register(String id, InstabilityProvider, int activationCost)}.
  */
 @FunctionalInterface

@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Link portal blocks are tinted with the colour of the book in the receptacle powering them (REQUIREMENTS §7.6). */
+/** Link portal blocks are tinted with the colour of the book in the receptacle powering them (original spec §7.6). */
 public final class PortalTintSource implements BlockTintSource {
     private static final int WHITE = 0xFFFFFFFF;
 

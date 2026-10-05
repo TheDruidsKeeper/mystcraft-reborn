@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Star Fissure (REQUIREMENTS §3.11): unbreakable, non-collidable; touching entities are linked home. Rendered by a
+ * Star Fissure (original spec §3.11): unbreakable, non-collidable; touching entities are linked home. Rendered by a
  * block entity renderer (end-portal style planes).
  */
 public class StarFissureBlock extends Block implements EntityBlock, FluidProof {

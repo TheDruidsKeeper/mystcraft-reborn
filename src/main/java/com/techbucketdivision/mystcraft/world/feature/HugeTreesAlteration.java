@@ -12,7 +12,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 /**
- * "Huge Trees" (REQUIREMENTS §4.3.7): per chunk (range 8) 50% chance of a giant tree — 2×2 trunk from y 4..11 up to
+ * "Huge Trees" (original spec §4.3.7): per chunk (range 8) 50% chance of a giant tree — 2×2 trunk from y 4..11 up to
  * a leaf blob at y ∈ [128,180] of height 40–69, 4 leaf nodes per layer, {@code height/4} roots. Port of
  * {@code WorldGenMystBigTree}; all tree state is local to one call so the instance is thread-safe.
  */

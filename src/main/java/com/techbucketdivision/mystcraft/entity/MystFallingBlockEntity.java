@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Falling block used by black decay (REQUIREMENTS §9): carries a block state, its would-be drops and block-entity
+ * Falling block used by black decay (original spec §9): carries a block state, its would-be drops and block-entity
  * data; gravity 0.04, drag 0.98; places itself on landing (restoring the block entity) or drops the items if placement
  * fails; removed below y = minY - 10. On its first tick it cascades adjacent leaves.
  */
@@ -174,7 +174,7 @@ public final class MystFallingBlockEntity extends Entity {
             BlockEntity be = level.getBlockEntity(pos);
             if (be != null) {
                 try {
-                    // TagValueInput.create(ProblemReporter, HolderLookup.Provider, CompoundTag) per TOOLCHAIN §4.9
+                    // TagValueInput.create(ProblemReporter, HolderLookup.Provider, CompoundTag) (26.1 sources)
                     be.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), blockEntityData));
                     be.setChanged();
                 } catch (Exception e) {

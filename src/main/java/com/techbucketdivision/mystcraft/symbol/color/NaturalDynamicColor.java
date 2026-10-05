@@ -6,7 +6,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.util.Mth;
 
 /**
- * Vanilla-formula sky / fog / cloud colours (REQUIREMENTS §4.3.1: ColorSkyNat, ColorFogNat, ColorCloudNat).
+ * Vanilla-formula sky / fog / cloud colours (original spec §4.3.1: ColorSkyNat, ColorFogNat, ColorCloudNat).
  */
 public final class NaturalDynamicColor implements DynamicColorProvider {
     private final ColorKind kind;

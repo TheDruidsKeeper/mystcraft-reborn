@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.List;
 
 /**
- * Link panel pictures (REQUIREMENTS §8.5 extension): a book's link panel shows what the destination looks like.
+ * Link panel pictures (original spec §8.5 extension): a book's link panel shows what the destination looks like.
  * <ol>
  *     <li>{@link CaptureRequest} (server → client): after a link the server asks the arriving client to photograph the
  *     view for {@code key} ({@link PanelImageStorage#keyFor}).</li>

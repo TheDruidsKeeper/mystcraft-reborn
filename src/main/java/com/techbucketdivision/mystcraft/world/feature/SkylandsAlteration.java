@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 /**
- * "Skylands" (REQUIREMENTS §4.3.7): every block at {@code y ≤ 76 + noise(x,z)} (7-octave noise) is removed and liquids
+ * "Skylands" (original spec §4.3.7): every block at {@code y ≤ 76 + noise(x,z)} (7-octave noise) is removed and liquids
  * above the cut are removed too. The original applied this as a primer filter during terrain generation; here it is a
  * post-pass over the freshly generated terrain (same result, and the extended space below y=0 is cleared as well).
  */

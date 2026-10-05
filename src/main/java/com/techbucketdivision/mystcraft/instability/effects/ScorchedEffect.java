@@ -7,7 +7,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 /**
  * 1/10 per chunk tick: a random entity in the chunk that can see the sky is set on fire for {@code 4 * level}
- * seconds (REQUIREMENTS §4.3.10). With {@code global} the sky check is skipped.
+ * seconds (original spec §4.3.10). With {@code global} the sky check is skipped.
  */
 public final class ScorchedEffect implements EnvironmentalEffect {
     private final int level;

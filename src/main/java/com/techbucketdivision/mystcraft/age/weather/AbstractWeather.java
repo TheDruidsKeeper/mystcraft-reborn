@@ -78,7 +78,7 @@ abstract class AbstractWeather implements WeatherController {
         if (allowed) strike(level, precip);
     }
 
-    /** Spawns a vanilla lightning bolt at the position (see API_CHEATSHEET F3). */
+    /** Spawns a vanilla lightning bolt at the position (see API_NOTES F3). */
     public static void strike(ServerLevel level, BlockPos pos) {
         LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         if (bolt == null) return;

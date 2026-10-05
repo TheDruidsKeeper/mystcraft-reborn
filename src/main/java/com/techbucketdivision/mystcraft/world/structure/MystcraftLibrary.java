@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * The Mystcraft Library (REQUIREMENTS §11.1, layout Appendix B): an 11×11×11 cobblestone/bookshelf building placed
+ * The Mystcraft Library (original spec §11.1, layout Appendix B): an 11×11×11 cobblestone/bookshelf building placed
  * once per 32×32-chunk region (candidate chunk = region origin + rand(24), seed salt 14357617, no biome check), at the
  * average ground level of its footprint, with a cobblestone foundation, a loot chest ({@code mystcraft:chests/library})
  * and five lecterns holding rank ≥ 3 symbol pages. Runs as the last {@link Populator} of every Age.

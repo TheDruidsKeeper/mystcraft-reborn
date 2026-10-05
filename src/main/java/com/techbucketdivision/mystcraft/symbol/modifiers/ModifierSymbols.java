@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
 /**
- * Modifier symbols (REQUIREMENTS §4.3.12): directions, phases, lengths, gradient, sunset colour and the 16 colours.
+ * Modifier symbols (original spec §4.3.12): directions, phases, lengths, gradient, sunset colour and the 16 colours.
  * Display names are translation keys {@code symbol.mystcraft.<id>} (e.g. {@code symbol.mystcraft.mod_north} = "North
  * Direction", {@code symbol.mystcraft.mod_color_dark_green} = "Dark Green Color").
  */

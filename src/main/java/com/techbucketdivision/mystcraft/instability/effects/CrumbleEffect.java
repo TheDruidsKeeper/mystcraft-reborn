@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Replaces one random block per chunk tick by its "crumbled" mapping (REQUIREMENTS §6.5 EffectCrumble). Explicit
+ * Replaces one random block per chunk tick by its "crumbled" mapping (original spec §6.5 EffectCrumble). Explicit
  * block mappings win over tag mappings (ores → stone, logs → planks, wool → white wool → cobweb, plants → air).
  */
 public final class CrumbleEffect implements EnvironmentalEffect {

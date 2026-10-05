@@ -6,7 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Sound events (REQUIREMENTS §18). Ids use dots like the original so lang/sounds.json keys stay familiar. */
+/** Sound events (original spec §18). Ids use dots like the original so lang/sounds.json keys stay familiar. */
 public final class ModSounds {
     private ModSounds() {}
 

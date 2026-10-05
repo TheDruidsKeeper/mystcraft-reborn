@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 
 /**
- * Collation Folder (REQUIREMENTS §2.5): sparse ordered page slots in {@link ModDataComponents#SLOT_PAGES}, optional
+ * Collation Folder (original spec §2.5): sparse ordered page slots in {@link ModDataComponents#SLOT_PAGES}, optional
  * title in {@link ModDataComponents#ITEM_TITLE}. Stacks to 32 while empty and unnamed, else 1.
  */
 public class FolderItem extends Item implements ItemBehaviours.Renameable, ItemBehaviours.OrderablePageProvider,

@@ -18,7 +18,7 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import java.util.List;
 
 /**
- * Book Binder container (REQUIREMENTS §8.2). Slots: 0 cover, 1–27 inventory, 28–36 hotbar, 37 craft output.
+ * Book Binder container (original spec §8.2). Slots: 0 cover, 1–27 inventory, 28–36 hotbar, 37 craft output.
  * Messages client→server: {@code SetTitle(Title)}, {@code TakeFromSlider(Index)}, {@code InsertHeldAt(Index, Single)}.
  * The page list and title are synced through the block entity update tag.
  */

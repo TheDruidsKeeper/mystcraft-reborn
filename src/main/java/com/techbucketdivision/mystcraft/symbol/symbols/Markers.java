@@ -18,7 +18,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import java.util.List;
 
 /**
- * Lightweight logic instances registered while a symbol is being <em>profiled</em> (REQUIREMENTS §4.1 step 3), so
+ * Lightweight logic instances registered while a symbol is being <em>profiled</em> (original spec §4.1 step 3), so
  * the {@link com.techbucketdivision.mystcraft.symbol.SymbolProfiler} learns which interfaces the symbol provides without
  * the symbol touching registries or constructing world-gen objects. Never used to generate anything.
  */

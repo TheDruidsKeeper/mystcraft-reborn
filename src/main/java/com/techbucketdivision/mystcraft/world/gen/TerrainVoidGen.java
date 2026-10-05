@@ -8,7 +8,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 
 import java.util.Arrays;
 
-/** "Void World" terrain (REQUIREMENTS §4.3.6): generates nothing. */
+/** "Void World" terrain (original spec §4.3.6): generates nothing. */
 public final class TerrainVoidGen implements TerrainGenerator, HeightEstimator {
     public TerrainVoidGen() {}
 

@@ -3,7 +3,7 @@ package com.techbucketdivision.mystcraft.age.lighting;
 import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
 import net.minecraft.util.Mth;
 
-/** Vanilla light curve (REQUIREMENTS §4.3.3 LightingNormal): {@code f1 = 1 - i/15; (1 - f1) / (f1*3 + 1)}. */
+/** Vanilla light curve (original spec §4.3.3 LightingNormal): {@code f1 = 1 - i/15; (1 - f1) / (f1*3 + 1)}. */
 public class NormalLighting implements LightingController {
 
     /** Vanilla brightness for light level {@code i} (0..15). */

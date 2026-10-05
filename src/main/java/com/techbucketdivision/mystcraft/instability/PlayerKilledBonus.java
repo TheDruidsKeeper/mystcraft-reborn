@@ -15,7 +15,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Stability bonus unlocked by killing a named player inside the Age (REQUIREMENTS §6.6). Value is {@code -current};
+ * Stability bonus unlocked by killing a named player inside the Age (original spec §6.6). Value is {@code -current};
  * set to {@code max} when the player is killed by another player, {@code max/2} on other deaths; decays per tick.
  */
 public final class PlayerKilledBonus implements InstabilityBonus, InstabilityBonusManager.Listener {

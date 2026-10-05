@@ -7,7 +7,7 @@ import net.minecraft.world.level.biome.Biome;
 import java.util.List;
 
 /**
- * "Tiled" / "Grid-form" biome distribution (REQUIREMENTS §4.3.5): biome at (x,z) = {@code list[((x>>4)+(z>>4)) mod n]},
+ * "Tiled" / "Grid-form" biome distribution (original spec §4.3.5): biome at (x,z) = {@code list[((x>>4)+(z>>4)) mod n]},
  * i.e. 16-block diagonal stripes / checkerboard.
  *
  * <p>The original Grid variant sampled the terrain-shaping biome array at generation scale (×4). Modern chunks store

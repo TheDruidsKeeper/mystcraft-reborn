@@ -11,7 +11,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * Instability penalty that grows while a named player is inside the Age and decays while absent; resets on death
- * (REQUIREMENTS §6.6).
+ * (original spec §6.6).
  */
 public final class PlayerTrollPenalty implements InstabilityBonus, InstabilityBonusManager.Listener {
     private final ResourceKey<Level> levelKey;

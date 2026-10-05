@@ -18,7 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-/** Linking Book (REQUIREMENTS §2.3.2): links back to the position where it was created. */
+/** Linking Book (original spec §2.3.2): links back to the position where it was created. */
 public class LinkingBookItem extends LinkingItem implements ItemBehaviours.PageProvider {
 
     public LinkingBookItem(Item.Properties properties) {

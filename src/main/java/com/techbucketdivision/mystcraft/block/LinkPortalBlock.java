@@ -27,7 +27,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Link Portal (REQUIREMENTS §3.7): the "field" block grown between crystals by {@link PortalUtils}. Entities touching
+ * Link Portal (original spec §3.7): the "field" block grown between crystals by {@link PortalUtils}. Entities touching
  * it are linked with the book in the powering receptacle. Colour is provided client-side from
  * {@link BookReceptacleBlockEntity#getPortalColor()} of {@link PortalUtils#getReceptacle}.
  */

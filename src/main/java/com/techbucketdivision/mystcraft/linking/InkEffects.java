@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Ink ingredient table (REQUIREMENTS §7.2, Reborn revision): <b>one ingredient per effect, one effect per
+ * Ink ingredient table (original spec §7.2, Reborn revision): <b>one ingredient per effect, one effect per
  * ingredient</b>. The table comes from the config ({@code inkmixer.ingredients}, {@code inkmixer.clearIngredient});
  * the defaults are the Reborn balance where the price of an ingredient follows what the effect gives.
  * <p>
@@ -160,7 +160,7 @@ public final class InkEffects {
         return property.inkable() && MystcraftConfig.isLinkEffectEnabled(property.name());
     }
 
-    /** Relative is inkable but excluded from creative listings and trades (REQUIREMENTS §7.2). */
+    /** Relative is inkable but excluded from creative listings and trades (original spec §7.2). */
     public static boolean isCraftable(LinkProperty property) {
         return property.inkable() && property != LinkProperty.RELATIVE;
     }

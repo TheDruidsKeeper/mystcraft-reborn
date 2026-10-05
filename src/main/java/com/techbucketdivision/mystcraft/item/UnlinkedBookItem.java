@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Unlinked Link Book (REQUIREMENTS §2.3.3): carries the link-panel properties it was crafted with in
+ * Unlinked Link Book (original spec §2.3.3): carries the link-panel properties it was crafted with in
  * {@link ModDataComponents#LINK_PANEL}; right-click binds it to the player's position.
  */
 public class UnlinkedBookItem extends Item {

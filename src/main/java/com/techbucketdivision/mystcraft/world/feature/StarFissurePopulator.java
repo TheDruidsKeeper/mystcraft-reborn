@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * "Star Fissure" (REQUIREMENTS §4.3.9): only in the spawn chunk, a fissure (10–17 rows, widths random-walked) of
+ * "Star Fissure" (original spec §4.3.9): only in the spawn chunk, a fissure (10–17 rows, widths random-walked) of
  * {@code mystcraft:star_fissure} at y=0 with everything above cleared to the top of the world. Returns {@code true}
  * so later populators (lakes) leave the fissure alone.
  *

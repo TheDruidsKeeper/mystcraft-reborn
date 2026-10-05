@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Sealed Notebook (REQUIREMENTS §2.4): right-click opens it into a Collation Folder with random pages. */
+/** Sealed Notebook (original spec §2.4): right-click opens it into a Collation Folder with random pages. */
 public class BoosterItem extends Item {
 
     public static final int VERY_COMMON = 7;

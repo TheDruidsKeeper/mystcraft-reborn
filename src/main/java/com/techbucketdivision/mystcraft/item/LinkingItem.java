@@ -35,7 +35,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * Base of Descriptive and Linking Books (REQUIREMENTS §2.3). Link target lives in {@link ModDataComponents#LINK_INFO},
+ * Base of Descriptive and Linking Books (original spec §2.3). Link target lives in {@link ModDataComponents#LINK_INFO},
  * float health in {@link ModDataComponents#BOOK_HEALTH}.
  */
 public abstract class LinkingItem extends Item implements ItemBehaviours.PortalActivator, ItemBehaviours.Renameable {
@@ -64,7 +64,7 @@ public abstract class LinkingItem extends Item implements ItemBehaviours.PortalA
         return !stack.isEmpty() && stack.getItem() instanceof LinkingItem;
     }
 
-    // --- health (REQUIREMENTS §19.2) ----------------------------------------------------------------------------
+    // --- health (original spec §19.2) ----------------------------------------------------------------------------
 
     public static BookHealth getBookHealth(ItemStack stack) {
         return stack.getOrDefault(ModDataComponents.BOOK_HEALTH.get(), BookHealth.FULL);
@@ -215,7 +215,7 @@ public abstract class LinkingItem extends Item implements ItemBehaviours.PortalA
         return getLinkColor(getLinkInfo(stack));
     }
 
-    /** REQUIREMENTS §7.6: colour derived from the display-name hash, packed as coded in the original. */
+    /** original spec §7.6: colour derived from the display-name hash, packed as coded in the original. */
     public static int getLinkColor(@Nullable LinkInfo info) {
         if (info == null) return 0x000000;
         Random rand = new Random(info.displayName().hashCode());

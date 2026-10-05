@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Installs server-side environment-attribute layers for an Age level (cloud height, sky/fog/cloud colour hints and
  * the sun angle derived from the Age's celestials). Clients mirror this from the synced {@code AgeData}; nothing
- * here is sent over the wire (see API_CHEATSHEET J).
+ * here is sent over the wire (see API_NOTES J).
  */
 public final class AgeEnvironment {
     private AgeEnvironment() {}

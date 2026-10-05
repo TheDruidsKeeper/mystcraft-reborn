@@ -5,7 +5,7 @@ import com.techbucketdivision.mystcraft.api.symbol.SymbolCategory;
 import com.techbucketdivision.mystcraft.symbol.SymbolRegistry;
 
 /**
- * Registers every built-in symbol of REQUIREMENTS §4.3.1–4.3.11 in its world-building category. Modifier symbols
+ * Registers every built-in symbol of original spec §4.3.1–4.3.11 in its world-building category. Modifier symbols
  * (§4.3.12) live in {@code ModifierSymbols}, block symbols (§4.3.13) in {@code BlockSymbols}. The original grammar's
  * "Lacking ... Features" dummies and Clear Modifiers are gone with the grammar (Reborn: the Age blueprint fills books).
  */

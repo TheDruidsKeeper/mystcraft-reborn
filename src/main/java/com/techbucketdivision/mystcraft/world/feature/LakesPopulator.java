@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * "Surface Lakes" (1/4 per chunk, random y 0–255, only when no earlier populator returned true) and "Deep Lakes"
- * (1/8 per chunk, {@code y = rand(rand(248)+8)}, only if y < sea level or 1/10) — REQUIREMENTS §4.3.9. The lake shape
+ * (1/8 per chunk, {@code y = rand(rand(248)+8)}, only if y < sea level or 1/10) — original spec §4.3.9. The lake shape
  * is the classic {@code WorldGenLakes} blob (port of {@code WorldGenLakesAdv}).
  */
 public final class LakesPopulator implements Populator {

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 /**
- * Level-based potion card (REQUIREMENTS §6.4): one effect instance whose amplifier is {@code level - 1}. Each chunk
+ * Level-based potion card (original spec §6.4): one effect instance whose amplifier is {@code level - 1}. Each chunk
  * tick a random entity in the chunk receives the effect; non-global variants require the entity to see the sky;
  * "enemy" variants never target players.
  */

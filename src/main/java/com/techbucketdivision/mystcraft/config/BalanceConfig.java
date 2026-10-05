@@ -2,7 +2,7 @@ package com.techbucketdivision.mystcraft.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/** Balance config (REQUIREMENTS §13 balance.cfg): instability difficulty and baseline "free ore" values. */
+/** Balance config (original spec §13 balance.cfg): instability difficulty and baseline "free ore" values. */
 public final class BalanceConfig {
     private BalanceConfig() {}
 

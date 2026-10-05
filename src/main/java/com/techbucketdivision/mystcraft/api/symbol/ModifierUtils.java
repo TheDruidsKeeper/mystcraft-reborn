@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Random;
 
-/** Helpers replicating the original {@code ModifierUtils} semantics (see REQUIREMENTS §4.2). */
+/** Helpers replicating the original {@code ModifierUtils} semantics (see original spec §4.2). */
 public final class ModifierUtils {
     private ModifierUtils() {}
 

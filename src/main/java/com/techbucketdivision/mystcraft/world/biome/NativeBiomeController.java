@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * "Native Biome Distribution" (REQUIREMENTS §4.3.5): wraps the vanilla overworld multi-noise biome source seeded with
+ * "Native Biome Distribution" (original spec §4.3.5): wraps the vanilla overworld multi-noise biome source seeded with
  * the Age seed. 3D (cave) biomes are honoured through {@link #getNoiseBiome}; the 2D query samples at y = 64.
  */
 public final class NativeBiomeController implements BiomeController {

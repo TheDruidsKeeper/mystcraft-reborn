@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Item behaviour interfaces used by the Writing Desk, Book Binder, folders and portals. Items implement the ones that
- * apply (see REQUIREMENTS §2.10). All methods take the stack because items are stateless.
+ * apply (see original spec §2.10). All methods take the stack because items are stateless.
  */
 public final class ItemBehaviours {
     private ItemBehaviours() {}

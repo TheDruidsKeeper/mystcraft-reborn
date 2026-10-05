@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Baseline ("free") instability values per watched block (REQUIREMENTS §6.3). With {@code baselining.useconfigs}
+ * Baseline ("free") instability values per watched block (original spec §6.3). With {@code baselining.useconfigs}
  * the values come from the balance config; the generation mode (profiling a control Age) is not implemented yet and
  * currently also falls back to the config values.
  */

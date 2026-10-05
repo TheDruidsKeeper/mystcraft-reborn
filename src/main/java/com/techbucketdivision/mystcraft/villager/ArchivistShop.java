@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Archivist's private page shop (REQUIREMENTS §10): three page slots (rank 1 / 2 / 3+ symbol pages, 3 each),
+ * The Archivist's private page shop (original spec §10): three page slots (rank 1 / 2 / 3+ symbol pages, 3 each),
  * a booster stock (starts at 5, max 8, costs 20 emeralds) and a restock simulation every 12000 ticks. Stored as an
  * entity data attachment ({@code ModAttachments.ARCHIVIST_SHOP}).
  */

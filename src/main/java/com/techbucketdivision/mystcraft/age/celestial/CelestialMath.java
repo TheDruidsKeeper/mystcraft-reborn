@@ -3,7 +3,7 @@ package com.techbucketdivision.mystcraft.age.celestial;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
-/** Shared celestial maths (REQUIREMENTS §4.3.2). Server-safe, no client classes. */
+/** Shared celestial maths (original spec §4.3.2). Server-safe, no client classes. */
 public final class CelestialMath {
     private CelestialMath() {}
 

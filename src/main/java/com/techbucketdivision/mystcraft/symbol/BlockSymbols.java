@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Block modifier symbols (REQUIREMENTS §4.3.13). A block symbol pushes a {@link BlockDescriptor} with its usable
+ * Block modifier symbols (original spec §4.3.13). A block symbol pushes a {@link BlockDescriptor} with its usable
  * categories, each with a rarity rank the blueprint uses when it picks a random material.
  * <p>
  * Ids: {@code mystcraft:block_<blockpath>[_<propertyvalues>]} (see {@link #idFor(BlockState)}). Display name:

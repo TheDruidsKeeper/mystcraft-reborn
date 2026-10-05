@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.HashSet;
 
-/** The Archivist profession (REQUIREMENTS §10). Job site: Bookstand. Trades: datapack {@code trade_set}s. */
+/** The Archivist profession (original spec §10). Job site: Bookstand. Trades: datapack {@code trade_set}s. */
 public final class ModVillagers {
     private ModVillagers() {}
 

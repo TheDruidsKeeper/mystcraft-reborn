@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Maps legacy (1.7–1.12, mixed-case) symbol ids to the modern lower-case ids (REQUIREMENTS §19.4 plus the id table of
+ * Maps legacy (1.7–1.12, mixed-case) symbol ids to the modern lower-case ids (original spec §19.4 plus the id table of
  * the implementation contract). A legacy id may expand to several modern ids (one page becomes several).
  * <p>
  * Resolution is recursive (the colour-family targets of the original table are themselves legacy names), unlike the

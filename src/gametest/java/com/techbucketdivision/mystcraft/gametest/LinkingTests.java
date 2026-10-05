@@ -35,7 +35,7 @@ import java.util.UUID;
 /**
  * Linking: book binding, Age arrival (spawn + platform), crystal portals, Disarm, refusal reasons. These are the
  * server-side halves of the bugs reported in the first playtest; the client-visible halves are on the manual
- * checklist in docs/TESTING.md.
+ * checklist in docs/QA.md.
  */
 @ForEachTest(groups = "linking")
 public class LinkingTests {

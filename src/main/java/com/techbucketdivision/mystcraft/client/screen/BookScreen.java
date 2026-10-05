@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Book GUI (REQUIREMENTS §8.5) for held books, displays, receptacles and book entities. With a book present the
+ * Book GUI (original spec §8.5) for held books, displays, receptacles and book entities. With a book present the
  * 327×199 book element is shown (book slot at 41,21 on page 0); without one, the single-slot inventory texture so a
  * book can be inserted. The screen keeps the 327×199 frame in both modes (slot coordinates are menu-defined).
  */

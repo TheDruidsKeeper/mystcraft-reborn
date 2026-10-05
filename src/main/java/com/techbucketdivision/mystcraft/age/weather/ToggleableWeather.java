@@ -13,7 +13,7 @@ import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RE
 import static com.techbucketdivision.mystcraft.age.weather.WeatherStorageKeys.RESET_COUNTER;
 
 /**
- * Fixed weather that can be toggled off for {@link WeatherStorageKeys#RESET_COOLDOWN} ticks (REQUIREMENTS §4.3.4
+ * Fixed weather that can be toggled off for {@link WeatherStorageKeys#RESET_COOLDOWN} ticks (original spec §4.3.4
  * WeatherOff / WeatherOn / WeatherCloudy / WeatherRain / WeatherSnow / WeatherStorm). Storage: {@code disabled},
  * {@code reset_counter}.
  */

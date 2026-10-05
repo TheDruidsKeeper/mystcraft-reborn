@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Card-rank → item weight table (REQUIREMENTS §4.1). Rebuilt when the symbol registry freezes. Also the source of
+ * Card-rank → item weight table (original spec §4.1). Rebuilt when the symbol registry freezes. Also the source of
  * truth for loot/trade weights and booster generation.
  */
 public final class CardRanks {

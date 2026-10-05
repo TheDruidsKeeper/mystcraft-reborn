@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Biome modifier symbols (REQUIREMENTS §4.3.12 "Biome"). One symbol per registered biome, created per server from
+ * Biome modifier symbols (original spec §4.3.12 "Biome"). One symbol per registered biome, created per server from
  * its datapack registry ({@code ServerAboutToStartEvent} in package E, and lazily by {@link #selectableBiomes}).
  * <p>
  * Id: {@code mystcraft:biome_<namespace>_<path>}. Card rank 2 (End / void biomes: {@code null}; the blueprint only

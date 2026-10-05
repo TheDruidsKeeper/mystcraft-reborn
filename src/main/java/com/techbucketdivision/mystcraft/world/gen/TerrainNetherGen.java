@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Random;
 
 /**
- * "Cave World" terrain (REQUIREMENTS §4.3.6): nether-style noise (684.412 / 2053.236 scales, cos-shaped vertical
+ * "Cave World" terrain (original spec §4.3.6): nether-style noise (684.412 / 2053.236 scales, cos-shaped vertical
  * density, closed top and bottom). The symbol sets cloud height 200, horizon 128 and sea level 32.
  */
 public final class TerrainNetherGen extends AbstractLegacyTerrainGen {

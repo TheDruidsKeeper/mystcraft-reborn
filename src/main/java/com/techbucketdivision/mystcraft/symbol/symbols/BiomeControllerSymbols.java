@@ -15,7 +15,7 @@ import java.util.Random;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Biome distribution symbols (REQUIREMENTS §4.3.5). */
+/** Biome distribution symbols (original spec §4.3.5). */
 public final class BiomeControllerSymbols {
     private BiomeControllerSymbols() {}
 

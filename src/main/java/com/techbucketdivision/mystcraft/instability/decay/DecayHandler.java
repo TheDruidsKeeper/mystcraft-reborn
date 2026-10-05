@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Behaviour of one decay variant (REQUIREMENTS §3.8). {@code block.DecayBlock} delegates its random tick, placement
+ * Behaviour of one decay variant (original spec §3.8). {@code block.DecayBlock} delegates its random tick, placement
  * and entity-contact hooks here via {@link DecayHandlers#get(DecayType)}.
  */
 public abstract class DecayHandler {

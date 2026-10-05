@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Random;
 
 /**
- * "Standard World" / "Amplified Normal World" terrain (REQUIREMENTS §4.3.6): the vanilla-1.6 overworld noise stack
+ * "Standard World" / "Amplified Normal World" terrain (original spec §4.3.6): the vanilla-1.6 overworld noise stack
  * (octaves 16/16/8/10/16, scale 684.412) with a parabolic 5×5 biome height/variation field.
  */
 public final class TerrainNormalGen extends AbstractLegacyTerrainGen {

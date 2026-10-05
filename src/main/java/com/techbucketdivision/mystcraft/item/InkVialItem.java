@@ -14,7 +14,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * Ink Vial (REQUIREMENTS §2.7): a fixed 1000 mB container of black ink. The fluid capability is exposed through
+ * Ink Vial (original spec §2.7): a fixed 1000 mB container of black ink. The fluid capability is exposed through
  * {@link Handler} (registered in {@link ItemCapabilities}); draining converts the vial into a glass bottle, filling a
  * glass bottle with ≥1000 mB of black ink converts it into a vial.
  */

@@ -55,7 +55,7 @@ public final class ClientPayloadHandlers {
         ClientAgeData.accept(payload.data());
     }
 
-    /** Adds / removes dimension keys from the client's known level set (TOOLCHAIN §4.3.4, Infiniverse pattern). */
+    /** Adds / removes dimension keys from the client's known level set (the 26.1 sources, Infiniverse pattern). */
     private static void handleUpdateDimensions(UpdateDimensionsPayload payload, IPayloadContext ctx) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;

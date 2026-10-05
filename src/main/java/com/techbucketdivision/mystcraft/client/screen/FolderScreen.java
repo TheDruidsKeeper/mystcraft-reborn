@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Collation Folder screen (REQUIREMENTS §8.6): search row, 132 px page surface, then the
+ * Collation Folder screen (original spec §8.6): search row, 132 px page surface, then the
  * player inventory (desk texture region y=82, 80 high).
  */
 public class FolderScreen extends AbstractMystcraftScreen<FolderMenu> {

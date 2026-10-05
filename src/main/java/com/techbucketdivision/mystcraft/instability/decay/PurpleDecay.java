@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Purple decay: air → 8, decay → 5, liquid → 3, else {@code max(1, (int)(2 * hardness + explosionResistance)) * 10}
- * (REQUIREMENTS §3.8).
+ * (original spec §3.8).
  */
 public final class PurpleDecay extends SpreadingDecay {
     public PurpleDecay() {

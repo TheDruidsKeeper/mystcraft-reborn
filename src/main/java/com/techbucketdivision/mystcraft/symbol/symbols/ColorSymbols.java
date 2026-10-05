@@ -12,7 +12,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Visual / colour symbols (REQUIREMENTS §4.3.1). */
+/** Visual / colour symbols (original spec §4.3.1). */
 public final class ColorSymbols {
     private ColorSymbols() {}
 

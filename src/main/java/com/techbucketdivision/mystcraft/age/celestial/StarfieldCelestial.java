@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 /**
- * Normal starfield (REQUIREMENTS §4.3.2 StarsNormal): 1500 vanilla-style stars (seed {@link #STAR_SEED}), colour =
+ * Normal starfield (original spec §4.3.2 StarsNormal): 1500 vanilla-style stars (seed {@link #STAR_SEED}), colour =
  * gradient(time/12000), alpha = star brightness x (1 - rain), rotating with period (wavelength or {@code 1.8*rand+0.2})
  * x 240000 ticks using the eased angle formula. The renderer builds the star mesh from {@link #STAR_SEED}.
  */

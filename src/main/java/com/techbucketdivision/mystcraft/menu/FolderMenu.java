@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Collation Folder container (REQUIREMENTS §8.6) for a held folder. Slots: 0–26 inventory (y 135), 27–35 hotbar
+ * Collation Folder container (original spec §8.6) for a held folder. Slots: 0–26 inventory (y 135), 27–35 hotbar
  * (y 193); the hotbar slot of the open item is locked. Messages client→server: {@code AddToSurface(Index, Single)},
  * {@code RemoveFromOrderedCollection(Index)}.
  */

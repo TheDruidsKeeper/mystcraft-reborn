@@ -9,7 +9,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 /**
- * "Caves" (rate 15, size 40, air) and "Tendrils" (rate 15, size 18, structure block) — REQUIREMENTS §4.3.7. Port of
+ * "Caves" (rate 15, size 40, air) and "Tendrils" (rate 15, size 18, structure block) — original spec §4.3.7. Port of
  * {@code MapGenCavesMyst}: per chunk in range 8, {@code nodes = rand(rand(rand(size)+1)+1)} only when
  * {@code rand(rate)==0}; 25% of nodes start with a large room.
  */

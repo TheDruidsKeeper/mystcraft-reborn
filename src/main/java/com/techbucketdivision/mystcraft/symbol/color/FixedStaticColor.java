@@ -6,7 +6,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Static grass / foliage / water colour (REQUIREMENTS §4.3.1). A {@code null} colour means "use the biome's own
+ * Static grass / foliage / water colour (original spec §4.3.1). A {@code null} colour means "use the biome's own
  * colour" — this is also how the *Natural* variants (ColorGrassNat, ColorFoliageNat, ColorWaterNat) are expressed: they
  * register a provider so the Age counts as having one, and defer to the biome tint at render time.
  */

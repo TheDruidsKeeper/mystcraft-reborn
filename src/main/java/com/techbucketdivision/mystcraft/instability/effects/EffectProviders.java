@@ -6,7 +6,7 @@ import com.techbucketdivision.mystcraft.registry.ModBlocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** Factory methods for the built-in non-potion instability providers (REQUIREMENTS §6.4 / §6.5). */
+/** Factory methods for the built-in non-potion instability providers (original spec §6.4 / §6.5). */
 public final class EffectProviders {
     private EffectProviders() {}
 

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Meteor explosion (REQUIREMENTS §9 ExplosionAdvanced): a 16³ ray cube like vanilla collects blocks; entities take
+ * Meteor explosion (original spec §9 ExplosionAdvanced): a 16³ ray cube like vanilla collects blocks; entities take
  * {@code ((f²+f)/2 · 8 · size + 1)} damage with knockback; the attached {@link Effect}s run per collected block.
  * Visuals are sent to clients within 64 blocks as an {@link ExplosionEffectsPayload}.
  */

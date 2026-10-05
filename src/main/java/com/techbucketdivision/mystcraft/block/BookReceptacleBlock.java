@@ -28,7 +28,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Book Receptacle (REQUIREMENTS §3.5). Attaches to a Crystal block (the block behind {@code ROTATION}); holds a
+ * Book Receptacle (original spec §3.5). Attaches to a Crystal block (the block behind {@code ROTATION}); holds a
  * portal-activator book that powers a crystal portal.
  */
 public class BookReceptacleBlock extends Block implements EntityBlock {

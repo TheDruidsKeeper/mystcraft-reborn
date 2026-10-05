@@ -16,7 +16,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A lightning bolt with a colour (REQUIREMENTS §9). Default colour (0.45, 0.45, 0.5). The entity is tracked to
+ * A lightning bolt with a colour (original spec §9). Default colour (0.45, 0.45, 0.5). The entity is tracked to
  * clients like vanilla lightning; the client renderer reads {@link #getColor()}. A {@link LightningPayload} is also
  * sent within 512 blocks for the client-side flash tint.
  */

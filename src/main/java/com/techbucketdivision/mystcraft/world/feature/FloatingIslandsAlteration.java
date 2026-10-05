@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * "Floating Islands" (REQUIREMENTS §4.3.7): 1/192 per chunk (range 5) a blob at {@code y = 150 + rand(rand(50)+50)}
+ * "Floating Islands" (original spec §4.3.7): 1/192 per chunk (range 5) a blob at {@code y = 150 + rand(rand(50)+50)}
  * (scalar 12, squash 0.2) plus 40–51 sub-blobs (scale 1–4, squash 0.4) within ±20/±10/±20, built from the structure
  * block; the island surface gets the island biome's top/filler blocks and the touched columns are re-biomed to the
  * island biome when the chunk is finalized.

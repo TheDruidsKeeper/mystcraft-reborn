@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.UnaryOperator;
 
-/** Entity types (REQUIREMENTS §9). */
+/** Entity types (original spec §9). */
 public final class ModEntities {
     private ModEntities() {}
 

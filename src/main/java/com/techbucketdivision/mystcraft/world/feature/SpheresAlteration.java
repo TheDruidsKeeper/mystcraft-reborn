@@ -9,7 +9,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 /**
- * "Spheres" (REQUIREMENTS §4.3.8): 5% per chunk (range 8), one node at {@code y = 32 + rand(rand(192)+1)}, radius
+ * "Spheres" (original spec §4.3.8): 5% per chunk (range 8), one node at {@code y = 32 + rand(rand(192)+1)}, radius
  * scalar 1–5, made of the structure block (default cobblestone).
  */
 public final class SpheresAlteration extends AbstractTunnelGen implements TerrainAlteration {

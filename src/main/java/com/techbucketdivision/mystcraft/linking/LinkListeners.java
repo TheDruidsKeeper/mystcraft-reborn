@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Default link listeners (REQUIREMENTS §7.3): permission rules, per-player permissions, the Relative alteration,
+ * Default link listeners (original spec §7.3): permission rules, per-player permissions, the Relative alteration,
  * Disarm, momentum / platform / minecart handling, advancements, particles and sounds.
  */
 public final class LinkListeners {

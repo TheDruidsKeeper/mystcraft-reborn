@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/** Descriptive Book (REQUIREMENTS §2.3.1): pages + authors + link to an Age created on first link. */
+/** Descriptive Book (original spec §2.3.1): pages + authors + link to an Age created on first link. */
 public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.Writable, ItemBehaviours.PageProvider,
         ItemBehaviours.OnLoadable {
 
@@ -168,7 +168,7 @@ public class DescriptiveBookItem extends LinkingItem implements ItemBehaviours.W
 
     /**
      * First link: creates the Age, binds the book, copies title/seed/authors into the Age and completes the pages
-     * through the Age blueprint (REQUIREMENTS §2.3.1, §4.4 Reborn revision).
+     * through the Age blueprint (original spec §2.3.1, §4.4 Reborn revision).
      */
     public static void checkFirstLink(ItemStack stack, MinecraftServer server) {
         if (!isDescriptiveBook(stack) || !hasLinkInfo(stack)) return;

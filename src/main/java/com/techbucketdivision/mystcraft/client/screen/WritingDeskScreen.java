@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Writing Desk screen (REQUIREMENTS §8.1, Reborn rework: world-building plan §4). Left (228 px): search box, category
+ * Writing Desk screen (original spec §8.1, Reborn rework: world-building plan §4). Left (228 px): search box, category
  * tabs and the symbol surface listing what the player knows; right: the 176×166 desk window shifted by (233, 20) with
  * the folder's page strip, name field and ink tank. A page selected in the strip takes the modifiers
  * clicked on the surface.

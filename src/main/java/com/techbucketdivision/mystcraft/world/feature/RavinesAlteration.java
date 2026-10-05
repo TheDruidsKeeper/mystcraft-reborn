@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 /**
- * "Ravines" (REQUIREMENTS §4.3.8): 1/50 per chunk (range 8), {@code y = rand(rand(40)+8)+20}, classic ravine shape
+ * "Ravines" (original spec §4.3.8): 1/50 per chunk (range 8), {@code y = rand(rand(40)+8)+20}, classic ravine shape
  * carving air, skipped where water would be breached. Port of {@code MapGenRavineMyst}.
  */
 public final class RavinesAlteration extends AbstractMapGen implements TerrainAlteration {
@@ -118,7 +118,7 @@ public final class RavinesAlteration extends AbstractMapGen implements TerrainAl
             if (foundWater) continue;
 
             // NOTE: the original iterated y in [0, minY) (a porting bug that carved a hidden chasm under the tube).
-            // REQUIREMENTS asks for the vanilla ravine shape, so the tube itself [minY, maxY) is carved here.
+            // original spec asks for the vanilla ravine shape, so the tube itself [minY, maxY) is carved here.
             for (int localY = minY; localY < maxY; ++localY) {
                 double yfactor = (localY + 0.5D - baseY) / var30;
                 double yfactorSq = yfactor * yfactor;

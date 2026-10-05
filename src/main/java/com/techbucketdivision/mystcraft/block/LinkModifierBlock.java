@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** Link Modifier (REQUIREMENTS §3.9): admin tool that edits link flags / seed / name of a book. */
+/** Link Modifier (original spec §3.9): admin tool that edits link flags / seed / name of a book. */
 public class LinkModifierBlock extends FacingEntityBlock {
     public LinkModifierBlock(Properties properties) {
         super(properties);

@@ -11,7 +11,7 @@ import com.techbucketdivision.mystcraft.instability.effects.ScorchedEffect;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Environmental effect symbols (REQUIREMENTS §4.3.10). Grammar rank null: never generated randomly. */
+/** Environmental effect symbols (original spec §4.3.10). Grammar rank null: never generated randomly. */
 public final class EffectSymbols {
     private EffectSymbols() {}
 

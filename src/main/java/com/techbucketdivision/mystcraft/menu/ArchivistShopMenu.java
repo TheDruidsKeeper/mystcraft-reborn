@@ -20,7 +20,7 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Archivist shop container (REQUIREMENTS §8.8 / §10). Slots: 0–26 inventory (y 99), 27–35 hotbar (y 157).
+ * Archivist shop container (original spec §8.8 / §10). Slots: 0–26 inventory (y 99), 27–35 hotbar (y 157).
  * Messages client→server: {@code PB} (purchase booster), {@code PI(Index)} (purchase page). Server→client:
  * {@code UVC(Shop)} (villager shop state).
  */

@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Per-Age collection of {@link InstabilityBonus}es (REQUIREMENTS §6.6). Providers are registered globally; the base
+ * Per-Age collection of {@link InstabilityBonus}es (original spec §6.6). Providers are registered globally; the base
  * mod registers none. Bonuses that implement {@link Listener} receive the relevant game events.
  */
 @EventBusSubscriber(modid = Mystcraft.MOD_ID)

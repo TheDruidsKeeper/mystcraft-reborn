@@ -26,7 +26,7 @@ import net.neoforged.testframework.gametest.EmptyTemplate;
 import net.neoforged.testframework.gametest.ExtendedGameTestHelper;
 import net.neoforged.testframework.gametest.GameTest;
 
-/** The Facility structure (docs/impl/FACILITY_PLAN.md): Vault symbol, near_origin placement, spawn relation. */
+/** The Facility structure (docs/plans/FACILITY_PLAN.md): Vault symbol, near_origin placement, spawn relation. */
 @ForEachTest(groups = "facility")
 public class FacilityTests {
 

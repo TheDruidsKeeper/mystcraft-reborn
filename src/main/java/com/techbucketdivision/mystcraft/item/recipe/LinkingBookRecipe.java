@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 /**
- * Special recipe (REQUIREMENTS §2.3.3): exactly one Link Panel page and exactly one Leather anywhere in the grid,
+ * Special recipe (original spec §2.3.3): exactly one Link Panel page and exactly one Leather anywhere in the grid,
  * nothing else → Unlinked Link Book carrying the panel's properties. Disabled by {@code crafting.linkbook.enabled}.
  * Datapack JSON: {@code {"type": "mystcraft:linking_book"}}.
  */

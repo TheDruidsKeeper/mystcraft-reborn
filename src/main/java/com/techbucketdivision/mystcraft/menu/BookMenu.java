@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Book GUI container (REQUIREMENTS §8.5) for held books, book displays (stand / lectern / receptacle / modifier) and
+ * Book GUI container (original spec §8.5) for held books, book displays (stand / lectern / receptacle / modifier) and
  * dropped book entities.
  * <p>
  * Slot layout for block / entity sources: 0–26 inventory, 27–35 hotbar (active only while no book is present),

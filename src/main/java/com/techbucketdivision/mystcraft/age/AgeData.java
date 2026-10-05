@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * Persistent description of one Age (REQUIREMENTS §5.2). Mutable; every mutation goes through a setter that marks the
+ * Persistent description of one Age (original spec §5.2). Mutable; every mutation goes through a setter that marks the
  * owning storage dirty via {@link #markDirty()}. Synced to clients wholesale by {@code AgeDataSyncPayload}.
  */
 public final class AgeData {
@@ -81,7 +81,7 @@ public final class AgeData {
         this.dataCompound = dataCompound.copy();
     }
 
-    /** New Age with default values (REQUIREMENTS §5.1). */
+    /** New Age with default values (original spec §5.1). */
     public static AgeData create(UUID uuid, long levelSeed, int ordinal) {
         long seed = levelSeed + new Random(ordinal).nextLong();
         return new AgeData(uuid, "Age " + ordinal, seed, 0, true, false, false, 0L, Optional.empty(),

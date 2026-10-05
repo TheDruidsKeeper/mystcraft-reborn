@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Ink Mixer screen (REQUIREMENTS §8.3, 176×181, {@code inkmixer.png}) with the clickable basin. Every slot carries a
+ * Ink Mixer screen (original spec §8.3, 176×181, {@code inkmixer.png}) with the clickable basin. Every slot carries a
  * ghost item + tooltip saying what it takes; the basin's tooltip explains the mixing and lists the current effects.
  */
 public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {

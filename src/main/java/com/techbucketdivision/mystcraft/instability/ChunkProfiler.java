@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Per-Age accumulation of block accessibility and watched-block density (REQUIREMENTS §6.2). Stored as per-level
+ * Per-Age accumulation of block accessibility and watched-block density (original spec §6.2). Stored as per-level
  * SavedData {@code mystcraft:chunk_profile}. Every newly generated chunk of an Age level is fed in from
  * {@link ChunkEvent.Load}.
  */
@@ -137,7 +137,7 @@ public final class ChunkProfiler extends SavedData {
         return Math.round(instability);
     }
 
-    /** Per watched-block instability contribution (REQUIREMENTS §6.2). */
+    /** Per watched-block instability contribution (original spec §6.2). */
     public synchronized Map<String, Float> calculateSplitInstability() {
         int layers = ChunkProfileData.LAYERS;
         float[] averages = new float[layers];

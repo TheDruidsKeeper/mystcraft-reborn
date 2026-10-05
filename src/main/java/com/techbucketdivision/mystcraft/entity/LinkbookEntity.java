@@ -29,7 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A dropped linking book (REQUIREMENTS §9, §7.9). Health mirrors the book item's {@code BookHealth}; fire damage is
+ * A dropped linking book (original spec §9, §7.9). Health mirrors the book item's {@code BookHealth}; fire damage is
  * doubled and ignites the entity; wall damage is ignored; every 10000 ticks it takes 1 starvation damage and 1 drown
  * damage per tick while wet. Right-click opens the book GUI, sneak + empty hand picks it up.
  */

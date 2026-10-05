@@ -13,7 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
-/** Link sound selection (REQUIREMENTS §7.3): volume 0.8, pitch 0.9–1.1, category PLAYERS. */
+/** Link sound selection (original spec §7.3): volume 0.8, pitch 0.9–1.1, category PLAYERS. */
 public final class LinkSounds {
     private LinkSounds() {}
 

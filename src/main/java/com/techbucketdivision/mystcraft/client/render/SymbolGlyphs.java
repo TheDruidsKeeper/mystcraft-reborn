@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Draws Narayan word glyphs, symbol diamonds and page tiles in GUIs (port of the original {@code GuiUtils} drawing
- * code, REQUIREMENTS §17). Glyph components come from {@code textures/misc/symbolcomponents.png}: 512×512, an 8×8 grid
+ * code, original spec §17). Glyph components come from {@code textures/misc/symbolcomponents.png}: 512×512, an 8×8 grid
  * of 64 px cells, component {@code i} at cell {@code (i % 8, i / 8)}.
  */
 public final class SymbolGlyphs {

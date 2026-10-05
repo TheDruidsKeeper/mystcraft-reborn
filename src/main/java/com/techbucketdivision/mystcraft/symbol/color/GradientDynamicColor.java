@@ -7,7 +7,7 @@ import com.techbucketdivision.mystcraft.util.Colors;
 import net.minecraft.util.Mth;
 
 /**
- * Gradient-driven sky/fog/cloud colour (REQUIREMENTS §4.3.1: ColorSky, ColorSkyNight, ColorFog, ColorCloud). The gradient
+ * Gradient-driven sky/fog/cloud colour (original spec §4.3.1: ColorSky, ColorSkyNight, ColorFog, ColorCloud). The gradient
  * is sampled at {@code time / 12000} (one interval = half a day) and optionally scaled by the daylight factor
  * {@code clamp(cos(angle * 2pi) * 2 + 0.5, 0, 1)} (or its complement for night colours).
  */

@@ -33,7 +33,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Server tick of every Age level (REQUIREMENTS §5.3 updateWeather / canDoLightning): advances age time, ticks the
+ * Server tick of every Age level (original spec §5.3 updateWeather / canDoLightning): advances age time, ticks the
  * bonus manager and weather, runs weather / environmental / instability chunk ticks over the chunks around players,
  * handles sleeping and periodically resends {@code AgeData} to the level's players.
  */

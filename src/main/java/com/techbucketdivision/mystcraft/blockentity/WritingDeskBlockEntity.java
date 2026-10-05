@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Writing Desk (REQUIREMENTS §3.10, Reborn rework: world-building plan §4). Main inventory: 0 target (a Collation
+ * Writing Desk (original spec §3.10, Reborn rework: world-building plan §4). Main inventory: 0 target (a Collation
  * Folder, limit 1), 1 paper, 2 ink container in, 3 empty container out. Inkwell: 1000 mB of ink. The desk has no
  * notebooks: it writes copies of the symbols the <i>player</i> knows ({@link SymbolKnowledge}) into the folder, and
  * attaches known modifiers to the folder's pages. A Scholar's desk ({@link #isScholar()}) offers every registered

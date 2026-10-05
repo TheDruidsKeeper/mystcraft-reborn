@@ -1,6 +1,6 @@
 # Facility structures: how rooms are sourced, imported and shipped
 
-The Facility (docs/impl/FACILITY_PLAN.md) is a jigsaw structure whose pieces are **imported**, not designed here.
+The Facility (docs/plans/FACILITY_PLAN.md) is a jigsaw structure whose pieces are **imported**, not designed here.
 Pieces live in a built-in data pack, `src/main/resources/datapacks/mystcraft_facility`, registered by
 `Mystcraft#addPackFinders` (enabled by default; players can disable it or layer their own packs on top).
 

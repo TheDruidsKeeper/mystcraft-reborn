@@ -79,7 +79,7 @@ import java.util.UUID;
 public final class CommonEvents {
     private CommonEvents() {}
 
-    /** Players scheduled to be sent home on the next server tick (REQUIREMENTS §7.4). */
+    /** Players scheduled to be sent home on the next server tick (original spec §7.4). */
     private static final List<UUID> PENDING_EJECTIONS = new ArrayList<>();
 
     // --- server lifecycle ----------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public final class CommonEvents {
         if (data != null) AgeManager.sendAgeData(player, data);
     }
 
-    /** "The Way Back" when carrying a Linking Book, else "Call Me Quinn" (REQUIREMENTS §7.3). */
+    /** "The Way Back" when carrying a Linking Book, else "Call Me Quinn" (original spec §7.3). */
     private static void awardEntryAdvancement(ServerPlayer player) {
         boolean hasLinkingBook = false;
         Inventory inv = player.getInventory();
@@ -258,7 +258,7 @@ public final class CommonEvents {
     }
 
     /**
-     * Ink pools are collectable (REQUIREMENTS §3.12, revised): an empty bucket uses vanilla pickup (the fluid's
+     * Ink pools are collectable (original spec §3.12, revised): an empty bucket uses vanilla pickup (the fluid's
      * bucket is the Black Ink Bucket), and a glass bottle scoops a whole source block into an Ink Vial, which holds
      * exactly one block's worth. Vanilla's bottle only fills from water, so the bottle case is handled here.
      */
@@ -293,7 +293,7 @@ public final class CommonEvents {
 
     // --- entities / levels ---------------------------------------------------------------------------------------
 
-    /** Dropped linking books become {@link LinkbookEntity}s (REQUIREMENTS §7.9). */
+    /** Dropped linking books become {@link LinkbookEntity}s (original spec §7.9). */
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk()) return;

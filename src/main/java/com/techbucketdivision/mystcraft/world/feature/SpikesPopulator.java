@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
- * "Spikes" (REQUIREMENTS §4.3.8): 1/18 per chunk (skipped when {@code flag}); at the surface, if the whole base circle
+ * "Spikes" (original spec §4.3.8): 1/18 per chunk (skipped when {@code flag}); at the surface, if the whole base circle
  * (width 1–4, r² ≤ w²+1) is supported, columns of height {@code rand(rand(6..37)+1)+1} of the structure block.
  */
 public final class SpikesPopulator implements Populator {

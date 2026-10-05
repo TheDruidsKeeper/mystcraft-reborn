@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Ink Mixer container (REQUIREMENTS §8.3). Slots: 0 ink in, 1 paper, 2 empty container out, 3–29 inventory,
+ * Ink Mixer container (original spec §8.3). Slots: 0 ink in, 1 paper, 2 empty container out, 3–29 inventory,
  * 30–38 hotbar, 39 craft output. Messages client→server: {@code Consume}. Server→client: {@code SetInk(Ink)},
  * {@code SetEffects(Effects)}.
  */

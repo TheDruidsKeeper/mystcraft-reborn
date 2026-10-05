@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.Blocks;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Misc symbols (REQUIREMENTS §4.3.11). */
+/** Misc symbols (original spec §4.3.11). */
 public final class MiscSymbols {
     private MiscSymbols() {}
 

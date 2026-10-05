@@ -8,7 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Static grass / foliage / water colour overrides of the Age the client is currently in (REQUIREMENTS §10 colour
+ * Static grass / foliage / water colour overrides of the Age the client is currently in (original spec §10 colour
  * symbols). Refreshed once per client tick on the render thread and read lock-free from chunk-meshing workers by
  * {@link AgeBiomeTintSource}; {@code 0} means "no override, use vanilla".
  */

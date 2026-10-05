@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
- * "Obelisks" (REQUIREMENTS §4.3.9): 1/128 per chunk; a 4×4 base dug down up to 5 layers until supported, then a
+ * "Obelisks" (original spec §4.3.9): 1/128 per chunk; a 4×4 base dug down up to 5 layers until supported, then a
  * 2×2×12 pillar of the structure block (default obsidian).
  */
 public final class ObelisksPopulator implements Populator {

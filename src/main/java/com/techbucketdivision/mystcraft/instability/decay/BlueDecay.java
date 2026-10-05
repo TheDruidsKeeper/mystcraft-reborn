@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Blue decay: air → 20, else {@code max(1, (int) hardness * 2)} (REQUIREMENTS §3.8). */
+/** Blue decay: air → 20, else {@code max(1, (int) hardness * 2)} (original spec §3.8). */
 public final class BlueDecay extends SpreadingDecay {
     public BlueDecay() {
         super(DecayType.BLUE);

@@ -22,7 +22,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** All items (REQUIREMENTS §2.1). Item classes take {@code Item.Properties} only. */
+/** All items (original spec §2.1). Item classes take {@code Item.Properties} only. */
 public final class ModItems {
     private ModItems() {}
 

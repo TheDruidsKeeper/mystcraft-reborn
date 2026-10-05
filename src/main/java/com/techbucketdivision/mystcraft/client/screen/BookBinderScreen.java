@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/** Book Binder screen (REQUIREMENTS §8.2, 176×181, {@code pagebinder.png}). */
+/** Book Binder screen (original spec §8.2, 176×181, {@code pagebinder.png}). */
 public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
     private static final Identifier BINDER = MystIds.id("textures/gui/pagebinder.png");
 

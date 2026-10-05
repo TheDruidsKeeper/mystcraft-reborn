@@ -34,7 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Writing Desk (REQUIREMENTS §3.10). A desk is two base blocks (head + foot, the foot lies at
+ * Writing Desk (original spec §3.10). A desk is two base blocks (head + foot, the foot lies at
  * {@code head.relative(FACING)}) optionally covered by two {@code TOP} backboard blocks. Only the head block has the
  * block entity; every desk block opens the menu of the head. Rendered by a BER ({@link RenderShape#INVISIBLE}).
  */

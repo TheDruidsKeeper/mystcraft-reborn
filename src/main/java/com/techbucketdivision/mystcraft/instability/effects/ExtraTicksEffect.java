@@ -10,7 +10,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Three extra random block ticks per randomly-ticking 16³ section per chunk tick (REQUIREMENTS §6.5
+ * Three extra random block ticks per randomly-ticking 16³ section per chunk tick (original spec §6.5
  * EffectExtraTicks), optionally restricted to a single block state (used by the decay providers).
  */
 public final class ExtraTicksEffect implements EnvironmentalEffect {

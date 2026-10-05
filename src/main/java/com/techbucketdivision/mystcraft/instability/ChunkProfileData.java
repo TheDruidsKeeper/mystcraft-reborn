@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
- * One accumulation map of the chunk profiler (REQUIREMENTS §6.2): a per-cell counter over a 16×16 column of
+ * One accumulation map of the chunk profiler (original spec §6.2): a per-cell counter over a 16×16 column of
  * {@link #LAYERS} layers, indexed {@code (y - minY) << 8 | z << 4 | x}, plus the number of samples.
  */
 public final class ChunkProfileData {

@@ -61,7 +61,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Chunk generator of an Age (ARCHITECTURE §1.4, REQUIREMENTS §5.4). A thin shell: every phase is delegated to the
+ * Chunk generator of an Age (ARCHITECTURE §1.4, original spec §5.4). A thin shell: every phase is delegated to the
  * Age's {@link AgeController} (terrain generator → alterations → finalizers in {@link #fillFromNoise}; a simple
  * biome-keyed surface pass in {@link #buildSurface}; vanilla biome features + structures, then the Age's populators and
  * the Mystcraft Library in {@link #applyBiomeDecoration}). The codec stores only the Age id and the biome source.

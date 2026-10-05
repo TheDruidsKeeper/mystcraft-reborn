@@ -2,7 +2,7 @@ package com.techbucketdivision.mystcraft.age.lighting;
 
 import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
 
-/** Dark lighting (REQUIREMENTS §4.3.3 LightingDark): {@code t[i] = vanilla / 2}; {@code scale(v) = v / 2}. */
+/** Dark lighting (original spec §4.3.3 LightingDark): {@code t[i] = vanilla / 2}; {@code scale(v) = v / 2}. */
 public final class DarkLighting implements LightingController {
 
     @Override

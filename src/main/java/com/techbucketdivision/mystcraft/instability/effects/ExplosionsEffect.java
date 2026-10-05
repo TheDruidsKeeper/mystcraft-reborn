@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-/** 1/1000 per chunk tick: a flaming explosion of power 3 at a random column (REQUIREMENTS §4.3.10 / §6.5). */
+/** 1/1000 per chunk tick: a flaming explosion of power 3 at a random column (original spec §4.3.10 / §6.5). */
 public final class ExplosionsEffect implements EnvironmentalEffect {
     private final ChunkLcg lcg = new ChunkLcg();
 

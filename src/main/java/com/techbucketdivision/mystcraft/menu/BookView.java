@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * State of the book element (REQUIREMENTS §8.5) shared by {@link BookMenu} and {@link WritingDeskMenu}: current page,
+ * State of the book element (original spec §8.5) shared by {@link BookMenu} and {@link WritingDeskMenu}: current page,
  * page count, link permission and "target visited" flags (both computed on the server and pushed with the
  * {@code LinkPermitted} message).
  */

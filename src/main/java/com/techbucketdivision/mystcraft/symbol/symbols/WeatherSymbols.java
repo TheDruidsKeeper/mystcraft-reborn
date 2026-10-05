@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
-/** Weather symbols (REQUIREMENTS §4.3.4). */
+/** Weather symbols (original spec §4.3.4). */
 public final class WeatherSymbols {
     private WeatherSymbols() {}
 

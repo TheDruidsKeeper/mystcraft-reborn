@@ -1,6 +1,6 @@
 package com.techbucketdivision.mystcraft.age.weather;
 
-/** Keys used inside {@code AgeData.data("weather")} by the weather controllers (REQUIREMENTS §4.3.4). */
+/** Keys used inside {@code AgeData.data("weather")} by the weather controllers (original spec §4.3.4). */
 public final class WeatherStorageKeys {
     private WeatherStorageKeys() {}
 

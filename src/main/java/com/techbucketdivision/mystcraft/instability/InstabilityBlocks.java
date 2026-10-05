@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Blocks watched by the chunk profiler and their instability factors (REQUIREMENTS §6.2). Keys are block registry
+ * Blocks watched by the chunk profiler and their instability factors (original spec §6.2). Keys are block registry
  * ids ({@code minecraft:coal_ore}); every state of a watched block shares one key. Add-ons register more via
  * {@link #setFactors(Block, float, float)} before the first Age is profiled.
  */

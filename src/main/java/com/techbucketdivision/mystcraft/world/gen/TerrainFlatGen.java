@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 /**
- * "Flat World" terrain (REQUIREMENTS §4.3.6): bedrock at the bottom, terrain block below the average ground level
+ * "Flat World" terrain (original spec §4.3.6): bedrock at the bottom, terrain block below the average ground level
  * (default 64), sea block up to and including sea level.
  */
 public final class TerrainFlatGen implements TerrainGenerator, HeightEstimator {

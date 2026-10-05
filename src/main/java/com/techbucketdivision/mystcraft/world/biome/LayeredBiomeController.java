@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * "Tiny / Small / Medium / Large / Huge" biome distributions (REQUIREMENTS §4.3.5): a GenLayer-style stack
+ * "Tiny / Small / Medium / Large / Huge" biome distributions (original spec §4.3.5): a GenLayer-style stack
  * (random biome → zoom×2 → zoom×{@code zoom} → smooth → Voronoi) over the Age's biome list. Results are cached per
  * 16×16 tile (the original used a {@code BiomeCache}); the cache is bounded and safe to use from several threads.
  */

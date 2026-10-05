@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 /**
  * Scrollable grid of 30×40 page tiles showing the pages of an ordered page provider (folder: one tile per slot),
- * filtered by a search text. Port of {@code GuiElementPageSurface} (REQUIREMENTS §8.6).
+ * filtered by a search text. Port of {@code GuiElementPageSurface} (original spec §8.6).
  */
 public class PageSurface extends GuiElement {
     public static final int PAGE_W = 30;

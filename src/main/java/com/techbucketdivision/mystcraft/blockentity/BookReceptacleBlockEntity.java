@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Book Receptacle (REQUIREMENTS §3.5): holds a portal-activator book; any change shuts the portal down and, when a
+ * Book Receptacle (original spec §3.5): holds a portal-activator book; any change shuts the portal down and, when a
  * book is present, fires it again.
  */
 public class BookReceptacleBlockEntity extends BookDisplayBlockEntity {

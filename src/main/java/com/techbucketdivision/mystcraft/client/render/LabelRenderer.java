@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/** Floating book-name labels above stands, lecterns, receptacles and dropped books (REQUIREMENTS §17, 25 blocks). */
+/** Floating book-name labels above stands, lecterns, receptacles and dropped books (original spec §17, 25 blocks). */
 public final class LabelRenderer {
     private LabelRenderer() {}
 
@@ -22,7 +22,7 @@ public final class LabelRenderer {
 
     /** Distance² from the camera to a world position. */
     public static double distanceSq(CameraRenderState camera, double x, double y, double z) {
-        Vec3 pos = camera.pos; // CameraRenderState#pos (Vec3) — API_CHEATSHEET K LevelRenderState: field seen in the LevelRenderer patch
+        Vec3 pos = camera.pos; // CameraRenderState#pos (Vec3) — API_NOTES K LevelRenderState: field seen in the LevelRenderer patch
         double dx = pos.x - x, dy = pos.y - y, dz = pos.z - z;
         return dx * dx + dy * dy + dz * dz;
     }

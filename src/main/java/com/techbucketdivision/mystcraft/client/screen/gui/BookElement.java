@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The open-book view (REQUIREMENTS §8.5): cover, page 0 with title/authors/link panel, symbol pages, page footer.
+ * The open-book view (original spec §8.5): cover, page 0 with title/authors/link panel, symbol pages, page footer.
  * Drawn in a 327×199 design space scaled to the element size. Port of {@code GuiElementBook}.
  */
 public class BookElement extends GuiElement {

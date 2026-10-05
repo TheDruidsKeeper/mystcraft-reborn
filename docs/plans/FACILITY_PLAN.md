@@ -136,8 +136,8 @@ Mixed vanilla content needs no files at all: pool JSON can reference `minecraft:
 | **1 Pipeline** ✅ | `scripts/structures/*`, Gradle task, built-in datapack registration, `docs/STRUCTURES.md`, NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
 | **2 Worldgen** ✅ | `near_origin` placement, facility `Structure` + set + biome tag, `createState` wiring, `AgeSpawn` alignment, `/myst-locate facility` | gametest: every new Age has exactly one facility within R of origin; spawn relation holds; smoke green |
 | **3 Puzzle framework** | marker processor, Warded Door, Symbol Altar, sequence lock + clues, offering pedestal, trial/vault loot, protection rule, `AgeData` flags, reward linkbook loot function | gametests per lock type (placed room → lock satisfied → door opens; break cancelled inside bounds) |
-| **4 Content v1** | import 2–3 entrances, 6–10 puzzle rooms, 2 vaults from §1.2 sources + vanilla trial-chamber corridors; marker retrofit; weights | client-smoke screenshot of an entrance + a puzzle room; manual run-through solvable in TESTING.md |
-| **5 Ship** | TESTING.md checklist (by mechanic), REQUIREMENTS "Reborn revision" §11.x, config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
+| **4 Content v1** | import 2–3 entrances, 6–10 puzzle rooms, 2 vaults from §1.2 sources + vanilla trial-chamber corridors; marker retrofit; weights | client-smoke screenshot of an entrance + a puzzle room; manual run-through solvable in docs/QA.md |
+| **5 Ship** | docs/QA.md checklist (by mechanic), docs/GAMEPLAY.md "Structures", config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
 
 Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specified (§2.2 is the contract).
 
@@ -149,7 +149,7 @@ Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specif
 
 ## 6. Risks
 * **26.1 jigsaw/structure JSON schema**: verify field names against the 26.1 vanilla datapack (`trial_chambers`
-  structure JSON in the client jar) before writing ours; add to API_CHEATSHEET.
+  structure JSON in the client jar) before writing ours; add to docs/API_NOTES.md.
 * **Custom chunk generator + structures**: verified — the jigsaw assembles 36 pieces on the dedicated server (bbox
   ~143×57×169). `terrain_adaptation: beard_thin` is declared but our legacy terrain gens ignore the Beardifier, so the
   entrance may float / be buried on rough terrain: Phase 4 adds a flat-fill foundation processor or marker if playtests
@@ -169,7 +169,7 @@ Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specif
   (same seed → same chunk); spawn/facility distance.
 * Smoke: datapack registries (structure, structure_set, template_pool, processor_list) load.
 * Client smoke: `/myst-scene facility` builds an entrance + one room and screenshots it.
-* Manual (TESTING.md): full solve path; bypass attempts; multiplayer re-entry.
+* Manual (docs/QA.md): full solve path; bypass attempts; multiplayer re-entry.
 
 ## 8. Decisions needed
 1. **Which Ages get a Facility** — DECIDED: a new **"Vault" symbol** (Structures category in WORLD_BUILDING_PLAN §2

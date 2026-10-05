@@ -3,7 +3,7 @@ package com.techbucketdivision.mystcraft.age.lighting;
 import com.techbucketdivision.mystcraft.api.symbol.logic.LightingController;
 
 /**
- * Bright lighting (REQUIREMENTS §4.3.3 LightingBright): {@code t[i] = vanilla * 0.75 + 0.25};
+ * Bright lighting (original spec §4.3.3 LightingBright): {@code t[i] = vanilla * 0.75 + 0.25};
  * {@code scale(v) = v + (15 - v) / 2}.
  */
 public final class BrightLighting implements LightingController {

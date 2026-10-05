@@ -24,7 +24,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** All blocks (REQUIREMENTS §3.1). Block classes take {@code BlockBehaviour.Properties} only. */
+/** All blocks (original spec §3.1). Block classes take {@code BlockBehaviour.Properties} only. */
 public final class ModBlocks {
     private ModBlocks() {}
 

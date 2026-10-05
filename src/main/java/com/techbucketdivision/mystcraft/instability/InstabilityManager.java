@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * Global registry of instability providers ("cards"), their activation costs, and the decks they are dealt into
- * (REQUIREMENTS §6.4). Providers disabled in {@code instability.disabled} are silently skipped.
+ * (original spec §6.4). Providers disabled in {@code instability.disabled} are silently skipped.
  */
 public final class InstabilityManager {
     private InstabilityManager() {}

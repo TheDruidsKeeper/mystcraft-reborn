@@ -19,7 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Base for Bookstand and Lectern (REQUIREMENTS §3.4). Right-click: no book + acceptable held item → insert one; book
+ * Base for Bookstand and Lectern (original spec §3.4). Right-click: no book + acceptable held item → insert one; book
  * present + sneaking with empty hand → take it; otherwise open the book GUI. Comparator output 15 when filled.
  */
 public abstract class BookDisplayBlock extends Block implements EntityBlock {

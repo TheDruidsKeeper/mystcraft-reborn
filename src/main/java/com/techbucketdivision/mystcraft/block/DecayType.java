@@ -3,7 +3,7 @@ package com.techbucketdivision.mystcraft.block;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.MapColor;
 
-/** Decay variants (REQUIREMENTS §3.8). Green and yellow exist as blocks but use the black handler. */
+/** Decay variants (original spec §3.8). Green and yellow exist as blocks but use the black handler. */
 public enum DecayType implements StringRepresentable {
     BLACK("black", MapColor.COLOR_BLACK, 0.5f, 2.5f, 12),
     RED("red", MapColor.COLOR_RED, 1.0f, 10f, 1),

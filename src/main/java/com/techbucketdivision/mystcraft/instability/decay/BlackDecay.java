@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Black decay (REQUIREMENTS §3.8): 1/10 per pulse corrupts the four horizontal neighbours, clears the block below and
+ * Black decay (original spec §3.8): 1/10 per pulse corrupts the four horizontal neighbours, clears the block below and
  * drops itself as a falling block; else 1/5 only corrupts the neighbours. Liquids are removed, other blocks become
  * black decay. Placement next to black decay above/below drops the column.
  */

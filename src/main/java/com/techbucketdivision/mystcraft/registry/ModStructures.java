@@ -12,7 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Structure placement types and the datapack keys of the Facility (docs/impl/FACILITY_PLAN.md). The structure, its
+ * Structure placement types and the datapack keys of the Facility (docs/plans/FACILITY_PLAN.md). The structure, its
  * set, pools and templates are data in the built-in {@code mystcraft_facility} pack; only the placement type is code.
  */
 public final class ModStructures {

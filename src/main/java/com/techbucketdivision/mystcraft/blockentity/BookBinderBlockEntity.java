@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Book Binder (REQUIREMENTS §3.3): slot 0 cover (leather or an empty Collation Folder), an ordered pending page list
+ * Book Binder (original spec §3.3): slot 0 cover (leather or an empty Collation Folder), an ordered pending page list
  * and a pending title. Crafts a Descriptive Book.
  */
 public class BookBinderBlockEntity extends MystBlockEntity implements MenuProvider {

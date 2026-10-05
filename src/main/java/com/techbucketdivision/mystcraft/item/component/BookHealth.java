@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/** Float health of a linking item (REQUIREMENTS §19.2). */
+/** Float health of a linking item (original spec §19.2). */
 public record BookHealth(float health, float maxHealth) {
     public static final float DEFAULT_MAX = 10f;
     public static final BookHealth FULL = new BookHealth(DEFAULT_MAX, DEFAULT_MAX);

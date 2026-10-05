@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Per-Age instability runtime (REQUIREMENTS §6.1, §6.4): computes the score, quantises it, walks the decks and keeps
+ * Per-Age instability runtime (original spec §6.1, §6.4): computes the score, quantises it, walks the decks and keeps
  * the resulting effects. One instance per loaded Age level; obtain with {@link #get(ServerLevel)}.
  */
 public final class InstabilityController implements InstabilityDirector {
@@ -129,7 +129,7 @@ public final class InstabilityController implements InstabilityDirector {
 
     /**
      * Full (un-quantised) score: {@code (debug + symbol + block + base + bonus) * difficulty}. 0 while fewer than
-     * {@link #MIN_CHUNKS} chunks have been profiled (REQUIREMENTS §6.1).
+     * {@link #MIN_CHUNKS} chunks have been profiled (original spec §6.1).
      */
     public int score() {
         ChunkProfiler profiler = ChunkProfiler.get(level);

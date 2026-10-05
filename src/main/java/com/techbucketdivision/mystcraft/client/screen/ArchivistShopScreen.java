@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/** Archivist shop screen (REQUIREMENTS §8.8, 176×181, {@code tradeshop.png}). */
+/** Archivist shop screen (original spec §8.8, 176×181, {@code tradeshop.png}). */
 public class ArchivistShopScreen extends AbstractMystcraftScreen<ArchivistShopMenu> {
     private static final Identifier SHOP = MystIds.id("textures/gui/tradeshop.png");
     private static final int LABEL_H = 10;

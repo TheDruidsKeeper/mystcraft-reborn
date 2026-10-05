@@ -15,7 +15,7 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Link Modifier container (REQUIREMENTS §8.4). Slot 0 book at (80,35), then the standard inventory.
+ * Link Modifier container (original spec §8.4). Slot 0 book at (80,35), then the standard inventory.
  * Messages client→server: {@code SetTitle(Title)}, {@code SetFlag(Flag, Value)}, {@code SetSeed(Seed)} (empty string
  * clears), {@code RecycleDim}. Server→client: {@code LinkDead(Dead)}.
  */

@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Fluid symbols (REQUIREMENTS §4.3.14): one block symbol per registered source fluid other than vanilla water/lava
+ * Fluid symbols (original spec §4.3.14): one block symbol per registered source fluid other than vanilla water/lava
  * (which are covered by the built-in block table). Word "Sea"; card rank 4, material rank 4 (config/balance table of
  * the original reduced to the built-in defaults, plus black ink = card 1 / rank 0). Categories: FLUID always, SEA
  * unless sea-banned (GAS instead of SEA for fluids lighter than air).

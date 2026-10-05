@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Lightning strikes (REQUIREMENTS §4.3.10): 1/5000 per chunk tick while the Age is raining and thundering, else
+ * Lightning strikes (original spec §4.3.10): 1/5000 per chunk tick while the Age is raining and thundering, else
  * 1/100000. With a gradient the bolt colour is {@code gradient(time / 12000)}.
  */
 public final class LightningEffect implements EnvironmentalEffect {

@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-/** Book Binder (REQUIREMENTS §3.3). Right-click opens {@code BookBinderMenu}; breaking drops the cover and pages. */
+/** Book Binder (original spec §3.3). Right-click opens {@code BookBinderMenu}; breaking drops the cover and pages. */
 public class BookBinderBlock extends FacingEntityBlock {
     public BookBinderBlock(Properties properties) {
         super(properties);

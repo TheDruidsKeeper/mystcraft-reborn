@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Renders {@link ItemStack}s from block-entity / entity renderers through the 26.1 item model resolver
- * (the reliable path recommended by API_CHEATSHEET §K instead of a hand-written book model).
+ * (the reliable path recommended by API_NOTES §K instead of a hand-written book model).
  */
 public final class ItemRenderHelper {
     private ItemRenderHelper() {}

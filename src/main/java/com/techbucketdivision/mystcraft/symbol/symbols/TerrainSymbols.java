@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import static com.techbucketdivision.mystcraft.api.symbol.WordData.*;
 
 /**
- * Terrain generator symbols (REQUIREMENTS §4.3.6). All pop a SEA block then a TERRAIN block from the block list
+ * Terrain generator symbols (original spec §4.3.6). All pop a SEA block then a TERRAIN block from the block list
  * (defaults water / stone; the island world defaults the sea to air).
  */
 public final class TerrainSymbols {

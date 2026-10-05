@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * "Crystalline Formations" (REQUIREMENTS §4.3.9): 1/15 per chunk (skipped when {@code flag}); 1–3 lines starting two
+ * "Crystalline Formations" (original spec §4.3.9): 1/15 per chunk (skipped when {@code flag}); 1–3 lines starting two
  * blocks below the surface at an angle of 15–155°, length 6–12, each step drawing a 7-block "plus" of the crystal
  * block (default {@code mystcraft:crystal}).
  */

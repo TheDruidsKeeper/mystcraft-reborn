@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Ink Mixer (REQUIREMENTS §3.2). Slots: 0 ink container in, 1 paper, 2 empty container out. Holds one basin of ink
+ * Ink Mixer (original spec §3.2). Slots: 0 ink container in, 1 paper, 2 empty container out. Holds one basin of ink
  * and the set of link effects mixed into it; crafting turns a paper into a Link Panel page carrying exactly those
  * effects. Reborn: deterministic, one ingredient per effect, refilling the ink resets the set.
  */

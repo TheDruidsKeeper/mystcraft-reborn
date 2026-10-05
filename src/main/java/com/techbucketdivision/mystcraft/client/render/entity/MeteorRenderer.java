@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 
-/** Meteor: a tumbling cube drawn with the end-portal starfield shader, scaled by the entity scale (REQUIREMENTS §17). */
+/** Meteor: a tumbling cube drawn with the end-portal starfield shader, scaled by the entity scale (original spec §17). */
 public class MeteorRenderer extends EntityRenderer<MeteorEntity, MeteorRenderer.State> {
 
     public static class State extends EntityRenderState {

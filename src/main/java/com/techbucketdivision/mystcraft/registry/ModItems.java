@@ -58,6 +58,11 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> BOOKSTAND = ITEMS.registerSimpleBlockItem("bookstand", ModBlocks.BOOKSTAND);
     public static final DeferredItem<BlockItem> LECTERN = ITEMS.registerSimpleBlockItem("lectern", ModBlocks.LECTERN);
     public static final DeferredItem<BlockItem> LINK_MODIFIER = ITEMS.registerSimpleBlockItem("link_modifier", ModBlocks.LINK_MODIFIER);
+    public static final DeferredItem<BlockItem> WARDED_DOOR = ITEMS.registerSimpleBlockItem("warded_door", ModBlocks.WARDED_DOOR);
+    public static final DeferredItem<BlockItem> SYMBOL_ALTAR = ITEMS.registerSimpleBlockItem("symbol_altar", ModBlocks.SYMBOL_ALTAR);
+    public static final DeferredItem<BlockItem> OFFERING_PEDESTAL = ITEMS.registerSimpleBlockItem("offering_pedestal", ModBlocks.OFFERING_PEDESTAL);
+    public static final DeferredItem<BlockItem> SEQUENCE_DIAL = ITEMS.registerSimpleBlockItem("sequence_dial", ModBlocks.SEQUENCE_DIAL);
+    public static final DeferredItem<BlockItem> FACILITY_CACHE = ITEMS.registerSimpleBlockItem("facility_cache", ModBlocks.FACILITY_CACHE);
     public static final DeferredItem<BlockItem> CRYSTAL = ITEMS.registerSimpleBlockItem("crystal", ModBlocks.CRYSTAL);
     public static final DeferredItem<BlockItem> LINK_PORTAL = ITEMS.registerSimpleBlockItem("link_portal", ModBlocks.LINK_PORTAL);
     public static final DeferredItem<BlockItem> STAR_FISSURE = ITEMS.registerSimpleBlockItem("star_fissure", ModBlocks.STAR_FISSURE);

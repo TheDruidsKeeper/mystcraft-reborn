@@ -47,6 +47,11 @@ public final class ModCreativeTabs {
                 out.accept(ModItems.BOOK_RECEPTACLE.get());
                 out.accept(ModItems.CRYSTAL.get());
                 out.accept(ModItems.LINK_MODIFIER.get());
+                out.accept(ModItems.WARDED_DOOR.get());
+                out.accept(ModItems.SYMBOL_ALTAR.get());
+                out.accept(ModItems.OFFERING_PEDESTAL.get());
+                out.accept(ModItems.SEQUENCE_DIAL.get());
+                out.accept(ModItems.FACILITY_CACHE.get());
                 out.accept(ModItems.LINK_PORTAL.get());
                 out.accept(ModItems.STAR_FISSURE.get());
                 for (DecayType t : DecayType.values()) out.accept(ModItems.decay(t));

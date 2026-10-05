@@ -5,7 +5,10 @@ import com.techbucketdivision.mystcraft.blockentity.BookBinderBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.BookReceptacleBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.InkMixerBlockEntity;
+import com.techbucketdivision.mystcraft.blockentity.FacilityCacheBlockEntity;
+import com.techbucketdivision.mystcraft.blockentity.FacilityLockBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.LinkModifierBlockEntity;
+import com.techbucketdivision.mystcraft.blockentity.WardedDoorBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.StarFissureBlockEntity;
 import com.techbucketdivision.mystcraft.blockentity.WritingDeskBlockEntity;
 import net.minecraft.core.registries.Registries;
@@ -32,6 +35,13 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(LinkModifierBlockEntity::new, ModBlocks.LINK_MODIFIER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WritingDeskBlockEntity>> WRITING_DESK = BLOCK_ENTITIES.register("writing_desk",
             () -> new BlockEntityType<>(WritingDeskBlockEntity::new, ModBlocks.WRITING_DESK.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WardedDoorBlockEntity>> WARDED_DOOR = BLOCK_ENTITIES.register("warded_door",
+            () -> new BlockEntityType<>(WardedDoorBlockEntity::new, ModBlocks.WARDED_DOOR.get()));
+    /** Shared by the symbol altar, offering pedestal and sequence dial. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FacilityLockBlockEntity>> FACILITY_LOCK = BLOCK_ENTITIES.register("facility_lock",
+            () -> new BlockEntityType<>(FacilityLockBlockEntity::new, ModBlocks.SYMBOL_ALTAR.get(), ModBlocks.OFFERING_PEDESTAL.get(), ModBlocks.SEQUENCE_DIAL.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FacilityCacheBlockEntity>> FACILITY_CACHE = BLOCK_ENTITIES.register("facility_cache",
+            () -> new BlockEntityType<>(FacilityCacheBlockEntity::new, ModBlocks.FACILITY_CACHE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<StarFissureBlockEntity>> STAR_FISSURE = BLOCK_ENTITIES.register("star_fissure",
             () -> new BlockEntityType<>(StarFissureBlockEntity::new, ModBlocks.STAR_FISSURE.get()));
 }

@@ -101,6 +101,14 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/lobby/lobby_01.nbt"
+      },
+      "markers": {
+        "clues": [
+          0,
+          1,
+          2,
+          3
+        ]
       }
     },
     {
@@ -117,6 +125,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/combination_lock.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "sequence:3"
       }
     },
     {
@@ -133,6 +145,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/drowned_junction.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "offering"
       }
     },
     {
@@ -149,6 +165,11 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/husk_temple.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "trial",
+        "spawner": "melee/husk"
       }
     },
     {
@@ -165,6 +186,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/item_combination_lock.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "offering"
       }
     },
     {
@@ -213,6 +238,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/library.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "symbol"
       }
     },
     {
@@ -229,6 +258,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/pressure_plate_lock.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "sequence:4"
       }
     },
     {
@@ -277,6 +310,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/tight_maze.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "symbol"
       }
     },
     {
@@ -309,6 +346,10 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/rooms/zombie_three_way_temple.nbt"
+      },
+      "markers": {
+        "doors": true,
+        "lock": "offering"
       }
     },
     {
@@ -435,6 +476,15 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/treasure/egg.nbt"
+      },
+      "markers": {
+        "rewards": {
+          "vault": true,
+          "chests": {
+            "mystcraft:chests/facility_rare": "reward:mystcraft:chests/facility_vault"
+          },
+          "linkbook": true
+        }
       }
     },
     {
@@ -449,6 +499,15 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/treasure/mooshroom_king.nbt"
+      },
+      "markers": {
+        "rewards": {
+          "vault": true,
+          "chests": {
+            "mystcraft:chests/facility_rare": "reward:mystcraft:chests/facility_vault"
+          },
+          "linkbook": true
+        }
       }
     },
     {
@@ -463,6 +522,15 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/treasure/parrot.nbt"
+      },
+      "markers": {
+        "rewards": {
+          "vault": true,
+          "chests": {
+            "mystcraft:chests/facility_rare": "reward:mystcraft:chests/facility_vault"
+          },
+          "linkbook": true
+        }
       }
     },
     {
@@ -477,6 +545,14 @@
         "license": "MIT",
         "url": "https://github.com/TheGrimsey/Stonevaults",
         "path": "data/stonevaults/structure/dungeon/treasure/tiny_cap.nbt"
+      },
+      "markers": {
+        "rewards": {
+          "chests": {
+            "mystcraft:chests/facility_rare": "reward:linkbook",
+            "mystcraft:chests/facility_uncommon": "reward:mystcraft:chests/facility_vault"
+          }
+        }
       }
     }
   ],

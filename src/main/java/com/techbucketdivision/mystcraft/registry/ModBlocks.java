@@ -10,7 +10,12 @@ import com.techbucketdivision.mystcraft.block.DecayType;
 import com.techbucketdivision.mystcraft.block.InkFluidBlock;
 import com.techbucketdivision.mystcraft.block.InkMixerBlock;
 import com.techbucketdivision.mystcraft.block.LecternBlock;
+import com.techbucketdivision.mystcraft.block.FacilityCacheBlock;
+import com.techbucketdivision.mystcraft.block.FacilityLockBlock;
 import com.techbucketdivision.mystcraft.block.LinkModifierBlock;
+import com.techbucketdivision.mystcraft.block.SequenceDialBlock;
+import com.techbucketdivision.mystcraft.block.WardedDoorBlock;
+import com.techbucketdivision.mystcraft.blockentity.FacilityLockBlockEntity;
 import com.techbucketdivision.mystcraft.block.LinkPortalBlock;
 import com.techbucketdivision.mystcraft.block.StarFissureBlock;
 import com.techbucketdivision.mystcraft.block.WritingDeskBlock;
@@ -54,6 +59,20 @@ public final class ModBlocks {
                     .noLootTable().pushReaction(PushReaction.BLOCK));
     public static final DeferredBlock<InkFluidBlock> BLACK_INK = BLOCKS.registerBlock("black_ink", InkFluidBlock::new,
             p -> p.mapColor(MapColor.COLOR_BLACK).replaceable().noCollision().strength(100f).liquid().noLootTable().pushReaction(PushReaction.DESTROY));
+
+    // --- Facility puzzle blocks (docs/plans/FACILITY_PLAN.md §2.2); unbreakable, placed by markers only ---------
+    public static final DeferredBlock<WardedDoorBlock> WARDED_DOOR = BLOCKS.registerBlock("warded_door", WardedDoorBlock::new,
+            p -> p.mapColor(MapColor.DEEPSLATE).sound(SoundType.DEEPSLATE_BRICKS).strength(-1f, 3600000f).noLootTable().pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<FacilityLockBlock> SYMBOL_ALTAR = BLOCKS.registerBlock("symbol_altar",
+            p -> new FacilityLockBlock(FacilityLockBlockEntity.Kind.SYMBOL, true, p),
+            p -> p.mapColor(MapColor.STONE).sound(SoundType.LODESTONE).strength(-1f, 3600000f).noLootTable().noOcclusion().pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<FacilityLockBlock> OFFERING_PEDESTAL = BLOCKS.registerBlock("offering_pedestal",
+            p -> new FacilityLockBlock(FacilityLockBlockEntity.Kind.OFFERING, true, p),
+            p -> p.mapColor(MapColor.STONE).sound(SoundType.LODESTONE).strength(-1f, 3600000f).noLootTable().noOcclusion().pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<SequenceDialBlock> SEQUENCE_DIAL = BLOCKS.registerBlock("sequence_dial", SequenceDialBlock::new,
+            p -> p.mapColor(MapColor.COLOR_ORANGE).sound(SoundType.METAL).strength(-1f, 3600000f).noLootTable().pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<FacilityCacheBlock> FACILITY_CACHE = BLOCKS.registerBlock("facility_cache", FacilityCacheBlock::new,
+            p -> p.mapColor(MapColor.METAL).sound(SoundType.METAL).strength(-1f, 3600000f).noLootTable().noOcclusion().pushReaction(PushReaction.BLOCK));
 
     public static final Map<DecayType, DeferredBlock<DecayBlock>> DECAY = new EnumMap<>(DecayType.class);
 

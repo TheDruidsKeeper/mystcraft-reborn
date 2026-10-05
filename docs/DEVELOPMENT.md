@@ -60,6 +60,7 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 | `create [name]` | create an Age without travelling |
 | `book [dim]` | receive the Descriptive Book of an Age |
 | `locate facility` | chunk and coordinates of this Age's Facility entrance (`world/structure/FacilityLocator`) |
+| `facility status` / `facility solve` | whether this Age's Facility is solved (protection lifted); `solve` marks it solved without the run-through (`facility/FacilityState`) |
 | `time set <day\|night\|ticks> [dim\|all]`, `time add <ticks> [dim\|all]` | the Age's own clock (vanilla `/time` does not touch Ages) |
 | `weather toggle [dim]` | toggle precipitation of the Age's weather controller |
 | `instability status\|toggle [on/off]\|reprofile\|meteor [scale [penetration [pos]]]` | inspect or change instability (`meteor` needs config `commands.spawnmeteor.enabled`) |
@@ -73,6 +74,7 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 | `scene`, `scene closeup <element>`, `scene open <element>`, `scene use <item>` | the debug showcase (`command/DebugScene`); driven by the client smoke |
 | `qa-shelf` | build the visual QA matrix in front of you (`command/QaShelf`, `docs/QA.md`) |
 | `qa-visit <id>` | bind one QA world and link into it (the client smoke tour uses this) |
+| `facility-tp entrance|lobby|vault` | teleport into this Age's generated Facility (`world/structure/FacilityLocator.find`; the tour shoots E2's entrance and lobby) |
 
 ## Writing tests
 * **GameTest** — a static method in a `@ForEachTest(groups=…)` class under `src/gametest`, annotated `@GameTest`,

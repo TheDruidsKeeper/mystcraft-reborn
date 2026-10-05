@@ -47,7 +47,7 @@ public final class ClientSelfCheck {
         gameBus.addListener(ClientSelfCheck::onClientTick);
     }
 
-    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, TOUR_VISIT, TOUR_DAY, TOUR_NIGHT, DONE }
+    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, TOUR_VISIT, TOUR_DAY, TOUR_NIGHT, TOUR_FACILITY, DONE }
 
     private static final int OVERALL_BUDGET_TICKS = 20 * 60 * 18; // 18 minutes (the QA tour visits every shelf world)
     private static Step step = Step.TITLE;
@@ -270,6 +270,24 @@ public final class ClientSelfCheck {
                 case TOUR_NIGHT -> {
                     if (stepTicks == 40) {
                         screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_night");
+                        if (TOUR.get(tourIndex).pages().stream().anyMatch(p -> p.symbol().getPath().equals("vault"))) {
+                            // Facility Ages: the entrance from the outside by day, then the lobby (FACILITY_PLAN.md §4).
+                            command(mc, "myst time set day");
+                            command(mc, "myst-dev facility-tp entrance");
+                            next(Step.TOUR_FACILITY);
+                        } else {
+                            tourIndex++;
+                            startTourVisit(mc);
+                        }
+                    }
+                }
+                case TOUR_FACILITY -> {
+                    if (stepTicks == 80) {
+                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_facility_entrance");
+                        command(mc, "myst-dev facility-tp lobby");
+                    }
+                    if (stepTicks == 160) {
+                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_facility_lobby");
                         tourIndex++;
                         startTourVisit(mc);
                     }
@@ -298,7 +316,7 @@ public final class ClientSelfCheck {
     private static void createWorld(Minecraft mc) {
         LevelSettings settings = new LevelSettings("mystcraft-selfcheck", GameType.CREATIVE,
                 new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
-        WorldOptions options = new WorldOptions(1337L, false, false);
+        WorldOptions options = new WorldOptions(1337L, true, false); // structures on: the shelf tour shoots the Facility
         mc.createWorldOpenFlows().createFreshLevel("mystcraft-selfcheck", settings, options,
                 WorldPresets::createFlatWorldDimensions, mc.screen);
     }

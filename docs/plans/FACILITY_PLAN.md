@@ -67,7 +67,9 @@ pool after the next build (§3).
 
 ### 2.2 Puzzles are mod mechanics placed into generic rooms (no room design needed)
 Imported rooms are retrofitted with **data markers** only (vanilla structure block in DATA mode with a string),
-which a custom `StructureProcessor` resolves at placement. The puzzle logic lives in reusable mod blocks:
+resolved after placement by the `mystcraft:facility_element` pool element (a `StructureProcessor` cannot see them:
+vanilla's `BlockIgnoreProcessor.STRUCTURE_BLOCK` runs first). The puzzle logic lives in reusable mod blocks; the
+authoritative grammar is `facility/FacilityMarkers`:
 
 | Marker | Resolves to | Puzzle |
 |---|---|---|
@@ -135,8 +137,8 @@ Mixed vanilla content needs no files at all: pool JSON can reference `minecraft:
 |---|---|---|
 | **1 Pipeline** ✅ | `scripts/structures/*`, Gradle task, built-in datapack registration, `docs/STRUCTURES.md`, NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
 | **2 Worldgen** ✅ | `near_origin` placement, facility `Structure` + set + biome tag, `createState` wiring, `AgeSpawn` alignment, `/myst-locate facility` | gametest: every new Age has exactly one facility within R of origin; spawn relation holds; smoke green |
-| **3 Puzzle framework** | marker processor, Warded Door, Symbol Altar, sequence lock + clues, offering pedestal, trial/vault loot, protection rule, `AgeData` flags, reward linkbook loot function | gametests per lock type (placed room → lock satisfied → door opens; break cancelled inside bounds) |
-| **4 Content v1** | import 2–3 entrances, 6–10 puzzle rooms, 2 vaults from §1.2 sources + vanilla trial-chamber corridors; marker retrofit; weights | client-smoke screenshot of an entrance + a puzzle room; manual run-through solvable in docs/QA.md |
+| **3 Puzzle framework** ✅ | `facility/*`: marker-resolving pool element (`mystcraft:facility_element`), Warded Door, Symbol Altar, Sequence Dial bank + clue blocks, Offering Pedestal (trial = Trial Key), vanilla Trial Spawner / Vault markers, Facility Cache (per-player linkbook / loot), protection rule, `AgeData` facility state | `FacilityPuzzleTests`: every marker resolves; each lock type opens its doors; cache is per player; protection follows the start bounds until solved |
+| **4 Content v1** (markers ✅, more rooms pending) | `scripts/structures/markers.py` retrofits the Stonevaults set from `manifest.json` (9 locked rooms over all five lock types, clues in the lobby, four vaults with per-player caches); still open: more entrances / rooms / vaults from the other §1.2 sources, vanilla trial-chamber corridors | smoke test generates a facility and counts doors, locks and the Linking Book cache; manual run-through in docs/QA.md |
 | **5 Ship** | docs/QA.md checklist (by mechanic), docs/GAMEPLAY.md "Structures", config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
 
 Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specified (§2.2 is the contract).
@@ -144,8 +146,16 @@ Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specif
 ---
 
 ## 5. Config keys (proposal)
-`facility.enabled`, `facility.radiusChunks` (4), `facility.protection` (`full` / `vault_only` / `none`),
-`facility.puzzleRooms.min/max` (3/6), `facility.rewardLinkbook` (true).
+Implemented: `generation.facility`, `facility.protection` (`full` / `none`), `facility.symbolLockPages` (2),
+`facility.sequenceLength` (4), `facility.offerings` (item list). Dropped: radius (fixed 2–5 chunks in the structure
+set), room count (pool depth), `rewardLinkbook` (the `reward:linkbook` marker decides).
+
+### 5.1 Follow-ups
+* Symbol Altar pages come from the player's own knowledge (arrival teaches the Age's symbols; a Writing Desk and ink
+  write them). A loot function that drops pages of the current Age's symbols into `loot:` chests would give a second
+  route for players without a desk.
+* `facility.protection` has no `vault_only` mode (pieces do not know their pool at runtime).
+* Rooms keep their Stonevaults redstone puzzles under ours; a lock cell may land inside one of them (QA run-through).
 
 ## 6. Risks
 * **26.1 jigsaw/structure JSON schema**: verify field names against the 26.1 vanilla datapack (`trial_chambers`

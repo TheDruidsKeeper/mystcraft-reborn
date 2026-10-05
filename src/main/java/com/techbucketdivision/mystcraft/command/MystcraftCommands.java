@@ -29,6 +29,8 @@ import com.techbucketdivision.mystcraft.item.DescriptiveBookItem;
 import com.techbucketdivision.mystcraft.item.LinkingItem;
 import com.techbucketdivision.mystcraft.linking.LinkController;
 import com.techbucketdivision.mystcraft.linking.LinkPermissions;
+import com.techbucketdivision.mystcraft.facility.FacilityProtection;
+import com.techbucketdivision.mystcraft.facility.FacilityState;
 import com.techbucketdivision.mystcraft.world.structure.FacilityLocator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -57,7 +59,8 @@ import java.util.Locale;
  * The mod's commands (docs/DEVELOPMENT.md "Commands"):
  * <ul>
  *   <li>{@code /myst …} (gamemasters): everyday Age administration and QA — {@code visit}, {@code create}, {@code book},
- *       {@code locate facility}, {@code time}, {@code weather}, {@code instability}, {@code permissions}, {@code retire}.</li>
+ *       {@code locate facility}, {@code facility status|solve}, {@code time}, {@code weather}, {@code instability},
+ *       {@code permissions}, {@code retire}.</li>
  *   <li>{@code /myst-dev …} (admins): the debug showcase ({@code scene}, driven by the client self-check) and the
  *       visual QA matrix ({@code qa-shelf}).</li>
  * </ul>
@@ -81,6 +84,7 @@ public final class MystcraftCommands {
                 .then(create())
                 .then(book())
                 .then(locate())
+                .then(facility())
                 .then(time())
                 .then(weather())
                 .then(instability())
@@ -91,7 +95,8 @@ public final class MystcraftCommands {
                 .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .then(scene())
                 .then(qaShelf())
-                .then(qaVisit()));
+                .then(qaVisit())
+                .then(facilityTp()));
     }
 
     // --- /myst visit [name] --------------------------------------------------------------------------------------
@@ -175,6 +180,52 @@ public final class MystcraftCommands {
             success(ctx.getSource(), "commands.mystcraft.locate.facility.success", chunk.toString(), x + " " + y + " " + z);
             return 1;
         }));
+    }
+
+    // --- /myst-dev facility-tp entrance|lobby|vault ---------------------------------------------------------------
+
+    /** Teleports into this Age's generated Facility (QA; generates the needed chunks). */
+    private static LiteralArgumentBuilder<CommandSourceStack> facilityTp() {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("facility-tp");
+        for (FacilityLocator.Spot spot : FacilityLocator.Spot.values()) {
+            root.then(Commands.literal(spot.name().toLowerCase(java.util.Locale.ROOT)).executes(ctx -> {
+                ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = senderAgeLevel(ctx.getSource());
+                FacilityLocator.View view = FacilityLocator.find(level, spot);
+                if (view == null) {
+                    ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.locate.facility.none"));
+                    return 0;
+                }
+                BlockPos pos = view.pos();
+                level.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
+                player.teleportTo(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, java.util.Set.of(), view.yaw(), view.pitch(), false);
+                Mystcraft.LOGGER.info("[facility] teleported {} to the {} at {}", player.getScoreboardName(), spot, pos.toShortString());
+                success(ctx.getSource(), "commands.mystcraft.facility_tp.success", spot.name().toLowerCase(java.util.Locale.ROOT), pos.toShortString());
+                return 1;
+            }));
+        }
+        return root;
+    }
+
+    // --- /myst facility status|solve ------------------------------------------------------------------------------
+
+    private static LiteralArgumentBuilder<CommandSourceStack> facility() {
+        return Commands.literal("facility")
+                .then(Commands.literal("status").executes(ctx -> {
+                    ServerLevel level = senderAgeLevel(ctx.getSource());
+                    boolean solved = FacilityState.isSolved(level);
+                    boolean protects = FacilityProtection.enabled() && !solved;
+                    success(ctx.getSource(), "commands.mystcraft.facility.status",
+                            Component.translatable(solved ? "commands.mystcraft.facility.solved" : "commands.mystcraft.facility.unsolved"),
+                            Component.translatable(protects ? "commands.mystcraft.facility.protected" : "commands.mystcraft.facility.unprotected"));
+                    return solved ? 1 : 0;
+                }))
+                .then(Commands.literal("solve").executes(ctx -> {
+                    ServerLevel level = senderAgeLevel(ctx.getSource());
+                    FacilityState.markSolved(level);
+                    success(ctx.getSource(), "commands.mystcraft.facility.solve.success");
+                    return 1;
+                }));
     }
 
     // --- /myst time set <day|night|value> [dimension|all] / add <value> [dimension|all] ---------------------------

@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "glyph=0": {
+      "model": "mystcraft:block/sequence_dial_0"
+    },
+    "glyph=1": {
+      "model": "mystcraft:block/sequence_dial_1"
+    },
+    "glyph=2": {
+      "model": "mystcraft:block/sequence_dial_2"
+    },
+    "glyph=3": {
+      "model": "mystcraft:block/sequence_dial_3"
+    },
+    "glyph=4": {
+      "model": "mystcraft:block/sequence_dial_4"
+    },
+    "glyph=5": {
+      "model": "mystcraft:block/sequence_dial_5"
+    },
+    "glyph=6": {
+      "model": "mystcraft:block/sequence_dial_6"
+    },
+    "glyph=7": {
+      "model": "mystcraft:block/sequence_dial_7"
+    }
+  }
+}

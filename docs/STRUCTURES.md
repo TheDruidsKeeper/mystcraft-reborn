@@ -45,12 +45,26 @@ by the importer.
    ```
    The script prints any ids from foreign namespaces that are still referenced (pools, loot tables); provide those
    files or add `--remap` entries until the list is empty. Entities are stripped unless `--keep-entities`.
-3. If the room needs puzzle markers, load it in a creative world with a structure block, place the DATA markers
-   (FACILITY_PLAN §2.2), save with the structure block and re-import the saved file.
+3. Give the piece a `markers` object in `manifest.json` and run `python scripts/structures/markers.py` (idempotent;
+   `--check` reports stale templates). The script finds doorways, free floor cells and chests itself, so no hand
+   editing is needed; the keys are documented at the top of the script. Hand-placed DATA markers (a structure block
+   in DATA mode) work too and survive the script.
 4. Optional: set a pool's `fallback` / default `processors` in `manifest.json` → `pools`. Vanilla pieces can be mixed in
    without files via `manifest.json` → `external` (`{"pool": "facility/rooms", "location": "minecraft:trial_chambers/…"}`).
 5. Build. `generateStructurePools` regenerates the pool JSON and `CREDITS.md`; the smoke test fails if a pool references
    a missing template or processor list. Add the pack to `NOTICE.md` the first time it is used.
+
+## Puzzle markers
+
+Every generated pool uses the `mystcraft:facility_element` element type (`facility/FacilityPoolElement`), which
+resolves vanilla structure blocks in DATA mode after the piece is placed. The metadata string grammar is documented
+in `facility/FacilityMarkers` (door, `lock:symbol|sequence|offering|trial`, `trial_spawner`, `vault`, `loot:<table>`,
+`reward:linkbook|<table>`, `clue:<n>`). Markers of one piece share a lock: its doors open when the lock of that piece
+is solved, so put one lock type per room. The doorway the player arrived through never gets a door (it faces a piece
+generated earlier), so a locked room seals its exits behind the player. Clue blocks and sequence dials refer to the
+Age's code, so clues may sit in other rooms (the lobby shows them). Puzzle state lives in `facility/FacilityState`;
+protection in `facility/FacilityProtection`. Every vault piece must carry `reward:linkbook`
+(`FacilityTests.shippedPiecesCarryMarkers`).
 
 ## Player-side extension
 

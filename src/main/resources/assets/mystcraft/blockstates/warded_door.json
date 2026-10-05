@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "mystcraft:block/warded_door"
+    }
+  }
+}

@@ -67,6 +67,7 @@ public final class Mystcraft {
         ModVillagers.POI_TYPES.register(modBus);
         ModVillagers.PROFESSIONS.register(modBus);
         ModStructures.PLACEMENT_TYPES.register(modBus);
+        ModStructures.POOL_ELEMENT_TYPES.register(modBus);
 
         // Config
         container.registerConfig(ModConfig.Type.COMMON, MystcraftConfig.SPEC);

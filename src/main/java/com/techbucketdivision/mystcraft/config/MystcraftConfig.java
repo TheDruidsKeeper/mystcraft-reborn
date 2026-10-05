@@ -23,6 +23,15 @@ public final class MystcraftConfig {
             .define("generation.villageDeskGen", true);
     public static final ModConfigSpec.BooleanValue FACILITY_ENABLED = B.comment("Generate the Facility (puzzle vault) in Ages written with the Vault symbol; the symbol stays writable when off")
             .define("generation.facility", true);
+    public static final ModConfigSpec.ConfigValue<String> FACILITY_PROTECTION = B.comment("Facility protection until solved: full (no block breaking or explosions inside its bounds; creative and ops exempt) or none")
+            .define("facility.protection", "full");
+    public static final ModConfigSpec.IntValue FACILITY_SYMBOL_PAGES = B.comment("Pages of the Age's own symbols a Symbol Altar asks for")
+            .defineInRange("facility.symbolLockPages", 2, 1, 6);
+    public static final ModConfigSpec.IntValue FACILITY_SEQUENCE_LENGTH = B.comment("Glyphs in the Age's sequence code (clue markers index into it)")
+            .defineInRange("facility.sequenceLength", 4, 1, 8);
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> FACILITY_OFFERINGS = B.comment("Items an Offering Pedestal may ask for (one is picked per pedestal)")
+            .defineListAllowEmpty("facility.offerings", List.of("mystcraft:crystal", "mystcraft:ink_vial", "minecraft:ender_pearl", "minecraft:amethyst_shard", "minecraft:book"),
+                    () -> "", o -> o instanceof String);
     public static final ModConfigSpec.BooleanValue REQUIRE_UUID_TEST = B.comment("Strict dimension UUID check on login (players without a stored UUID are sent home)")
             .define("teleportation.requireUUIDTest", false);
     public static final ModConfigSpec.ConfigValue<String> HOME_DIMENSION = B.comment("Home dimension (Star Fissure target, ejection target)")

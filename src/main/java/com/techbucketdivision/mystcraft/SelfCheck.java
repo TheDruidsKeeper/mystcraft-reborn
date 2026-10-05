@@ -288,6 +288,28 @@ public final class SelfCheck {
         if (valid) {
             check("facility assembled " + start.getPieces().size() + " pieces (entrance, shaft, lobby, rooms, vault)", start.getPieces().size() >= 4);
             Mystcraft.LOGGER.info("[selfcheck] facility bounding box {}", start.getBoundingBox());
+            // Fully generate the facility's chunks: the pool element resolves the puzzle markers at placement.
+            net.minecraft.world.level.levelgen.structure.BoundingBox box = start.getBoundingBox();
+            t0 = System.currentTimeMillis();
+            for (int cx = box.minX() >> 4; cx <= box.maxX() >> 4; cx++) {
+                for (int cz = box.minZ() >> 4; cz <= box.maxZ() >> 4; cz++) level.getChunk(cx, cz, ChunkStatus.FULL);
+            }
+            int doors = 0, locks = 0, caches = 0, vaults = 0, linkbooks = 0;
+            for (BlockPos pos : BlockPos.betweenClosed(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ())) {
+                var state = level.getBlockState(pos);
+                if (state.is(ModBlocks.WARDED_DOOR.get())) doors++;
+                else if (state.is(ModBlocks.SYMBOL_ALTAR.get()) || state.is(ModBlocks.OFFERING_PEDESTAL.get()) || state.is(ModBlocks.SEQUENCE_DIAL.get())) locks++;
+                else if (state.is(ModBlocks.FACILITY_CACHE.get())) {
+                    caches++;
+                    if (level.getBlockEntity(pos) instanceof com.techbucketdivision.mystcraft.blockentity.FacilityCacheBlockEntity cache && cache.isLinkbook()) linkbooks++;
+                } else if (state.is(net.minecraft.world.level.block.Blocks.VAULT)) vaults++;
+            }
+            Mystcraft.LOGGER.info("[selfcheck] facility generated in {} ms: {} warded doors, {} locks, {} caches ({} linkbook), {} vaults",
+                    System.currentTimeMillis() - t0, doors, locks, caches, linkbooks, vaults);
+            check("facility rooms carry puzzle blocks (" + doors + " doors, " + locks + " locks)", doors > 0 && locks > 0);
+            check("facility has a Linking Book cache", linkbooks >= 1);
+            BlockPos probe = start.getPieces().getLast().getBoundingBox().getCenter();
+            check("facility interior is protected until solved", com.techbucketdivision.mystcraft.facility.FacilityProtection.protects(level, probe));
         }
         BlockPos spawn = AgeSpawn.findSpawn(level, AgeControllers.server(level));
         double distance = Math.sqrt(facility.getMiddleBlockPosition(spawn.getY()).distSqr(spawn));

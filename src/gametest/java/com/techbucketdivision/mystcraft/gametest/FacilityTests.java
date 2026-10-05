@@ -4,6 +4,8 @@ import com.techbucketdivision.mystcraft.age.AgeController;
 import com.techbucketdivision.mystcraft.age.AgeControllers;
 import com.techbucketdivision.mystcraft.age.AgeData;
 import com.techbucketdivision.mystcraft.age.AgeManager;
+import com.techbucketdivision.mystcraft.facility.FacilityMarkers;
+import com.techbucketdivision.mystcraft.facility.FacilityPoolElement;
 import com.techbucketdivision.mystcraft.linking.LinkController;
 import com.techbucketdivision.mystcraft.registry.ModStructures;
 import com.techbucketdivision.mystcraft.util.MystIds;
@@ -16,6 +18,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -25,6 +29,8 @@ import net.neoforged.testframework.annotation.TestHolder;
 import net.neoforged.testframework.gametest.EmptyTemplate;
 import net.neoforged.testframework.gametest.ExtendedGameTestHelper;
 import net.neoforged.testframework.gametest.GameTest;
+
+import java.util.List;
 
 /** The Facility structure (docs/plans/FACILITY_PLAN.md): Vault symbol, near_origin placement, spawn relation. */
 @ForEachTest(groups = "facility")
@@ -71,6 +77,12 @@ public class FacilityTests {
             }
         }
         helper.assertTrue(starts == 1, "exactly one facility start within 6 chunks of the origin, found " + starts);
+        helper.assertNotNull(FacilityLocator.start(age), "FacilityLocator finds the start once created");
+        FacilityLocator.View entry = FacilityLocator.find(age, FacilityLocator.Spot.ENTRANCE);
+        FacilityLocator.View lobby = FacilityLocator.find(age, FacilityLocator.Spot.LOBBY);
+        helper.assertNotNull(entry, "entrance viewpoint");
+        helper.assertNotNull(lobby, "lobby viewpoint (a piece from the lobby pool)");
+        helper.assertTrue(lobby.pos().getY() < entry.pos().getY(), "the lobby lies below the entrance: " + lobby + " vs " + entry);
 
         BlockPos spawn = LinkController.defaultSpawn(age);
         BlockPos entrance = expected.getMiddleBlockPosition(spawn.getY());
@@ -94,6 +106,39 @@ public class FacilityTests {
         if (!data.symbols().contains(MystIds.id("vault"))) {
             helper.assertTrue(FacilityLocator.facilityChunk(age) == null, "no facility placement without the symbol");
         }
+        helper.succeed();
+    }
+
+    @GameTest
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Shipped pools use the facility element and carry puzzle markers: every vault piece has a Linking Book reward, most rooms have a lock with doors, the lobby shows clues")
+    static void shippedPiecesCarryMarkers(ExtendedGameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        var pools = server.registryAccess().lookupOrThrow(Registries.TEMPLATE_POOL);
+        var templates = server.getStructureManager();
+        int lockedRooms = 0, rooms = 0;
+        for (String pool : List.of("facility/vault", "facility/rooms", "facility/lobby")) {
+            StructureTemplatePool p = pools.getValue(MystIds.id(pool));
+            helper.assertNotNull(p, "pool " + pool);
+            for (var entry : p.getTemplates()) {
+                helper.assertTrue(entry.getFirst() instanceof FacilityPoolElement, pool + " element " + entry.getFirst() + " resolves markers");
+                FacilityPoolElement element = (FacilityPoolElement) entry.getFirst();
+                List<String> markers = element.getDataMarkers(templates, BlockPos.ZERO, Rotation.NONE, false).stream()
+                        .map(FacilityMarkers.Marker::of).map(FacilityMarkers.Marker::data).toList();
+                switch (pool) {
+                    case "facility/vault" -> helper.assertTrue(markers.contains("reward:linkbook"), element + " has the Linking Book reward: " + markers);
+                    case "facility/lobby" -> helper.assertTrue(markers.stream().filter(m -> m.startsWith("clue:")).count() >= 3, "lobby shows clues: " + markers);
+                    default -> {
+                        rooms++;
+                        boolean lock = markers.stream().anyMatch(m -> m.startsWith("lock:"));
+                        boolean doors = markers.contains("door");
+                        helper.assertTrue(lock == doors, element + ": a lock comes with doors and doors with a lock: " + markers);
+                        if (lock) lockedRooms++;
+                    }
+                }
+            }
+        }
+        helper.assertTrue(lockedRooms >= 6 && lockedRooms < rooms, "most but not all rooms are locked: " + lockedRooms + "/" + rooms);
         helper.succeed();
     }
 }

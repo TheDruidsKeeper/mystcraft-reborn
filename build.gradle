@@ -172,7 +172,7 @@ var generateStructurePools = tasks.register('generateStructurePools') {
             elementsByPool[piece.pool] << [
                     weight : piece.weight ?: 1,
                     element: [
-                            element_type: 'minecraft:single_pool_element',
+                            element_type: 'mystcraft:facility_element',
                             location    : "${ns}:${piece.file}".toString(),
                             processors  : processors,
                             projection  : piece.projection ?: 'rigid',
@@ -184,7 +184,7 @@ var generateStructurePools = tasks.register('generateStructurePools') {
             elementsByPool[ext.pool] << [
                     weight : ext.weight ?: 1,
                     element: [
-                            element_type: 'minecraft:single_pool_element',
+                            element_type: 'mystcraft:facility_element',
                             location    : ext.location,
                             processors  : ext.processors ?: poolCfg.processors ?: [processors: []],
                             projection  : ext.projection ?: 'rigid',

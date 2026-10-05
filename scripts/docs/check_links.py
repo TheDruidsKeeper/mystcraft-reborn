@@ -33,6 +33,8 @@ def resolve_path(ref: str) -> bool:
         return True  # build output
     if (REPO / ref).exists():
         return True
+    if (REPO / "src/main/resources/datapacks/mystcraft_facility/data/mystcraft/structure" / ref).exists():
+        return True  # a facility pool id (docs/STRUCTURES.md)
     # strip a trailing .method on a class reference: world/AgeSpawn.findSpawn
     m = re.fullmatch(r"(.+/[A-Z]\w+)\.\w+(/\w+)*", ref)
     if m:

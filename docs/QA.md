@@ -7,7 +7,7 @@ this?" — if it could, write the test (`docs/DEVELOPMENT.md` "Writing tests") a
 
 | Layer | Asserts | Cannot see |
 |---|---|---|
-| GameTests (`src/gametest`) | blueprint fill, symbol schema, knowledge, workstations, linking/portals/spawn, creatures, instability tick, facility placement, and for the QA worlds (`QaWorldTests`): terrain type, feature materials, biome layouts, structure starts, weather state, effects | anything rendered |
+| GameTests (`src/gametest`) | blueprint fill, symbol schema (incl. the block support matrix), knowledge, workstations, linking/portals/spawn, creatures, instability tick, facility placement and puzzle mechanics, and for the QA worlds (`QaWorldTests`): terrain type, feature materials, biome layouts, structure starts, weather state, effects | anything rendered |
 | Server smoke (`SelfCheck`) | registries, datapacks, Age creation, generation speed, Facility assembly on a real server | terrain shape, placement quality |
 | Client smoke (`ClientSelfCheck` + `scripts/qa/compare.py`) | screens open, renderers run, sky light follows the Age's celestial angle, **screenshots of every QA world by day and night do not drift from the baselines** | whether it looks *right* the first time |
 
@@ -25,14 +25,14 @@ One lectern per QA world, grouped in coloured sections with a sign each; every b
 | | B4 Dark light, end sky | darkness, end sky texture, cloud cover | cloudy = overcast without precipitation |
 | C World colours & weather (lime) | C1 World colours | colours apply, blend at biome borders | — (screenshot drift) |
 | | C2 Rain, C3 Snow, C4 Storm | precipitation visuals, snow layers, lightning effect | raining / thundering state |
-| D Terrain & features (orange) | D1 Flat obsidian, no sea | looks flat, obelisk silhouettes | obsidian plane, no water, glowstone obelisks |
+| D Terrain & features (orange) | D1 Flat, no sea, ravines | looks flat, ravine cuts, obelisk silhouettes | stone plane, no water, ravines carved, glowstone obelisks |
 | | D2 Skylands | island shapes, trees, crystal clusters | air at sea level, land above |
 | | D3 Amplified deep lakes | cliffs, lava lakes, tendril shapes, no horizon band | relief ≥ 24, lava lakes placed |
-| | D4 Nether | cave roof, lava sea, fortress integration | lava, netherrack, caves |
+| | D4 Nether | cave roof, lava lakes, fortress integration | lava, netherrack, caves |
 | | D5 End | island edge, spike shapes | end stone, single biome, obsidian spikes |
 | | D6 Void + fissure | platform only, fissure visible | empty chunks |
 | E Biomes & structures (yellow) | E1 Tiny biomes | patchwork look, village placement | ≥3 biomes, frequent transitions |
-| | E2 Large biomes + Facility | biome scale; entrance in view, on the terrain | few transitions, one facility start |
+| | E2 Large biomes + Facility | biome scale; entrance in view, on the terrain; `qa_E2_facility_entrance` / `_lobby` shots | few transitions, one facility start, puzzle blocks generated (smoke) |
 | F Creatures (red) | F1 Brutal swarm, F2 Peaceful meadow, F3 Lifeless | pressure / density / silence at night | spawn scaling (`CreatureTests`) |
 | G Instability (purple) | G1 Unstable | effect pacing, decay spread, meteor visuals | effects registered |
 
@@ -49,11 +49,15 @@ Adding a world: add it to `QaShelf.sections()`, run the client smoke, review, up
 Walk this once per release with the shelf, and after changes to rendering, GUI, audio or worldgen shapes.
 
 **Look**
-- [ ] Shelf worlds: the first baselines (2026-10-04) were reviewed only as thumbnails → look at `out/screenshots/selfcheck_qa_*.png` once at full size; known questions: B3 (bright lighting + dark sun) renders dark and red-tinted, D1's arrival view shows forest rather than the obsidian plane, D4's arrival is in unlit cave darkness.
+- [ ] Shelf worlds: the first baselines (2026-10-04) were reviewed only as thumbnails → look at `out/screenshots/selfcheck_qa_*.png` once at full size; known questions: D1's arrival view shows forest rather than the plane, D4's arrival is in unlit cave darkness. B3 (bright lighting rendering dark) was fixed by `client/AgeClientEnvironment` lightmap attributes; terrain no longer takes block pages (D1/D4 re-written).
 - [ ] Sunrise/sunset tint and fog transitions are smooth at normal game speed (screenshots are single frames).
 - [ ] Celestials: multiple suns/moons overlap sanely; rainbow arc; end-sky starfield; dark sun has no disc.
 - [ ] Precipitation particles, snow layering, lightning flash and thunder audio in C2–C4.
 - [ ] Facility (E2): entrance sits on the terrain; interior rooms are lit and connected; no cut-off pieces.
+- [ ] Facility run-through (E2, survival): each locked room seals its exits behind you (never the way in); the
+      lobby's four clue blocks match the dial order in a sequence room; the Symbol Altar names pages you learned on
+      arrival; the Offering Pedestal names a craftable item; trial rooms eject keys that open their pedestal and the
+      vault; the Facility Cache gives one home book per player and then blocks can be broken; `/myst locate facility`.
 - [ ] Book rendering on stands/lecterns; page glyphs with modifier overlays; discovered-page ink.
 
 **Feel**

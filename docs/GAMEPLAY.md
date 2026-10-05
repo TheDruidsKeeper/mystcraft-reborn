@@ -26,7 +26,8 @@ live in the config files and the named classes, not here.
 * A page is `item/PageItem` with the `SymbolPage` component: symbol + attached modifier ids + `discovered` flag.
   Modifiers apply right before their symbol when the Age is compiled, so pages are self-contained.
 * Which modifiers a symbol takes is derived from a dry run of its logic (`AgeSymbol.accepts/takes`); the desk and
-  the binder refuse the rest. Symbol glyphs are composed from the four poem words (`client/render/SymbolGlyphs`).
+  the binder refuse the rest. Block pages attach only to features (`api/symbol/BlockCategory` lists the matrix):
+  terrain symbols take no material. Symbol glyphs are composed from the four poem words (`client/render/SymbolGlyphs`).
 * Pages reach players through loot, the Archivist villager (`villager/`) and Sealed Notebooks.
 
 ## The blueprint (how an incomplete book becomes an Age)
@@ -47,7 +48,7 @@ weights and chances are `WorldBuildingConfig` (`mystcraft-worldbuilding.toml`). 
 * **Compilation**: `age/AgeController` runs every page; symbol logic registers terrain generators, alterations,
   populators, biome controller, lighting, weather, celestials, colours, effects and creature rules through
   `api/symbol/AgeDirector`.
-* **Terrain**: `world/gen/*` (normal, amplified, flat, nether, end, void) with materials from block pages;
+* **Terrain**: `world/gen/*` (normal, amplified, flat, nether, end, void); stone terrain, water sea (or none);
   `world/feature/*` for lakes, obelisks, spikes, spheres, tendrils, crystal formations, floating islands, skylands,
   huge trees, caves, ravines, dense ores, star fissure; vanilla structure sets per structure symbol and the Facility
   (`world/structure/`).
@@ -83,7 +84,10 @@ scorched, extra ticks — `instability/InstabilityController`, `effects/`, `deca
   region of every Age.
 * **Facility** (Vault symbol, `docs/plans/FACILITY_PLAN.md`): one jigsaw structure per Vault Age, 2–5 chunks from the
   origin, arrival 60–120 blocks from its entrance; rooms are imported pieces in the built-in datapack
-  `mystcraft_facility` (`docs/STRUCTURES.md`). Puzzle locks, protection and the Linking-Book reward are in progress.
+  `mystcraft_facility` (`docs/STRUCTURES.md`). Rooms carry markers that become Warded Doors and locks (Symbol Altar
+  wanting pages of the Age's own symbols, Sequence Dials matching the Age's glyph code shown by clue blocks, Offering
+  Pedestals, vanilla Trial Spawners and Vaults); the terminal room's Facility Cache hands every player one Linking Book
+  home, which lifts the protection that stops blocks inside the facility being broken until then (`facility/*`).
 * Vanilla villages (with the Archivist's house), mineshafts, strongholds and nether fortresses per structure symbol.
 
 ## Content
@@ -96,7 +100,7 @@ black ink bucket — `registry/ModItems`. Entities: dropped linkbook, falling bl
 ## Configuration
 | File | Class | Covers |
 |---|---|---|
-| `mystcraft-common.toml` | `config/MystcraftConfig` | commands, respawning, village desk, Facility generation, link effects crafting, ink mixer table, labels, UUID checks |
+| `mystcraft-common.toml` | `config/MystcraftConfig` | commands, respawning, village desk, Facility generation / protection / lock sizes / offerings, link effects crafting, ink mixer table, labels, UUID checks |
 | `mystcraft-balance.toml` | `config/BalanceConfig` | instability switch, difficulty, baselining |
 | `mystcraft-worldbuilding.toml` | `config/WorldBuildingConfig` | blueprint fill: per-category chance/defaults/weights, biome counts, celestial modifiers, colours, materials, creatures, star fissure chance, instability budget |
 | `mystcraft-client.toml` | `config/ClientConfig` | client rendering options |

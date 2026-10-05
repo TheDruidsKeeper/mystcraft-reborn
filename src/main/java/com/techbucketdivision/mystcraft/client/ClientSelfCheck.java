@@ -27,8 +27,8 @@ import java.util.List;
  * script and then shuts it down, so the Docker {@code client-smoke} stage can exercise everything the dedicated-server
  * smoke test cannot: resource loading / model baking, screens, block-entity renderers, the Age sky, tints, portals.
  *
- * <p>Script: create a fresh flat creative world → screenshot → {@code /myst-scene} (every renderable block) →
- * screenshot → {@code /myst-visit} (link into a brand-new Age through the real link path) → screenshots at day and
+ * <p>Script: create a fresh flat creative world → screenshot → {@code /myst-dev scene} (every renderable block) →
+ * screenshot → {@code /myst visit} (link into a brand-new Age through the real link path) → screenshots at day and
  * night, including the scene rebuilt inside the Age → {@code CLIENT SELFCHECK PASSED} and exit. Every step has a
  * timeout; any failure logs {@code CLIENT SELFCHECK FAILED: reason} and exits. Screenshots land in
  * {@code <game dir>/screenshots/selfcheck_*.png}; the Docker stage exports them for review.
@@ -47,9 +47,9 @@ public final class ClientSelfCheck {
         gameBus.addListener(ClientSelfCheck::onClientTick);
     }
 
-    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, DONE }
+    private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, TOUR_VISIT, TOUR_DAY, TOUR_NIGHT, DONE }
 
-    private static final int OVERALL_BUDGET_TICKS = 20 * 60 * 6; // 6 minutes
+    private static final int OVERALL_BUDGET_TICKS = 20 * 60 * 18; // 18 minutes (the QA tour visits every shelf world)
     private static Step step = Step.TITLE;
     private static int ticks;          // total ticks since start
     private static int stepTicks;      // ticks in the current step
@@ -60,6 +60,10 @@ public final class ClientSelfCheck {
     private static final String[] SCREENS = {"open desk", "open ink_mixer", "open book_binder", "open link_modifier",
             "use linking_book", "use descriptive_book", "use folder"};
     private static int screenIndex;
+    /** QA shelf tour (docs/QA.md): every case is visited and screenshotted by day and by night for scripts/qa/compare.py. */
+    private static final List<com.techbucketdivision.mystcraft.command.QaShelf.Case> TOUR = com.techbucketdivision.mystcraft.command.QaShelf.cases();
+    private static int tourIndex;
+    private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> tourFrom;
     private static final List<String> failures = new ArrayList<>();
 
     private static void onClientTick(ClientTickEvent.Post event) {
@@ -96,7 +100,7 @@ public final class ClientSelfCheck {
                 case OVERWORLD_SETTLE -> {
                     if (stepTicks == 60) screenshot(mc, "01_overworld");
                     if (stepTicks > 70) {
-                        command(mc, "myst-scene");
+                        command(mc, "myst-dev scene");
                         next(Step.SCENE_OVERWORLD);
                     }
                 }
@@ -113,7 +117,7 @@ public final class ClientSelfCheck {
                         screenIndex = 0;
                         next(Step.SCREENS);
                     } else if (stepTicks == 1) {
-                        command(mc, "myst-scene closeup " + CLOSEUPS[closeupIndex]);
+                        command(mc, "myst-dev scene closeup " + CLOSEUPS[closeupIndex]);
                     } else if (stepTicks == 30) {
                         screenshot(mc, String.format("02%c_closeup_%s", (char) ('a' + closeupIndex), CLOSEUPS[closeupIndex]));
                     } else if (stepTicks > 32) {
@@ -124,17 +128,17 @@ public final class ClientSelfCheck {
                 case SCREENS -> {
                     // one screen each: open, wait, screenshot, close
                     if (screenIndex >= SCREENS.length) {
-                        command(mc, "myst-visit Selfcheck Age");
+                        command(mc, "myst visit Selfcheck Age");
                         next(Step.VISIT_AGE);
                     } else if (stepTicks == 1) {
                         // stand next to the block first: container menus close when the player is > 8 blocks away
-                        if (SCREENS[screenIndex].startsWith("open ")) command(mc, "myst-scene closeup " + SCREENS[screenIndex].substring(5));
+                        if (SCREENS[screenIndex].startsWith("open ")) command(mc, "myst-dev scene closeup " + SCREENS[screenIndex].substring(5));
                     } else if (stepTicks == 5) {
-                        command(mc, "myst-scene " + SCREENS[screenIndex]);
+                        command(mc, "myst-dev scene " + SCREENS[screenIndex]);
                     } else if (stepTicks == 25) {
                         String name = SCREENS[screenIndex].substring(SCREENS[screenIndex].indexOf(' ') + 1);
                         if (mc.screen == null) {
-                            failures.add("screen did not open for /myst-scene " + SCREENS[screenIndex]);
+                            failures.add("screen did not open for /myst-dev scene " + SCREENS[screenIndex]);
                         } else {
                             Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
                         }
@@ -171,7 +175,7 @@ public final class ClientSelfCheck {
                         Mystcraft.LOGGER.info("[clientcheck] arrived in {} after {} ticks", level.dimension().identifier(), stepTicks);
                         next(Step.AGE_SETTLE);
                     } else if (stepTicks > 20 * 90) {
-                        fail("never arrived in an Age (/myst-visit) - check [link] lines");
+                        fail("never arrived in an Age (/myst visit) - check [link] lines");
                     }
                 }
                 case AGE_SETTLE -> {
@@ -180,7 +184,7 @@ public final class ClientSelfCheck {
                         screenshot(mc, "03_age_arrival");
                     }
                     if (stepTicks > 110) {
-                        command(mc, "myst-scene");
+                        command(mc, "myst-dev scene");
                         next(Step.SCENE_AGE);
                     }
                 }
@@ -192,7 +196,7 @@ public final class ClientSelfCheck {
                         if (known == 0) failures.add("arriving in an Age taught no symbols (knowledge not synced to the client)");
                     }
                     // the book of this Age: its link panel should show the photo taken on arrival
-                    if (stepTicks == 70) command(mc, "myst-scene use current_age_book");
+                    if (stepTicks == 70) command(mc, "myst-dev scene use current_age_book");
                     if (stepTicks == 95) {
                         if (mc.screen == null) failures.add("current Age book screen did not open");
                         var level = mc.level;
@@ -229,13 +233,46 @@ public final class ClientSelfCheck {
                     }
                     if (stepTicks == 130 && mc.screen != null) mc.screen.onClose();
                     if (stepTicks > 134) {
-                        command(mc, "myst-time set night");
+                        command(mc, "myst time set night");
                         next(Step.NIGHT);
                     }
                 }
                 case NIGHT -> {
                     if (stepTicks == 40) screenshot(mc, "05_age_night");
-                    if (stepTicks > 60) finish(mc);
+                    if (stepTicks > 60) startTourVisit(mc);
+                }
+                case TOUR_VISIT -> {
+                    ClientLevel level = mc.level;
+                    if (level != null && AgeManager.isAge(level.dimension()) && !level.dimension().equals(tourFrom)) {
+                        Mystcraft.LOGGER.info("[clientcheck] tour {} arrived in {} after {} ticks", TOUR.get(tourIndex).id(), level.dimension().identifier(), stepTicks);
+                        next(Step.TOUR_DAY);
+                    } else if (stepTicks > 20 * 60) {
+                        failures.add("tour " + TOUR.get(tourIndex).id() + " never arrived (/myst-dev qa-visit) - check [link] lines");
+                        tourIndex++;
+                        startTourVisit(mc);
+                    }
+                }
+                case TOUR_DAY -> {
+                    if (stepTicks == 1) {
+                        // Screenshots feed scripts/qa/compare.py: no HUD/chat, and look slightly up so the sky band is sky.
+                        mc.options.hideGui = true;
+                        mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
+                        if (mc.player != null) mc.player.setXRot(-12f);
+                    }
+                    if (stepTicks == 60) command(mc, "myst time set day");
+                    if (stepTicks == 100) {
+                        checkAgeClientState(mc);
+                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_day");
+                        command(mc, "myst time set night");
+                        next(Step.TOUR_NIGHT);
+                    }
+                }
+                case TOUR_NIGHT -> {
+                    if (stepTicks == 40) {
+                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_night");
+                        tourIndex++;
+                        startTourVisit(mc);
+                    }
                 }
                 case DONE -> { }
             }
@@ -243,6 +280,19 @@ public final class ClientSelfCheck {
             Mystcraft.LOGGER.error("[clientcheck] step {} threw", step, e);
             fail("exception in step " + step + ": " + e);
         }
+    }
+
+    /** Links into the next shelf world, or finishes when every case has been visited. */
+    private static void startTourVisit(Minecraft mc) {
+        if (tourIndex >= TOUR.size()) {
+            mc.options.hideGui = false;
+            mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.FULL);
+            finish(mc);
+            return;
+        }
+        tourFrom = mc.level == null ? null : mc.level.dimension();
+        command(mc, "myst-dev qa-visit " + TOUR.get(tourIndex).id());
+        next(Step.TOUR_VISIT);
     }
 
     private static void createWorld(Minecraft mc) {

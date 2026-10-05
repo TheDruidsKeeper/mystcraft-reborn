@@ -1,13 +1,13 @@
 #!/bin/sh
 # Runs INSIDE the Docker `client-smoke` stage (see Dockerfile). Starts the NeoForge dev client under Xvfb with
 # Mesa software OpenGL and MYSTCRAFT_CLIENT_SELFCHECK=1, which makes ClientSelfCheck drive the game (fresh flat
-# world -> /myst-scene -> /myst-visit into a new Age -> night) taking screenshots, then quit.
+# world -> /myst-dev scene -> /myst visit into a new Age -> night) taking screenshots, then quit.
 #
 # Success  = "CLIENT SELFCHECK PASSED" in the log and no mod-related render/resource warnings.
-# Output   = /out/client-smoke.log, /out/client-smoke-status.txt, /out/screenshots/selfcheck_*.png
+# Output   = /out/client-smoke.log, /out/client-smoke-status.txt, /out/screenshots/selfcheck_*.png, /out/qa-report.txt
 set -u
 
-BUDGET="${CLIENT_SMOKE_SECONDS:-600}"
+BUDGET="${CLIENT_SMOKE_SECONDS:-1200}"
 LOG=/out/client-smoke.log
 STATUS=/out/client-smoke-status.txt
 mkdir -p /out run/client
@@ -57,7 +57,16 @@ echo "----- mystcraft errors -----"
 grep -E "ERROR.*(mystcraft|Mystcraft)|com\.techbucketdivision" "${LOG}" | grep -vE "^\s+at " | head -40 || true
 ERRORS=$(grep -E "\]/ERROR\]|/ERROR\] \[com\.techbucketdivision|ERROR\] \[com\.techbucketdivision" "${LOG}" | grep -c "techbucketdivision" || true)
 
-if grep -q "CLIENT SELFCHECK PASSED" "${LOG}" && [ "${WARNINGS}" = "0" ]; then
+echo "----- QA shelf visual regression (scripts/qa/compare.py) -----"
+VISUAL=0
+if ls /out/screenshots/selfcheck_qa_*.png >/dev/null 2>&1; then
+    python3 /usr/local/lib/mystcraft-qa/compare.py /out/screenshots --report /out/qa-report.txt || VISUAL=$?
+else
+    echo "no QA tour screenshots"
+    VISUAL=1
+fi
+
+if grep -q "CLIENT SELFCHECK PASSED" "${LOG}" && [ "${WARNINGS}" = "0" ] && [ "${VISUAL}" = "0" ]; then
     echo "PASSED" > "${STATUS}"
     echo "----- CLIENT SMOKE PASSED (mod errors logged: ${ERRORS}) -----"
     ls -la /out/screenshots 2>/dev/null || true
@@ -68,7 +77,10 @@ echo "----- crash reports -----"
 ls run/client/crash-reports 2>/dev/null && cat run/client/crash-reports/*.txt 2>/dev/null | head -120 || true
 echo "----- last 80 lines of game output -----"
 grep -vE "^\s+at (org\.gradle|java\.base|jdk\.internal|worker\.org)" "${LOG}" | tail -80
-if grep -q "CLIENT SELFCHECK PASSED" "${LOG}"; then
+if grep -q "CLIENT SELFCHECK PASSED" "${LOG}" && [ "${WARNINGS}" = "0" ]; then
+    echo "VISUAL_DRIFT" > "${STATUS}"
+    echo "----- CLIENT SMOKE FAILED: QA screenshots drifted from scripts/qa/baselines.json (see /out/qa-report.txt; review, then compare.py --update) -----"
+elif grep -q "CLIENT SELFCHECK PASSED" "${LOG}"; then
     echo "RESOURCE_WARNINGS" > "${STATUS}"
     echo "----- CLIENT SMOKE FAILED: script passed but ${WARNINGS} mod resource warnings -----"
 elif grep -q "CLIENT SELFCHECK FAILED" "${LOG}"; then

@@ -133,7 +133,7 @@ jobs:
           context: .
           target: client-smoke-export
           outputs: type=local,dest=out
-          build-args: CLIENT_SMOKE_SECONDS=600
+          build-args: CLIENT_SMOKE_SECONDS=1500
           cache-from: type=gha,scope=mystcraft-build
           cache-to: type=gha,mode=max,scope=mystcraft-build
 
@@ -144,6 +144,7 @@ jobs:
           path: |
             out/client-smoke.log
             out/screenshots
+            out/qa-report.txt
           if-no-files-found: warn
 
       - name: Check client result

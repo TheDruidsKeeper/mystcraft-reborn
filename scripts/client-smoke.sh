@@ -5,7 +5,7 @@
 # Usage: scripts/client-smoke.sh [seconds]
 set -uo pipefail
 cd "$(dirname "$0")/.."
-SECONDS_BUDGET="${1:-600}"
+SECONDS_BUDGET="${1:-1200}"
 export DOCKER_BUILDKIT=1
 docker buildx build \
   --progress=plain \

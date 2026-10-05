@@ -49,7 +49,7 @@ Adding a world: add it to `QaShelf.sections()`, run the client smoke, review, up
 Walk this once per release with the shelf, and after changes to rendering, GUI, audio or worldgen shapes.
 
 **Look**
-- [ ] Shelf B–D worlds: nothing in the screenshots was judged by a human yet → review each once, then rely on drift.
+- [ ] Shelf worlds: the first baselines (2026-10-04) were reviewed only as thumbnails → look at `out/screenshots/selfcheck_qa_*.png` once at full size; known questions: B3 (bright lighting + dark sun) renders dark and red-tinted, D1's arrival view shows forest rather than the obsidian plane, D4's arrival is in unlit cave darkness.
 - [ ] Sunrise/sunset tint and fog transitions are smooth at normal game speed (screenshots are single frames).
 - [ ] Celestials: multiple suns/moons overlap sanely; rainbow arc; end-sky starfield; dark sun has no disc.
 - [ ] Precipitation particles, snow layering, lightning flash and thunder audio in C2–C4.

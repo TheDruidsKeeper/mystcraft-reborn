@@ -39,7 +39,7 @@ docker buildx build --progress=plain --build-arg SMOKE_SECONDS=420 --target smok
 # scripts/gametest.sh — pass when out/gametest-status.txt is PASSED
 docker buildx build --progress=plain --target gametest-export --output type=local,dest=out .
 
-# scripts/client-smoke.sh — pass when out/client-smoke-status.txt is PASSED
+# scripts/client-smoke.sh — pass when status is PASSED or VISUAL_DRIFT (drift is a warning)
 docker buildx build --progress=plain --build-arg CLIENT_SMOKE_SECONDS=1200 --target client-smoke-export --output type=local,dest=out .
 ```
 

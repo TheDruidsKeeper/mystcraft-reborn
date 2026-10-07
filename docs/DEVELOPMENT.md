@@ -10,9 +10,9 @@ in [`gradle.properties`](../gradle.properties); the toolchain is ModDevGradle ([
 | Build | [`scripts/build.sh`](../scripts/build.sh) | `gradle build` (compile, unit tests incl. `AssetIntegrityTest`) → `out/*.jar` | compile errors, broken asset references |
 | Server smoke | [`scripts/smoke.sh`](../scripts/smoke.sh) `[seconds]` | dedicated server with `MYSTCRAFT_SELFCHECK=1` → `SelfCheck` | registries, datapacks, Age creation and generation, Facility assembly, blueprint stress |
 | Game tests | [`scripts/gametest.sh`](../scripts/gametest.sh) | GameTest server + `mystcraft_tests` mod (`src/gametest`) | behaviour with observable state (see [`docs/QA.md`](QA.md)) |
-| Client smoke | [`scripts/client-smoke.sh`](../scripts/client-smoke.sh) `[seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then [`scripts/qa/compare.py`](../scripts/qa/compare.py) | models, screens, renderers, Age sky/tints, QA shelf screenshot drift |
+| Client smoke | [`scripts/client-smoke.sh`](../scripts/client-smoke.sh) `[seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then [`scripts/qa/compare.py`](../scripts/qa/compare.py) | models, screens, renderers, Age sky/tints; QA shelf screenshot drift is reported as `VISUAL_DRIFT` (warning, not a hard fail) |
 
-Outputs land in `out/`: `*-status.txt` (`PASSED` or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
+Outputs land in `out/`: `*-status.txt` (`PASSED`, `VISUAL_DRIFT` warning, or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
 Each host script also tees the Docker build output to `logs/<layer>-docker.log` (git-ignored).
 
 Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestServer | runData`.

@@ -9,7 +9,7 @@ this?" — if it could, write the test ([`docs/DEVELOPMENT.md`](DEVELOPMENT.md#w
 |---|---|---|
 | GameTests (`src/gametest`) | blueprint fill, symbol schema (incl. the block support matrix), knowledge, workstations, linking/portals/spawn, creatures, instability tick, facility placement and puzzle mechanics, and for the QA worlds (`QaWorldTests`): terrain type, feature materials, biome layouts, structure starts, weather state, effects | anything rendered |
 | Server smoke (`SelfCheck`) | registries, datapacks, Age creation, generation speed, Facility assembly on a real server | terrain shape, placement quality |
-| Client smoke (`ClientSelfCheck` + [`scripts/qa/compare.py`](../scripts/qa/compare.py)) | screens open, renderers run, sky light follows the Age's celestial angle, **screenshots of every QA world by day and night do not drift from the baselines** | whether it looks *right* the first time |
+| Client smoke (`ClientSelfCheck` + [`scripts/qa/compare.py`](../scripts/qa/compare.py)) | screens open, renderers run, sky light follows the Age's celestial angle; QA screenshots are compared to baselines (`VISUAL_DRIFT` warns, does not fail) | whether it looks *right* the first time |
 
 ## The QA shelf (`/myst-dev qa-shelf`)
 One lectern per QA world, grouped in coloured sections with a sign each; every book is bound to a fixed-seed Age
@@ -39,7 +39,7 @@ One lectern per QA world, grouped in coloured sections with a sign each; every b
 ### Screenshot regression
 The client smoke tours every world (`ClientSelfCheck` steps `TOUR_*`) and writes `selfcheck_qa_<id>_<day|night>.png`.
 [`scripts/qa/compare.py`](../scripts/qa/compare.py) reduces each to band colours + a thumbnail and compares with [`scripts/qa/baselines.json`](../scripts/qa/baselines.json);
-drift fails the layer (`VISUAL_DRIFT`, report in `out/qa-report.txt`). Workflow:
+drift writes status `VISUAL_DRIFT` and `out/qa-report.txt` but does **not** fail the layer (selfcheck + resource warnings still do). Workflow:
 1. Drift or `NEW` reported → look at `out/screenshots/selfcheck_qa_*.png`.
 2. Looks right → `python scripts/qa/compare.py out/screenshots --update`, commit [`baselines.json`](../scripts/qa/baselines.json).
 3. Looks wrong → fix, rerun.

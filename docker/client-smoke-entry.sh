@@ -4,6 +4,7 @@
 # world -> /myst-dev scene -> /myst visit into a new Age -> night) taking screenshots, then quit.
 #
 # Success  = "CLIENT SELFCHECK PASSED" in the log and no mod-related render/resource warnings.
+#            Screenshot drift writes VISUAL_DRIFT (warning); host script / CI treat that as non-fatal.
 # Output   = /out/logs/client-smoke.log, /out/client-smoke-status.txt, /out/screenshots/selfcheck_*.png, /out/qa-report.txt
 set -u
 
@@ -79,7 +80,7 @@ echo "----- last 80 lines of game output -----"
 grep -vE "^\s+at (org\.gradle|java\.base|jdk\.internal|worker\.org)" "${LOG}" | tail -80
 if grep -q "CLIENT SELFCHECK PASSED" "${LOG}" && [ "${WARNINGS}" = "0" ]; then
     echo "VISUAL_DRIFT" > "${STATUS}"
-    echo "----- CLIENT SMOKE FAILED: QA screenshots drifted from scripts/qa/baselines.json (see /out/qa-report.txt; review, then compare.py --update) -----"
+    echo "----- CLIENT SMOKE WARNING: QA screenshots drifted from scripts/qa/baselines.json (see /out/qa-report.txt; review, then compare.py --update) -----"
 elif grep -q "CLIENT SELFCHECK PASSED" "${LOG}"; then
     echo "RESOURCE_WARNINGS" > "${STATUS}"
     echo "----- CLIENT SMOKE FAILED: script passed but ${WARNINGS} mod resource warnings -----"

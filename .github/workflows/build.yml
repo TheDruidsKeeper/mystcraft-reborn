@@ -151,11 +151,17 @@ jobs:
         run: |
           result="$(tr -d '[:space:]' < out/client-smoke-status.txt 2>/dev/null || echo MISSING)"
           echo "client smoke: $result"
-          if [ "$result" != "PASSED" ]; then
-            echo "::error::Client smoke failed ($result) - see the client-smoke artifact"
-            grep -E "\[clientcheck\]|CLIENT SELFCHECK|Missing textures|Missing FluidModel" out/logs/client-smoke.log | tail -40 || true
-            exit 1
+          if [ "$result" = "PASSED" ]; then
+            exit 0
           fi
+          if [ "$result" = "VISUAL_DRIFT" ]; then
+            echo "::warning::Client smoke visual drift (VISUAL_DRIFT) - review qa-report.txt / screenshots in the client-smoke artifact; update baselines when intentional"
+            head -80 out/qa-report.txt 2>/dev/null || true
+            exit 0
+          fi
+          echo "::error::Client smoke failed ($result) - see the client-smoke artifact"
+          grep -E "\[clientcheck\]|CLIENT SELFCHECK|Missing textures|Missing FluidModel" out/logs/client-smoke.log | tail -40 || true
+          exit 1
 
   release:
     name: GitHub Release

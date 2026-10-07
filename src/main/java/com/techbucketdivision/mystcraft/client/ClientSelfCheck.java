@@ -3,6 +3,7 @@ package com.tbd.mystcraft.client;
 import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.age.AgeController;
 import com.tbd.mystcraft.age.AgeManager;
+import com.tbd.mystcraft.api.linking.LinkInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
@@ -17,9 +18,13 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Map;
 
 /**
  * Headless client verification, enabled only by {@code MYSTCRAFT_CLIENT_SELFCHECK=1} (or
@@ -65,6 +70,8 @@ public final class ClientSelfCheck {
     private static int tourIndex;
     private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> tourFrom;
     private static final List<String> failures = new ArrayList<>();
+    /** SCENE_AGE waits for link-panel frames before opening GUIs that would pause {@link PanelImages} capture. */
+    private static boolean panelFramesReady;
 
     private static void onClientTick(ClientTickEvent.Post event) {
         if (step == Step.DONE) return;
@@ -183,12 +190,37 @@ public final class ClientSelfCheck {
                         checkAgeClientState(mc);
                         screenshot(mc, "03_age_arrival");
                     }
-                    if (stepTicks > 110) {
+                    // Opening the scene/book GUI pauses PanelImages while pendingDirection < 0; wait out capture first.
+                    if (stepTicks > 110 && !PanelImages.isCapturing()) {
                         command(mc, "myst-dev scene");
+                        panelFramesReady = false;
+                        next(Step.SCENE_AGE);
+                    } else if (stepTicks > 20 * 30) {
+                        failures.add("link panel capture still pending after Age settle (capturing=" + PanelImages.isCapturing()
+                                + "; see [panel] lines)");
+                        command(mc, "myst-dev scene");
+                        panelFramesReady = false;
                         next(Step.SCENE_AGE);
                     }
                 }
                 case SCENE_AGE -> {
+                    if (!panelFramesReady) {
+                        var info = ageLinkInfo(mc);
+                        int frames = PanelImages.frameCount(info);
+                        if (frames >= 4) {
+                            Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {}", frames);
+                            panelFramesReady = true;
+                            stepTicks = 0;
+                        } else if (stepTicks > 20 * 15) {
+                            Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {} (capturing={})",
+                                    frames, PanelImages.isCapturing());
+                            failures.add("expected four link panel pictures (N/E/S/W) for the visited Age, got " + frames
+                                    + " (see [panel] lines)");
+                            panelFramesReady = true;
+                            stepTicks = 0;
+                        }
+                        break;
+                    }
                     if (stepTicks == 60) {
                         screenshot(mc, "04_scene_age");
                         int known = mc.player == null ? 0 : com.tbd.mystcraft.knowledge.SymbolKnowledge.known(mc.player).size();
@@ -199,14 +231,6 @@ public final class ClientSelfCheck {
                     if (stepTicks == 70) command(mc, "myst-dev scene use current_age_book");
                     if (stepTicks == 95) {
                         if (mc.screen == null) failures.add("current Age book screen did not open");
-                        var level = mc.level;
-                        var info = level == null ? null : new com.tbd.mystcraft.api.linking.LinkInfo(
-                                java.util.Optional.of(level.dimension()),
-                                java.util.Optional.ofNullable(com.tbd.mystcraft.age.AgeData.uuidFromLevelKey(level.dimension())),
-                                java.util.Optional.empty(), 0f, "", java.util.Set.of(), java.util.Map.of());
-                        int frames = PanelImages.frameCount(info);
-                        Mystcraft.LOGGER.info("[clientcheck] link panel pictures for this Age: {}", frames);
-                        if (frames < 4) failures.add("expected four link panel pictures (N/E/S/W) for the visited Age, got " + frames + " (see [panel] lines)");
                         screenshot(mc, "04b_age_book");
                     }
                     // page to the first symbol page (category label + glyph) and to the summary page after the last page
@@ -378,6 +402,15 @@ public final class ClientSelfCheck {
             failures.add("client sky light " + skyLight + " does not follow the Age's celestial angle " + angle
                     + " (expected ~" + expectedLight + ")");
         }
+    }
+
+    private static @Nullable LinkInfo ageLinkInfo(Minecraft mc) {
+        ClientLevel level = mc.level;
+        if (level == null) return null;
+        return new LinkInfo(
+                Optional.of(level.dimension()),
+                Optional.ofNullable(com.tbd.mystcraft.age.AgeData.uuidFromLevelKey(level.dimension())),
+                Optional.empty(), 0f, "", Set.of(), Map.of());
     }
 
     private static void next(Step s) {

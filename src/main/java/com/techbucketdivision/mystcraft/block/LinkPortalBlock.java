@@ -2,6 +2,7 @@ package com.tbd.mystcraft.block;
 
 import com.tbd.mystcraft.api.item.ItemBehaviours;
 import com.tbd.mystcraft.blockentity.BookReceptacleBlockEntity;
+import com.tbd.mystcraft.item.DescriptiveBookItem;
 import com.tbd.mystcraft.linking.PortalUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -134,15 +135,26 @@ public class LinkPortalBlock extends Block implements FluidProof {
             return;
         }
         ItemStack book = receptacle.getBook(); // a copy: the receptacle inventory is resource based
-        if (book.getItem() instanceof ItemBehaviours.PortalActivator activator) {
-            activator.onPortalCollision(book, level, entity, pos);
-            // A Descriptive Book binds to its Age on first portal use; persist the bound copy or every traveller would
-            // create a new Age (and the first one silently failed with "book is not bound").
+        if (!(book.getItem() instanceof ItemBehaviours.PortalActivator activator)) return;
+        boolean dirty = false;
+        // Bind and persist before travel so the first collision and later retries share one Age. Defer
+        // sendBlockUpdated until after travel — neighbour updates can collapse the field and eject the entity.
+        if (level instanceof ServerLevel serverLevel && DescriptiveBookItem.isDescriptiveBook(book)) {
+            DescriptiveBookItem.checkFirstLink(book, serverLevel.getServer());
             if (!ItemStack.matches(book, receptacle.getBook())) {
                 receptacle.updateBook(book);
                 receptacle.setChanged();
-                level.sendBlockUpdated(receptacle.getBlockPos(), receptacle.getBlockState(), receptacle.getBlockState(), Block.UPDATE_ALL);
+                dirty = true;
             }
+        }
+        activator.onPortalCollision(book, level, entity, pos);
+        if (!ItemStack.matches(book, receptacle.getBook())) {
+            receptacle.updateBook(book);
+            receptacle.setChanged();
+            dirty = true;
+        }
+        if (dirty) {
+            level.sendBlockUpdated(receptacle.getBlockPos(), receptacle.getBlockState(), receptacle.getBlockState(), Block.UPDATE_ALL);
         }
     }
 }

@@ -228,6 +228,11 @@ public final class PanelImages {
         return cached == null ? 0 : cached.frames.size();
     }
 
+    /** True while an arrival photo sequence is scheduled or in progress (GUIs must not cover the view). */
+    public static boolean isCapturing() {
+        return pendingKey != null;
+    }
+
     public static void clear() {
         for (Cached cached : CACHE.values()) release(cached);
         CACHE.clear();

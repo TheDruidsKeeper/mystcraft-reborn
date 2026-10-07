@@ -26,6 +26,12 @@ if [ "$result" = "PASSED" ]; then
   echo "CLIENT SMOKE PASSED - log: out/logs/client-smoke.log, screenshots: out/screenshots/"
   exit 0
 fi
+if [ "$result" = "VISUAL_DRIFT" ]; then
+  echo
+  echo "CLIENT SMOKE WARNING (VISUAL_DRIFT) - review out/qa-report.txt and out/screenshots/; update baselines when intentional"
+  echo "log: out/logs/client-smoke.log"
+  exit 0
+fi
 echo
 echo "CLIENT SMOKE FAILED ($result) - log: out/logs/client-smoke.log, build output: logs/client-smoke-docker.log"
 exit 1

@@ -1,5 +1,6 @@
 package com.tbd.mystcraft.item;
 
+import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.age.AgeData;
 import com.tbd.mystcraft.age.AgeManager;
 import com.tbd.mystcraft.api.item.ItemBehaviours;
@@ -199,12 +200,28 @@ public abstract class LinkingItem extends Item implements ItemBehaviours.PortalA
     public void onPortalCollision(ItemStack stack, Level level, Entity entity, BlockPos portalPos) {
         if (level.isClientSide()) return;
         prepareLink(stack, level);
-        LinkInfo info = getLinkInfo(stack)
+        LinkInfo bound = getLinkInfo(stack);
+        if (!bound.isBound() || bound.dimension().isEmpty()) {
+            Mystcraft.LOGGER.warn("[link] portal: book still unbound after prepareLink; not travelling ({})",
+                    entity.getName().getString());
+            return;
+        }
+        if (level instanceof ServerLevel serverLevel) {
+            ServerLevel dest = LinkController.resolveLevel(serverLevel.getServer(), bound.dimension().get());
+            if (dest == null) {
+                Mystcraft.LOGGER.warn("[link] portal: destination {} unavailable for {}",
+                        bound.dimension().get().identifier(), entity.getName().getString());
+                return;
+            }
+        }
+        LinkInfo info = bound
                 .withFlag(LinkProperty.MAINTAIN_MOMENTUM, true)
                 .withFlag(LinkProperty.GENERATE_PLATFORM, false)
                 .withFlag(LinkProperty.EXTERNAL, true)
                 .withProp(LinkProperty.PROP_SOUND, SOUND_PORTAL_LINK);
-        LinkController.travelEntity(entity, info);
+        boolean moved = LinkController.travelEntity(entity, info);
+        Mystcraft.LOGGER.info("[link] portal {} {} -> {}", moved ? "linked" : "failed",
+                entity.getName().getString(), bound.dimension().get().identifier());
     }
 
     /** Hook run before any portal link; Descriptive Books bind to a new Age here (as {@code activate} does). */

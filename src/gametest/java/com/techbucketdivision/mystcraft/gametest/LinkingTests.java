@@ -201,23 +201,36 @@ public class LinkingTests {
         helper.assertBlockPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2);
 
         var pig = helper.spawn(EntityType.PIG, 2, 2, 2);
+        pig.setNoAi(true);
         UUID id = pig.getUUID();
         MinecraftServer server = helper.getLevel().getServer();
+        // Cross-dimension teleport keeps the UUID, but getEntity only sees the pig once its chunk is accessible.
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     LinkInfo info = LinkingItem.getLinkInfo(receptacle.getBook());
                     helper.assertTrue(info.isBound(), "receptacle book is bound");
+                })
+                .thenWaitUntil(() -> {
+                    LinkInfo info = LinkingItem.getLinkInfo(receptacle.getBook());
                     var pages = com.tbd.mystcraft.item.DescriptiveBookItem.getPages(receptacle.getBook());
                     helper.assertTrue(pages.stream().anyMatch(com.tbd.mystcraft.item.PageItem::isDiscovered),
                             "the receptacle keeps the bound book with its discovered pages (" + pages.size() + " pages)");
                     ServerLevel age = server.getLevel(info.dimension().orElseThrow());
-                    helper.assertNotNull(age, "Age level exists");
-                    helper.assertNotNull(age.getEntity(id), "pig linked through the portal");
+                    helper.assertNotNull(age, "Age level exists for " + info.dimension().orElseThrow().identifier());
+                    BlockPos spawn = info.spawn().orElseGet(() -> LinkController.defaultSpawn(age));
+                    age.getChunk(spawn.getX() >> 4, spawn.getZ() >> 4);
+                    Entity inAge = age.getEntity(id);
+                    Entity inOrigin = helper.getLevel().getEntity(id);
+                    helper.assertTrue(inAge != null,
+                            "pig linked through the portal (still in origin=" + (inOrigin != null)
+                                    + ", Age=" + info.dimension().orElseThrow().identifier()
+                                    + ", spawn=" + spawn.toShortString() + ")");
                 })
                 .thenExecute(() -> {
                     LinkInfo info = LinkingItem.getLinkInfo(receptacle.getBook());
                     ServerLevel age = server.getLevel(info.dimension().orElseThrow());
                     Entity moved = age.getEntity(id);
+                    helper.assertNotNull(moved, "pig still in Age after link");
                     assertPlatform(helper, age, moved.blockPosition());
                     helper.assertBlockPresent(ModBlocks.LINK_PORTAL.get(), 2, 2, 2); // field survives the link
                 })

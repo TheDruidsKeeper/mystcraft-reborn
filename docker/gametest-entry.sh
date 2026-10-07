@@ -3,13 +3,13 @@
 # the dev-only `mystcraft_tests` mod, runs every registered in-game test and exits.
 #
 # Success  = gradle exits 0 and the log reports the test summary with 0 failures.
-# Output   = /out/gametest.log (full log), /out/gametest-status.txt (PASSED / FAILED / DID_NOT_RUN),
+# Output   = /out/logs/gametest.log (full log), /out/gametest-status.txt (PASSED / FAILED / DID_NOT_RUN),
 #            /out/gametest-results/*.xml (JUnit summary from the test framework, when produced).
 set -u
 
-LOG=/out/gametest.log
+LOG=/out/logs/gametest.log
 STATUS=/out/gametest-status.txt
-mkdir -p /out run/gametest
+mkdir -p /out/logs run/gametest
 echo "DID_NOT_RUN" > "${STATUS}"
 
 echo "----- running game tests -----"

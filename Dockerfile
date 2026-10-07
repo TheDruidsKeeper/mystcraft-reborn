@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 #
 # Reproducible build of Mystcraft Reborn.
-#   Local:   ./scripts/build.sh            (or scripts\build.ps1 on Windows)
+#   Local:   ./scripts/build.sh
 #   Extract: docker buildx build --target export --output type=local,dest=out .
 #   CI:      .github/workflows/build.yml uses this exact file.
 #
@@ -40,11 +40,11 @@ COPY --from=build /out/ /
 # installed and requires it to finish loading. This exercises mod construction, every registry,
 # the access transformer, datapack parsing (dimension type, recipes, loot, trades, tags,
 # advancements) and the server-start hooks — everything except client rendering.
-#   scripts/smoke.ps1   /   scripts/smoke.sh
+#   scripts/smoke.sh
 FROM build AS smoke
 ARG SMOKE_SECONDS=420
 ENV SMOKE_SECONDS=${SMOKE_SECONDS}
-COPY scripts/smoke-entry.sh /usr/local/bin/smoke-entry.sh
+COPY docker/smoke-entry.sh /usr/local/bin/smoke-entry.sh
 RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/smoke-entry.sh
 
 # Stage 4: export the jar and the smoke log together.
@@ -56,7 +56,7 @@ COPY --from=smoke /out/ /
 # instability. Everything server-side that a player would otherwise have to verify by hand.
 #   scripts/gametest.sh
 FROM build AS gametest
-COPY scripts/gametest-entry.sh /usr/local/bin/gametest-entry.sh
+COPY docker/gametest-entry.sh /usr/local/bin/gametest-entry.sh
 RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/gametest-entry.sh
 
 FROM scratch AS gametest-export
@@ -82,7 +82,7 @@ WORKDIR /src
 COPY --from=build /src /src
 ARG CLIENT_SMOKE_SECONDS=1200
 ENV CLIENT_SMOKE_SECONDS=${CLIENT_SMOKE_SECONDS}
-COPY scripts/client-smoke-entry.sh /usr/local/bin/client-smoke-entry.sh
+COPY docker/client-smoke-entry.sh /usr/local/bin/client-smoke-entry.sh
 COPY scripts/qa /usr/local/lib/mystcraft-qa
 RUN --mount=type=cache,target=/gradle-home,id=mystcraft-gradle-home sh /usr/local/bin/client-smoke-entry.sh
 

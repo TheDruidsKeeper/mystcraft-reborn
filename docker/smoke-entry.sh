@@ -10,9 +10,9 @@
 set -u
 
 SMOKE_SECONDS="${SMOKE_SECONDS:-420}"
-LOG=/out/smoke.log
+LOG=/out/logs/smoke.log
 STATUS=/out/smoke-status.txt
-mkdir -p /out run/server
+mkdir -p /out/logs run/server
 echo "DID_NOT_RUN" > "${STATUS}"
 
 echo "eula=true" > run/server/eula.txt
@@ -74,6 +74,6 @@ grep -nE "ERROR|Exception|Caused by|Failed to|Missing|Unknown registry|No key|Su
 echo "----- last 80 lines of game output -----"
 grep -vE "^\s+at (org\.gradle|java\.base|jdk\.internal|worker\.org)" "${LOG}" | tail -80
 echo "SERVER_DID_NOT_LOAD" > "${STATUS}"
-# Exit 0 so the export stage still runs: the PowerShell/bash wrapper reads smoke-status.txt and reports
-# the failure. Otherwise a failed RUN aborts the build and out/smoke.log is never written out.
+# Exit 0 so the export stage still runs: the host wrapper reads smoke-status.txt and reports
+# the failure. Otherwise a failed RUN aborts the build and out/logs/smoke.log is never written out.
 exit 0

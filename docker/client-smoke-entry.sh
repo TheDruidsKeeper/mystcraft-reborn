@@ -4,13 +4,13 @@
 # world -> /myst-dev scene -> /myst visit into a new Age -> night) taking screenshots, then quit.
 #
 # Success  = "CLIENT SELFCHECK PASSED" in the log and no mod-related render/resource warnings.
-# Output   = /out/client-smoke.log, /out/client-smoke-status.txt, /out/screenshots/selfcheck_*.png, /out/qa-report.txt
+# Output   = /out/logs/client-smoke.log, /out/client-smoke-status.txt, /out/screenshots/selfcheck_*.png, /out/qa-report.txt
 set -u
 
 BUDGET="${CLIENT_SMOKE_SECONDS:-1200}"
-LOG=/out/client-smoke.log
+LOG=/out/logs/client-smoke.log
 STATUS=/out/client-smoke-status.txt
-mkdir -p /out run/client
+mkdir -p /out/logs run/client
 echo "DID_NOT_RUN" > "${STATUS}"
 
 # Skip the dev-client "do you want to log in" style prompts and any first-run UI.

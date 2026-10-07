@@ -12,8 +12,8 @@ in `gradle.properties`; the toolchain is ModDevGradle (`build.gradle`).
 | Game tests | `scripts/gametest.sh` | GameTest server + `mystcraft_tests` mod (`src/gametest`) | behaviour with observable state (see `docs/QA.md`) |
 | Client smoke | `scripts/client-smoke.sh [seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then `scripts/qa/compare.py` | models, screens, renderers, Age sky/tints, QA shelf screenshot drift |
 
-Outputs land in `out/`: `*-status.txt` (`PASSED` or a failure kind), `*.log`, `screenshots/`, `qa-report.txt`, the jar.
-Each script also tees the Docker build output to `<layer>-docker.log` in the repo root (git-ignored).
+Outputs land in `out/`: `*-status.txt` (`PASSED` or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
+Each host script also tees the Docker build output to `logs/<layer>-docker.log` (git-ignored).
 
 Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestServer | runData`.
 

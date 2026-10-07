@@ -4,6 +4,7 @@
 .vscode
 build
 out
+logs
 run
 run-*
 repo

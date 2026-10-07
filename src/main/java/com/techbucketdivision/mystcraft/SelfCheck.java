@@ -48,7 +48,7 @@ import java.util.List;
 
 /**
  * Headless end-to-end verification, run on server start when {@code -Dmystcraft.selfcheck=true} or the environment
- * variable {@code MYSTCRAFT_SELFCHECK=1} is set. Used by the Docker smoke test (scripts/smoke-entry.sh) so that CI
+ * variable {@code MYSTCRAFT_SELFCHECK=1} is set. Used by the Docker smoke test (docker/smoke-entry.sh) so that CI
  * verifies the parts a plain server boot never touches: dimension creation, chunk generation and the Age blueprint.
  * <p>
  * Never enabled in normal play. Every check logs {@code [selfcheck]} and the summary line is

@@ -66,7 +66,7 @@ jobs:
         if: always()
         with:
           name: smoke-log
-          path: out/smoke.log
+          path: out/logs/smoke.log
           if-no-files-found: warn
 
       - name: Check self-check result
@@ -75,7 +75,7 @@ jobs:
           echo "self check: $result"
           if [ "$result" != "PASSED" ]; then
             echo "::error::Smoke test failed ($result) - see the smoke-log artifact"
-            grep -E "\[selfcheck\]|SELFCHECK" out/smoke.log | tail -40 || true
+            grep -E "\[selfcheck\]|SELFCHECK" out/logs/smoke.log | tail -40 || true
             exit 1
           fi
 
@@ -103,7 +103,7 @@ jobs:
         with:
           name: gametest-log
           path: |
-            out/gametest.log
+            out/logs/gametest.log
             out/gametest-results
           if-no-files-found: warn
 
@@ -113,7 +113,7 @@ jobs:
           echo "game tests: $result"
           if [ "$result" != "PASSED" ]; then
             echo "::error::Game tests failed ($result) - see the gametest-log artifact"
-            grep -iE "failed|GameTestException" out/gametest.log | tail -40 || true
+            grep -iE "failed|GameTestException" out/logs/gametest.log | tail -40 || true
             exit 1
           fi
 
@@ -142,7 +142,7 @@ jobs:
         with:
           name: client-smoke
           path: |
-            out/client-smoke.log
+            out/logs/client-smoke.log
             out/screenshots
             out/qa-report.txt
           if-no-files-found: warn
@@ -153,7 +153,7 @@ jobs:
           echo "client smoke: $result"
           if [ "$result" != "PASSED" ]; then
             echo "::error::Client smoke failed ($result) - see the client-smoke artifact"
-            grep -E "\[clientcheck\]|CLIENT SELFCHECK|Missing textures|Missing FluidModel" out/client-smoke.log | tail -40 || true
+            grep -E "\[clientcheck\]|CLIENT SELFCHECK|Missing textures|Missing FluidModel" out/logs/client-smoke.log | tail -40 || true
             exit 1
           fi
 

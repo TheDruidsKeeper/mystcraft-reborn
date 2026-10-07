@@ -27,8 +27,23 @@ data pack that can be disabled in the world's data pack screen.
 `docs/GAMEPLAY.md` explains every mechanic.
 
 ## Build and test
-Everything runs in Docker: `scripts/build.sh` (jar in `out/`), `scripts/smoke.sh`, `scripts/gametest.sh`,
-`scripts/client-smoke.sh`. See `docs/DEVELOPMENT.md`; the documentation index is in `CLAUDE.md`.
+Requires Docker with BuildKit (`docker buildx`). From the repo root:
+
+```bash
+# scripts/build.sh — jar → out/
+docker buildx build --progress=plain --build-arg GRADLE_TASKS=build --target export --output type=local,dest=out .
+
+# scripts/smoke.sh — server SelfCheck; pass when out/smoke-status.txt is PASSED
+docker buildx build --progress=plain --build-arg SMOKE_SECONDS=420 --target smoke-export --output type=local,dest=out .
+
+# scripts/gametest.sh — pass when out/gametest-status.txt is PASSED
+docker buildx build --progress=plain --target gametest-export --output type=local,dest=out .
+
+# scripts/client-smoke.sh — pass when out/client-smoke-status.txt is PASSED
+docker buildx build --progress=plain --build-arg CLIENT_SMOKE_SECONDS=1200 --target client-smoke-export --output type=local,dest=out .
+```
+
+See `docs/DEVELOPMENT.md` for what each layer catches; the documentation index is in `CLAUDE.md`.
 
 ## Credits
 Original Mystcraft by XCompWiz (LGPL-3.0). Dynamic dimensions after Commoble's Infiniverse (MIT). Facility rooms

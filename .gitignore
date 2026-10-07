@@ -6,10 +6,7 @@ build/
 
 ### Docker build output ###
 out/
-build-docker.log
-smoke-docker.log
-gametest-docker.log
-client-smoke-docker.log
+logs/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -45,7 +42,5 @@ run-*/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
-client-docker.log
-*-docker.log
 *-done.txt
 *-run.log

@@ -1,16 +1,16 @@
 # Development
 
-Everything runs inside Docker (`Dockerfile`, one stage per layer) so local and CI results match. Versions are pinned
-in `gradle.properties`; the toolchain is ModDevGradle (`build.gradle`).
+Everything runs inside Docker ([`Dockerfile`](../Dockerfile), one stage per layer) so local and CI results match. Versions are pinned
+in [`gradle.properties`](../gradle.properties); the toolchain is ModDevGradle ([`build.gradle`](../build.gradle)).
 
 ## Pipeline
 
 | Layer | Script | What runs | Catches |
 |---|---|---|---|
-| Build | `scripts/build.sh` | `gradle build` (compile, unit tests incl. `AssetIntegrityTest`) → `out/*.jar` | compile errors, broken asset references |
-| Server smoke | `scripts/smoke.sh [seconds]` | dedicated server with `MYSTCRAFT_SELFCHECK=1` → `SelfCheck` | registries, datapacks, Age creation and generation, Facility assembly, blueprint stress |
-| Game tests | `scripts/gametest.sh` | GameTest server + `mystcraft_tests` mod (`src/gametest`) | behaviour with observable state (see `docs/QA.md`) |
-| Client smoke | `scripts/client-smoke.sh [seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then `scripts/qa/compare.py` | models, screens, renderers, Age sky/tints, QA shelf screenshot drift |
+| Build | [`scripts/build.sh`](../scripts/build.sh) | `gradle build` (compile, unit tests incl. `AssetIntegrityTest`) → `out/*.jar` | compile errors, broken asset references |
+| Server smoke | [`scripts/smoke.sh`](../scripts/smoke.sh) `[seconds]` | dedicated server with `MYSTCRAFT_SELFCHECK=1` → `SelfCheck` | registries, datapacks, Age creation and generation, Facility assembly, blueprint stress |
+| Game tests | [`scripts/gametest.sh`](../scripts/gametest.sh) | GameTest server + `mystcraft_tests` mod (`src/gametest`) | behaviour with observable state (see [`docs/QA.md`](QA.md)) |
+| Client smoke | [`scripts/client-smoke.sh`](../scripts/client-smoke.sh) `[seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then [`scripts/qa/compare.py`](../scripts/qa/compare.py) | models, screens, renderers, Age sky/tints, QA shelf screenshot drift |
 
 Outputs land in `out/`: `*-status.txt` (`PASSED` or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
 Each host script also tees the Docker build output to `logs/<layer>-docker.log` (git-ignored).
@@ -19,8 +19,8 @@ Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestS
 
 ### Gradle tasks of note
 * `generateStructurePools` — writes the Facility template pools + `CREDITS.md` from the room manifest
-  (`docs/STRUCTURES.md`); runs before `processResources`.
-* `runData` — datagen into `src/generated/resources` (committed).
+  ([`docs/STRUCTURES.md`](STRUCTURES.md)); runs before `processResources`.
+* `runData` — datagen into [`src/generated/resources`](../src/generated/resources) (committed).
 
 ## Running on a real client
 Copy `out/mystcraft-neoforge-26.1-<version>.jar` into the instance's `mods/`. Logs for bug reports:
@@ -72,7 +72,7 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 | Subcommand | Effect |
 |---|---|
 | `scene`, `scene closeup <element>`, `scene open <element>`, `scene use <item>` | the debug showcase (`command/DebugScene`); driven by the client smoke |
-| `qa-shelf` | build the visual QA matrix in front of you (`command/QaShelf`, `docs/QA.md`) |
+| `qa-shelf` | build the visual QA matrix in front of you (`command/QaShelf`, [`docs/QA.md`](QA.md)) |
 | `qa-visit <id>` | bind one QA world and link into it (the client smoke tour uses this) |
 | `facility-tp entrance|lobby|vault` | teleport into this Age's generated Facility (`world/structure/FacilityLocator.find`; the tour shoots E2's entrance and lobby) |
 
@@ -85,14 +85,14 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 * **SelfCheck** (`SelfCheck.java`) — add a `check(...)` for anything that needs a real dedicated server (structure
   generation, registries, timing).
 * **ClientSelfCheck** — add a `Step`; screenshots are `selfcheck_<name>.png`; add `failures` entries for assertions.
-  Visual checks of QA worlds go through the tour and `scripts/qa/compare.py` (`docs/QA.md`), not new steps.
+  Visual checks of QA worlds go through the tour and [`scripts/qa/compare.py`](../scripts/qa/compare.py) ([`docs/QA.md`](QA.md)), not new steps.
 
 ## API lookup
-Decompiled 26.1 sources and the NeoForge sources sit in the Gradle cache (`docs/API_NOTES.md` has the paths and the
+Decompiled 26.1 sources and the NeoForge sources sit in the Gradle cache ([`docs/API_NOTES.md`](API_NOTES.md) has the paths and the
 known renames). Check a signature there before using it; the smoke build is the next line of defence.
 
 ## Release checklist
-1. Pipeline green, `scripts/qa/baselines.json` reviewed/updated, manual checklist in `docs/QA.md` walked once.
-2. `mod_version` in `gradle.properties`; `NOTICE.md` lists every imported asset pack (`docs/STRUCTURES.md`).
-3. `README.md` matches the shipped behaviour; `docs/plans/` holds only open work.
-4. Tag, build with `scripts/build.sh`, publish `out/mystcraft-neoforge-26.1-<version>.jar`.
+1. Pipeline green, [`scripts/qa/baselines.json`](../scripts/qa/baselines.json) reviewed/updated, manual checklist in [`docs/QA.md`](QA.md) walked once.
+2. `mod_version` in [`gradle.properties`](../gradle.properties); [`NOTICE.md`](../NOTICE.md) lists every imported asset pack ([`docs/STRUCTURES.md`](STRUCTURES.md)).
+3. [`README.md`](../README.md) matches the shipped behaviour; [`docs/plans/`](plans/) holds only open work.
+4. Tag, build with [`scripts/build.sh`](../scripts/build.sh), publish `out/mystcraft-neoforge-26.1-<version>.jar`.

@@ -42,7 +42,7 @@ All-Rights-Reserved); Dungeon Crawl / Roguelike Dungeons (GPL-3.0 — would forc
 DeCubed (CC-BY-NC-SA — share-alike and non-commercial clauses). Community schematic sites (Planet Minecraft,
 minecraft-schematics, GrabCraft) have per-upload, mostly unstated terms — not worth the risk for shipped content.
 
-Attribution: every imported file gets a line in `NOTICE.md` (pack, author, license, original path) and the pipeline
+Attribution: every imported file gets a line in [`NOTICE.md`](../../NOTICE.md) (pack, author, license, original path) and the pipeline
 manifest (§3) carries the same metadata so it cannot be lost.
 
 ### 1.3 Online converters (for one-offs only)
@@ -135,11 +135,11 @@ Mixed vanilla content needs no files at all: pool JSON can reference `minecraft:
 
 | Phase | Work | Exit criterion |
 |---|---|---|
-| **1 Pipeline** ✅ | `scripts/structures/*`, Gradle task, built-in datapack registration, `docs/STRUCTURES.md`, NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
+| **1 Pipeline** ✅ | [`scripts/structures/`](../../scripts/structures/), Gradle task, built-in datapack registration, [`docs/STRUCTURES.md`](../STRUCTURES.md), NOTICE entries, 1 imported test room | `./gradlew generateStructurePools` reproducible in Docker; smoke test loads the pools |
 | **2 Worldgen** ✅ | `near_origin` placement, facility `Structure` + set + biome tag, `createState` wiring, `AgeSpawn` alignment, `/myst-locate facility` | gametest: every new Age has exactly one facility within R of origin; spawn relation holds; smoke green |
 | **3 Puzzle framework** ✅ | `facility/*`: marker-resolving pool element (`mystcraft:facility_element`), Warded Door, Symbol Altar, Sequence Dial bank + clue blocks, Offering Pedestal (trial = Trial Key), vanilla Trial Spawner / Vault markers, Facility Cache (per-player linkbook / loot), protection rule, `AgeData` facility state | `FacilityPuzzleTests`: every marker resolves; each lock type opens its doors; cache is per player; protection follows the start bounds until solved |
-| **4 Content v1** (markers ✅, more rooms pending) | `scripts/structures/markers.py` retrofits the Stonevaults set from `manifest.json` (9 locked rooms over all five lock types, clues in the lobby, four vaults with per-player caches); still open: more entrances / rooms / vaults from the other §1.2 sources, vanilla trial-chamber corridors | smoke test generates a facility and counts doors, locks and the Linking Book cache; manual run-through in docs/QA.md |
-| **5 Ship** | docs/QA.md checklist (by mechanic), docs/GAMEPLAY.md "Structures", config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
+| **4 Content v1** (markers ✅, more rooms pending) | [`scripts/structures/markers.py`](../../scripts/structures/markers.py) retrofits the Stonevaults set from [`manifest.json`](../../src/main/resources/datapacks/mystcraft_facility/manifest.json) (9 locked rooms over all five lock types, clues in the lobby, four vaults with per-player caches); still open: more entrances / rooms / vaults from the other §1.2 sources, vanilla trial-chamber corridors | smoke test generates a facility and counts doors, locks and the Linking Book cache; manual run-through in [`docs/QA.md`](../QA.md) |
+| **5 Ship** | [`docs/QA.md`](../QA.md) checklist (by mechanic), [`docs/GAMEPLAY.md`](../GAMEPLAY.md) "Structures", config keys (radius, enable, protection mode), jar to MultiMC | full pipeline green, playtest report |
 
 Order: 1 → 2 → 3 can be developed in parallel with 4 once markers are specified (§2.2 is the contract).
 
@@ -159,7 +159,7 @@ set), room count (pool depth), `rewardLinkbook` (the `reward:linkbook` marker de
 
 ## 6. Risks
 * **26.1 jigsaw/structure JSON schema**: verify field names against the 26.1 vanilla datapack (`trial_chambers`
-  structure JSON in the client jar) before writing ours; add to docs/API_NOTES.md.
+  structure JSON in the client jar) before writing ours; add to [`docs/API_NOTES.md`](../API_NOTES.md).
 * **Custom chunk generator + structures**: verified — the jigsaw assembles 36 pieces on the dedicated server (bbox
   ~143×57×169). `terrain_adaptation: beard_thin` is declared but our legacy terrain gens ignore the Beardifier, so the
   entrance may float / be buried on rough terrain: Phase 4 adds a flat-fill foundation processor or marker if playtests
@@ -179,7 +179,7 @@ set), room count (pool depth), `rewardLinkbook` (the `reward:linkbook` marker de
   (same seed → same chunk); spawn/facility distance.
 * Smoke: datapack registries (structure, structure_set, template_pool, processor_list) load.
 * Client smoke: `/myst-scene facility` builds an entrance + one room and screenshots it.
-* Manual (docs/QA.md): full solve path; bypass attempts; multiplayer re-entry.
+* Manual ([`docs/QA.md`](../QA.md)): full solve path; bypass attempts; multiplayer re-entry.
 
 ## 8. Decisions needed
 1. **Which Ages get a Facility** — DECIDED: a new **"Vault" symbol** (Structures category in WORLD_BUILDING_PLAN §2
@@ -200,6 +200,6 @@ set), room count (pool depth), `rewardLinkbook` (the `reward:linkbook` marker de
    live in `src/main/resources/datapacks/mystcraft_facility/` registered as a built-in pack via
    `AddPackFindersEvent` (enabled by default, `facility.enabled` toggles it). Players add rooms by dropping their own
    datapack with extra `template_pool` entries (pools are tag-like: our pool JSON references a
-   `#mystcraft:facility/puzzle` structure tag where possible, or players override the pool file). `docs/STRUCTURES.md`
+   `#mystcraft:facility/puzzle` structure tag where possible, or players override the pool file). [`docs/STRUCTURES.md`](../STRUCTURES.md)
    documents the player path as well as ours. Only the Java mechanics (blocks, placement type, processor) stay in the
    mod proper.

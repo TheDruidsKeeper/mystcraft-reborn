@@ -82,9 +82,9 @@ scorched, extra ticks — `instability/InstabilityController`, `effects/`, `deca
 ## Structures
 * **Library** (`world/structure/MystcraftLibrary`): small building with a loot chest and symbol-page lecterns, once per
   region of every Age.
-* **Facility** (Vault symbol, `docs/plans/FACILITY_PLAN.md`): one jigsaw structure per Vault Age, 2–5 chunks from the
+* **Facility** (Vault symbol, [`docs/plans/FACILITY_PLAN.md`](plans/FACILITY_PLAN.md)): one jigsaw structure per Vault Age, 2–5 chunks from the
   origin, arrival 60–120 blocks from its entrance; rooms are imported pieces in the built-in datapack
-  `mystcraft_facility` (`docs/STRUCTURES.md`). Rooms carry markers that become Warded Doors and locks (Symbol Altar
+  `mystcraft_facility` ([`docs/STRUCTURES.md`](STRUCTURES.md)). Rooms carry markers that become Warded Doors and locks (Symbol Altar
   wanting pages of the Age's own symbols, Sequence Dials matching the Age's glyph code shown by clue blocks, Offering
   Pedestals, vanilla Trial Spawners and Vaults); the terminal room's Facility Cache hands every player one Linking Book
   home, which lifts the protection that stops blocks inside the facility being broken until then (`facility/*`).

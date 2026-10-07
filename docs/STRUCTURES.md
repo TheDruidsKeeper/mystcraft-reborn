@@ -1,7 +1,7 @@
 # Facility structures: how rooms are sourced, imported and shipped
 
-The Facility (docs/plans/FACILITY_PLAN.md) is a jigsaw structure whose pieces are **imported**, not designed here.
-Pieces live in a built-in data pack, `src/main/resources/datapacks/mystcraft_facility`, registered by
+The Facility ([`docs/plans/FACILITY_PLAN.md`](plans/FACILITY_PLAN.md)) is a jigsaw structure whose pieces are **imported**, not designed here.
+Pieces live in a built-in data pack, [`src/main/resources/datapacks/mystcraft_facility`](../src/main/resources/datapacks/mystcraft_facility), registered by
 `Mystcraft#addPackFinders` (enabled by default; players can disable it or layer their own packs on top).
 
 ```
@@ -37,7 +37,7 @@ by the importer.
 
 1. Get the piece as `.nbt` (structure block / Axiom export), `.schem` (WorldEdit/Axiom) or `.litematic`.
    Only use sources whose license permits redistribution with attribution (MIT, LGPL, CC-BY; **not** ARR, GPL, NC).
-2. Import it (needs `pip install nbtlib`):
+2. Import it (needs `pip install nbtlib`) with [`scripts/structures/import.py`](../scripts/structures/import.py):
    ```
    python scripts/structures/import.py --pool facility/rooms --weight 1 --prefix xx_ \
        --source-pack "Pack name" --author Author --license MIT --url https://... \
@@ -45,14 +45,14 @@ by the importer.
    ```
    The script prints any ids from foreign namespaces that are still referenced (pools, loot tables); provide those
    files or add `--remap` entries until the list is empty. Entities are stripped unless `--keep-entities`.
-3. Give the piece a `markers` object in `manifest.json` and run `python scripts/structures/markers.py` (idempotent;
+3. Give the piece a `markers` object in [`manifest.json`](../src/main/resources/datapacks/mystcraft_facility/manifest.json) and run [`scripts/structures/markers.py`](../scripts/structures/markers.py) (idempotent;
    `--check` reports stale templates). The script finds doorways, free floor cells and chests itself, so no hand
    editing is needed; the keys are documented at the top of the script. Hand-placed DATA markers (a structure block
    in DATA mode) work too and survive the script.
-4. Optional: set a pool's `fallback` / default `processors` in `manifest.json` → `pools`. Vanilla pieces can be mixed in
-   without files via `manifest.json` → `external` (`{"pool": "facility/rooms", "location": "minecraft:trial_chambers/…"}`).
+4. Optional: set a pool's `fallback` / default `processors` in [`manifest.json`](../src/main/resources/datapacks/mystcraft_facility/manifest.json) → `pools`. Vanilla pieces can be mixed in
+   without files via [`manifest.json`](../src/main/resources/datapacks/mystcraft_facility/manifest.json) → `external` (`{"pool": "facility/rooms", "location": "minecraft:trial_chambers/…"}`).
 5. Build. `generateStructurePools` regenerates the pool JSON and `CREDITS.md`; the smoke test fails if a pool references
-   a missing template or processor list. Add the pack to `NOTICE.md` the first time it is used.
+   a missing template or processor list. Add the pack to [`NOTICE.md`](../NOTICE.md) the first time it is used.
 
 ## Puzzle markers
 

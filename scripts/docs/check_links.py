@@ -67,11 +67,11 @@ def main() -> int:
                 if cm and cm.group(1) not in CLASS_INDEX and not token.endswith((".md", ".json", ".toml", ".txt")):
                     bad.append(f"{rel}: class `{token}`")
         for m in re.finditer(r"\]\(([^)]+)\)", text):
-            link = m.group(1)
-            if link.startswith("http"):
+            link = m.group(1).split("#")[0]
+            if not link or link.startswith("http"):
                 continue
             if not (doc.parent / link).exists() and not (REPO / link).exists():
-                bad.append(f"{rel}: link ({link})")
+                bad.append(f"{rel}: link ({m.group(1)})")
     for b in bad:
         print(b)
     print(f"{len(DOCS)} docs, {len(bad)} dangling references")

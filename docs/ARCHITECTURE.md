@@ -54,7 +54,7 @@ pages (PageItem, SymbolPage component)            player writes some; the rest i
 | `util/` | `MystIds` and small helpers |
 
 Tests: `src/gametest` (companion mod `mystcraft_tests`), `src/test` (unit, asset integrity), `SelfCheck` (server
-smoke), `client/ClientSelfCheck` (client smoke). See `docs/DEVELOPMENT.md`.
+smoke), `client/ClientSelfCheck` (client smoke). See [`docs/DEVELOPMENT.md`](DEVELOPMENT.md).
 
 ## Conventions
 * Java 25 idioms; `org.jspecify.annotations.Nullable`.
@@ -62,5 +62,5 @@ smoke), `client/ClientSelfCheck` (client smoke). See `docs/DEVELOPMENT.md`.
   `commands.mystcraft.*`, `gui.mystcraft.*`.
 * Block entities persist with `ValueOutput`/`ValueInput`; inventories/tanks are resource handlers; no `ItemStack`
   in static initialisers.
-* Log through `Mystcraft.LOGGER` with the `[tag]` markers from `docs/DEVELOPMENT.md`.
-* 26.1 API differences from 1.21 are collected in `docs/API_NOTES.md`; when in doubt read the decompiled source.
+* Log through `Mystcraft.LOGGER` with the `[tag]` markers from [`docs/DEVELOPMENT.md`](DEVELOPMENT.md#log-markers).
+* 26.1 API differences from 1.21 are collected in [`docs/API_NOTES.md`](API_NOTES.md); when in doubt read the decompiled source.

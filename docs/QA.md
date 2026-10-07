@@ -1,7 +1,7 @@
 # QA
 
 Rule: a manual check exists only when no test can assert the fact. Every item below answers "why can't a test see
-this?" — if it could, write the test (`docs/DEVELOPMENT.md` "Writing tests") and delete the item.
+this?" — if it could, write the test ([`docs/DEVELOPMENT.md`](DEVELOPMENT.md#writing-tests) "Writing tests") and delete the item.
 
 ## What each layer verifies
 
@@ -9,7 +9,7 @@ this?" — if it could, write the test (`docs/DEVELOPMENT.md` "Writing tests") a
 |---|---|---|
 | GameTests (`src/gametest`) | blueprint fill, symbol schema (incl. the block support matrix), knowledge, workstations, linking/portals/spawn, creatures, instability tick, facility placement and puzzle mechanics, and for the QA worlds (`QaWorldTests`): terrain type, feature materials, biome layouts, structure starts, weather state, effects | anything rendered |
 | Server smoke (`SelfCheck`) | registries, datapacks, Age creation, generation speed, Facility assembly on a real server | terrain shape, placement quality |
-| Client smoke (`ClientSelfCheck` + `scripts/qa/compare.py`) | screens open, renderers run, sky light follows the Age's celestial angle, **screenshots of every QA world by day and night do not drift from the baselines** | whether it looks *right* the first time |
+| Client smoke (`ClientSelfCheck` + [`scripts/qa/compare.py`](../scripts/qa/compare.py)) | screens open, renderers run, sky light follows the Age's celestial angle, **screenshots of every QA world by day and night do not drift from the baselines** | whether it looks *right* the first time |
 
 ## The QA shelf (`/myst-dev qa-shelf`)
 One lectern per QA world, grouped in coloured sections with a sign each; every book is bound to a fixed-seed Age
@@ -38,10 +38,10 @@ One lectern per QA world, grouped in coloured sections with a sign each; every b
 
 ### Screenshot regression
 The client smoke tours every world (`ClientSelfCheck` steps `TOUR_*`) and writes `selfcheck_qa_<id>_<day|night>.png`.
-`scripts/qa/compare.py` reduces each to band colours + a thumbnail and compares with `scripts/qa/baselines.json`;
+[`scripts/qa/compare.py`](../scripts/qa/compare.py) reduces each to band colours + a thumbnail and compares with [`scripts/qa/baselines.json`](../scripts/qa/baselines.json);
 drift fails the layer (`VISUAL_DRIFT`, report in `out/qa-report.txt`). Workflow:
 1. Drift or `NEW` reported → look at `out/screenshots/selfcheck_qa_*.png`.
-2. Looks right → `python scripts/qa/compare.py out/screenshots --update`, commit `baselines.json`.
+2. Looks right → `python scripts/qa/compare.py out/screenshots --update`, commit [`baselines.json`](../scripts/qa/baselines.json).
 3. Looks wrong → fix, rerun.
 Adding a world: add it to `QaShelf.sections()`, run the client smoke, review, update baselines.
 

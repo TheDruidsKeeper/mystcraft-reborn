@@ -9,7 +9,7 @@ survive their instability — and, with the Vault symbol, solve a Facility for t
 | Minecraft | 26.1.x |
 | Loader | NeoForge 26.1.2.104+ |
 | Java | 25 |
-| License | LGPL-3.0-or-later (`LICENSE`, third-party notices in `NOTICE.md`) |
+| License | LGPL-3.0-or-later ([`LICENSE`](LICENSE), third-party notices in [`NOTICE.md`](NOTICE.md)) |
 
 ## Install
 Drop `mystcraft-neoforge-26.1-<version>.jar` into `mods/` on client and server. Config files appear in `config/`
@@ -24,7 +24,7 @@ data pack that can be disabled in the world's data pack screen.
 4. Get back with a **Linking Book**, a **Star Fissure**, or the reward of a **Facility** (Vault symbol).
 5. Unstable Ages decay. Write better ones.
 
-`docs/GAMEPLAY.md` explains every mechanic.
+[`docs/GAMEPLAY.md`](docs/GAMEPLAY.md) explains every mechanic.
 
 ## Build and test
 Requires Docker with BuildKit (`docker buildx`). From the repo root:
@@ -43,12 +43,12 @@ docker buildx build --progress=plain --target gametest-export --output type=loca
 docker buildx build --progress=plain --build-arg CLIENT_SMOKE_SECONDS=1200 --target client-smoke-export --output type=local,dest=out .
 ```
 
-See `docs/DEVELOPMENT.md` for what each layer catches; the documentation index is in `CLAUDE.md`.
+See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for what each layer catches; the documentation index is in [`CLAUDE.md`](CLAUDE.md).
 
 ## Credits
 Original Mystcraft by XCompWiz (LGPL-3.0). Dynamic dimensions after Commoble's Infiniverse (MIT). Facility rooms
-imported from Stonevaults by TheGrimsey (MIT) and others listed in `NOTICE.md` and the pack's `CREDITS.md`.
+imported from Stonevaults by TheGrimsey (MIT) and others listed in [`NOTICE.md`](NOTICE.md) and the pack's `CREDITS.md`.
 
 ## Contributing
-Issues and pull requests are welcome. Verify vanilla/NeoForge calls against the 26.1 sources (`docs/API_NOTES.md`),
+Issues and pull requests are welcome. Verify vanilla/NeoForge calls against the 26.1 sources ([`docs/API_NOTES.md`](docs/API_NOTES.md)),
 keep tests green, and document behaviour by pointing at the code rather than restating it.

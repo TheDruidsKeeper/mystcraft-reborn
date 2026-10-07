@@ -37,4 +37,4 @@ https://github.com/TheGrimsey/Stonevaults
 The dungeon structure templates under `src/main/resources/datapacks/mystcraft_facility/data/mystcraft/structure/facility/`
 whose names start with `sv_`, the `facility/weathering` processor list and the `chests/facility_*` loot tables are
 imported from Stonevaults 2.0.0 (ids remapped into the `mystcraft` namespace). The per-file provenance is in the pack's
-`CREDITS.md` (generated from `manifest.json`).
+`CREDITS.md` (generated from [`manifest.json`](src/main/resources/datapacks/mystcraft_facility/manifest.json)).

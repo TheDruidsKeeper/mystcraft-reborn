@@ -105,4 +105,6 @@ known renames). Check a signature there before using it; the smoke build is the 
    README `/releases/latest/download/…` links). Locally: `scripts/build.sh` then `scripts/pack-instance.sh`.
 5. One-click install page is deployed from [`docs/install.html`](install.html) to GitHub Pages
    (`https://thedruidskeeper.github.io/mystcraft-reborn/`) via [`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+   First-time setup: Settings → Pages → Source = **GitHub Actions** (the workflow also sets
+   `enablement: true` on `configure-pages` so a fresh repo can self-enable).
 6. Once per major toolchain bump, import the `.mrpack` in Prism and confirm NeoForge + Java 25 launch.

@@ -33,7 +33,12 @@ jobs:
           cp docs/install.html _site/install.html
           cp docs/install.html _site/index.html
 
+      # enablement: true creates the Pages site with Actions as source when missing
+      # (see actions/configure-pages). If this still 404s, set Settings → Pages →
+      # Source = GitHub Actions once by hand.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v4
         with:

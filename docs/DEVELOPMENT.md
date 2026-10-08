@@ -99,7 +99,10 @@ known renames). Check a signature there before using it; the smoke build is the 
 1. Pipeline green, [`scripts/qa/baselines.json`](../scripts/qa/baselines.json) reviewed/updated, manual checklist in [`docs/QA.md`](QA.md) walked once.
 2. `mod_version` in [`gradle.properties`](../gradle.properties); [`NOTICE.md`](../NOTICE.md) lists every imported asset pack ([`docs/STRUCTURES.md`](STRUCTURES.md)).
 3. [`README.md`](../README.md) matches the shipped behaviour; [`docs/plans/`](plans/) holds only open work.
-4. Tag `v*`: CI builds the jar and [`scripts/pack-instance.sh`](../scripts/pack-instance.sh) adds
+4. Tag `v*`: [`.github/workflows/tag.yml`](../.github/workflows/tag.yml) always runs the build (not subject to
+   `paths-ignore`) and [`scripts/pack-instance.sh`](../scripts/pack-instance.sh) adds
    `mystcraft-reborn.mrpack` + `mystcraft-reborn-multimc.zip` to the GitHub Release (stable names for
-   `/releases/latest/download/…`). Locally: `scripts/build.sh` then `scripts/pack-instance.sh`.
-5. Once per major toolchain bump, import the `.mrpack` in Prism and confirm NeoForge + Java 25 launch.
+   README `/releases/latest/download/…` links). Locally: `scripts/build.sh` then `scripts/pack-instance.sh`.
+5. One-click install page is deployed from [`docs/install.html`](install.html) to GitHub Pages
+   (`https://thedruidskeeper.github.io/mystcraft-reborn/`) via [`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+6. Once per major toolchain bump, import the `.mrpack` in Prism and confirm NeoForge + Java 25 launch.

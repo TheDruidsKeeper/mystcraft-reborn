@@ -1,9 +1,10 @@
 name: Build
 
 on:
+  # Branch / PR pushes skip docs-only changes. Tag pushes are handled separately
+  # (paths-ignore must not apply to v* tags or release jobs never run).
   push:
     branches: [main]
-    tags: ['v*']
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
@@ -24,6 +25,7 @@ on:
       - '.gitattributes'
       - '.gitignore'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read

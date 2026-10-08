@@ -1,16 +1,20 @@
-# Mystcraft Reborn — Player Guide
+# A Primer for Writers of Ages
 
 <p align="center">
   <img src="images/logo.png" alt="Mystcraft logo" width="128">
 </p>
 
-Mystcraft Reborn lets you **learn symbols**, **write Descriptive Books**, and **link** into Ages — procedurally generated worlds shaped by what you wrote (and what the book discovered for you). Survive their quirks, bring a way home, and dig into Vault Ages when you want a challenge.
+> *An Age answers only what you have written — and what the book supplies where you left silence. Secure a way home before you touch the panel.*
 
-This guide is for players. Install notes and versions are in the [project README](../../README.md).
+This is an Archivist’s primer to **The Art** as practised in Mystcraft Reborn: you **learn symbols**, **write Descriptive Books**, and **link** into Ages — worlds shaped by your pages and by what the book discovers on first travel. Wonder waits on the far side of the ink. So do haste’s consequences.
+
+Install notes and versions are in the [project README](../../README.md). Inspired by the spirit of *Myst* and classic Mystcraft; not affiliated with or endorsed by Cyan Worlds. This guide describes Mystcraft Reborn alone.
 
 ---
 
 ## Your first Age
+
+The first linking is a rite of passage. Gather glyphs, bind a Descriptive Book, and — before you go — bind a **Linking Book** so the path home exists when you need it.
 
 ![Workbench scene](images/workbench-scene.png)
 
@@ -20,8 +24,8 @@ This guide is for players. Install notes and versions are in the [project README
 4. At the desk, write known symbols into a folder (needs paper and ink). Attach modifiers where the desk allows them.
 5. At the Ink Mixer, make a **Link Panel** (ink + optional link-effect ingredients + paper).
 6. At the Book Binder, bind a **Descriptive Book** from the Link Panel and your pages. Name it if you like.
-7. **Link** with the book. The first link finishes the Age: categories you left blank are filled in, and new pages appear as *discovered*.
-8. **Have a way home** before you go — craft an **Unlinked Link Book** (Link Panel + leather), use it where you stand to bind a **Linking Book**, and keep that book safe. Some Ages also have a **Star Fissure**, and **Vault** Ages reward a Linking Book inside the Facility.
+7. **Have a way home** before you go — craft an **Unlinked Link Book** (Link Panel + leather), use it where you stand to bind a **Linking Book**, and keep that book safe. Some Ages also have a **Star Fissure**, and **Vault** Ages reward a Linking Book inside the Facility.
+8. **Link** with the Descriptive Book. The first link finishes the Age: categories you left blank are filled in, and new pages appear as *discovered*.
 
 ![Age arrival](images/age-arrival.png)
 
@@ -29,7 +33,7 @@ This guide is for players. Install notes and versions are in the [project README
 
 ## Recipes
 
-Crafted in a crafting table unless noted.
+The materials of The Art are ordinary enough until they are joined. Crafted in a crafting table unless noted.
 
 ### Writing Desk
 
@@ -125,6 +129,8 @@ Use it in the world to bind a **Linking Book** to that spot.
 
 ## Workstations
 
+These are the tools of The Art: the desk for glyphs, the mixer for the panel’s temperament, the binder for the finished book.
+
 ![Writing Desk](images/desk-closeup.png)
 
 ### Writing Desk
@@ -136,6 +142,8 @@ Browse symbols you know by category, write copies into a **Collation Folder**, a
 ![Desk sky tab](images/desk-tab-sky.png)
 
 ### Ink Mixer
+
+Ink alone opens the way. Ingredients tune *how* the link behaves — choose them with care.
 
 1. Pour **Ink** (vial or bucket) into the mixer.
 2. Click the basin while holding an ingredient to switch on **one link effect** per ingredient (see table below).
@@ -173,7 +181,9 @@ Holds pages while you write and sort. Open it to manage its contents.
 
 ## Pages, symbols, and knowledge
 
-![Page icon](images/icon-page.png) A **page** carries one symbol and optional modifiers. **Knowledge** is per player and survives death.
+A **page** is a single glyph of The Art — one symbol, and any modifiers it will bear. **Knowledge** is yours alone: it survives death, and the desk will write only what you have already learned (save creative play and the Scholar’s desk).
+
+![Page icon](images/icon-page.png)
 
 **How you learn**
 
@@ -189,7 +199,7 @@ Holds pages while you write and sort. Open it to manage its contents.
 
 ### Symbol categories
 
-When you write an Age, pages fall into categories. On first link, anything you left empty may be filled automatically.
+When you write an Age, pages fall into categories. On first link, anything you left empty may be filled automatically — the Age finishing what you left unsaid, in a different ink.
 
 | Category | Role |
 |---|---|
@@ -214,6 +224,8 @@ Discovered pages (added on first link) show in a different ink and are sorted in
 
 ## Linking in the world
 
+A Descriptive Book takes you *to* an Age. A Linking Book returns you to the place where it was bound. Touch the panel — by hand, stand, lectern, or crystal frame — and the written place answers.
+
 ![Bookstand](images/bookstand-closeup.png)
 
 | Method | Notes |
@@ -233,13 +245,13 @@ Link effects on the panel (from the Ink Mixer) change how travel behaves — pla
 
 ## Ages and instability
 
+Each Age is its own sky and its own clock — weather, light, and law drawn from its pages. Write with coherence. Contradiction and stacked hazard raise **instability**: potion effects, crumbling stone, coloured **decay**, lightning, meteors, and worse as the Age unravels.
+
 ![Age landscape](images/age-scene.png)
 
 ![Age at night](images/age-night.png)
 
 ![Another Age](images/age-example.png)
-
-Each Age is its own dimension: its own clock, sky, weather, and rules from its pages. Badly written or dangerous combinations raise **instability**. Unstable Ages can inflict potion effects, crumble blocks, spread coloured **decay**, lightning, meteors, and worse as things escalate.
 
 You do not need the score math — write coherent Ages, avoid stacking every hazard, and treat “discovered” chaos as a reason to pack carefully.
 
@@ -247,7 +259,7 @@ You do not need the score math — write coherent Ages, avoid stacking every haz
 
 ## Vault Ages and the Facility
 
-Write the **Vault** structure symbol into an Age (or discover it). Near spawn you will find a **Facility**: a locked complex of rooms.
+Write the **Vault** structure symbol into an Age (or discover it). Near spawn you will find a **Facility**: a sealed complex left in that world — rooms, locks, and wards until the work is finished.
 
 ![Facility entrance](images/facility-entrance.png)
 
@@ -266,6 +278,8 @@ The terminal **Facility Cache** gives each player a **Linking Book home**. Until
 
 ## Advancements
 
+Milestones along the path — wry titles for hard-earned lessons.
+
 | Advancement | Goal |
 |---|---|
 | **Small Step of the Journey** | Find a symbol |
@@ -277,7 +291,7 @@ The terminal **Facility Cache** gives each player a **Linking Book home**. Until
 
 ---
 
-## Tips for writers
+## Counsel for writers
 
 - **Always bind a Linking Book** (or know a Fissure / Facility plan) before your first Descriptive Book link.
 - Leaving categories blank is fine — the Age will fill them and teach you what it picked.
@@ -285,5 +299,7 @@ The terminal **Facility Cache** gives each player a **Linking Book home**. Until
 - Use a **Scholar's Writing Desk** in creative to practice full symbol sets without grinding pages.
 - Portals need Crystal — explore Ages that generate formations, or trade/loot your way into pages that lead there.
 - Folders and desks make iterating faster than rewriting from loose pages alone.
+
+Write carefully. Link with a way home in hand. The Ages will do the rest.
 
 ![Descriptive Book](images/icon-descriptive-book.png) ![Linking Book](images/icon-linking-book.png) ![Unlinked Book](images/icon-unlinked-book.png) ![Ink](images/icon-ink-vial.png) ![Folder](images/icon-folder.png) ![Desk](images/icon-writing-desk.png)

@@ -28,8 +28,9 @@ the same way. Requires **Java 25** (Prism usually installs the matching runtime)
 built-in data pack that can be disabled in the world's data pack screen.
 
 ## Play
-Learn symbols, write Descriptive Books, link into Ages, and keep a way home. The full player walkthrough — recipes,
-progression, linking, instability, and Facilities — is in the **[Player Guide](docs/guide/README.md)**.
+Learn the symbols of The Art, write Descriptive Books, link into Ages — and always keep a way home. The
+**[Player Guide](docs/guide/README.md)** is an Archivist’s primer: recipes, progression, linking, instability, and
+Facilities. Inspired by the spirit of *Myst* and classic Mystcraft; not affiliated with or endorsed by Cyan Worlds.
 
 Short version: find pages → study them → write at a Writing Desk → mix a Link Panel → bind a Descriptive Book → link
 with a Linking Book ready. Unstable Ages decay; Vault Ages hide a Facility with a reward book home.

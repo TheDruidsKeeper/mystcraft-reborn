@@ -6,6 +6,7 @@ The code is the source of truth; the docs say what and why and point at where.
 ## Read first
 | Need | Read |
 |---|---|
+| Player-facing how to play (recipes, progression) | [`docs/guide/README.md`](docs/guide/README.md) |
 | What the mod does, by mechanic | [`docs/GAMEPLAY.md`](docs/GAMEPLAY.md) |
 | Where things live, how an Age is built | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | Build, test, debug, commands, release | [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) |

@@ -28,14 +28,13 @@ the same way. Requires **Java 25** (Prism usually installs the matching runtime)
 built-in data pack that can be disabled in the world's data pack screen.
 
 ## Play
-1. Find symbol pages (loot, Archivist villagers, Sealed Notebooks) and **use** them to learn their symbols.
-2. At a **Writing Desk** write known symbols into a **Collation Folder** and attach modifiers; mix a **Link Panel** at
-   the **Ink Mixer**; bind a **Descriptive Book** at the **Book Binder**.
-3. Link. The first link completes your book: everything you left unwritten is discovered and recorded.
-4. Get back with a **Linking Book**, a **Star Fissure**, or the reward of a **Facility** (Vault symbol).
-5. Unstable Ages decay. Write better ones.
+Learn symbols, write Descriptive Books, link into Ages, and keep a way home. The full player walkthrough — recipes,
+progression, linking, instability, and Facilities — is in the **[Player Guide](docs/guide/README.md)**.
 
-[`docs/GAMEPLAY.md`](docs/GAMEPLAY.md) explains every mechanic.
+Short version: find pages → study them → write at a Writing Desk → mix a Link Panel → bind a Descriptive Book → link
+with a Linking Book ready. Unstable Ages decay; Vault Ages hide a Facility with a reward book home.
+
+Developers: [`docs/GAMEPLAY.md`](docs/GAMEPLAY.md) explains every mechanic with code pointers.
 
 ## Build and test
 Requires Docker with BuildKit (`docker buildx`). From the repo root:

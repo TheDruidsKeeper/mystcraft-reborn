@@ -15,6 +15,10 @@ in [`gradle.properties`](../gradle.properties); the toolchain is ModDevGradle ([
 Outputs land in `out/`: `*-status.txt` (`PASSED`, `VISUAL_DRIFT` warning, or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
 Each host script also tees the Docker build output to `logs/<layer>-docker.log` (git-ignored).
 
+GitHub Actions ([`.github/workflows/build.yml`](../.github/workflows/build.yml)) skips push/PR runs that only touch
+docs, markdown, LICENSE, `.cursor/`, `scripts/docs/`, or editor/git meta files. Tag a release on a build-relevant
+commit, or use `workflow_dispatch`.
+
 Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestServer | runData`.
 
 ### Gradle tasks of note

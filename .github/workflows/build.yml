@@ -4,7 +4,25 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '.cursor/**'
+      - 'scripts/docs/**'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '.cursor/**'
+      - 'scripts/docs/**'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
   workflow_dispatch:
 
 permissions:

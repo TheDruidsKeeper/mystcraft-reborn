@@ -14,7 +14,8 @@ STATUS=/out/client-smoke-status.txt
 mkdir -p /out/logs run/client
 echo "DID_NOT_RUN" > "${STATUS}"
 
-# Skip the dev-client "do you want to log in" style prompts and any first-run UI.
+# Skip the first-run UI and pin graphics so QA screenshots are signature-stable (docs/QA.md).
+# Keys verified against 26.1 Options.processDumpedOptions: renderClouds=CloudStatus, particles=ParticleStatus id.
 mkdir -p run/client
 cat > run/client/options.txt <<'OPTS'
 onboardAccessibility:false
@@ -26,7 +27,22 @@ fullscreen:false
 overrideWidth:1280
 overrideHeight:720
 renderDistance:8
+simulationDistance:8
 soundCategory_master:0.0
+graphicsPreset:custom
+renderClouds:false
+particles:2
+ao:true
+entityShadows:false
+enableVsync:false
+biomeBlendRadius:2
+gamma:0.5
+fov:70
+maxFps:60
+mipmapLevels:4
+guiScale:2
+cutoutLeaves:false
+bobView:false
 OPTS
 
 export MYSTCRAFT_CLIENT_SELFCHECK=1

@@ -12,6 +12,12 @@ public interface WeatherController {
     /** Binds persistent storage; called once when the controller is constructed. */
     void bindStorage(CompoundTag storage);
 
+    /**
+     * Seeds internal weather RNG from the Age seed (cycling phase lengths). Default no-op for controllers that do
+     * not roll durations.
+     */
+    default void seedFromAge(long seed) {}
+
     /** Advance rain/thunder strengths by one tick toward their targets (both sides). */
     void updateRaining(Level level);
 

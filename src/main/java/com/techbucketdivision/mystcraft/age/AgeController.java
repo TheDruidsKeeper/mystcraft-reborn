@@ -166,7 +166,10 @@ public final class AgeController implements AgeDirector, TerrainContext {
         symbolInstability += blockList.size() * 50;
         symbolInstability += biomeList.size() * 100;
 
-        if (weather != null) weather.bindStorage(data.data("weather"));
+        if (weather != null) {
+            weather.bindStorage(data.data("weather"));
+            weather.seedFromAge(data.seed());
+        }
 
         if (!cloudHeights.isEmpty()) sky.cloudHeight = average(cloudHeights);
         if (!horizons.isEmpty()) sky.horizon = average(horizons);

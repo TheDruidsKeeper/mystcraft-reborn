@@ -66,51 +66,56 @@ public final class QaShelf {
     public static List<Section> sections() {
         return List.of(
                 new Section("A", "Baseline", Blocks.WHITE_CONCRETE, List.of(
-                        Case.of("A1", "Empty book", 2001L, "a plain, stable Age: terrain, sun, biomes - the blueprint defaults; nothing odd"))),
+                        // weather_off: stop blueprint fill from injecting cycling weather into screenshot regression.
+                        Case.of("A1", "Empty book", 2001L, "a plain, stable Age: terrain, sun, biomes - the blueprint defaults; nothing odd",
+                                "weather_off"))),
                 new Section("B", "Sky & celestials", Blocks.LIGHT_BLUE_CONCRETE, List.of(
                         Case.of("B1", "Sky colours", 2011L, "sky red->blue over the day, fog yellow, night sky purple; smooth sunrise/sunset, no flicker",
                                 page("color_sky", "mod_color_red", "mod_gradient", "mod_color_blue", "mod_gradient"),
-                                page("color_fog", "mod_color_yellow"), page("color_sky_night", "mod_color_purple")),
+                                page("color_fog", "mod_color_yellow"), page("color_sky_night", "mod_color_purple"), "weather_off"),
                         Case.of("B2", "Celestial modifiers", 2012L, "sun rises in the west on a half-length day with a green sunset; moon at zenith phase; stars twinkle at double speed; rainbow arc",
                                 page("sun_normal", "mod_east", "mod_half", "mod_color_green", "color_horizon"), page("moon_normal", "mod_noon"),
-                                page("stars_twinkle", "mod_double"), "rainbow"),
+                                page("stars_twinkle", "mod_double"), "rainbow", "weather_off"),
                         Case.of("B3", "Dark sun, bright light", 2013L, "no sun disc, world fully lit (bright lighting), stars visible all day",
-                                "sun_dark", "lighting_bright", "stars_normal"),
+                                "sun_dark", "lighting_bright", "stars_normal", "weather_off"),
                         Case.of("B4", "Dark light, end sky", 2014L, "dark lighting level, end-sky star texture, cloudy weather cover",
                                 "lighting_dark", "stars_end_sky", "weather_cloudy"))),
                 new Section("C", "World colours & weather", Blocks.LIME_CONCRETE, List.of(
                         Case.of("C1", "World colours", 2021L, "magenta grass, cyan foliage, red water; colours blend at biome borders",
-                                page("color_grass", "mod_color_magenta"), page("color_foliage", "mod_color_cyan"), page("color_water", "mod_color_red")),
+                                page("color_grass", "mod_color_magenta"), page("color_foliage", "mod_color_cyan"), page("color_water", "mod_color_red"),
+                                "weather_off"),
                         Case.of("C2", "Rain", 2022L, "permanent rain: precipitation visuals, puddle-free ground, darker sky", "weather_rain"),
                         Case.of("C3", "Snow", 2023L, "permanent snowfall: snow layers accumulate, ice forms on water", "weather_snow"),
                         Case.of("C4", "Storm", 2024L, "permanent thunderstorm with the lightning effect; storm sky", "weather_storm", "env_lightning"))),
                 new Section("D", "Terrain & features", Blocks.ORANGE_CONCRETE, List.of(
                         Case.of("D1", "Flat, no sea, ravines", 2031L, "flat stone plane without any sea, split by ravines, obelisks of glowstone (silhouettes at dusk)",
-                                page("terrain_flat", "no_sea"), "ravines", page("obelisks", "block_glowstone")),
+                                page("terrain_flat", "no_sea"), "ravines", page("obelisks", "block_glowstone"), "weather_off"),
                         Case.of("D2", "Skylands + islands", 2032L, "skylands with floating islands of ice, huge trees, crystal formations: island shapes, tree scale, crystal clusters",
-                                "terrain_normal", "skylands", page("floating_islands", "block_ice"), "huge_trees", "crystal_formations"),
+                                "terrain_normal", "skylands", page("floating_islands", "block_ice"), "huge_trees", "crystal_formations", "weather_off"),
                         Case.of("D3", "Amplified deep lakes", 2033L, "amplified cliffs, deep lakes of lava, tendrils of nether bricks, no horizon band",
-                                "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "no_horizon"),
+                                "terrain_amplified", page("lakes_deep", "block_lava"), page("tendrils", "block_nether_bricks"), "no_horizon", "weather_off"),
                         Case.of("D4", "Nether age", 2034L, "nether (cave) terrain with nether biomes, deep lava lakes, a nether fortress integrated into the caves",
-                                "terrain_nether", page("lakes_deep", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress"),
+                                "terrain_nether", page("lakes_deep", "block_lava"), "biome_medium", "biome_minecraft_crimson_forest", "biome_minecraft_nether_wastes", "nether_fortress", "weather_off"),
                         Case.of("D5", "End age", 2035L, "end island terrain, end biome, obsidian spikes: island edge, spike shapes",
-                                "terrain_end", "biome_single", "biome_minecraft_end_highlands", page("spikes", "block_obsidian")),
+                                "terrain_end", "biome_single", "biome_minecraft_end_highlands", page("spikes", "block_obsidian"), "weather_off"),
                         Case.of("D6", "Void with star fissure", 2036L, "void terrain (nothing but the arrival platform) with a star fissure visible from the platform",
-                                "terrain_void", "star_fissure"))),
+                                "terrain_void", "star_fissure", "weather_off"))),
                 new Section("E", "Biomes & structures", Blocks.YELLOW_CONCRETE, List.of(
                         Case.of("E1", "Tiny biomes", 2041L, "tiny patches of desert / jungle / ice spikes side by side with villages: patchwork look, village placement",
-                                "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages"),
+                                "biome_tiny", "biome_minecraft_desert", "biome_minecraft_jungle", "biome_minecraft_ice_spikes", "villages", "weather_off"),
                         Case.of("E2", "Large biomes + Facility", 2042L, "large biome scale; the Facility entrance in view 60-120 blocks from arrival, sitting on the terrain, not floating or buried",
-                                "biome_large", "vault"))),
+                                "biome_large", "vault", "weather_off"))),
                 new Section("F", "Creatures", Blocks.RED_CONCRETE, List.of(
                         Case.of("F1", "Brutal hostile swarm", 2051L, "monsters spawn 4x as often, 4x the usual number, double health and hit hard; passives sparse: night pressure",
-                                page("creatures_hostile", "mod_rate_swarm", "mod_cap_horde", "mod_difficulty_brutal"), page("creatures_passive", "mod_rate_sparse", "mod_cap_few")),
+                                page("creatures_hostile", "mod_rate_swarm", "mod_cap_horde", "mod_difficulty_brutal"), page("creatures_passive", "mod_rate_sparse", "mod_cap_few"),
+                                "weather_off"),
                         Case.of("F2", "Peaceful meadow", 2052L, "no hostiles ever, dense animals; neutrals normal",
-                                page("creatures_hostile", "mod_rate_none"), page("creatures_passive", "mod_rate_dense", "mod_cap_many"), "creatures_neutral"),
-                        Case.of("F3", "Lifeless", 2053L, "no creature spawns naturally at all (watch at night)", "creatures_none"))),
+                                page("creatures_hostile", "mod_rate_none"), page("creatures_passive", "mod_rate_dense", "mod_cap_many"), "creatures_neutral",
+                                "weather_off"),
+                        Case.of("F3", "Lifeless", 2053L, "no creature spawns naturally at all (watch at night)", "creatures_none", "weather_off"))),
                 new Section("G", "Instability", Blocks.PURPLE_CONCRETE, List.of(
                         Case.of("G1", "Unstable", 2061L, "meteors + accelerated + explosions: instability symptoms within minutes (decay spread, crumbling, meteor visuals, effect pacing)",
-                                "env_meteors", "env_accelerated", "env_explosions", "dense_ores"))));
+                                "env_meteors", "env_accelerated", "env_explosions", "dense_ores", "weather_off"))));
     }
 
     /** All cases in shelf order (for tests and the client smoke tour). */

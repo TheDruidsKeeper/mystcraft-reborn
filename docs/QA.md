@@ -39,11 +39,17 @@ One lectern per QA world, grouped in coloured sections with a sign each; every b
 ### Screenshot regression
 The client smoke tours every world (`ClientSelfCheck` steps `TOUR_*`) and writes `selfcheck_qa_<id>_<day|night>.png`.
 [`scripts/qa/compare.py`](../scripts/qa/compare.py) reduces each to band colours + a thumbnail and compares with [`scripts/qa/baselines.json`](../scripts/qa/baselines.json);
-drift writes status `VISUAL_DRIFT` and `out/qa-report.txt` but does **not** fail the layer (selfcheck + resource warnings still do). Workflow:
+drift writes status `VISUAL_DRIFT` and `out/qa-report.txt` but does **not** fail the layer (selfcheck + resource warnings still do). Defaults: band Euclidean distance **40**, thumbnail mean abs delta **28**.
+
+**Stability contract:** after `--update`, an immediate second client-smoke with unchanged code must report `0 to review`. If it drifts, fix the capture environment — do not keep re-baselining.
+
+To keep runs signature-stable, Docker [`client-smoke-entry.sh`](../docker/client-smoke-entry.sh) pins `renderClouds:false`, `particles:2` (minimal), vsync off, fixed FOV/gamma/AO, and `graphicsPreset:custom`. Non-weather shelf books pin `weather_off` so blueprint fill cannot inject cycling rain; B4 / C2–C4 keep their authored weather. Before each tour frame (`RenderFrameEvent.Pre`) the client hides the HUD, disables view bobbing, empties the hand, and locks yaw/pitch −30° (including `*RotO`); the PNG is grabbed on `RenderFrameEvent.Post` so the framebuffer matches. G1 disables instability (and clears meteors) before shooting so decay does not rewrite the ground between runs. The tour waits for nearby chunks, then settles ~100 ticks after each `myst time set`. Phase 1 still uses the vanilla skybox (`AgeSkyRenderer` returns false), so B4 asserts darkness/overcast, not a custom end-sky starbox.
+
+Workflow:
 1. Drift or `NEW` reported → look at `out/screenshots/selfcheck_qa_*.png`.
-2. Looks right → `python scripts/qa/compare.py out/screenshots --update`, commit [`baselines.json`](../scripts/qa/baselines.json).
+2. Looks right → `python scripts/qa/compare.py out/screenshots --update`, commit [`baselines.json`](../scripts/qa/baselines.json), then **rerun** client-smoke and confirm `PASSED` / `0 to review`.
 3. Looks wrong → fix, rerun.
-Adding a world: add it to `QaShelf.sections()`, run the client smoke, review, update baselines.
+Adding a world: add it to `QaShelf.sections()`, run the client smoke, review, update baselines, verify a clean second run.
 
 ## Manual checklist (perceptual only)
 Walk this once per release with the shelf, and after changes to rendering, GUI, audio or worldgen shapes.

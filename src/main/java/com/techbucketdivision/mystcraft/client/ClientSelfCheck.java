@@ -18,6 +18,7 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public final class ClientSelfCheck {
         if (!enabled()) return;
         Mystcraft.LOGGER.info("[clientcheck] enabled - the client will run the self-check script and exit");
         gameBus.addListener(ClientSelfCheck::onClientTick);
+        // hideGui must be set before the frame is drawn; tick Post is too late for the framebuffer Screenshot.grab reads.
+        gameBus.addListener(ClientSelfCheck::onRenderFramePre);
+        gameBus.addListener(ClientSelfCheck::onRenderFramePost);
     }
 
     private enum Step { TITLE, WORLD_LOADING, OVERWORLD_SETTLE, SCENE_OVERWORLD, CLOSEUPS, SCREENS, VISIT_AGE, AGE_SETTLE, SCENE_AGE, NIGHT, TOUR_VISIT, TOUR_DAY, TOUR_NIGHT, TOUR_FACILITY, DONE }
@@ -69,9 +73,17 @@ public final class ClientSelfCheck {
     private static final List<com.tbd.mystcraft.command.QaShelf.Case> TOUR = com.tbd.mystcraft.command.QaShelf.cases();
     private static int tourIndex;
     private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> tourFrom;
+    /** Tick within TOUR_DAY when {@code myst time set day} was issued; -1 until then. */
+    private static int tourDaySetAt = -1;
+    /** Tick within TOUR_NIGHT when night was already in effect (step start); shot after SETTLE_AFTER_TIME. */
+    private static final int SETTLE_AFTER_TIME = 100;
+    private static final int TOUR_MIN_ARRIVAL_TICKS = 60;
+    private static final int TOUR_CHUNK_TIMEOUT = 20 * 45;
     private static final List<String> failures = new ArrayList<>();
     /** SCENE_AGE waits for link-panel frames before opening GUIs that would pause {@link PanelImages} capture. */
     private static boolean panelFramesReady;
+    /** Queued on a tick; grabbed in {@link #onRenderFramePost} after a frame rendered with the tour view applied. */
+    private static @Nullable String pendingScreenshot;
 
     private static void onClientTick(ClientTickEvent.Post event) {
         if (step == Step.DONE) return;
@@ -277,23 +289,27 @@ public final class ClientSelfCheck {
                     }
                 }
                 case TOUR_DAY -> {
-                    if (stepTicks == 1) {
-                        // Screenshots feed scripts/qa/compare.py: no HUD/chat, and look slightly up so the sky band is sky.
-                        mc.options.hideGui = true;
-                        mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
-                        if (mc.player != null) mc.player.setXRot(-12f);
+                    // Instability Ages keep rewriting terrain (meteors/explosions); freeze them for signature-stable shots.
+                    if (stepTicks == 1 && TOUR.get(tourIndex).id().equals("G1")) {
+                        command(mc, "myst instability toggle false");
+                        command(mc, "kill @e[type=mystcraft:meteor]");
                     }
-                    if (stepTicks == 60) command(mc, "myst time set day");
-                    if (stepTicks == 100) {
+                    // Wait for nearby chunks, then force day; shoot after SETTLE_AFTER_TIME so lightmap/meshes catch up.
+                    if (tourDaySetAt < 0 && stepTicks >= TOUR_MIN_ARRIVAL_TICKS
+                            && (chunksReady(mc) || stepTicks >= TOUR_CHUNK_TIMEOUT)) {
+                        command(mc, "myst time set day");
+                        tourDaySetAt = stepTicks;
+                    }
+                    if (tourDaySetAt >= 0 && stepTicks == tourDaySetAt + SETTLE_AFTER_TIME) {
                         checkAgeClientState(mc);
-                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_day");
+                        requestScreenshot("qa_" + TOUR.get(tourIndex).id() + "_day");
                         command(mc, "myst time set night");
                         next(Step.TOUR_NIGHT);
                     }
                 }
                 case TOUR_NIGHT -> {
-                    if (stepTicks == 40) {
-                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_night");
+                    if (stepTicks == SETTLE_AFTER_TIME) {
+                        requestScreenshot("qa_" + TOUR.get(tourIndex).id() + "_night");
                         if (TOUR.get(tourIndex).pages().stream().anyMatch(p -> p.symbol().getPath().equals("vault"))) {
                             // Facility Ages: the entrance from the outside by day, then the lobby (FACILITY_PLAN.md §4).
                             command(mc, "myst time set day");
@@ -307,11 +323,11 @@ public final class ClientSelfCheck {
                 }
                 case TOUR_FACILITY -> {
                     if (stepTicks == 80) {
-                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_facility_entrance");
+                        requestScreenshot("qa_" + TOUR.get(tourIndex).id() + "_facility_entrance");
                         command(mc, "myst-dev facility-tp lobby");
                     }
                     if (stepTicks == 160) {
-                        screenshot(mc, "qa_" + TOUR.get(tourIndex).id() + "_facility_lobby");
+                        requestScreenshot("qa_" + TOUR.get(tourIndex).id() + "_facility_lobby");
                         tourIndex++;
                         startTourVisit(mc);
                     }
@@ -333,8 +349,69 @@ public final class ClientSelfCheck {
             return;
         }
         tourFrom = mc.level == null ? null : mc.level.dimension();
+        tourDaySetAt = -1;
         command(mc, "myst-dev qa-visit " + TOUR.get(tourIndex).id());
         next(Step.TOUR_VISIT);
+    }
+
+    private static boolean inTourShotStep() {
+        return step == Step.TOUR_DAY || step == Step.TOUR_NIGHT || step == Step.TOUR_FACILITY;
+    }
+
+    private static void onRenderFramePre(RenderFrameEvent.Pre event) {
+        if (!inTourShotStep()) return;
+        // Facility shots keep the yaw/pitch set by facility-tp; arrival shots lock the shelf pose.
+        prepareTourView(Minecraft.getInstance(), step != Step.TOUR_FACILITY);
+    }
+
+    private static void onRenderFramePost(RenderFrameEvent.Post event) {
+        if (pendingScreenshot == null) return;
+        String name = pendingScreenshot;
+        pendingScreenshot = null;
+        screenshot(Minecraft.getInstance(), name);
+    }
+
+    /** Queue a grab after the next frame so {@link #prepareTourView} has already been applied. */
+    private static void requestScreenshot(String name) {
+        pendingScreenshot = name;
+    }
+
+    /**
+     * Hide HUD/hand/chat and freeze bobbing. Optionally lock yaw/pitch (including {@code *RotO}) to the shelf pose.
+     * Applied from {@link RenderFrameEvent.Pre} during tour shots — tick Post is too late for the framebuffer
+     * {@link Screenshot#grab} reads.
+     */
+    private static void prepareTourView(Minecraft mc, boolean lockShelfPose) {
+        mc.options.hideGui = true;
+        mc.options.bobView().set(false);
+        mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
+        if (mc.player == null) return;
+        // Empty hand: the held book/glint otherwise sits in the ground band.
+        mc.player.getInventory().setSelectedSlot(8);
+        if (!lockShelfPose) return;
+        // Look well above the horizon so the sky band is sky, not canopy (E1 tiny-biome jungle otherwise dominates).
+        float yaw = 180f;
+        float pitch = -30f;
+        mc.player.setYRot(yaw);
+        mc.player.yRotO = yaw;
+        mc.player.setYHeadRot(yaw);
+        mc.player.yHeadRotO = yaw;
+        mc.player.setXRot(pitch);
+        mc.player.xRotO = pitch;
+    }
+
+    /** True when the player's chunk and its 3×3 neighbourhood are present on the client. */
+    private static boolean chunksReady(Minecraft mc) {
+        ClientLevel level = mc.level;
+        if (level == null || mc.player == null) return false;
+        int cx = mc.player.chunkPosition().x();
+        int cz = mc.player.chunkPosition().z();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                if (!level.hasChunk(cx + dx, cz + dz)) return false;
+            }
+        }
+        return true;
     }
 
     private static void createWorld(Minecraft mc) {

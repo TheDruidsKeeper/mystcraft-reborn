@@ -18,13 +18,20 @@ abstract class AbstractWeather implements WeatherController {
     protected static final double STRENGTH_STEP = 0.01;
     protected static final int LIGHTNING_CHANCE = 100000;
 
-    private final Random random = new Random();
+    private Random random = new Random();
     private int updateLCG = random.nextInt();
 
     protected CompoundTag storage = new CompoundTag();
     protected double rainStrength;
     protected double thunderStrength;
     private boolean dirty;
+
+    @Override
+    public void seedFromAge(long seed) {
+        // Distinct salt so weather rolls do not share the same stream as spawn / blueprint fill.
+        random = new Random(seed ^ 0xA6E5_17E5_7A7EL);
+        updateLCG = random.nextInt();
+    }
 
     protected Random random() {
         return random;

@@ -89,6 +89,8 @@ You can also fill a glass bottle from black ink fluid in the world.
 
 ### Bookstand
 
+| | | |
+|---|---|---|
 | Stick | Stick | |
 | Planks | | |
 
@@ -96,6 +98,8 @@ You can also fill a glass bottle from black ink fluid in the world.
 
 ### Lectern
 
+| | | |
+|---|---|---|
 | Planks | | |
 | Planks | Planks | Stick |
 | Planks | Planks | Planks |
@@ -104,6 +108,8 @@ You can also fill a glass bottle from black ink fluid in the world.
 
 ### Book Receptacle
 
+| | | |
+|---|---|---|
 | Crystal | Crystal | Crystal |
 | Crystal | Crystal | |
 | Crystal | Crystal | Crystal |

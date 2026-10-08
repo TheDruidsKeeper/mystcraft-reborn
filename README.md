@@ -12,9 +12,20 @@ survive their instability — and, with the Vault symbol, solve a Facility for t
 | License | LGPL-3.0-or-later ([`LICENSE`](LICENSE), third-party notices in [`NOTICE.md`](NOTICE.md)) |
 
 ## Install
-Drop `mystcraft-neoforge-26.1-<version>.jar` into `mods/` on client and server. Config files appear in `config/`
-(`mystcraft-common.toml`, `-balance.toml`, `-worldbuilding.toml`, `-client.toml`); the Facility rooms are a built-in
-data pack that can be disabled in the world's data pack screen.
+
+[![Install instance pack](https://img.shields.io/badge/Install-Prism%20%2F%20MultiMC-2ea44f?logo=minecraft&logoColor=white)](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack)
+[![One-click Prism](https://img.shields.io/badge/One--click-Prism%20Launcher-1b2838)](https://cdn.jsdelivr.net/gh/TheDruidsKeeper/mystcraft-reborn@main/docs/install.html)
+
+**Easiest (client):** download the [instance pack](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack)
+(`.mrpack`) and import it in [Prism Launcher](https://prismlauncher.org/) (Add Instance → Import), or open the
+[one-click install page](https://cdn.jsdelivr.net/gh/TheDruidsKeeper/mystcraft-reborn@main/docs/install.html)
+if Prism is installed. MultiMC can import
+[`mystcraft-reborn-multimc.zip`](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn-multimc.zip)
+the same way. Requires **Java 25** (Prism usually installs the matching runtime).
+
+**Jar only (client or server):** drop `mystcraft-neoforge-26.1-<version>.jar` into `mods/`. Config files appear in
+`config/` (`mystcraft-common.toml`, `-balance.toml`, `-worldbuilding.toml`, `-client.toml`); the Facility rooms are a
+built-in data pack that can be disabled in the world's data pack screen.
 
 ## Play
 1. Find symbol pages (loot, Archivist villagers, Sealed Notebooks) and **use** them to learn their symbols.

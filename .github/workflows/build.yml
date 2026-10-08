@@ -176,8 +176,13 @@ jobs:
         with:
           name: mystcraft-reborn-jars
           path: out
+      - name: Build launcher instance packs
+        run: scripts/pack-instance.sh
       - name: Publish release
         uses: softprops/action-gh-release@v3
         with:
-          files: out/*.jar
+          files: |
+            out/*.jar
+            out/mystcraft-reborn.mrpack
+            out/mystcraft-reborn-multimc.zip
           generate_release_notes: true

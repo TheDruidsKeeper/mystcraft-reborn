@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Install Mystcraft Reborn — Prism Launcher</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e8eef4;
+      --muted: #9aa8b5;
+      --accent: #3d8bfd;
+      --accent-hover: #5ca0ff;
+      --border: #2a3542;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, #1a2a3a 0%, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    main {
+      width: min(36rem, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 1.75rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 650;
+    }
+    p { margin: 0 0 1rem; color: var(--muted); line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.25rem 0 1.5rem; }
+    a.button {
+      display: inline-block;
+      text-decoration: none;
+      padding: 0.7rem 1.1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    a.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    a.primary:hover { background: var(--accent-hover); }
+    a.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    a.secondary:hover { border-color: var(--muted); }
+    code, .url {
+      display: block;
+      word-break: break-all;
+      background: #0c1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      color: #c6d4e1;
+      font-size: 0.85rem;
+      margin: 0.5rem 0 0;
+    }
+    ol { margin: 0.5rem 0 0; padding-left: 1.25rem; color: var(--muted); line-height: 1.55; }
+    li + li { margin-top: 0.35rem; }
+    .note { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Install Mystcraft Reborn</h1>
+    <p>
+      Opens <strong>Prism Launcher</strong> and imports the latest playable instance
+      (Minecraft 26.1.2 + NeoForge + this mod). Requires Prism and Java 25.
+    </p>
+    <div class="actions">
+      <a class="button primary" id="prism-import" href="#">Install with Prism</a>
+      <a class="button secondary" id="download-pack"
+         href="https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack">
+        Download .mrpack
+      </a>
+    </div>
+    <p class="note">If the button does nothing, install
+      <a href="https://prismlauncher.org/" style="color: var(--accent-hover)">Prism Launcher</a>,
+      then use Add Instance → Import and paste:</p>
+    <code class="url" id="pack-url">https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack</code>
+    <p class="note" style="margin-top: 1.25rem">MultiMC / manual import:</p>
+    <ol>
+      <li>Download the <a href="https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn-multimc.zip" style="color: var(--accent-hover)">MultiMC zip</a>
+          or the <code>.mrpack</code> above.</li>
+      <li>Add Instance → Import → choose the file (or paste the URL).</li>
+      <li>Launch. Prism should pull NeoForge and a Java 25 runtime if needed.</li>
+    </ol>
+  </main>
+  <script>
+    (function () {
+      var packUrl = "https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack";
+      var deepLink = "prismlauncher://import?url=" + encodeURIComponent(packUrl);
+      document.getElementById("prism-import").setAttribute("href", deepLink);
+    })();
+  </script>
+</body>
+</html>

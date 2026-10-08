@@ -95,4 +95,7 @@ known renames). Check a signature there before using it; the smoke build is the 
 1. Pipeline green, [`scripts/qa/baselines.json`](../scripts/qa/baselines.json) reviewed/updated, manual checklist in [`docs/QA.md`](QA.md) walked once.
 2. `mod_version` in [`gradle.properties`](../gradle.properties); [`NOTICE.md`](../NOTICE.md) lists every imported asset pack ([`docs/STRUCTURES.md`](STRUCTURES.md)).
 3. [`README.md`](../README.md) matches the shipped behaviour; [`docs/plans/`](plans/) holds only open work.
-4. Tag, build with [`scripts/build.sh`](../scripts/build.sh), publish `out/mystcraft-neoforge-26.1-<version>.jar`.
+4. Tag `v*`: CI builds the jar and [`scripts/pack-instance.sh`](../scripts/pack-instance.sh) adds
+   `mystcraft-reborn.mrpack` + `mystcraft-reborn-multimc.zip` to the GitHub Release (stable names for
+   `/releases/latest/download/…`). Locally: `scripts/build.sh` then `scripts/pack-instance.sh`.
+5. Once per major toolchain bump, import the `.mrpack` in Prism and confirm NeoForge + Java 25 launch.

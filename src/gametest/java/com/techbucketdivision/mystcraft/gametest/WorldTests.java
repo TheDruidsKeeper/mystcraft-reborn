@@ -115,7 +115,8 @@ public class WorldTests {
     @TestHolder(description = "Age spawn search finds solid ground without the fallback (heightmaps usable on fresh Age chunks)")
     static void spawnSearchFindsGround(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
-        ItemStack book = TestBooks.unboundDescriptiveBook("Heightmap");
+        // Fixed seed + terrain_flat: a random unbound book can roll skylands and leave (8,8) empty.
+        ItemStack book = TestBooks.unboundDescriptiveBook("Heightmap", 424242L, MystIds.id("terrain_flat"));
         AgeData data = TestBooks.bind(book, server);
         ServerLevel age = AgeManager.getOrCreateLevel(server, data);
         age.getChunk(0, 0);

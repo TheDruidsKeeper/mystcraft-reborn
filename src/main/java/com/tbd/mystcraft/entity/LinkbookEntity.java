@@ -29,15 +29,20 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A dropped linking book (original spec §9, §7.9). Health mirrors the book item's {@code BookHealth}; fire damage is
- * doubled and ignites the entity; wall damage is ignored; every 10000 ticks it takes 1 starvation damage and 1 drown
- * damage per tick while wet. Right-click opens the book GUI, sneak + empty hand picks it up.
+ * A dropped linking book (original spec §9, §7.9): every book item that lands in the world becomes one of these, so
+ * a book never despawns on a timer - it only ends when destroyed. Health mirrors the book item's {@code BookHealth};
+ * fire damage is doubled and ignites the entity; wall damage is ignored; it takes 1 drown damage per tick while wet.
+ * Walking over it picks it up like an item (after a short delay, so a book just dropped is not grabbed back);
+ * right-click opens the book GUI, sneak + empty hand picks it up by hand.
  */
 public final class LinkbookEntity extends Entity {
     private static final EntityDataAccessor<ItemStack> DATA_BOOK = SynchedEntityData.defineId(LinkbookEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<String> DATA_AGE_NAME = SynchedEntityData.defineId(LinkbookEntity.class, EntityDataSerializers.STRING);
 
-    private int decayTimer;
+    /** Ticks before a player walking over the book picks it up (as {@code ItemEntity}'s default). */
+    public static final int PICKUP_DELAY = 10;
+
+    private int pickupDelay = PICKUP_DELAY;
     private int hurtTime;
 
     public LinkbookEntity(EntityType<? extends LinkbookEntity> type, Level level) {
@@ -99,7 +104,7 @@ public final class LinkbookEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
-        decayTimer = input.getIntOr("decay_timer", 0);
+        pickupDelay = input.getIntOr("pickup_delay", 0);
         ItemStack book = input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY);
         if (book.isEmpty()) {
             discard();
@@ -110,7 +115,7 @@ public final class LinkbookEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
-        output.putInt("decay_timer", decayTimer);
+        output.putInt("pickup_delay", pickupDelay);
         ItemStack book = getBook();
         if (!book.isEmpty()) output.store("item", ItemStack.CODEC, book);
     }
@@ -187,6 +192,16 @@ public final class LinkbookEntity extends Entity {
         return InteractionResult.SUCCESS_SERVER;
     }
 
+    /** Walking over the book picks it up into the inventory, with the item pickup sound and animation. */
+    @Override
+    public void playerTouch(Player player) {
+        if (!(level() instanceof ServerLevel) || pickupDelay > 0 || isRemoved() || player.isSpectator()) return;
+        ItemStack book = getBook();
+        if (book.isEmpty() || !player.getInventory().add(book.copy())) return;
+        player.take(this, 1);
+        discard();
+    }
+
     /** Links an entity using this book (called by the book menu's "Link" message). */
     public void linkEntity(Entity entity) {
         ItemStack book = getBook();
@@ -202,6 +217,7 @@ public final class LinkbookEntity extends Entity {
     public void tick() {
         super.tick();
         if (hurtTime > 0) hurtTime--;
+        if (pickupDelay > 0) pickupDelay--;
         xo = getX();
         yo = getY();
         zo = getZ();
@@ -214,10 +230,6 @@ public final class LinkbookEntity extends Entity {
         if (getBook().isEmpty()) {
             discard();
             return;
-        }
-        decayTimer++;
-        if (decayTimer % 10000 == 0) {
-            hurtServer(server, damageSources().starve(), 1f);
         }
         if (isInWaterOrRain()) {
             hurtServer(server, damageSources().drown(), 1f);

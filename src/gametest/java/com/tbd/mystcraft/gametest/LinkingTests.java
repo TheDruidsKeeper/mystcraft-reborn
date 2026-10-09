@@ -11,7 +11,9 @@ import com.tbd.mystcraft.item.DescriptiveBookItem;
 import com.tbd.mystcraft.item.LinkingItem;
 import com.tbd.mystcraft.linking.LinkController;
 import com.tbd.mystcraft.linking.LinkListeners;
+import com.tbd.mystcraft.item.LinkingBookItem;
 import com.tbd.mystcraft.registry.ModBlocks;
+import com.tbd.mystcraft.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -327,5 +329,36 @@ public class LinkingTests {
             }
         }
         helper.assertFalse(level.getBlockState(feet.below()).is(Blocks.BEDROCK), "not standing on bedrock");
+    }
+
+    @GameTest(timeoutTicks = 200)
+    @EmptyTemplate(value = "3x3x3", floor = true)
+    @TestHolder(description = "Dropped books: an item entity holding a book becomes a book entity, which is picked up by a player standing on it once the pickup delay has passed; breaking a stand drops its book the same way")
+    static void droppedBooksArePickedUpOnTouch(ExtendedGameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = helper.makeMockServerPlayerInLevel();
+        BlockPos at = helper.absolutePos(new BlockPos(1, 1, 1));
+        player.teleportTo(level, at.getX() + 0.5, at.getY(), at.getZ() + 0.5, java.util.Set.of(), 0f, 0f, true);
+        ItemStack book = LinkingBookItem.createAt(player);
+        var item = new net.minecraft.world.entity.item.ItemEntity(level, at.getX() + 0.5, at.getY() + 0.2, at.getZ() + 0.5, book.copy());
+        level.addFreshEntity(item); // replaced by a LinkbookEntity in EntityJoinLevelEvent
+        helper.startSequence()
+                .thenExecuteAfter(1, () -> {
+                    helper.assertTrue(item.isRemoved() || !item.isAlive() || level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(at)).isEmpty(), "the item entity was replaced");
+                    helper.assertValueEqual(level.getEntitiesOfClass(com.tbd.mystcraft.entity.LinkbookEntity.class, new AABB(at).inflate(1)).size(), 1, "one book entity");
+                })
+                .thenExecuteAfter(com.tbd.mystcraft.entity.LinkbookEntity.PICKUP_DELAY + 5, () -> {
+                    // the mock player does not tick its own collisions: touch it as Player#aiStep would
+                    for (var dropped : level.getEntitiesOfClass(com.tbd.mystcraft.entity.LinkbookEntity.class, new AABB(at).inflate(1))) dropped.playerTouch(player);
+                    helper.assertTrue(level.getEntitiesOfClass(com.tbd.mystcraft.entity.LinkbookEntity.class, new AABB(at).inflate(1)).isEmpty(), "book picked up");
+                    helper.assertTrue(player.getInventory().contains(stack -> stack.is(ModItems.LINKING_BOOK.get())), "book in the inventory");
+                    // a stand that is broken drops its book the same way
+                    BlockPos standAt = helper.absolutePos(new BlockPos(1, 1, 2));
+                    level.setBlock(standAt, ModBlocks.BOOKSTAND.get().defaultBlockState(), 3);
+                    if (level.getBlockEntity(standAt) instanceof com.tbd.mystcraft.blockentity.BookDisplayBlockEntity display) display.setBook(LinkingBookItem.createAt(player));
+                    level.destroyBlock(standAt, true);
+                })
+                .thenExecuteAfter(2, () -> helper.assertValueEqual(level.getEntitiesOfClass(com.tbd.mystcraft.entity.LinkbookEntity.class, new AABB(helper.absolutePos(new BlockPos(1, 1, 2))).inflate(1)).size(), 1, "the stand's book became a book entity"))
+                .thenSucceed();
     }
 }

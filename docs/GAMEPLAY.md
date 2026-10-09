@@ -69,6 +69,10 @@ weights and chances are `WorldBuildingConfig` (`mystcraft-worldbuilding.toml`). 
   snaps to ground and places a platform (`world/AgeSpawn`). Refusals are logged with a reason under `[link]`.
 * Portals: crystal frames around a Book Receptacle holding a book (`linking/PortalUtils`, `block/LinkPortalBlock`);
   an unbound book binds on first contact. Stands and lecterns link on use and keep the bound copy.
+* Link panels show photographs of the destination: after an arrival the client waits for the surrounding chunks to
+  render, then shoots the four compass views (camera only - the player is not turned; HUD and hand hidden); the
+  server keeps four frames per destination and books play them as a slideshow — `client/PanelImages`,
+  `linking/PanelImageStorage`, log `[panel]`.
 * Star Fissure: a natural way home near the origin of some Ages (`world/feature/StarFissurePopulator`).
 * Permissions per player and dimension: `linking/LinkPermissions`, `/myst permissions`.
 
@@ -89,6 +93,14 @@ scorched, extra ticks — `instability/InstabilityController`, `effects/`, `deca
   Pedestals, vanilla Trial Spawners and Vaults); the terminal room's Facility Cache hands every player one Linking Book
   home, which lifts the protection that stops blocks inside the facility being broken until then (`facility/*`).
 * Vanilla villages (with the Archivist's house), mineshafts, strongholds and nether fortresses per structure symbol.
+
+## Screens and renderers
+* Workstation screens explain empty slots with a faded example item and a tooltip; a slot that takes several kinds
+  shows them in turn at the vanilla recipe-book pace — `client/screen/AbstractMystcraftScreen` slot hints.
+* The book screen turns pages by clicking the page edges or with the arrow keys; the cover trim on either side
+  jumps to the first / last page (the summary of a bound Descriptive Book) — `client/screen/gui/BookElement`.
+* The Writing Desk renders its ink level in a glass inkwell on the desk top and fills its shelf with the share of
+  all symbols the viewing player knows (a Scholar's desk is always full) — `client/render/blockentity/WritingDeskRenderer`.
 
 ## Content
 Blocks: ink mixer, book binder, book receptacle, bookstand, lectern, link modifier, crystal, link portal, writing desk,

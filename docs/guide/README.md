@@ -56,21 +56,19 @@ The materials of The Art are ordinary enough until they are joined. Crafted in a
 
 ![Writing Desk recipe](images/recipe-writing-desk.png)
 
-<h3 id="recipe-writing-desk-backboard">Writing Desk Backboard</h3>
-
-![Writing Desk Backboard recipe](images/recipe-writing-desk-backboard.png)
-
-Place next to a desk for the display shelf.
+1 Glass Bottle, 1 Feather, 5 Planks (any wood). Places as the whole desk, backboard and shelves included.
 
 <h3 id="recipe-collation-folder">Collation Folder</h3>
 
 ![Collation Folder recipe](images/recipe-collation-folder.png)
 
+2 Leather with 1 String between them (one column).
+
 <h3 id="recipe-ink-vial">Ink Vial</h3>
 
-Shapeless craft (crafting table) — either 2× Black Dye + Water Bottle, or 2× Black Dye + Glass Bottle + Water Bucket:
+Shapeless craft (crafting table), two ways — 2× Black Dye + Water Bottle, or 2× Black Dye + Glass Bottle + Water Bucket:
 
-![Ink Vial recipe](images/recipe-ink-vial.png)
+![Ink Vial recipe](images/recipe-ink-vial.png) ![Ink Vial recipe with a water bucket](images/recipe-ink-vial-bucket.png)
 
 You can also fill a glass bottle from black ink fluid in the world.
 
@@ -78,23 +76,33 @@ You can also fill a glass bottle from black ink fluid in the world.
 
 ![Ink Mixer recipe](images/recipe-ink-mixer.png)
 
+5 Stone, 1 Glass Bottle (centre), 2 Planks (bottom corners).
+
 <h3 id="recipe-book-binder">Book Binder</h3>
 
 ![Book Binder recipe](images/recipe-book-binder.png)
+
+3 Iron Ingots (top row), 5 Planks.
 
 ### Bookstand
 
 ![Bookstand recipe](images/recipe-bookstand.png)
 
+2 Sticks over 1 Planks.
+
 ### Lectern
 
 ![Lectern recipe](images/recipe-lectern.png)
+
+6 Planks and 1 Stick (makes 2).
 
 ### Book Receptacle
 
 Needs **Crystal** from world generation (Crystal Formations and similar):
 
 ![Book Receptacle recipe](images/recipe-book-receptacle.png)
+
+8 Crystal in a ring.
 
 <h3 id="unlinked-link-book">Unlinked Link Book</h3>
 
@@ -178,7 +186,7 @@ Holds pages while you write and sort. Open it to manage its contents.
 
 A **page** is a single glyph of The Art — one symbol, and any modifiers it will bear. **Knowledge** is yours alone: it survives death, and the desk will write only what you have already learned (save creative play and the Scholar’s desk).
 
-![Page icon](images/icon-page.png)
+![Page icon](images/icon-page-symbol-sun-normal.png)
 
 **How you learn**
 
@@ -297,4 +305,4 @@ Milestones along the path — wry titles for hard-earned lessons.
 
 Write carefully. Link with a way home in hand. The Ages will do the rest.
 
-![Descriptive Book](images/icon-descriptive-book.png) ![Linking Book](images/icon-linking-book.png) ![Unlinked Book](images/icon-unlinked-book.png) ![Ink](images/icon-ink-vial.png) ![Folder](images/icon-folder.png) ![Desk](images/icon-writing-desk.png)
+![Descriptive Book](images/icon-descriptive-book.png) ![Linking Book](images/icon-linking-book.png) ![Unlinked Book](images/icon-unlinked-book.png) ![Ink](images/icon-ink-vial.png) ![Folder](images/icon-collation-folder.png) ![Desk](images/icon-writing-desk.png)

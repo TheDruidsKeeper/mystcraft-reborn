@@ -9,6 +9,7 @@ import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
@@ -64,11 +65,12 @@ public final class ClientSelfCheck {
     private static int stepTicks;      // ticks in the current step
     private static int screenshots;
     private static int closeupIndex;
-    private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "ink", "fissure", "pages"};
+    private static final String[] CLOSEUPS = {"desk", "bookstand", "lectern", "portal", "fissure", "decay", "plain_desk"};
     /** Screens to open and screenshot: "open <element>" for blocks, "use <item>" for items. */
-    private static final String[] SCREENS = {"open desk", "open ink_mixer", "open book_binder", "open link_modifier",
+    private static final String[] SCREENS = {"open chest", "open desk", "open ink_mixer", "open book_binder", "open link_modifier",
             "use linking_book", "use descriptive_book", "use folder"};
     private static int screenIndex;
+    private static ItemStack firstHint = ItemStack.EMPTY;
     /** QA shelf tour (docs/QA.md): every case is visited and screenshotted by day and by night for scripts/qa/compare.py. */
     private static final List<com.tbd.mystcraft.command.QaShelf.Case> TOUR = com.tbd.mystcraft.command.QaShelf.cases();
     private static int tourIndex;
@@ -162,6 +164,13 @@ public final class ClientSelfCheck {
                             Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
                         }
                         screenshot(mc, "02z_screen_" + name);
+                        if (mc.screen instanceof com.tbd.mystcraft.client.screen.InkMixerScreen mixer) firstHint = mixer.currentSlotHint(0);
+                    } else if (stepTicks == 43 && mc.screen instanceof com.tbd.mystcraft.client.screen.InkMixerScreen mixer) {
+                        // multi-item slot hints cycle every 30 ticks (vanilla ghost-slot pace): 38 screen ticks later
+                        // the ink slot must show its other example
+                        ItemStack now = mixer.currentSlotHint(0);
+                        Mystcraft.LOGGER.info("[clientcheck] ink mixer slot hint cycled {} -> {}", firstHint.getItem(), now.getItem());
+                        if (firstHint.isEmpty() || ItemStack.isSameItem(firstHint, now)) failures.add("ink mixer slot hint did not cycle: " + firstHint + " -> " + now);
                     } else if (stepTicks == 30 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         // the scene desk is a Scholar's desk: the surface lists every symbol; then the Sky tab and the
                         // Modifiers tab with the folder's sun page selected (modifiers that fit it are highlighted)
@@ -238,6 +247,15 @@ public final class ClientSelfCheck {
                         int known = mc.player == null ? 0 : com.tbd.mystcraft.knowledge.SymbolKnowledge.known(mc.player).size();
                         Mystcraft.LOGGER.info("[clientcheck] symbols known after arriving in the Age: {}", known);
                         if (known == 0) failures.add("arriving in an Age taught no symbols (knowledge not synced to the client)");
+                        // the plain desk's shelf tracks that knowledge (the scene's right-hand desk, 04e close-up)
+                        int books = com.tbd.mystcraft.client.render.blockentity.WritingDeskRenderer.learnedBooks();
+                        Mystcraft.LOGGER.info("[clientcheck] plain desk shelf volumes for {} known symbols: {}", known, books);
+                        if (known > 0 && books == 0) failures.add("plain writing desk shows no shelf books although symbols are known");
+                    }
+                    if (stepTicks == 62) command(mc, "myst-dev scene closeup plain_desk");
+                    if (stepTicks == 68) {
+                        screenshot(mc, "04e_closeup_plain_desk");
+                        command(mc, "myst-dev scene view"); // back to the viewing spot for the night shot
                     }
                     // the book of this Age: its link panel should show the photo taken on arrival
                     if (stepTicks == 70) command(mc, "myst-dev scene use current_age_book");
@@ -266,9 +284,17 @@ public final class ClientSelfCheck {
                         if (summary == null) failures.add("no Age summary synced for the bound book");
                         else if (summary.total() == 0 || summary.discovered() == 0) failures.add("Age summary has no discovered pages: " + summary);
                         screenshot(mc, "04d_age_book_summary");
+                        if (!book.clickTrim(false)) failures.add("click on the left cover trim was not handled");
                     }
-                    if (stepTicks == 130 && mc.screen != null) mc.screen.onClose();
-                    if (stepTicks > 134) {
+                    if (stepTicks == 130 && mc.screen instanceof com.tbd.mystcraft.client.screen.BookScreen book) {
+                        if (book.getMenu().getCurrentPageIndex() != 0) failures.add("left cover trim did not jump to the first page");
+                        if (!book.clickTrim(true)) failures.add("click on the right cover trim was not handled");
+                    }
+                    if (stepTicks == 135 && mc.screen instanceof com.tbd.mystcraft.client.screen.BookScreen book) {
+                        if (book.getMenu().getCurrentPageIndex() != book.getMenu().getPageCount()) failures.add("right cover trim did not jump to the last page");
+                        mc.screen.onClose();
+                    }
+                    if (stepTicks > 139) {
                         command(mc, "myst time set night");
                         next(Step.NIGHT);
                     }

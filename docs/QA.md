@@ -14,6 +14,8 @@ this?" — if it could, write the test ([`docs/DEVELOPMENT.md`](DEVELOPMENT.md#w
 ## The QA shelf (`/myst-dev qa-shelf`)
 One lectern per QA world, grouped in coloured sections with a sign each; every book is bound to a fixed-seed Age
 (`command/QaShelf.sections()` is the single source of the matrix — tests and the client tour read the same list).
+Row A starts with the home Linking Book on a bookstand (the way back from any world). The floor is fenced with a
+walkway (open towards the player) and lit by a glowstone grid, so it reads at night.
 `/myst-dev qa-visit <id>` links straight into one world. The `[qa]` log line of each lectern repeats the "look for".
 
 | Section | World | Look for (human) | Asserted by tests |

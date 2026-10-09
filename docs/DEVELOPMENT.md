@@ -21,6 +21,14 @@ commit, or use `workflow_dispatch`.
 
 Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestServer | runData`.
 
+### Docs tooling
+* [`scripts/docs/gen_recipes.py`](../scripts/docs/gen_recipes.py) — renders the guide's recipe images from the recipe JSON (vanilla textures from
+  the client jar in the Gradle cache); fails on a recipe without an image entry. Rerun after any recipe change.
+* [`scripts/docs/crop_icons.py`](../scripts/docs/crop_icons.py) — cuts the guide's item icons out of the client smoke's chest screenshot
+  (`selfcheck_02z_screen_chest.png` + the `[scene] chest slot` log lines), so icons look as the items do in game. Run after
+  a client smoke whenever an item's look or the showcase list (`DebugScene.showcase`) changes, then `gen_recipes.py`.
+* [`scripts/docs/check_links.py`](../scripts/docs/check_links.py) — dangling file / class references in the Markdown docs.
+
 ### Gradle tasks of note
 * `generateStructurePools` — writes the Facility template pools + `CREDITS.md` from the room manifest
   ([`docs/STRUCTURES.md`](STRUCTURES.md)); runs before `processResources`.
@@ -75,9 +83,11 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 
 | Subcommand | Effect |
 |---|---|
-| `scene`, `scene closeup <element>`, `scene open <element>`, `scene use <item>` | the debug showcase (`command/DebugScene`); driven by the client smoke |
+| `scene`, `scene closeup <element>`, `scene open <element>`, `scene use <item>`, `scene view` | the debug showcase (`command/DebugScene`: every workstation in workflow order, portal, fissure, decay, a stocked supply chest, fenced and lit); `view` returns to the viewing spot; driven by the client smoke |
 | `qa-shelf` | build the visual QA matrix in front of you (`command/QaShelf`, [`docs/QA.md`](QA.md)) |
 | `qa-visit <id>` | bind one QA world and link into it (the client smoke tour uses this) |
+| `archivist` | spawn an Archivist villager where you stand (`villager/ArchivistShop` trades) |
+| `home-book` | a Linking Book to the overworld spawn with intra-linking + following (a party's way home) |
 | `facility-tp entrance|lobby|vault` | teleport into this Age's generated Facility (`world/structure/FacilityLocator.find`; the tour shoots E2's entrance and lobby) |
 
 ## Writing tests

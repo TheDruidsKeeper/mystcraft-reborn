@@ -37,6 +37,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -61,8 +63,8 @@ import java.util.Locale;
  *   <li>{@code /myst …} (gamemasters): everyday Age administration and QA — {@code visit}, {@code create}, {@code book},
  *       {@code locate facility}, {@code facility status|solve}, {@code time}, {@code weather}, {@code instability},
  *       {@code permissions}, {@code retire}.</li>
- *   <li>{@code /myst-dev …} (admins): the debug showcase ({@code scene}, driven by the client self-check) and the
- *       visual QA matrix ({@code qa-shelf}).</li>
+ *   <li>{@code /myst-dev …} (admins): the QA base ({@code qa-base}, driven by the client self-check) and the
+ *       visual QA matrix ({@code qa-worlds}).</li>
  * </ul>
  * Every subcommand that takes a dimension defaults to the sender's Age. Messages are lang keys {@code commands.mystcraft.*}.
  */
@@ -93,8 +95,9 @@ public final class MystcraftCommands {
 
         dispatcher.register(Commands.literal("myst-dev")
                 .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
-                .then(scene())
-                .then(qaShelf())
+                .then(qaBase())
+                .then(qaWorlds())
+                .then(qaAll())
                 .then(qaVisit())
                 .then(facilityTp())
                 .then(archivist())
@@ -103,21 +106,36 @@ public final class MystcraftCommands {
 
     // --- /myst-dev archivist, /myst-dev home-book -------------------------------------------------------------------
 
-    /** Spawns an Archivist villager (the mod's trader) where the player stands. */
+    /** Spawns an Archivist villager (the mod's trader) {@link #ARCHIVIST_DISTANCE} blocks in front of the player, facing them. */
     private static LiteralArgumentBuilder<CommandSourceStack> archivist() {
         return Commands.literal("archivist").executes(ctx -> {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            ServerLevel level = serverLevel(ctx, player);
-            net.minecraft.world.entity.npc.villager.Villager villager = net.minecraft.world.entity.EntityType.VILLAGER.create(level,
-                    net.minecraft.world.entity.EntitySpawnReason.COMMAND);
-            if (villager == null) return 0;
-            villager.snapTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0f);
-            villager.setVillagerData(villager.getVillagerData().withProfession(level.registryAccess(), com.tbd.mystcraft.registry.ModVillagers.ARCHIVIST_KEY));
-            villager.setPersistenceRequired();
-            level.addFreshEntity(villager);
-            success(ctx.getSource(), "commands.mystcraft.archivist.spawned", player.blockPosition().toShortString());
+            BlockPos at = player.blockPosition().relative(player.getDirection(), ARCHIVIST_DISTANCE);
+            spawnArchivist(serverLevel(ctx, player), at, player.getDirection().getOpposite());
+            success(ctx.getSource(), "commands.mystcraft.archivist.spawned", at.toShortString());
             return 1;
         });
+    }
+
+    public static final int ARCHIVIST_DISTANCE = 3;
+
+    /**
+     * Spawns an employed Archivist at {@code pos} looking along {@code facing}. He gets one point of trade experience:
+     * vanilla fires a villager with no experience and no job site within seconds ({@code ResetProfession}), after
+     * which he only shakes his head - the playtest "the archivist refuses to interact".
+     */
+    public static net.minecraft.world.entity.npc.villager.Villager spawnArchivist(ServerLevel level, BlockPos pos, Direction facing) {
+        net.minecraft.world.entity.npc.villager.Villager villager = net.minecraft.world.entity.EntityType.VILLAGER.create(level,
+                net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        if (villager == null) throw new IllegalStateException("villager could not be created");
+        villager.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, facing.toYRot(), 0f);
+        villager.setYHeadRot(facing.toYRot());
+        villager.setVillagerData(villager.getVillagerData().withProfession(level.registryAccess(), com.tbd.mystcraft.registry.ModVillagers.ARCHIVIST_KEY));
+        villager.setVillagerXp(1);
+        villager.setPersistenceRequired();
+        level.addFreshEntity(villager);
+        Mystcraft.LOGGER.info("[archivist] spawned at {} facing {}", pos.toShortString(), facing);
+        return villager;
     }
 
     /** Gives a Linking Book to the overworld spawn with intra-linking and following (the party's way home). */
@@ -500,65 +518,101 @@ public final class MystcraftCommands {
         return 1;
     }
 
-    // --- /myst-dev scene [closeup|open|use <element>] ------------------------------------------------------------
+    // --- /myst-dev qa-base [closeup|open|use <element>] ------------------------------------------------------------
 
-    private static LiteralArgumentBuilder<CommandSourceStack> scene() {
+    private static LiteralArgumentBuilder<CommandSourceStack> qaBase() {
         LiteralArgumentBuilder<CommandSourceStack> closeup = Commands.literal("closeup");
         LiteralArgumentBuilder<CommandSourceStack> open = Commands.literal("open");
-        for (DebugScene.Element element : DebugScene.Element.values()) {
+        for (QaBase.Element element : QaBase.Element.values()) {
             String name = element.name().toLowerCase(Locale.ROOT);
             closeup.then(Commands.literal(name).executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
-                if (!DebugScene.closeup(serverLevel(ctx, player), player, element)) {
-                    ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.scene.missing"));
+                if (!QaBase.closeup(serverLevel(ctx, player), player, element)) {
+                    ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.qa_base.missing"));
                     return 0;
                 }
                 return 1;
             }));
             open.then(Commands.literal(name).executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
-                if (!DebugScene.open(serverLevel(ctx, player), player, element)) {
-                    ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.scene.missing"));
+                if (!QaBase.open(serverLevel(ctx, player), player, element)) {
+                    ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.qa_base.missing"));
                     return 0;
                 }
                 return 1;
             }));
         }
         LiteralArgumentBuilder<CommandSourceStack> use = Commands.literal("use");
-        for (DebugScene.UsableItem item : DebugScene.UsableItem.values()) {
+        for (QaBase.UsableItem item : QaBase.UsableItem.values()) {
             use.then(Commands.literal(item.name().toLowerCase(Locale.ROOT)).executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
-                return DebugScene.use(serverLevel(ctx, player), player, item) ? 1 : 0;
+                return QaBase.use(serverLevel(ctx, player), player, item) ? 1 : 0;
             }));
         }
-        return Commands.literal("scene")
+        return Commands.literal("qa-base")
                 .then(closeup)
                 .then(open)
                 .then(use)
                 .then(Commands.literal("view").executes(ctx -> {
                     ServerPlayer player = ctx.getSource().getPlayerOrException();
-                    if (!DebugScene.view(serverLevel(ctx, player), player)) {
-                        ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.scene.missing"));
+                    if (!QaBase.view(serverLevel(ctx, player), player)) {
+                        ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.qa_base.missing"));
                         return 0;
                     }
                     return 1;
                 }))
                 .executes(ctx -> {
                     ServerPlayer player = ctx.getSource().getPlayerOrException();
-                    BlockPos origin = player.blockPosition().offset(-DebugScene.WIDTH / 2, 0, -3);
-                    BlockPos view = DebugScene.build(serverLevel(ctx, player), origin, player);
-                    success(ctx.getSource(), "commands.mystcraft.scene.built", view.toShortString());
+                    BlockPos view = QaBase.build(serverLevel(ctx, player), QaBase.originFor(player.blockPosition()), player);
+                    success(ctx.getSource(), "commands.mystcraft.qa_base.built", view.toShortString());
                     return 1;
                 });
     }
 
-    // --- /myst-dev qa-shelf --------------------------------------------------------------------------------------
+    // --- /myst-dev qa-all ----------------------------------------------------------------------------------------
 
-    private static LiteralArgumentBuilder<CommandSourceStack> qaShelf() {
-        return Commands.literal("qa-shelf").executes(ctx -> {
+    /**
+     * Everything at once, north of the player: a two-wide trunk path ahead, the Archivist at its right edge, then a
+     * crossbar with the QA base on the left (west) and the QA worlds on the right (east), each on its own spur. The
+     * player is turned north at the trunk's start.
+     */
+    private static LiteralArgumentBuilder<CommandSourceStack> qaAll() {
+        return Commands.literal("qa-all").executes(ctx -> {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            int placed = QaShelf.build(serverLevel(ctx, player), player);
-            success(ctx.getSource(), "commands.mystcraft.qa_shelf.built", placed);
+            ServerLevel level = serverLevel(ctx, player);
+            BlockPos start = player.blockPosition();
+            int trunk = 6;
+            int halfSpan = 12; // spur columns at start.x -/+ halfSpan: 3 free blocks between the two fenced rings
+            // trunk (own column and the one to the left), then a crossbar two deep joining both spurs
+            QaBase.pavePath(level, start, Direction.NORTH, trunk, -1, 0);
+            BlockPos bar = start.offset(0, 0, -trunk);
+            for (int x = -halfSpan - 1; x <= halfSpan; x++) {
+                for (int z = 1; z <= 2; z++) {
+                    BlockPos pos = bar.offset(x, 0, -z);
+                    level.setBlock(pos.below(), Blocks.STONE_BRICKS.defaultBlockState(), 3);
+                    for (int h = 0; h < 2; h++) {
+                        if (!level.getBlockState(pos.above(h)).isAir()) level.setBlock(pos.above(h), Blocks.AIR.defaultBlockState(), 3);
+                    }
+                }
+            }
+            BlockPos baseStart = bar.offset(-halfSpan, 0, -2);
+            BlockPos worldsStart = bar.offset(halfSpan, 0, -2);
+            QaBase.build(level, QaBase.originFor(baseStart), player);
+            int placed = QaWorlds.build(level, player, worldsStart, Direction.NORTH);
+            spawnArchivist(level, start.offset(1, 0, -ARCHIVIST_DISTANCE), Direction.SOUTH);
+            player.teleportTo(level, start.getX() + 0.5, start.getY(), start.getZ() + 0.5, java.util.Set.of(), 180f, 0f, true);
+            success(ctx.getSource(), "commands.mystcraft.qa_all.built", placed);
+            return 1;
+        });
+    }
+
+    // --- /myst-dev qa-worlds --------------------------------------------------------------------------------------
+
+    private static LiteralArgumentBuilder<CommandSourceStack> qaWorlds() {
+        return Commands.literal("qa-worlds").executes(ctx -> {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            int placed = QaWorlds.build(serverLevel(ctx, player), player);
+            success(ctx.getSource(), "commands.mystcraft.qa_worlds.built", placed);
             return placed;
         });
     }
@@ -570,12 +624,12 @@ public final class MystcraftCommands {
         return Commands.literal("qa-visit").then(Commands.argument("id", StringArgumentType.word()).executes(ctx -> {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             String id = StringArgumentType.getString(ctx, "id");
-            QaShelf.Case qa = QaShelf.cases().stream().filter(c -> c.id().equalsIgnoreCase(id)).findFirst().orElse(null);
+            QaWorlds.Case qa = QaWorlds.cases().stream().filter(c -> c.id().equalsIgnoreCase(id)).findFirst().orElse(null);
             if (qa == null) {
                 ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.qa_visit.unknown", id));
                 return 0;
             }
-            ItemStack book = QaShelf.bind(ctx.getSource().getServer(), qa);
+            ItemStack book = QaWorlds.bind(ctx.getSource().getServer(), qa);
             LinkInfo info = LinkingItem.getLinkInfo(book);
             if (!LinkController.travelEntity(player, info)) {
                 ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.link.refused"));

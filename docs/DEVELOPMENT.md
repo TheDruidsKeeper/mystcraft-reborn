@@ -10,7 +10,7 @@ in [`gradle.properties`](../gradle.properties); the toolchain is ModDevGradle ([
 | Build | [`scripts/build.sh`](../scripts/build.sh) | `gradle build` (compile, unit tests incl. `AssetIntegrityTest`) → `out/*.jar` | compile errors, broken asset references |
 | Server smoke | [`scripts/smoke.sh`](../scripts/smoke.sh) `[seconds]` | dedicated server with `MYSTCRAFT_SELFCHECK=1` → `SelfCheck` | registries, datapacks, Age creation and generation, Facility assembly, blueprint stress |
 | Game tests | [`scripts/gametest.sh`](../scripts/gametest.sh) | GameTest server + `mystcraft_tests` mod (`src/gametest`) | behaviour with observable state (see [`docs/QA.md`](QA.md)) |
-| Client smoke | [`scripts/client-smoke.sh`](../scripts/client-smoke.sh) `[seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then [`scripts/qa/compare.py`](../scripts/qa/compare.py) | models, screens, renderers, Age sky/tints; QA shelf screenshot drift is reported as `VISUAL_DRIFT` (warning, not a hard fail) |
+| Client smoke | [`scripts/client-smoke.sh`](../scripts/client-smoke.sh) `[seconds]` | dev client under Xvfb/Mesa driven by `ClientSelfCheck`, then [`scripts/qa/compare.py`](../scripts/qa/compare.py) | models, screens, renderers, Age sky/tints; QA worlds screenshot drift is reported as `VISUAL_DRIFT` (warning, not a hard fail) |
 
 Outputs land in `out/`: `*-status.txt` (`PASSED`, `VISUAL_DRIFT` warning, or a failure kind), `logs/*.log`, `screenshots/`, `qa-report.txt`, the jar.
 Each host script also tees the Docker build output to `logs/<layer>-docker.log` (git-ignored).
@@ -25,8 +25,8 @@ Without Docker (JDK 25): `./gradlew build | runServer | runClient | runGameTestS
 * [`scripts/docs/gen_recipes.py`](../scripts/docs/gen_recipes.py) — renders the guide's recipe images from the recipe JSON (vanilla textures from
   the client jar in the Gradle cache); fails on a recipe without an image entry. Rerun after any recipe change.
 * [`scripts/docs/crop_icons.py`](../scripts/docs/crop_icons.py) — cuts the guide's item icons out of the client smoke's chest screenshot
-  (`selfcheck_02z_screen_chest.png` + the `[scene] chest slot` log lines), so icons look as the items do in game. Run after
-  a client smoke whenever an item's look or the showcase list (`DebugScene.showcase`) changes, then `gen_recipes.py`.
+  (`selfcheck_02z_screen_chest.png` + the `[base] chest slot` log lines), so icons look as the items do in game. Run after
+  a client smoke whenever an item's look or the showcase list (`QaBase.showcase`) changes, then `gen_recipes.py`.
 * [`scripts/docs/check_links.py`](../scripts/docs/check_links.py) — dangling file / class references in the Markdown docs.
 
 ### Gradle tasks of note
@@ -41,7 +41,7 @@ for most reports.
 
 ## Log markers
 Decisions that matter for a bug report are logged at INFO under a bracketed tag:
-`grep -E "\[(spawn|link|age|ink|blueprint|knowledge|desk|creatures|qa|panel|portal|worldgen|scene|clientcheck|selfcheck)\]" debug.log`.
+`grep -E "\[(spawn|link|age|ink|blueprint|knowledge|desk|creatures|qa|panel|portal|worldgen|base|clientcheck|selfcheck)\]" debug.log`.
 
 | Tag | Source | Meaning |
 |---|---|---|
@@ -56,8 +56,10 @@ Decisions that matter for a bug report are logged at INFO under a bracketed tag:
 | `[worldgen]` | populators | star fissure position |
 | `[panel]` | `client/PanelImages` | link panel photographs |
 | `[portal]` | `linking/PortalUtils` | crystal portal formation / collapse |
-| `[qa]` | `command/QaShelf` | one line per shelf lectern: id, seed, Age, what to look for |
-| `[scene]` | `command/DebugScene` | where the debug showcase was built |
+| `[qa]` | `command/QaWorlds` | one line per QA-world lectern: id, seed, Age, what to look for |
+| `[base]` | `command/QaBase` | where the QA base was built, supply chest contents |
+| `[archivist]` | `command/MystcraftCommands` | Archivist spawned by command |
+| `[instability]` | `instability/InstabilityDeaths` | a player killed by instability (advancement) |
 | `[selfcheck]`, `SELFCHECK PASSED/FAILED` | `SelfCheck` | server smoke |
 | `[clientcheck]`, `CLIENT SELFCHECK PASSED/FAILED` | `client/ClientSelfCheck` | client smoke |
 
@@ -83,16 +85,17 @@ Registered in `command/MystcraftCommands`; every dimension argument defaults to 
 
 | Subcommand | Effect |
 |---|---|
-| `scene`, `scene closeup <element>`, `scene open <element>`, `scene use <item>`, `scene view` | the debug showcase (`command/DebugScene`: every workstation in workflow order, portal, fissure, decay, a stocked supply chest, fenced and lit); `view` returns to the viewing spot; driven by the client smoke |
-| `qa-shelf` | build the visual QA matrix in front of you (`command/QaShelf`, [`docs/QA.md`](QA.md)) |
+| `qa-base`, `qa-base closeup <element>`, `qa-base open <element>`, `qa-base use <item>`, `qa-base view` | the QA base north of you, paved path to its gate (`command/QaBase`: every workstation in workflow order, portal, fissure, decay, a stocked supply chest, fenced and lit); `view` returns to the viewing spot; driven by the client smoke |
+| `qa-worlds` | build the visual QA matrix in front of you, paved path to its gate (`command/QaWorlds`, [`docs/QA.md`](QA.md)) |
+| `qa-all` | `qa-base` (left), `qa-worlds` (right) and the Archivist off one trunk path north of you |
 | `qa-visit <id>` | bind one QA world and link into it (the client smoke tour uses this) |
-| `archivist` | spawn an Archivist villager where you stand (`villager/ArchivistShop` trades) |
+| `archivist` | spawn an employed Archivist villager a few blocks in front of you (`villager/ArchivistShop` trades) |
 | `home-book` | a Linking Book to the overworld spawn with intra-linking + following (a party's way home) |
 | `facility-tp entrance|lobby|vault` | teleport into this Age's generated Facility (`world/structure/FacilityLocator.find`; the tour shoots E2's entrance and lobby) |
 
 ## Writing tests
 * **GameTest** — a static method in a `@ForEachTest(groups=…)` class under `src/gametest`, annotated `@GameTest`,
-  `@EmptyTemplate`, `@TestHolder(description=…)`. Bind Ages with `TestBooks` or `QaShelf.bind`, generate chunks with
+  `@EmptyTemplate`, `@TestHolder(description=…)`. Bind Ages with `TestBooks` or `QaWorlds.bind`, generate chunks with
   `level.getChunk`, finish with `helper.succeed()`. The GameTest server runs with `generateStructures=false`: call
   the chunk generator's createStructures yourself (see `FacilityTests`). Level.getHeight never generates — load the
   chunk first.

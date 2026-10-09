@@ -34,7 +34,7 @@ import java.util.Map;
  * script and then shuts it down, so the Docker {@code client-smoke} stage can exercise everything the dedicated-server
  * smoke test cannot: resource loading / model baking, screens, block-entity renderers, the Age sky, tints, portals.
  *
- * <p>Script: create a fresh flat creative world → screenshot → {@code /myst-dev scene} (every renderable block) →
+ * <p>Script: create a fresh flat creative world → screenshot → {@code /myst-dev qa-base} (every renderable block) →
  * screenshot → {@code /myst visit} (link into a brand-new Age through the real link path) → screenshots at day and
  * night, including the scene rebuilt inside the Age → {@code CLIENT SELFCHECK PASSED} and exit. Every step has a
  * timeout; any failure logs {@code CLIENT SELFCHECK FAILED: reason} and exits. Screenshots land in
@@ -71,8 +71,8 @@ public final class ClientSelfCheck {
             "use linking_book", "use descriptive_book", "use folder"};
     private static int screenIndex;
     private static ItemStack firstHint = ItemStack.EMPTY;
-    /** QA shelf tour (docs/QA.md): every case is visited and screenshotted by day and by night for scripts/qa/compare.py. */
-    private static final List<com.tbd.mystcraft.command.QaShelf.Case> TOUR = com.tbd.mystcraft.command.QaShelf.cases();
+    /** QA worlds tour (docs/QA.md): every case is visited and screenshotted by day and by night for scripts/qa/compare.py. */
+    private static final List<com.tbd.mystcraft.command.QaWorlds.Case> TOUR = com.tbd.mystcraft.command.QaWorlds.cases();
     private static int tourIndex;
     private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> tourFrom;
     /** Tick within TOUR_DAY when {@code myst time set day} was issued; -1 until then. */
@@ -121,7 +121,7 @@ public final class ClientSelfCheck {
                 case OVERWORLD_SETTLE -> {
                     if (stepTicks == 60) screenshot(mc, "01_overworld");
                     if (stepTicks > 70) {
-                        command(mc, "myst-dev scene");
+                        command(mc, "myst-dev qa-base");
                         next(Step.SCENE_OVERWORLD);
                     }
                 }
@@ -138,7 +138,7 @@ public final class ClientSelfCheck {
                         screenIndex = 0;
                         next(Step.SCREENS);
                     } else if (stepTicks == 1) {
-                        command(mc, "myst-dev scene closeup " + CLOSEUPS[closeupIndex]);
+                        command(mc, "myst-dev qa-base closeup " + CLOSEUPS[closeupIndex]);
                     } else if (stepTicks == 30) {
                         screenshot(mc, String.format("02%c_closeup_%s", (char) ('a' + closeupIndex), CLOSEUPS[closeupIndex]));
                     } else if (stepTicks > 32) {
@@ -153,24 +153,27 @@ public final class ClientSelfCheck {
                         next(Step.VISIT_AGE);
                     } else if (stepTicks == 1) {
                         // stand next to the block first: container menus close when the player is > 8 blocks away
-                        if (SCREENS[screenIndex].startsWith("open ")) command(mc, "myst-dev scene closeup " + SCREENS[screenIndex].substring(5));
+                        if (SCREENS[screenIndex].startsWith("open ")) command(mc, "myst-dev qa-base closeup " + SCREENS[screenIndex].substring(5));
                     } else if (stepTicks == 5) {
-                        command(mc, "myst-dev scene " + SCREENS[screenIndex]);
+                        command(mc, "myst-dev qa-base " + SCREENS[screenIndex]);
                     } else if (stepTicks == 25) {
                         String name = SCREENS[screenIndex].substring(SCREENS[screenIndex].indexOf(' ') + 1);
                         if (mc.screen == null) {
-                            failures.add("screen did not open for /myst-dev scene " + SCREENS[screenIndex]);
+                            failures.add("screen did not open for /myst-dev qa-base " + SCREENS[screenIndex]);
                         } else {
                             Mystcraft.LOGGER.info("[clientcheck] screen {} open: {}", name, mc.screen.getClass().getSimpleName());
                         }
                         screenshot(mc, "02z_screen_" + name);
-                        if (mc.screen instanceof com.tbd.mystcraft.client.screen.InkMixerScreen mixer) firstHint = mixer.currentSlotHint(0);
-                    } else if (stepTicks == 43 && mc.screen instanceof com.tbd.mystcraft.client.screen.InkMixerScreen mixer) {
+                        if (mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) firstHint = desk.currentSlotHint(com.tbd.mystcraft.menu.WritingDeskMenu.SLOT_CONTAINER_IN);
+                        if (mc.screen instanceof com.tbd.mystcraft.client.screen.InkMixerScreen mixer && !mixer.currentSlotHint(0).is(com.tbd.mystcraft.registry.ModItems.INK_VIAL.get())) {
+                            failures.add("ink mixer slot hint is not the vial: " + mixer.currentSlotHint(0));
+                        }
+                    } else if (stepTicks == 43 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         // multi-item slot hints cycle every 30 ticks (vanilla ghost-slot pace): 38 screen ticks later
-                        // the ink slot must show its other example
-                        ItemStack now = mixer.currentSlotHint(0);
-                        Mystcraft.LOGGER.info("[clientcheck] ink mixer slot hint cycled {} -> {}", firstHint.getItem(), now.getItem());
-                        if (firstHint.isEmpty() || ItemStack.isSameItem(firstHint, now)) failures.add("ink mixer slot hint did not cycle: " + firstHint + " -> " + now);
+                        // the desk's ink slot must show its other example (vial <-> glass bottle)
+                        ItemStack now = desk.currentSlotHint(com.tbd.mystcraft.menu.WritingDeskMenu.SLOT_CONTAINER_IN);
+                        Mystcraft.LOGGER.info("[clientcheck] desk ink slot hint cycled {} -> {}", firstHint.getItem(), now.getItem());
+                        if (firstHint.isEmpty() || ItemStack.isSameItem(firstHint, now)) failures.add("desk ink slot hint did not cycle: " + firstHint + " -> " + now);
                     } else if (stepTicks == 30 && mc.screen instanceof com.tbd.mystcraft.client.screen.WritingDeskScreen desk) {
                         // the scene desk is a Scholar's desk: the surface lists every symbol; then the Sky tab and the
                         // Modifiers tab with the folder's sun page selected (modifiers that fit it are highlighted)
@@ -213,13 +216,13 @@ public final class ClientSelfCheck {
                     }
                     // Opening the scene/book GUI pauses PanelImages while pendingDirection < 0; wait out capture first.
                     if (stepTicks > 110 && !PanelImages.isCapturing()) {
-                        command(mc, "myst-dev scene");
+                        command(mc, "myst-dev qa-base");
                         panelFramesReady = false;
                         next(Step.SCENE_AGE);
                     } else if (stepTicks > 20 * 30) {
                         failures.add("link panel capture still pending after Age settle (capturing=" + PanelImages.isCapturing()
                                 + "; see [panel] lines)");
-                        command(mc, "myst-dev scene");
+                        command(mc, "myst-dev qa-base");
                         panelFramesReady = false;
                         next(Step.SCENE_AGE);
                     }
@@ -252,13 +255,13 @@ public final class ClientSelfCheck {
                         Mystcraft.LOGGER.info("[clientcheck] plain desk shelf volumes for {} known symbols: {}", known, books);
                         if (known > 0 && books == 0) failures.add("plain writing desk shows no shelf books although symbols are known");
                     }
-                    if (stepTicks == 62) command(mc, "myst-dev scene closeup plain_desk");
+                    if (stepTicks == 62) command(mc, "myst-dev qa-base closeup plain_desk");
                     if (stepTicks == 68) {
                         screenshot(mc, "04e_closeup_plain_desk");
-                        command(mc, "myst-dev scene view"); // back to the viewing spot for the night shot
+                        command(mc, "myst-dev qa-base view"); // back to the viewing spot for the night shot
                     }
                     // the book of this Age: its link panel should show the photo taken on arrival
-                    if (stepTicks == 70) command(mc, "myst-dev scene use current_age_book");
+                    if (stepTicks == 70) command(mc, "myst-dev qa-base use current_age_book");
                     if (stepTicks == 95) {
                         if (mc.screen == null) failures.add("current Age book screen did not open");
                         screenshot(mc, "04b_age_book");
@@ -366,7 +369,7 @@ public final class ClientSelfCheck {
         }
     }
 
-    /** Links into the next shelf world, or finishes when every case has been visited. */
+    /** Links into the next QA world, or finishes when every case has been visited. */
     private static void startTourVisit(Minecraft mc) {
         if (tourIndex >= TOUR.size()) {
             mc.options.hideGui = false;
@@ -386,7 +389,7 @@ public final class ClientSelfCheck {
 
     private static void onRenderFramePre(RenderFrameEvent.Pre event) {
         if (!inTourShotStep()) return;
-        // Facility shots keep the yaw/pitch set by facility-tp; arrival shots lock the shelf pose.
+        // Facility shots keep the yaw/pitch set by facility-tp; arrival shots lock the tour pose.
         prepareTourView(Minecraft.getInstance(), step != Step.TOUR_FACILITY);
     }
 
@@ -443,7 +446,7 @@ public final class ClientSelfCheck {
     private static void createWorld(Minecraft mc) {
         LevelSettings settings = new LevelSettings("mystcraft-selfcheck", GameType.CREATIVE,
                 new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
-        WorldOptions options = new WorldOptions(1337L, true, false); // structures on: the shelf tour shoots the Facility
+        WorldOptions options = new WorldOptions(1337L, true, false); // structures on: the QA worlds tour shoots the Facility
         mc.createWorldOpenFlows().createFreshLevel("mystcraft-selfcheck", settings, options,
                 WorldPresets::createFlatWorldDimensions, mc.screen);
     }

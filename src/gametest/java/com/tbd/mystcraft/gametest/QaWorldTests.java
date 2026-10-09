@@ -5,7 +5,7 @@ import com.tbd.mystcraft.age.AgeControllers;
 import com.tbd.mystcraft.age.AgeData;
 import com.tbd.mystcraft.age.AgeManager;
 import com.tbd.mystcraft.api.symbol.logic.Populator;
-import com.tbd.mystcraft.command.QaShelf;
+import com.tbd.mystcraft.command.QaWorlds;
 import com.tbd.mystcraft.instability.InstabilityController;
 import com.tbd.mystcraft.item.DescriptiveBookItem;
 import com.tbd.mystcraft.registry.ModBlocks;
@@ -45,7 +45,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Block-level facts about the QA shelf worlds (docs/QA.md): the same seeds and pages as {@code /myst-dev qa-shelf}, so
+ * Block-level facts about the QA worlds worlds (docs/QA.md): the same seeds and pages as {@code /myst-dev qa-worlds}, so
  * the shelf is only needed for what these tests cannot see (how it looks). Each test binds a shelf case, generates a
  * few chunks and asserts terrain type, materials, biome layout, structure starts, weather or instability inputs.
  */
@@ -54,8 +54,8 @@ public class QaWorldTests {
 
     // --- helpers -------------------------------------------------------------------------------------------------
 
-    private static QaShelf.Case qa(String id) {
-        return QaShelf.cases().stream().filter(c -> c.id().equals(id)).findFirst()
+    private static QaWorlds.Case qa(String id) {
+        return QaWorlds.cases().stream().filter(c -> c.id().equals(id)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("no QA case " + id));
     }
 
@@ -63,7 +63,7 @@ public class QaWorldTests {
 
     private static World world(ExtendedGameTestHelper helper, String caseId) {
         MinecraftServer server = helper.getLevel().getServer();
-        ItemStack book = QaShelf.bind(server, qa(caseId));
+        ItemStack book = QaWorlds.bind(server, qa(caseId));
         AgeData data = DescriptiveBookItem.getAgeData(server, book);
         helper.assertNotNull(data, caseId + " bound");
         ServerLevel level = AgeManager.getOrCreateLevel(server, data);
@@ -336,8 +336,8 @@ public class QaWorldTests {
     @TestHolder(description = "Crystal formations place crystal blocks when the populator fires (normal terrain; skylands have no ground at y=0 for the start search)")
     static void crystalFormations(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
-        QaShelf.Case plains = QaShelf.Case.of("T2", "Crystals", 2102L, "", "terrain_normal", "crystal_formations");
-        AgeData data = DescriptiveBookItem.getAgeData(server, QaShelf.bind(server, plains));
+        QaWorlds.Case plains = QaWorlds.Case.of("T2", "Crystals", 2102L, "", "terrain_normal", "crystal_formations");
+        AgeData data = DescriptiveBookItem.getAgeData(server, QaWorlds.bind(server, plains));
         ServerLevel level = AgeManager.getOrCreateLevel(server, data);
         World w = new World(level, AgeControllers.server(level), data);
         generate(w.level(), 1);
@@ -414,8 +414,8 @@ public class QaWorldTests {
     @TestHolder(description = "Villages: the symbol enables village starts (plains-only Age so the biome check always passes)")
     static void villagesGenerate(ExtendedGameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
-        QaShelf.Case plains = QaShelf.Case.of("T1", "Plains villages", 2101L, "", "biome_single", "biome_minecraft_plains", "villages");
-        AgeData data = DescriptiveBookItem.getAgeData(server, QaShelf.bind(server, plains));
+        QaWorlds.Case plains = QaWorlds.Case.of("T1", "Plains villages", 2101L, "", "biome_single", "biome_minecraft_plains", "villages");
+        AgeData data = DescriptiveBookItem.getAgeData(server, QaWorlds.bind(server, plains));
         ServerLevel level = AgeManager.getOrCreateLevel(server, data);
         int starts = structureStarts(level, BuiltinStructures.VILLAGE_PLAINS, 20);
         helper.assertTrue(starts > 0, "plains village starts within 20 chunks: " + starts);

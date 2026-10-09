@@ -7,7 +7,7 @@ dynamic page and book icons included).
     scripts/client-smoke.sh                      # produces out/screenshots/selfcheck_02z_screen_chest.png + the log
     python scripts/docs/crop_icons.py [--out DIR]
 
-Which slot holds what comes from the `[scene] chest slot <n> = <id>` lines DebugScene logs
+Which slot holds what comes from the `[base] chest slot <n> = <id>` lines QaBase logs
 (out/logs/client-smoke.log). The chest GUI is the vanilla double chest (176 x 222) centred on the screen at the
 smoke's guiScale (2, docker/client-smoke-entry.sh); slot pixels equal to the slot background become transparent.
 Icon names: `icon-<item path>.png` with `_` -> `-` (pages: `icon-page-<kind>.png`).
@@ -55,7 +55,7 @@ def main() -> None:
         sys.exit(f"need {args.screenshot} and {args.log}: run scripts/client-smoke.sh first")
     slots = slot_contents(args.log)
     if not slots:
-        sys.exit("no '[scene] chest slot' lines in the log")
+        sys.exit("no '[base] chest slot' lines in the log")
 
     shot = Image.open(args.screenshot).convert("RGBA")
     s = args.gui_scale

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Runs INSIDE the Docker `client-smoke` stage (see Dockerfile). Starts the NeoForge dev client under Xvfb with
 # Mesa software OpenGL and MYSTCRAFT_CLIENT_SELFCHECK=1, which makes ClientSelfCheck drive the game (fresh flat
-# world -> /myst-dev scene -> /myst visit into a new Age -> night) taking screenshots, then quit.
+# world -> /myst-dev qa-base -> /myst visit into a new Age -> night) taking screenshots, then quit.
 #
 # Success  = "CLIENT SELFCHECK PASSED" in the log and no mod-related render/resource warnings.
 #            Screenshot drift writes VISUAL_DRIFT (warning); host script / CI treat that as non-fatal.
@@ -74,7 +74,7 @@ echo "----- mystcraft errors -----"
 grep -E "ERROR.*(mystcraft|Mystcraft)|com\.tbd" "${LOG}" | grep -vE "^\s+at " | head -40 || true
 ERRORS=$(grep -E "\]/ERROR\]|/ERROR\] \[com\.tbd|ERROR\] \[com\.tbd" "${LOG}" | grep -c "tbd" || true)
 
-echo "----- QA shelf visual regression (scripts/qa/compare.py) -----"
+echo "----- QA worlds visual regression (scripts/qa/compare.py) -----"
 VISUAL=0
 if ls /out/screenshots/selfcheck_qa_*.png >/dev/null 2>&1; then
     python3 /usr/local/lib/mystcraft-qa/compare.py /out/screenshots --report /out/qa-report.txt || VISUAL=$?

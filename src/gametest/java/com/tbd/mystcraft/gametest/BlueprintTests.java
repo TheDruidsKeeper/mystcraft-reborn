@@ -163,10 +163,10 @@ public class BlueprintTests {
 
     @GameTest
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "QA shelf: every symbol of the /myst-dev qa-shelf matrix is registered and every modifier is taken by its page")
+    @TestHolder(description = "QA worlds: every symbol of the /myst-dev qa-worlds matrix is registered and every modifier is taken by its page")
     static void qaShelfCasesResolve(ExtendedGameTestHelper helper) {
         Check.run(helper, () -> {
-            for (var qa : com.tbd.mystcraft.command.QaShelf.cases()) {
+            for (var qa : com.tbd.mystcraft.command.QaWorlds.cases()) {
                 for (SymbolPage page : qa.pages()) {
                     AgeSymbol symbol = page.resolve();
                     helper.assertNotNull(symbol, qa.title() + ": unknown symbol " + page.symbol());

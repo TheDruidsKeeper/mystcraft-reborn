@@ -2,7 +2,6 @@ package com.tbd.mystcraft.command;
 
 import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.age.AgeData;
-import com.tbd.mystcraft.block.BookstandBlock;
 import com.tbd.mystcraft.block.LecternBlock;
 import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.tbd.mystcraft.item.DescriptiveBookItem;
@@ -17,7 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,13 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code /myst-dev qa-shelf}: the visual QA matrix (docs/QA.md). One lectern per QA world, each holding a Descriptive
+ * {@code /myst-dev qa-worlds}: the visual QA matrix (docs/QA.md). One lectern per QA world, each holding a Descriptive
  * Book already bound (fixed seed, fixed pages) to an Age that exercises something only a human can judge. Worlds are
  * grouped in sections (one coloured row each, labelled with a sign, walkways all round). Everything block-level about
- * these Ages is asserted by {@code QaWorldTests} on the same seeds; the shelf is for the eyes. Logged under {@code [qa]}.
+ * these Ages is asserted by {@code QaWorldTests} on the same seeds; the worlds are for the eyes. Logged under {@code [qa]}.
  */
-public final class QaShelf {
-    private QaShelf() {}
+public final class QaWorlds {
+    private QaWorlds() {}
 
     /** A section of the matrix: a row of related worlds on a floor of one colour. */
     public record Section(String id, String name, Block floor, List<Case> cases) {}
@@ -120,7 +119,7 @@ public final class QaShelf {
                                 "env_meteors", "env_accelerated", "env_explosions", "dense_ores", "weather_off"))));
     }
 
-    /** All cases in shelf order (for tests and the client smoke tour). */
+    /** All cases in row order (for tests and the client smoke tour). */
     public static List<Case> cases() {
         List<Case> all = new ArrayList<>();
         for (Section s : sections()) all.addAll(s.cases());
@@ -128,51 +127,77 @@ public final class QaShelf {
     }
 
     // Layout (in blocks): a section row is 3 deep (walkway, lectern line, walkway) on its coloured floor, then a
-    // stone-brick path; lecterns 2 apart on 1-high pedestals; the section sign stands at the row's left end. Row A
-    // starts with the home Linking Book on a bookstand, then A1. A stone-brick walkway with an oak fence rings the
-    // whole floor (open on the player's side), glowstone hangs in a grid above so the shelf reads at night too.
+    // stone-brick path; lecterns 2 apart on 1-high pedestals; the section sign stands on the lectern line directly
+    // left of the first column. Row A starts with the home Linking Book lying in an item frame on a pedestal, then
+    // A1. A stone-brick walkway with an oak fence rings the whole floor, open where the entry path meets it. The
+    // floor is centred on the player and a two-wide stone-brick path runs from the player's feet to the entry.
+    // Glowstone hangs in a grid above so the worlds read at night too.
     private static final int ROW_PITCH = 4;
     private static final int LECTERN_PITCH = 2;
     private static final int LIGHT_HEIGHT = 4;
     private static final int LIGHT_PITCH = 4;
+    /** Path blocks between the player and the entry. */
+    public static final int PATH_LENGTH = 4;
+
+    /** Floor width in blocks: the item columns at odd offsets 1, 3, ... plus one free column on each side. */
+    public static int width() {
+        List<Section> sections = sections();
+        int widest = 1;
+        for (int s = 0; s < sections.size(); s++) widest = Math.max(widest, sections.get(s).cases().size() + (s == 0 ? 1 : 0));
+        return 2 * widest + 1;
+    }
+
+    /** Depth of the floor (rows plus the path after each). */
+    public static int depth() {
+        return sections().size() * ROW_PITCH;
+    }
 
     /**
-     * Builds the shelf in front of the player: sections as rows going away from the player, lecterns left to right.
-     * Clears only its own footprint. Returns the number of lecterns placed.
+     * Builds the worlds in front of the player: sections as rows going away from the player, lecterns left to right,
+     * the whole floor centred on the player. Clears only its own footprint. Returns the number of lecterns placed.
      */
     public static int build(ServerLevel level, ServerPlayer player) {
+        return build(level, player, player.blockPosition(), player.getDirection());
+    }
+
+    /**
+     * Builds the worlds for {@code player} with the entry path starting at {@code start} (the block the player stands
+     * on, or the end of a trunk path) and the floor extending in {@code facing}.
+     */
+    public static int build(ServerLevel level, ServerPlayer player, BlockPos start, Direction facing) {
         MinecraftServer server = level.getServer();
-        Direction facing = player.getDirection();
         Direction right = facing.getClockWise();
         List<Section> sections = sections();
-        int widest = Math.max(2, sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1) + 1); // +1: the home stand in row A
-        int width = (widest - 1) * LECTERN_PITCH + 3;          // floor: one block each side of the outer lecterns
-        int depth = sections.size() * ROW_PITCH;
-        BlockPos origin = player.blockPosition().relative(facing, 2).relative(right, -1); // front-left floor corner
-        // Floor columns are w = -1 .. width-1; the fenced walkway ring adds one more column/row on every side.
-        int ringLeft = -2, ringRight = width, ringFront = -1, ringBack = depth;
+        int width = width();
+        int depth = depth();
+        int centre = width / 2;
+        // origin: front-left floor block (column 0, row 0); the player's column is the centre column
+        BlockPos origin = start.relative(facing, PATH_LENGTH + 2).relative(right, -centre);
+        // Floor columns are w = 0 .. width-1; the fenced walkway ring adds one more column/row on every side.
+        int ringLeft = -1, ringRight = width, ringFront = -1, ringBack = depth;
         BlockPos nearCorner = origin.relative(facing, ringFront).relative(right, ringLeft);
         BlockPos farCorner = origin.relative(facing, ringBack).relative(right, ringRight);
         int y = origin.getY();
-        DebugScene.clearWithoutDrops(level,
+        QaBase.clearWithoutDrops(level,
                 new BlockPos(Math.min(nearCorner.getX(), farCorner.getX()), y - 1, Math.min(nearCorner.getZ(), farCorner.getZ())),
                 new BlockPos(Math.max(nearCorner.getX(), farCorner.getX()), y + LIGHT_HEIGHT + 1, Math.max(nearCorner.getZ(), farCorner.getZ())));
 
-        // Walkway ring: stone bricks with a fence on top; the front side stays open except for its corners.
-        int gateFrom = width / 2 - 1, gateTo = width / 2 + 1; // three blocks in front of the player
+        // Entry path: two wide (the player's column and the one to its left), from the player's feet to the ring.
+        QaBase.pavePath(level, start, facing, PATH_LENGTH + 1, -1, 0);
+        // Walkway ring: stone bricks with a fence on top, open where the path arrives.
         for (int d = ringFront; d <= ringBack; d++) {
             for (int w = ringLeft; w <= ringRight; w++) {
                 boolean ring = d == ringFront || d == ringBack || w == ringLeft || w == ringRight;
                 if (!ring) continue;
                 BlockPos pos = origin.relative(facing, d).relative(right, w);
                 level.setBlock(pos.below(), Blocks.STONE_BRICKS.defaultBlockState(), 3);
-                boolean gate = d == ringFront && w >= gateFrom && w <= gateTo;
+                boolean gate = d == ringFront && (w == centre || w == centre - 1);
                 if (!gate) level.setBlock(pos, Blocks.OAK_FENCE.defaultBlockState(), 3);
             }
         }
         // Lights: a glowstone grid over the floor.
         for (int d = 1; d < depth; d += LIGHT_PITCH) {
-            for (int w = 0; w < width; w += LIGHT_PITCH) {
+            for (int w = 1; w < width; w += LIGHT_PITCH) {
                 level.setBlock(origin.relative(facing, d).relative(right, w).above(LIGHT_HEIGHT), Blocks.GLOWSTONE.defaultBlockState(), 3);
             }
         }
@@ -184,29 +209,24 @@ public final class QaShelf {
             // Floor: 3 deep of the section colour, then one row of path.
             for (int d = 0; d < ROW_PITCH; d++) {
                 BlockState floor = d < 3 ? section.floor().defaultBlockState() : Blocks.STONE_BRICKS.defaultBlockState();
-                for (int w = -1; w < width; w++) {
+                for (int w = 0; w < width; w++) {
                     level.setBlock(rowStart.relative(facing, d).relative(right, w).below(), floor, 3);
                 }
             }
             BlockPos lecternLine = rowStart.relative(facing, 1);
-            // Section sign at the left end of the lectern line, facing the player.
-            placeStandingSign(level, lecternLine.relative(right, -1), facing.getOpposite(),
-                    "Section " + section.id(), section.name(), "", "");
+            // Section sign directly left of the first column, facing the player.
+            placeStandingSign(level, lecternLine, facing.getOpposite(), "Section " + section.id(), section.name(), "", "");
             int first = 0;
             if (s == 0) {
-                // First in row A: a Linking Book back to the shelf (intra-linking + following) on a bookstand.
+                // First in row A: a Linking Book back here (intra-linking + following), lying in an item frame on a
+                // pedestal, turned so it reads upright from the player's side.
                 BlockPos pedestal = lecternLine.relative(right, 1);
                 level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
-                BlockPos stand = pedestal.above();
-                int rotation = Mth.floor(facing.toYRot() * 8.0F / 360.0F + 0.5) & 7; // as placed by a player facing the same way
-                level.setBlock(stand, ModBlocks.BOOKSTAND.get().defaultBlockState().setValue(BookstandBlock.ROTATION, rotation), 3);
-                if (level.getBlockEntity(stand) instanceof BookDisplayBlockEntity display) {
-                    display.setYaw(rotation * 45);
-                    display.setBook(DebugScene.homeBook(player, "Back to the shelf"));
-                    display.setChanged();
-                    level.sendBlockUpdated(stand, level.getBlockState(stand), level.getBlockState(stand), Block.UPDATE_ALL);
-                }
-                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), "HOME", "Linking Book", "back to the", "shelf");
+                ItemFrame frame = new ItemFrame(level, pedestal.above(), Direction.UP);
+                frame.setItem(QaBase.homeBook(player, "Back to the QA worlds"), false);
+                frame.setRotation(frameRotation(facing));
+                level.addFreshEntity(frame);
+                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), "HOME", "Linking Book", "back to the", "QA worlds");
                 first = 1;
             }
             for (int i = 0; i < section.cases().size(); i++) {
@@ -231,6 +251,14 @@ public final class QaShelf {
             }
         }
         return placed;
+    }
+
+    /**
+     * Rotation of an item in an upward-facing item frame so the item's top points along {@code toward}:
+     * {@code ItemFrameRenderer} turns the item 45 degrees per step from north (0) clockwise seen from above.
+     */
+    public static int frameRotation(Direction toward) {
+        return (int) ((toward.toYRot() + 180f) / 45f) & 7;
     }
 
     /** An unbound book with the case's pages and seed, bound right away so the Age is fixed and inspectable. */

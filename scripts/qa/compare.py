@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Visual regression for the QA shelf tour (docs/QA.md).
+Visual regression for the QA worlds tour (docs/QA.md).
 
 The client smoke test screenshots every QA world by day and by night (selfcheck_qa_<id>_<day|night>.png). This
 script reduces each screenshot to a small signature - mean RGB of three horizontal bands (sky, horizon, ground) and

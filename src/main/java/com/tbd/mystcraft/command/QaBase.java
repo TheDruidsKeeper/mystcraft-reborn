@@ -35,26 +35,30 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@code /myst-dev scene}: builds a showcase of every renderable Mystcraft block in front of the player, on a stone pad,
- * and positions the player to look at it. Used by the headless client self check for screenshots and by hand for
- * quick visual regression checks (docs/QA.md). Layout (player looks north, x grows to the right):
+ * {@code /myst-dev qa-base}: builds a showcase of every renderable Mystcraft block north of the player, on a stone pad
+ * reached by a two-wide stone-brick path, and turns the player to look at it. Used by the headless client self check
+ * for screenshots and by hand for quick visual regression checks (docs/QA.md). Layout (player looks north, x grows to
+ * the right):
  *
  * <pre>
  *   back row  z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | star fissure 2x2 | decay blocks (one of each)
  *   front row z-6 : supply chest + crafting table | writing desk (scholar) | ink mixer | book binder | bookstand+book | lectern+book | link modifier | plain writing desk
- * The front row reads as the workflow left to right. A fence rings the pad (open towards the viewer), glowstone hangs
- * in a grid above it. The viewer stands on the ground (the pad replaces the surface, nothing floats) 6 blocks south.
+ * The front row reads as the workflow left to right. A fence rings the pad (open where the path arrives), glowstone
+ * hangs in a grid above it. The viewer stands where the command was run (the pad replaces the surface, nothing
+ * floats), {@link #VIEW_DISTANCE} blocks south of the pad's front row.
  * </pre>
  */
-public final class DebugScene {
-    private DebugScene() {}
+public final class QaBase {
+    private QaBase() {}
 
     public static final int WIDTH = 25;
     public static final int DEPTH = 12;
+    /** Blocks between the viewer and the pad's front (ring) row; the path fills them. */
+    public static final int VIEW_DISTANCE = 5;
     private static final int LIGHT_HEIGHT = 7;
     private static final int LIGHT_PITCH = 4;
 
-    /** Last scene origin per level (for {@code /myst-dev scene closeup}). */
+    /** Last scene origin per level (for {@code /myst-dev qa-base closeup}). */
     private static final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, BlockPos> ORIGINS = new java.util.HashMap<>();
 
     /** Elements of the scene a close-up can target: offset of the element from the origin. */
@@ -81,7 +85,30 @@ public final class DebugScene {
     }
 
     private static BlockPos viewPos(BlockPos origin) {
-        return new BlockPos(origin.getX() + WIDTH / 2, origin.getY(), origin.getZ() + 6);
+        return new BlockPos(origin.getX() + WIDTH / 2, origin.getY(), origin.getZ() + VIEW_DISTANCE + 1);
+    }
+
+    /** The pad origin (south-west corner) for a viewer standing at {@code view}. */
+    public static BlockPos originFor(BlockPos view) {
+        return view.offset(-WIDTH / 2, 0, -(VIEW_DISTANCE + 1));
+    }
+
+    /**
+     * Paves a path of stone bricks: {@code length} blocks starting one block from {@code from} in {@code dir}, the
+     * columns {@code leftOffset..rightOffset} measured towards {@code dir.getClockWise()} (so {@code -1, 0} is the
+     * player's own column and the one to its left). The surface block is replaced, two blocks above are cleared.
+     */
+    public static void pavePath(ServerLevel level, BlockPos from, Direction dir, int length, int leftOffset, int rightOffset) {
+        Direction right = dir.getClockWise();
+        for (int k = 1; k <= length; k++) {
+            for (int w = leftOffset; w <= rightOffset; w++) {
+                BlockPos pos = from.relative(dir, k).relative(right, w);
+                level.setBlock(pos.below(), Blocks.STONE_BRICKS.defaultBlockState(), 3);
+                for (int h = 0; h < 2; h++) {
+                    if (!level.getBlockState(pos.above(h)).isAir()) level.setBlock(pos.above(h), Blocks.AIR.defaultBlockState(), 3);
+                }
+            }
+        }
     }
 
     /** Teleports the viewer 3 blocks south of and 2 above the element, looking at it. Returns false without a scene. */
@@ -90,7 +117,7 @@ public final class DebugScene {
         if (origin == null) return false;
         double x = origin.getX() + element.dx + 0.5, y = origin.getY() + element.dy, z = origin.getZ() + element.dz + 0.5;
         viewer.teleportTo(level, x, y + 2.0, z + 3.0, Set.of(), element.yaw, element.pitch, true);
-        Mystcraft.LOGGER.info("[scene] close-up of {} at {}, {}, {}", element, x, y, z);
+        Mystcraft.LOGGER.info("[base] close-up of {} at {}, {}, {}", element, x, y, z);
         return true;
     }
 
@@ -107,11 +134,11 @@ public final class DebugScene {
         net.minecraft.world.phys.BlockHitResult hit = new net.minecraft.world.phys.BlockHitResult(
                 net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, 0, 0.5), Direction.SOUTH, pos, false);
         net.minecraft.world.InteractionResult result = state.useWithoutItem(level, viewer, hit);
-        Mystcraft.LOGGER.info("[scene] open {} at {} ({}) -> {}", element, pos.toShortString(), state.getBlock(), result);
+        Mystcraft.LOGGER.info("[base] open {} at {} ({}) -> {}", element, pos.toShortString(), state.getBlock(), result);
         return result.consumesAction();
     }
 
-    /** Items whose screens the self check opens with {@code /myst-dev scene use <item>}. */
+    /** Items whose screens the self check opens with {@code /myst-dev qa-base use <item>}. */
     public enum UsableItem { LINKING_BOOK, DESCRIPTIVE_BOOK, FOLDER, CURRENT_AGE_BOOK }
 
     /** Puts a fresh item of that kind in the player's main hand and uses it (opens its screen). */
@@ -139,7 +166,7 @@ public final class DebugScene {
         viewer.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
         viewer.inventoryMenu.broadcastChanges(); // the hand item must reach the client before the book menu opens
         net.minecraft.world.InteractionResult result = stack.use(level, viewer, net.minecraft.world.InteractionHand.MAIN_HAND);
-        Mystcraft.LOGGER.info("[scene] use {} -> {}", kind, result);
+        Mystcraft.LOGGER.info("[base] use {} -> {}", kind, result);
         return result.consumesAction();
     }
 
@@ -175,7 +202,7 @@ public final class DebugScene {
             for (int dz = -1; dz <= DEPTH; dz++) {
                 boolean ring = dx == -1 || dx == WIDTH || dz == -1 || dz == DEPTH;
                 level.setBlock(new BlockPos(x0 + dx, y - 1, z0 - dz), (ring ? Blocks.STONE_BRICKS : Blocks.SMOOTH_STONE).defaultBlockState(), 3);
-                boolean gate = dz == -1 && Math.abs(dx - WIDTH / 2) <= 2; // the opening in front of the viewer
+                boolean gate = dz == -1 && (dx == WIDTH / 2 || dx == WIDTH / 2 - 1); // where the path arrives
                 if (ring && !gate) level.setBlock(new BlockPos(x0 + dx, y, z0 - dz), Blocks.OAK_FENCE.defaultBlockState(), 3);
             }
         }
@@ -190,7 +217,7 @@ public final class DebugScene {
         // at, with a Linking Book back to this spot (intra-linking + following) first, and whose lower half holds
         // every crafting input; then a crafting table, so a tester can build and travel from here. The client smoke
         // screenshots the open chest and scripts/docs/crop_icons.py cuts the guide's item icons out of it using the
-        // [scene] "chest slot" log lines below.
+        // [base] "chest slot" log lines below.
         BlockPos chest = new BlockPos(x0, y, z0 - 6);
         BlockState chestState = Blocks.CHEST.defaultBlockState().setValue(net.minecraft.world.level.block.ChestBlock.FACING, Direction.SOUTH);
         level.setBlock(chest, chestState.setValue(net.minecraft.world.level.block.ChestBlock.TYPE, net.minecraft.world.level.block.state.properties.ChestType.RIGHT), 3);
@@ -265,8 +292,8 @@ public final class DebugScene {
             dx += 2;
         }
 
-        // Viewer: centred, six blocks in front of the pad, standing on the ground (a 3x3 stone patch replaces the
-        // surface block under the feet; nothing floats) looking north and slightly down.
+        // Viewer: centred, standing on the ground (a 3x3 stone patch replaces the surface block under the feet;
+        // nothing floats) looking north and slightly down, with a two-wide path up to the gate.
         BlockPos view = viewPos(origin);
         for (int vx = -1; vx <= 1; vx++) {
             for (int vz = -1; vz <= 1; vz++) {
@@ -274,9 +301,10 @@ public final class DebugScene {
                 for (int vy = 0; vy < 3; vy++) level.setBlock(view.offset(vx, vy, vz), Blocks.AIR.defaultBlockState(), 2);
             }
         }
+        pavePath(level, view, Direction.NORTH, VIEW_DISTANCE, -1, 0);
         viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 12f, true);
         ORIGINS.put(level.dimension(), origin);
-        Mystcraft.LOGGER.info("[scene] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
+        Mystcraft.LOGGER.info("[base] built debug scene at {} in {}; viewer at {} (portal field expected at {})",
                 origin.toShortString(), level.dimension().identifier(), view.toShortString(), new BlockPos(px + 1, y + 1, z0 - 9).toShortString() + " (2x3)");
         return view;
     }
@@ -285,7 +313,7 @@ public final class DebugScene {
         if (!(level.getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chestBe)) return;
         for (int i = 0; i < stacks.size() && i < chestBe.getContainerSize(); i++) {
             chestBe.setItem(i, stacks.get(i));
-            Mystcraft.LOGGER.info("[scene] chest slot {} = {}", firstSlot + i, iconName(stacks.get(i)));
+            Mystcraft.LOGGER.info("[base] chest slot {} = {}", firstSlot + i, iconName(stacks.get(i)));
         }
         chestBe.setChanged();
     }
@@ -322,7 +350,6 @@ public final class DebugScene {
             out.add(new ItemStack(item));
         }
         out.add(net.minecraft.world.item.alchemy.PotionContents.createItemStack(Items.POTION, net.minecraft.world.item.alchemy.Potions.WATER));
-        out.add(new ItemStack(Items.WATER_BUCKET));
         return out;
     }
 
@@ -337,8 +364,6 @@ public final class DebugScene {
                 Items.ENDER_PEARL, Items.AMETHYST_SHARD, Items.ENDER_EYE, Items.GLOWSTONE_DUST, Items.REDSTONE, Items.GOLD_INGOT, Items.DIAMOND)) {
             out.add(new ItemStack(item, item.getDefaultMaxStackSize()));
         }
-        out.add(new ItemStack(Items.WATER_BUCKET));
-        out.add(new ItemStack(ModItems.BLACK_INK_BUCKET.get()));
         out.add(new ItemStack(ModItems.INK_VIAL.get(), 16));
         out.add(new ItemStack(ModBlocks.CRYSTAL.get(), 64));
         out.add(new ItemStack(ModItems.UNLINKED_BOOK.get(), 16));
@@ -362,7 +387,7 @@ public final class DebugScene {
             display.setChanged();
             level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);
         } else {
-            Mystcraft.LOGGER.warn("[scene] no book display block entity at {} ({})", pos.toShortString(), level.getBlockState(pos));
+            Mystcraft.LOGGER.warn("[base] no book display block entity at {} ({})", pos.toShortString(), level.getBlockState(pos));
         }
     }
 

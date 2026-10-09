@@ -48,7 +48,7 @@ pages (PageItem, SymbolPage component)            player writes some; the rest i
 | `creature/` | creature groups, spawn scaling, caps, difficulty |
 | `item/`, `block/`, `blockentity/`, `menu/`, `entity/`, `villager/` | content |
 | `network/` | payload records, registration, client handlers |
-| `command/` | `/myst`, `/myst-dev`, the debug scene, the QA shelf |
+| `command/` | `/myst`, `/myst-dev`, the QA base, the QA worlds |
 | `client/` | setup, `screen/`, `render/` (sky, clouds, weather, BERs, glyphs), tints, client Age cache, `ClientSelfCheck` |
 | `data/` | datagen providers |
 | `util/` | `MystIds` and small helpers |

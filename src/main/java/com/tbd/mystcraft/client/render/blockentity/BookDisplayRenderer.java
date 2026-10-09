@@ -67,8 +67,8 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
 
     private final Model.Simple bookstand;
     private final Model.Simple lectern;
-    private final BookModel book;
-    private final SpriteGetter sprites;
+    protected final BookModel book;
+    protected final SpriteGetter sprites;
 
     public BookDisplayRenderer(BlockEntityRendererProvider.Context context) {
         this.bookstand = new Model.Simple(context.bakeLayer(LegacyModels.BOOKSTAND), RenderTypes::entityCutout);

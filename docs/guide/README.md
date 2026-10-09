@@ -12,20 +12,37 @@ Install notes and versions are in the [project README](../../README.md). Inspire
 
 ---
 
+## Key terms
+
+<a id="age"></a>
+- **Age** — a Mystcraft-generated world (its own dimension). A Descriptive Book creates and links into one on first travel.
+<a id="descriptive-book"></a>
+- **Descriptive Book** — the book that writes an Age and takes you there. Bound at the [Book Binder](#book-binder) from a Link Panel and pages.
+<a id="linking-book"></a>
+- **Linking Book** — returns you to the place where it was bound. Made by using an [Unlinked Link Book](#unlinked-link-book) in the world.
+<a id="symbol-page"></a>
+- **Symbol page** — a single glyph (one symbol, plus any modifiers). Consuming a new page teaches it — see [Pages, symbols, and knowledge](#pages-symbols-and-knowledge).
+<a id="link-panel"></a>
+- **Link Panel** — the linking page for a book. Made at the [Ink Mixer](#ink-mixer), not in a crafting table.
+<a id="star-fissure"></a>
+- **Star Fissure** — a natural return near the origin of some Ages. See [Linking in the world](#linking-in-the-world).
+
+---
+
 ## Your first Age
 
-The first linking is a rite of passage. Gather glyphs, bind a Descriptive Book, and — before you go — bind a **Linking Book** so the path home exists when you need it.
+The first linking is a rite of passage. Gather glyphs, bind a [Descriptive Book](#descriptive-book), and — before you go — bind a [Linking Book](#linking-book) so the path home exists when you need it.
 
 ![Workbench scene](images/workbench-scene.png)
 
-1. **Find a symbol page** — loot chests, **Libraries** in Ages, **Archivist** villagers, or open a **Sealed Notebook**.
-2. **Study it** — use the page in hand. You learn its symbol (and any modifiers on it). The page is consumed unless you already knew it.
-3. **Craft a Writing Desk**, **Collation Folder**, **Ink Vial**, **Ink Mixer**, and **Book Binder** (recipes below).
-4. At the desk, write known symbols into a folder (needs paper and ink). Attach modifiers where the desk allows them.
-5. At the Ink Mixer, make a **Link Panel** (ink + optional link-effect ingredients + paper).
-6. At the Book Binder, bind a **Descriptive Book** from the Link Panel and your pages. Name it if you like.
-7. **Have a way home** before you go — craft an **Unlinked Link Book** (Link Panel + leather), use it where you stand to bind a **Linking Book**, and keep that book safe. Some Ages also have a **Star Fissure**, and **Vault** Ages reward a Linking Book inside the Facility.
-8. **Link** with the Descriptive Book. The first link finishes the Age: categories you left blank are filled in, and new pages appear as *discovered*.
+1. **Find a [symbol page](#symbol-page)** — loot chests, **Libraries** in Ages, **Archivist** villagers, or open a **Sealed Notebook**.
+2. **Study it** — use the page in hand. **Consuming it teaches you its symbol** (and any modifiers on it). If you already knew that symbol, the page is not consumed.
+3. **Craft a [Writing Desk](#recipe-writing-desk)**, [Collation Folder](#recipe-collation-folder), [Ink Vial](#recipe-ink-vial), [Ink Mixer](#recipe-ink-mixer), and [Book Binder](#recipe-book-binder) (recipes below).
+4. At the [desk](#writing-desk), write known symbols into a [folder](#collation-folder) (needs paper and ink). Attach modifiers where the desk allows them.
+5. At the [Ink Mixer](#ink-mixer), make a [Link Panel](#link-panel) (ink + optional link-effect ingredients + paper).
+6. At the [Book Binder](#book-binder), bind a [Descriptive Book](#descriptive-book) — the book that creates and links to an [Age](#age) — from the Link Panel and your pages. Name it if you like.
+7. **Have a way home** before you go — craft an [Unlinked Link Book](#unlinked-link-book) (Link Panel + leather), use it where you stand to bind a [Linking Book](#linking-book), and keep that book safe. Some Ages also generate a [Star Fissure](#star-fissure) near the origin. [Vault](#vault-ages-and-the-facility) Ages reward a Linking Book inside the Facility.
+8. **Link** with the Descriptive Book to enter its [Age](#age). The first link finishes the world: categories you left blank are filled in, and new pages appear as *discovered*.
 
 ![Age arrival](images/age-arrival.png)
 
@@ -35,91 +52,61 @@ The first linking is a rite of passage. Gather glyphs, bind a Descriptive Book, 
 
 The materials of The Art are ordinary enough until they are joined. Crafted in a crafting table unless noted.
 
-### Writing Desk
+<h3 id="recipe-writing-desk">Writing Desk</h3>
 
-| | | |
-|---|---|---|
-| Glass Bottle | | Feather |
-| Planks | Planks | Planks |
-| Planks | | Planks |
+![Writing Desk recipe](images/recipe-writing-desk.png)
 
-→ **Writing Desk**
+<h3 id="recipe-writing-desk-backboard">Writing Desk Backboard</h3>
 
-### Writing Desk Backboard
+![Writing Desk Backboard recipe](images/recipe-writing-desk-backboard.png)
 
-| | | |
-|---|---|---|
-| Planks | Planks | Planks |
-| Planks | Item Frame | Planks |
+Place next to a desk for the display shelf.
 
-→ **Writing Desk Backboard** (place next to a desk for the display shelf)
+<h3 id="recipe-collation-folder">Collation Folder</h3>
 
-### Collation Folder
+![Collation Folder recipe](images/recipe-collation-folder.png)
 
-Leather over String over Leather (vertical) → **Collation Folder**
+<h3 id="recipe-ink-vial">Ink Vial</h3>
 
-### Ink Vial
+Shapeless craft (crafting table) — either 2× Black Dye + Water Bottle, or 2× Black Dye + Glass Bottle + Water Bucket:
 
-Shapeless — either:
-
-- 2× Black Dye + Water Bottle (potion), or
-- 2× Black Dye + Glass Bottle + Water Bucket
+![Ink Vial recipe](images/recipe-ink-vial.png)
 
 You can also fill a glass bottle from black ink fluid in the world.
 
-### Ink Mixer
+<h3 id="recipe-ink-mixer">Ink Mixer</h3>
 
-| | | |
-|---|---|---|
-| Stone | Stone | |
-| Stone | Glass Bottle | Stone |
-| Planks | Stone | Planks |
+![Ink Mixer recipe](images/recipe-ink-mixer.png)
 
-→ **Ink Mixer**
+<h3 id="recipe-book-binder">Book Binder</h3>
 
-### Book Binder
-
-| | | |
-|---|---|---|
-| Iron | Iron | Iron |
-| Planks | Planks | Planks |
-| Planks | Planks | |
-
-→ **Book Binder**
+![Book Binder recipe](images/recipe-book-binder.png)
 
 ### Bookstand
 
-| | | |
-|---|---|---|
-| Stick | Stick | |
-| Planks | | |
-
-→ **Bookstand**
+![Bookstand recipe](images/recipe-bookstand.png)
 
 ### Lectern
 
-| | | |
-|---|---|---|
-| Planks | | |
-| Planks | Planks | Stick |
-| Planks | Planks | Planks |
-
-→ **2× Lectern**
+![Lectern recipe](images/recipe-lectern.png)
 
 ### Book Receptacle
 
-| | | |
-|---|---|---|
-| Crystal | Crystal | Crystal |
-| Crystal | Crystal | |
-| Crystal | Crystal | Crystal |
+Needs **Crystal** from world generation (Crystal Formations and similar):
 
-→ **Book Receptacle** (needs **Crystal** from world generation — Crystal Formations and similar)
+![Book Receptacle recipe](images/recipe-book-receptacle.png)
 
-### Unlinked Link Book
+<h3 id="unlinked-link-book">Unlinked Link Book</h3>
 
-Custom recipe: **1 Link Panel page + 1 Leather** anywhere in the grid → **Unlinked Link Book**.  
-Use it in the world to bind a **Linking Book** to that spot.
+Custom shapeless recipe (not the vanilla book recipe) — **1 Link Panel + 1 Leather** anywhere in the grid:
+
+![Unlinked Link Book recipe](images/recipe-unlinked-link-book.png)
+
+Use it in the world to bind a [Linking Book](#linking-book) to that spot.
+
+### Link Panel
+
+Not crafted in a crafting table — produced at the [Ink Mixer](#ink-mixer).
 
 ### Not crafted in survival
 
@@ -129,7 +116,9 @@ Use it in the world to bind a **Linking Book** to that spot.
 | Scholar's Writing Desk | Creative mode — knows every symbol |
 | Link Modifier | No survival recipe yet (creative / debug) |
 | Facility blocks | Only inside Vault Facilities |
-| Descriptive / Linking Books | Bound or linked as above, not crafted from scratch |
+| Link Panel | ([Ink Mixer](#ink-mixer)) |
+| Descriptive Book | ([Book Binder](#book-binder)) |
+| Linking Book | (use [Unlinked Link Book](#unlinked-link-book) in the world) |
 
 ---
 
@@ -139,7 +128,7 @@ These are the tools of The Art: the desk for glyphs, the mixer for the panel’s
 
 ![Writing Desk](images/desk-closeup.png)
 
-### Writing Desk
+<h3 id="writing-desk">Writing Desk</h3>
 
 Browse symbols you know by category, write copies into a **Collation Folder**, and attach modifiers the symbol accepts. Costs paper and ink. The desk refuses incompatible modifiers.
 
@@ -147,13 +136,13 @@ Browse symbols you know by category, write copies into a **Collation Folder**, a
 
 ![Desk sky tab](images/desk-tab-sky.png)
 
-### Ink Mixer
+<h3 id="ink-mixer">Ink Mixer</h3>
 
 Ink alone opens the way. Ingredients tune *how* the link behaves — choose them with care.
 
 1. Pour **Ink** (vial or bucket) into the mixer.
 2. Click the basin while holding an ingredient to switch on **one link effect** per ingredient (see table below).
-3. Insert **paper** to pull out a **Link Panel** with those effects.
+3. Insert **paper** to pull out a [Link Panel](#link-panel) with those effects.
 4. Refilling ink clears effects. **Black Dye** clears the basin without pouring more ink.
 
 ![Ink Mixer GUI](images/ink-mixer-gui.png)
@@ -171,13 +160,13 @@ Ink alone opens the way. Ingredients tune *how* the link behaves — choose them
 | Ender Eye | Following | The book comes with you instead of staying behind |
 | Black Dye | *(clear)* | Removes all effects from the basin |
 
-### Book Binder
+<h3 id="book-binder">Book Binder</h3>
 
-Put in a **Link Panel** and written pages (from a folder or inventory). Optional title. Output: a **Descriptive Book** ready to link.
+Put in a [Link Panel](#link-panel) and written pages (from a folder or inventory). Optional title. Output: a [Descriptive Book](#descriptive-book) ready to link.
 
 ![Book Binder GUI](images/book-binder-gui.png)
 
-### Collation Folder
+<h3 id="collation-folder">Collation Folder</h3>
 
 Holds pages while you write and sort. Open it to manage its contents.
 
@@ -193,7 +182,7 @@ A **page** is a single glyph of The Art — one symbol, and any modifiers it wil
 
 **How you learn**
 
-- Use a symbol page in hand (consumes it if new).
+- Use a symbol page in hand — **consuming it teaches its symbol** (if new).
 - Visit an Age — you learn every symbol written in that Age's book.
 - Write only symbols you already know (except creative / Scholar's desk).
 
@@ -230,7 +219,7 @@ Discovered pages (added on first link) show in a different ink and are sorted in
 
 ## Linking in the world
 
-A Descriptive Book takes you *to* an Age. A Linking Book returns you to the place where it was bound. Touch the panel — by hand, stand, lectern, or crystal frame — and the written place answers.
+A [Descriptive Book](#descriptive-book) takes you *to* an [Age](#age). A [Linking Book](#linking-book) returns you to the place where it was bound. Touch the panel — by hand, stand, lectern, or crystal frame — and the written place answers.
 
 ![Bookstand](images/bookstand-closeup.png)
 

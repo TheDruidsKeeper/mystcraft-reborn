@@ -6,7 +6,6 @@
     { "type": "single", "resource": "mystcraft:entity/agebook" },
     { "type": "single", "resource": "mystcraft:entity/linkbook" },
     { "type": "single", "resource": "mystcraft:entity/book_spine" },
-    { "type": "single", "resource": "mystcraft:entity/inkwell/inkwell_cup" },
-    { "type": "single", "resource": "mystcraft:entity/inkwell/ink" }
+    { "type": "single", "resource": "mystcraft:entity/inkwell/inkwell" }
   ]
 }

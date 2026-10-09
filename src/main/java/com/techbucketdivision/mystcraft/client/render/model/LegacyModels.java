@@ -39,12 +39,8 @@ public final class LegacyModels {
     public static final SpriteId LINKBOOK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("linkbook"));
     /** Writing desk extras: notebook spines in the backboard shelf and the inkwell on the desk top. */
     public static final SpriteId BOOK_SPINE_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("book_spine"));
-    public static final SpriteId INKWELL_CUP_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("inkwell/inkwell_cup"));
-    public static final SpriteId INKWELL_INK_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("inkwell/ink"));
-
-    /** Desk parts only drawn when the desk has its backboard ({@code hasTop} in the original). */
-    public static final String[] DESK_BACKING = {"deskTopBack", "deskTopLeft", "deskTopRight", "deskTopTop", "angleLeft", "angleRight",
-            "cupboardLeft", "cupboardRight"};
+    /** Glass (rows 0-7, translucent) and ink (rows 8-15) of the inkwell in one sheet, so cup and ink are one model. */
+    public static final SpriteId INKWELL_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(MystIds.id("inkwell/inkwell"));
 
     /** Ported from the original ModelBookstand (Techne export); coordinates in model pixels. */
     public static LayerDefinition bookstand() {
@@ -135,18 +131,23 @@ public final class LegacyModels {
         return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityCutout);
     }
 
-    /** The inkwell cup on the desk top: a 4x4x4 cube (legacy inkwell_cup texture). */
-    public static Model.Simple inkwellCup() {
-        List<ModelPart.Cube> cubes = List.of(
-                new ModelPart.Cube(0, 0, -2f, 0f, -2f, 4f, 4f, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
-        return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityCutout);
-    }
-
-    /** The ink inside the cup, {@code height} units tall (1..4), translucent (legacy ink texture). */
-    public static Model.Simple inkwellInk(int height) {
-        float h = Math.max(1, Math.min(4, height)) - 0.5f;
-        List<ModelPart.Cube> cubes = List.of(
-                new ModelPart.Cube(0, 0, -1.5f, 0.5f, -1.5f, 3f, h, 3f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
-        return new Model.Simple(new ModelPart(cubes, Map.of()), RenderTypes::entityTranslucent);
+    /**
+     * The inkwell on the desk top: a hollow 4x4x4 glass cup (half-unit bottom and walls, open at the top) holding an
+     * ink column {@code inkHeight} units tall (0 = empty, up to 4). One translucent model: the ink cube is emitted
+     * first so the glass blends over it and the far wall hides behind it, whatever the render pass order.
+     */
+    public static Model.Simple inkwell(int inkHeight) {
+        float t = 0.5f;
+        List<ModelPart.Cube> cubes = new java.util.ArrayList<>();
+        if (inkHeight > 0) {
+            float h = Math.min(4, inkHeight) - 0.5f;
+            cubes.add(new ModelPart.Cube(0, 8, -1.45f, t, -1.45f, 2.9f, h, 2.9f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+        }
+        cubes.add(new ModelPart.Cube(0, 0, -2f, 0f, -2f, 4f, t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));    // bottom
+        cubes.add(new ModelPart.Cube(0, 0, -2f, t, -2f, t, 4f - t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));  // -x wall
+        cubes.add(new ModelPart.Cube(0, 0, 2f - t, t, -2f, t, 4f - t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +x wall
+        cubes.add(new ModelPart.Cube(0, 0, -2f + t, t, -2f, 4f - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // -z wall
+        cubes.add(new ModelPart.Cube(0, 0, -2f + t, t, 2f - t, 4f - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +z wall
+        return new Model.Simple(new ModelPart(List.copyOf(cubes), Map.of()), RenderTypes::entityTranslucent);
     }
 }

@@ -32,16 +32,15 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Writing Desk renderer. The desk blocks are {@code RenderShape.INVISIBLE}; this renderer (attached to the head
- * block) draws the original {@code ModelWritingDesk} ({@link LegacyModels#writingDesk()}) over head and foot, with
- * the backboard parts when the desk has its top blocks and the paper stack sized by the paper count, plus the target
- * item lying open on the head half. The original GL transform chain is replayed exactly (see {@link #submit}).
+ * block) draws the original {@code ModelWritingDesk} ({@link LegacyModels#writingDesk()}) over the four desk blocks
+ * (backboard included), the paper stack sized by the paper count, the shelf books and inkwell, plus the target item
+ * lying open on the head half. The original GL transform chain is replayed exactly (see {@link #submit}).
  */
 public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlockEntity, WritingDeskRenderer.State> {
 
     public static class State extends BlockEntityRenderState {
         public final ItemStackRenderState target = new ItemStackRenderState();
         public int facingIndex;
-        public boolean backboard;
         public int paperCount;
         public boolean targetIsBook;
         /** Tint colour per occupied notebook tab (first {@link #MAX_SHELF_BOOKS}), 0 = empty tab. */
@@ -53,30 +52,30 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
     /** Book spines that fit on the two shelves under the head half of the desk top (14 units wide each, 2 per book). */
     public static final int BOOKS_PER_SHELF = 6;
     public static final int MAX_SHELF_BOOKS = BOOKS_PER_SHELF * 2;
-    /** A Scholar's desk shows a full shelf of reference volumes; an ordinary desk has empty shelves. */
-    private static final int[] SCHOLAR_TINTS = {0xFF4A6A9A, 0xFF9A6A3A, 0xFF6A3A7A, 0xFF3A7A6A, 0xFFD8C08A, 0xFF7A3A3A};
+    /**
+     * Shelf book tints. A Scholar's desk shows the full shelf; an ordinary desk fills it in proportion to the share of
+     * all symbols the viewing player has learned (at least one volume once anything is known).
+     */
+    private static final int[] BOOK_TINTS = {0xFF4A6A9A, 0xFF9A6A3A, 0xFF6A3A7A, 0xFF3A7A6A, 0xFFD8C08A, 0xFF7A3A3A};
 
     private final Model.Simple desk;
     private final SpriteGetter sprites;
-    private final ModelPart[] backing;
     private final ModelPart paper1, paper2, paper3, paperStack1, paperStack2;
-    private final Model.Simple shelfBook, inkwellCup;
-    private final Model.Simple[] inkFill = new Model.Simple[4];
+    private final Model.Simple shelfBook;
+    /** Inkwell models by ink height 0 (empty glass) .. 4 (full). */
+    private final Model.Simple[] inkwell = new Model.Simple[5];
 
     public WritingDeskRenderer(BlockEntityRendererProvider.Context context) {
         ModelPart root = context.bakeLayer(LegacyModels.WRITING_DESK);
         this.desk = new Model.Simple(root, RenderTypes::entityCutout);
         this.sprites = context.sprites();
-        this.backing = new ModelPart[LegacyModels.DESK_BACKING.length];
-        for (int i = 0; i < backing.length; i++) backing[i] = root.getChild(LegacyModels.DESK_BACKING[i]);
         this.paper1 = root.getChild("paper1");
         this.paper2 = root.getChild("paper2");
         this.paper3 = root.getChild("paper3");
         this.paperStack1 = root.getChild("paperStack1");
         this.paperStack2 = root.getChild("paperStack2");
         this.shelfBook = LegacyModels.deskShelfBook();
-        this.inkwellCup = LegacyModels.inkwellCup();
-        for (int i = 0; i < inkFill.length; i++) inkFill[i] = LegacyModels.inkwellInk(1 + i);
+        for (int i = 0; i < inkwell.length; i++) inkwell[i] = LegacyModels.inkwell(i);
     }
 
     @Override
@@ -92,23 +91,30 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
         // Rotation about the model's y axis by 90*k maps the foot direction (+Z at k=0) onto S, W, N, E for k=0..3,
         // which is exactly Direction#get2DDataValue.
         state.facingIndex = facing.get2DDataValue();
-        state.backboard = be.hasBackboard();
         state.paperCount = be.getPaperCount();
         ItemStack target = be.getDisplayItem();
         state.targetIsBook = BookUtil.isLinkingItem(target);
         ItemRenderHelper.extract(state.target, target, ItemDisplayContext.FIXED, be.getLevel(), 0);
         java.util.Arrays.fill(state.shelfBooks, 0);
-        if (be.isScholar()) {
-            for (int i = 0; i < MAX_SHELF_BOOKS; i++) state.shelfBooks[i] = SCHOLAR_TINTS[i % SCHOLAR_TINTS.length];
-        }
+        int books = be.isScholar() ? MAX_SHELF_BOOKS : learnedBooks();
+        for (int i = 0; i < books; i++) state.shelfBooks[i] = BOOK_TINTS[i % BOOK_TINTS.length];
         int ink = be.getInkAmount();
         state.inkLevel = ink <= 0 ? -1f : Math.min(1f, ink / (float) WritingDeskBlockEntity.TANK_CAPACITY);
+    }
+
+    /** Shelf volumes for the viewing player: the share of registered symbols they know, scaled to the shelf. */
+    public static int learnedBooks() {
+        var player = net.minecraft.client.Minecraft.getInstance().player;
+        if (player == null) return 0;
+        int known = com.tbd.mystcraft.knowledge.SymbolKnowledge.known(player).size();
+        int total = com.tbd.mystcraft.symbol.SymbolRegistry.all().size();
+        if (known <= 0 || total <= 0) return 0;
+        return Math.max(1, Math.min(MAX_SHELF_BOOKS, Math.round(known * (float) MAX_SHELF_BOOKS / total)));
     }
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         int light = state.lightCoords;
-        for (ModelPart part : backing) part.visible = state.backboard;
         paper2.visible = state.paperCount > 0;
         paper3.visible = state.paperCount > 1;
         paper1.visible = state.paperCount > 2;
@@ -144,17 +150,15 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
                     LegacyModels.BOOK_SPINE_TEXTURE, sprites, 0, state.breakProgress);
             poseStack.popPose();
         }
-        // Inkwell on the desk top (surface y = 1.0), front corner of the head half, clear of the backboard (+X side).
+        // Inkwell on the desk top (surface y = 1.0): on the foot half, centred between the red writing pad (model x
+        // 1..15 -> local z up to 0.94) and the right side panel (local z 1.44), just behind the paper stack so the
+        // two never overlap. Glass and ink column are one translucent model per fill height.
         if (state.inkLevel >= 0f) {
             poseStack.pushPose();
-            poseStack.translate(-0.3, 1.0, -0.33);
-            collector.submitModel(inkwellCup, Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
-                    LegacyModels.INKWELL_CUP_TEXTURE, sprites, 0, state.breakProgress);
-            int step = Math.max(0, Math.min(3, Math.round(state.inkLevel * 3f)));
-            if (state.inkLevel > 0f) {
-                collector.submitModel(inkFill[step], Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
-                        LegacyModels.INKWELL_INK_TEXTURE, sprites, 0, state.breakProgress);
-            }
+            poseStack.translate(0.12, 1.0, 1.19);
+            int height = state.inkLevel <= 0f ? 0 : Math.max(1, Math.min(4, Math.round(state.inkLevel * 4f)));
+            collector.submitModel(inkwell[height], Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
+                    LegacyModels.INKWELL_TEXTURE, sprites, 0, state.breakProgress);
             poseStack.popPose();
         }
         poseStack.popPose();

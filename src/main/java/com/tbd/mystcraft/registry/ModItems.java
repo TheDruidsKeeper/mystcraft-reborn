@@ -12,7 +12,6 @@ import com.tbd.mystcraft.item.PageItem;
 import com.tbd.mystcraft.item.UnlinkedBookItem;
 import com.tbd.mystcraft.item.WritingDeskItem;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
@@ -46,8 +45,6 @@ public final class ModItems {
     /** Creative only (no recipe): places a desk that offers every registered symbol. */
     public static final DeferredItem<WritingDeskItem> SCHOLARS_WRITING_DESK = ITEMS.registerItem("scholars_writing_desk",
             p -> new WritingDeskItem(true, p), p -> p.stacksTo(64).rarity(Rarity.EPIC));
-    public static final DeferredItem<BucketItem> BLACK_INK_BUCKET = ITEMS.registerItem("black_ink_bucket",
-            p -> new BucketItem(ModFluids.BLACK_INK.get(), p), p -> p.stacksTo(1).craftRemainder(Items.BUCKET));
 
     // Block items
     public static final DeferredItem<BlockItem> INK_MIXER = ITEMS.registerSimpleBlockItem("ink_mixer", ModBlocks.INK_MIXER);

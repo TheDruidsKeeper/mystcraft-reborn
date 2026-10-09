@@ -4,7 +4,6 @@ import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.api.symbol.AgeSymbol;
 import com.tbd.mystcraft.api.symbol.BlockCategory;
 import com.tbd.mystcraft.api.symbol.WordData;
-import com.tbd.mystcraft.registry.ModFluids;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
@@ -63,10 +62,6 @@ public final class FluidSymbols {
             }
             int card = DEFAULT_CARD_RANK;
             int rank = DEFAULT_RANK;
-            if (fluid == ModFluids.BLACK_INK.get()) {
-                card = 1;
-                rank = 0;
-            }
             Map<BlockCategory, Integer> ranks = new LinkedHashMap<>();
             ranks.put(BlockCategory.FLUID, rank);
             if (gaseous) ranks.put(BlockCategory.GAS, rank);

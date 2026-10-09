@@ -16,7 +16,6 @@ import com.tbd.mystcraft.client.render.entity.MystFallingBlockRenderer;
 import com.tbd.mystcraft.client.render.item.SymbolPageSpecialRenderer;
 import com.tbd.mystcraft.client.render.model.LegacyModels;
 import com.tbd.mystcraft.client.render.tint.AgeBiomeTintSource;
-import com.tbd.mystcraft.client.render.tint.InkTintSource;
 import com.tbd.mystcraft.client.render.tint.PortalTintSource;
 import com.tbd.mystcraft.client.screen.ArchivistShopScreen;
 import com.tbd.mystcraft.client.screen.BookBinderScreen;
@@ -28,15 +27,14 @@ import com.tbd.mystcraft.client.screen.WritingDeskScreen;
 import com.tbd.mystcraft.menu.AbstractMystcraftMenu;
 import com.tbd.mystcraft.registry.ModBlockEntities;
 import com.tbd.mystcraft.registry.ModBlocks;
-import com.tbd.mystcraft.registry.ModEntities;
 import com.tbd.mystcraft.registry.ModFluids;
+import com.tbd.mystcraft.client.screen.gui.InkTank;
+import com.tbd.mystcraft.registry.ModEntities;
 import com.tbd.mystcraft.registry.ModMenus;
 import com.tbd.mystcraft.registry.ModParticles;
 import com.tbd.mystcraft.util.MystIds;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.block.BlockTintSource;
-import net.minecraft.client.renderer.block.FluidModel;
-import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -44,11 +42,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterCustomEnvironmentEffectRendererEvent;
-import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
@@ -65,13 +61,13 @@ public final class ClientSetup {
         AbstractMystcraftMenu.setClientSender(ClientNetwork.INSTANCE);
 
         modBus.addListener(ClientSetup::registerScreens);
+        modBus.addListener(ClientSetup::registerFluidModels);
         modBus.addListener(ClientSetup::registerRenderers);
         modBus.addListener(ClientSetup::registerLayers);
         modBus.addListener(ClientPayloadHandlers::register);
         modBus.addListener(ClientSetup::registerEnvironmentRenderers);
         modBus.addListener(ClientSetup::registerParticles);
         modBus.addListener(ClientSetup::registerBlockTints);
-        modBus.addListener(ClientSetup::registerFluidModels);
         modBus.addListener(ClientSetup::registerSpecialModels);
 
         ClientGameEvents.register(NeoForge.EVENT_BUS);
@@ -122,7 +118,6 @@ public final class ClientSetup {
 
     private static void registerBlockTints(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(new PortalTintSource()), ModBlocks.LINK_PORTAL.get());
-        event.register(List.of(new InkTintSource()), ModBlocks.BLACK_INK.get());
 
         // Age colour symbols: wrap the vanilla biome tint sources (registered before this event fires, see
         // BlockColors.createDefault) so a static GRASS/FOLIAGE/WATER colour replaces the biome colour inside an Age.
@@ -149,16 +144,16 @@ public final class ClientSetup {
     }
 
     /**
-     * 26.1 moved fluid textures off {@code IClientFluidTypeExtensions}: without a {@link FluidModel} the placed ink
-     * renders as the missing texture ("Missing FluidModel for fluid 'mystcraft:black_ink'") and the
-     * {@code neoforge:fluid_container} bucket model has no fluid sprite. One model is shared by source and flowing.
+     * NeoForge wants a {@code FluidModel} for every fluid even though black ink never appears in the world (it is a
+     * tank-only fluid, see {@code ModFluids}): without one the client logs "Missing FluidModel". Water's sprites with
+     * the ink tint satisfy it.
      */
-    private static void registerFluidModels(RegisterFluidModelsEvent event) {
-        event.register(new FluidModel.Unbaked(
-                        new Material(MystIds.id("block/fluid")),
-                        new Material(MystIds.id("block/fluid_flow")),
-                        null,
-                        new InkTintSource()),
-                ModFluids.BLACK_INK, ModFluids.FLOWING_BLACK_INK);
+    private static void registerFluidModels(net.neoforged.neoforge.client.event.RegisterFluidModelsEvent event) {
+        net.neoforged.neoforge.client.fluid.FluidTintSource ink = state -> InkTank.INK;
+        event.register(new net.minecraft.client.renderer.block.FluidModel.Unbaked(
+                        new net.minecraft.client.resources.model.sprite.Material(net.minecraft.resources.Identifier.withDefaultNamespace("block/water_still")),
+                        new net.minecraft.client.resources.model.sprite.Material(net.minecraft.resources.Identifier.withDefaultNamespace("block/water_flow")),
+                        null, ink),
+                ModFluids.BLACK_INK);
     }
 }

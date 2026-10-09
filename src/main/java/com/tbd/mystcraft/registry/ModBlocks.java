@@ -7,7 +7,6 @@ import com.tbd.mystcraft.block.BookstandBlock;
 import com.tbd.mystcraft.block.CrystalBlock;
 import com.tbd.mystcraft.block.DecayBlock;
 import com.tbd.mystcraft.block.DecayType;
-import com.tbd.mystcraft.block.InkFluidBlock;
 import com.tbd.mystcraft.block.InkMixerBlock;
 import com.tbd.mystcraft.block.LecternBlock;
 import com.tbd.mystcraft.block.FacilityCacheBlock;
@@ -57,8 +56,6 @@ public final class ModBlocks {
     public static final DeferredBlock<StarFissureBlock> STAR_FISSURE = BLOCKS.registerBlock("star_fissure", StarFissureBlock::new,
             p -> p.mapColor(MapColor.COLOR_BLACK).strength(-1f, 3600000f).lightLevel(s -> 6).noCollision().noOcclusion()
                     .noLootTable().pushReaction(PushReaction.BLOCK));
-    public static final DeferredBlock<InkFluidBlock> BLACK_INK = BLOCKS.registerBlock("black_ink", InkFluidBlock::new,
-            p -> p.mapColor(MapColor.COLOR_BLACK).replaceable().noCollision().strength(100f).liquid().noLootTable().pushReaction(PushReaction.DESTROY));
 
     // --- Facility puzzle blocks (docs/plans/FACILITY_PLAN.md §2.2); unbreakable, placed by markers only ---------
     public static final DeferredBlock<WardedDoorBlock> WARDED_DOOR = BLOCKS.registerBlock("warded_door", WardedDoorBlock::new,

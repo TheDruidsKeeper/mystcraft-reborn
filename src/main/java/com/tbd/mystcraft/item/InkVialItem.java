@@ -14,13 +14,13 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * Ink Vial (original spec §2.7): a fixed 1000 mB container of black ink. The fluid capability is exposed through
- * {@link Handler} (registered in {@link ItemCapabilities}); draining converts the vial into a glass bottle, filling a
- * glass bottle with ≥1000 mB of black ink converts it into a vial.
+ * Ink Vial: a fixed {@link #VOLUME} mB container of black ink, a quarter of a Writing Desk inkwell. The fluid
+ * capability is exposed through {@link Handler} (registered in {@link ItemCapabilities}); draining converts the vial
+ * into a glass bottle, filling a glass bottle with one vial's worth of black ink converts it into a vial.
  */
 public class InkVialItem extends Item {
 
-    public static final int VOLUME = FluidType.BUCKET_VOLUME;
+    public static final int VOLUME = FluidType.BUCKET_VOLUME / 4;
 
     public InkVialItem(Item.Properties properties) {
         super(properties);
@@ -39,8 +39,9 @@ public class InkVialItem extends Item {
     }
 
     /**
-     * Single-slot fluid handler backed by an {@link ItemAccess}. Only whole vials are moved: extraction of 1000 mB
-     * exchanges one vial for one glass bottle, insertion of 1000 mB exchanges one glass bottle for one vial.
+     * Single-slot fluid handler backed by an {@link ItemAccess}. Only whole vials are moved: extraction of
+     * {@link #VOLUME} exchanges one vial for one glass bottle, insertion of {@link #VOLUME} exchanges one glass bottle
+     * for one vial. Amount and capacity are reported for the whole stack; callers move one vial at a time.
      */
     public static final class Handler implements ResourceHandler<FluidResource> {
         private final ItemAccess access;

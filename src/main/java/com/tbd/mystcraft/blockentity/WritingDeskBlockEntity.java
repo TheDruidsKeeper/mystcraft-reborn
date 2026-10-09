@@ -4,8 +4,8 @@ import com.tbd.mystcraft.Mystcraft;
 
 import com.tbd.mystcraft.api.item.ItemBehaviours;
 import com.tbd.mystcraft.api.symbol.AgeSymbol;
-import com.tbd.mystcraft.block.WritingDeskBlock;
 import com.tbd.mystcraft.item.FolderItem;
+import com.tbd.mystcraft.item.InkVialItem;
 import com.tbd.mystcraft.item.PageItem;
 import com.tbd.mystcraft.item.component.SymbolPage;
 import com.tbd.mystcraft.knowledge.SymbolKnowledge;
@@ -22,14 +22,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
@@ -43,7 +41,8 @@ import java.util.List;
 
 /**
  * Writing Desk (original spec §3.10, Reborn rework: world-building plan §4). Main inventory: 0 target (a Collation
- * Folder, limit 1), 1 paper, 2 ink container in, 3 empty container out. Inkwell: 1000 mB of ink. The desk has no
+ * Folder, limit 1), 1 paper, 2 ink container in, 3 empty container out. Inkwell: {@link #TANK_CAPACITY} of ink, four
+ * Ink Vials. The desk has no
  * notebooks: it writes copies of the symbols the <i>player</i> knows ({@link SymbolKnowledge}) into the folder, and
  * attaches known modifiers to the folder's pages. A Scholar's desk ({@link #isScholar()}) offers every registered
  * symbol. Pages written here stay drafts until the folder leaves the desk.
@@ -258,7 +257,10 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         }
     }
 
-    /** Server tick: fill the inkwell from the container in slot 2, or fill that container from the inkwell. */
+    /**
+     * Server tick: pour one container from slot 2 into the inkwell (one vial per tick, as long as a whole one fits),
+     * or fill one empty container from the inkwell.
+     */
     public void serverTick() {
         checkDraftTarget();
         ItemStack container = main.getStack(SLOT_CONTAINER_IN);
@@ -266,14 +268,14 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         FluidStack contained = FluidUtil.getFirstStackContained(container);
         InkContainers.Result moved;
         if (!contained.isEmpty()) {
-            // container -> tank: the whole container amount must fit
+            // container -> tank: one container's worth (FluidUtil reads the stack one by one) must fit whole
             if (!ModFluids.isInk(contained.getFluid())) return;
             if (getInkAmount() + contained.getAmount() > TANK_CAPACITY) return;
             moved = InkContainers.drainInto(container, FluidResource.of(contained), contained.getAmount(), inkwell, 0);
         } else {
-            // tank -> container (one bucket)
-            if (getInkAmount() < FluidType.BUCKET_VOLUME) return;
-            moved = InkContainers.fillFrom(container, inkwell, 0, FluidType.BUCKET_VOLUME);
+            // tank -> container (one vial)
+            if (getInkAmount() < InkVialItem.VOLUME) return;
+            moved = InkContainers.fillFrom(container, inkwell, 0, InkVialItem.VOLUME);
         }
         if (moved == null) return;
         ItemStack result = moved.container();

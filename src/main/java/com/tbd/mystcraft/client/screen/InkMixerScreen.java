@@ -39,9 +39,9 @@ public class InkMixerScreen extends AbstractMystcraftScreen<InkMixerMenu> {
     @Override
     protected void buildElements() {
         addElement(new Basin(leftPos + 54, topPos + 16, 66, 65));
-        hintSlot(0, "gui.mystcraft.ink_mixer.slot.ink", ModItems.INK_VIAL.get(), ModItems.BLACK_INK_BUCKET.get());
+        hintSlot(0, "gui.mystcraft.ink_mixer.slot.ink", ModItems.INK_VIAL.get());
         hintSlot(1, "gui.mystcraft.ink_mixer.slot.paper", Items.PAPER);
-        hintSlot(2, "gui.mystcraft.ink_mixer.slot.empty", Items.GLASS_BOTTLE, Items.BUCKET);
+        hintSlot(2, "gui.mystcraft.ink_mixer.slot.empty", Items.GLASS_BOTTLE);
         hintSlot(InkMixerMenu.SLOT_OUTPUT, "gui.mystcraft.ink_mixer.slot.output", ModItems.PAGE.get());
     }
 

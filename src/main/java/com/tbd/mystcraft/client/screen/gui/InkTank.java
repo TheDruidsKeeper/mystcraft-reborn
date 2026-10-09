@@ -13,6 +13,8 @@ import java.util.function.Supplier;
  * Phase 2 refinement (sprite lookup through the atlas manager is unverified in 26.1).
  */
 public class InkTank extends GuiElement {
+    /** Black ink, opaque (original spec 0x191919). */
+    public static final int INK = 0xFF191919;
     private final Supplier<FluidStack> fluid;
     private final int capacity;
     private boolean hovered;
@@ -33,7 +35,7 @@ public class InkTank extends GuiElement {
             float filled = Math.min(1f, stack.getAmount() / (float) capacity);
             int fillH = (int) ((height - 2) * filled);
             int top = y + height - 1 - fillH;
-            g.fill(x + 1, top, x + width - 1, y + height - 1, 0xFF191919);
+            g.fill(x + 1, top, x + width - 1, y + height - 1, INK);
             g.fill(x + 1, top, x + width - 1, Math.min(top + 1, y + height - 1), 0xFF303030);
         }
         // graduations

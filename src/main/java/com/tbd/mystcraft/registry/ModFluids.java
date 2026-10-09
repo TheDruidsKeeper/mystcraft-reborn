@@ -1,11 +1,19 @@
 package com.tbd.mystcraft.registry;
 
 import com.tbd.mystcraft.Mystcraft;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.common.SoundActions;
-import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -13,7 +21,10 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
-/** Black ink fluid (original spec §3.12). */
+/**
+ * Black ink: a tank-only fluid. It exists so the Writing Desk inkwell is a {@code FluidStack} and the Ink Vial a
+ * fluid container; it has no bucket, no block and never appears in the world (the vial is the only carrier).
+ */
 public final class ModFluids {
     private ModFluids() {}
 
@@ -21,29 +32,74 @@ public final class ModFluids {
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(net.minecraft.core.registries.Registries.FLUID, Mystcraft.MOD_ID);
 
     public static final Supplier<FluidType> BLACK_INK_TYPE = FLUID_TYPES.register("black_ink", () -> new FluidType(FluidType.Properties.create()
-            .descriptionId("fluid_type.mystcraft.black_ink")
-            .density(1100).viscosity(1200).temperature(300)
-            .canSwim(true).canDrown(true).canExtinguish(true).canConvertToSource(false).supportsBoating(false)
-            // Without this NeoForge applies NO movement logic to a non-vanilla fluid (LivingEntity.travelInFluid only
-            // handles water/lava unless the type is water-like or overrides move()), so entities got stuck in ink.
-            .isWaterLike(true)
-            .rarity(Rarity.COMMON)
-            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
-            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)));
+            .descriptionId("fluid_type.mystcraft.black_ink").density(1100).viscosity(1200).temperature(300)));
 
-    public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> BLACK_INK = FLUIDS.register("black_ink",
-            () -> new BaseFlowingFluid.Source(properties()));
-    public static final DeferredHolder<Fluid, BaseFlowingFluid.Flowing> FLOWING_BLACK_INK = FLUIDS.register("flowing_black_ink",
-            () -> new BaseFlowingFluid.Flowing(properties()));
-
-    private static BaseFlowingFluid.Properties properties() {
-        return new BaseFlowingFluid.Properties(BLACK_INK_TYPE, BLACK_INK, FLOWING_BLACK_INK)
-                .bucket(ModItems.BLACK_INK_BUCKET)
-                .block(ModBlocks.BLACK_INK)
-                .slopeFindDistance(4).levelDecreasePerBlock(1).explosionResistance(100f).tickRate(5);
-    }
+    public static final DeferredHolder<Fluid, InkFluid> BLACK_INK = FLUIDS.register("black_ink", InkFluid::new);
 
     public static boolean isInk(Fluid fluid) {
-        return fluid == BLACK_INK.get() || fluid == FLOWING_BLACK_INK.get();
+        return fluid == BLACK_INK.get();
+    }
+
+    /** A source-only fluid with no world form: every placement query answers "nothing here". */
+    public static final class InkFluid extends Fluid {
+        @Override
+        public FluidType getFluidType() {
+            return BLACK_INK_TYPE.get();
+        }
+
+        @Override
+        public Item getBucket() {
+            return Items.AIR;
+        }
+
+        @Override
+        protected boolean canBeReplacedWith(FluidState state, BlockGetter level, BlockPos pos, Fluid other, Direction direction) {
+            return true;
+        }
+
+        @Override
+        protected Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState fluidState) {
+            return Vec3.ZERO;
+        }
+
+        @Override
+        public int getTickDelay(LevelReader level) {
+            return 0;
+        }
+
+        @Override
+        protected float getExplosionResistance() {
+            return 0f;
+        }
+
+        @Override
+        public float getHeight(FluidState fluidState, BlockGetter level, BlockPos pos) {
+            return 0f;
+        }
+
+        @Override
+        public float getOwnHeight(FluidState fluidState) {
+            return 0f;
+        }
+
+        @Override
+        protected BlockState createLegacyBlock(FluidState fluidState) {
+            return Blocks.AIR.defaultBlockState();
+        }
+
+        @Override
+        public boolean isSource(FluidState fluidState) {
+            return true;
+        }
+
+        @Override
+        public int getAmount(FluidState fluidState) {
+            return 0;
+        }
+
+        @Override
+        public VoxelShape getShape(FluidState state, BlockGetter level, BlockPos pos) {
+            return Shapes.empty();
+        }
     }
 }

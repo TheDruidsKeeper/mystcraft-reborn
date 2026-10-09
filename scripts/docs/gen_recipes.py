@@ -102,7 +102,6 @@ ICONS = {
     "string": ("icon-string.png", "string"),
     "black_dye": ("icon-black-dye.png", "black_dye"),
     "potion": ("icon-potion.png", "potion"),
-    "water_bucket": ("icon-water-bucket.png", "water_bucket"),
     "stone": ("icon-stone.png", "stone"),
     "iron": ("icon-iron-ingot.png", "iron_ingot"),
     "stick": ("icon-stick.png", "stick"),
@@ -134,7 +133,7 @@ def item_icon(key: str) -> Image.Image:
 INGREDIENT_KEYS = {
     "minecraft:glass_bottle": "glass_bottle", "minecraft:feather": "feather", "#minecraft:planks": "planks",
     "minecraft:item_frame": "item_frame", "minecraft:leather": "leather", "minecraft:string": "string",
-    "minecraft:black_dye": "black_dye", "minecraft:potion": "potion", "minecraft:water_bucket": "water_bucket",
+    "minecraft:black_dye": "black_dye", "minecraft:potion": "potion",
     "minecraft:stone": "stone", "minecraft:iron_ingot": "iron", "minecraft:stick": "stick", "minecraft:paper": "paper",
     "mystcraft:crystal": "crystal", "mystcraft:page": "link_panel",
 }
@@ -207,7 +206,6 @@ RECIPES = {
     "writing_desk": "recipe-writing-desk.png",
     "collation_folder": "recipe-collation-folder.png",
     "ink_vial": "recipe-ink-vial.png",
-    "ink_vial_bucket": "recipe-ink-vial-bucket.png",
     "ink_mixer": "recipe-ink-mixer.png",
     "book_binder": "recipe-book-binder.png",
     "bookstand": "recipe-bookstand.png",

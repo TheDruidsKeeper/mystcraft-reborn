@@ -6,7 +6,6 @@ import com.tbd.mystcraft.age.AgeControllers;
 import com.tbd.mystcraft.age.AgeData;
 import com.tbd.mystcraft.age.AgeManager;
 import com.tbd.mystcraft.registry.ModBlocks;
-import com.tbd.mystcraft.registry.ModFluids;
 import com.tbd.mystcraft.util.MystIds;
 import com.tbd.mystcraft.world.feature.StarFissurePopulator;
 import net.minecraft.core.BlockPos;
@@ -140,41 +139,6 @@ public class WorldTests {
                     helper.assertBlockPresent(ModBlocks.STAR_FISSURE.get(), new BlockPos(1, 1, 1));
                     helper.assertTrue(!helper.getLevel().getFluidState(helper.absolutePos(new BlockPos(1, 2, 1))).isEmpty(),
                             "water flowed down onto the fissure");
-                })
-                .thenSucceed();
-    }
-
-    @GameTest(timeoutTicks = 100)
-    @EmptyTemplate(value = "5x5x5", floor = true)
-    @TestHolder(description = "Black ink is water-like: entities swim in it instead of being frozen in place (playtest bug: stuck in ink)")
-    static void inkIsSwimmable(ExtendedGameTestHelper helper) {
-        helper.assertTrue(ModFluids.BLACK_INK_TYPE.get().getIsWaterLike(), "FluidType.isWaterLike");
-        for (int x = 1; x <= 3; x++) {
-            for (int z = 1; z <= 3; z++) {
-                helper.setBlock(x, 1, z, ModBlocks.BLACK_INK.get().defaultBlockState());
-                helper.setBlock(x, 2, z, ModBlocks.BLACK_INK.get().defaultBlockState());
-            }
-        }
-        // walls so the pool cannot drain
-        for (int i = 0; i <= 4; i++) {
-            for (int y = 1; y <= 2; y++) {
-                helper.setBlock(0, y, i, Blocks.STONE);
-                helper.setBlock(4, y, i, Blocks.STONE);
-                helper.setBlock(i, y, 0, Blocks.STONE);
-                helper.setBlock(i, y, 4, Blocks.STONE);
-            }
-        }
-        var pig = helper.spawn(EntityType.PIG, 2, 1, 2);
-        pig.setNoAi(true);
-        helper.startSequence()
-                .thenExecuteAfter(20, () -> {
-                    BlockPos at = pig.blockPosition();
-                    String where = "pig at " + pig.position() + " block " + helper.getLevel().getBlockState(at)
-                            + " fluid " + helper.getLevel().getFluidState(at).getType() + " height " + pig.getFluidTypeHeight(ModFluids.BLACK_INK_TYPE.get());
-                    Mystcraft.LOGGER.info("[gametest] inkIsSwimmable: {}", where);
-                    helper.assertTrue(pig.isAlive(), "pig alive in ink");
-                    helper.assertTrue(pig.isInFluidType(ModFluids.BLACK_INK_TYPE.get()), "pig is inside the ink fluid (" + where + ")");
-                    helper.assertTrue(pig.isInWater(), "ink counts as water for movement (isInWater) - " + where);
                 })
                 .thenSucceed();
     }

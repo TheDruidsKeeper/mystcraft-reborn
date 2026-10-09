@@ -4,6 +4,7 @@ import com.tbd.mystcraft.api.linking.LinkProperty;
 import com.tbd.mystcraft.block.WritingDeskBlock;
 import com.tbd.mystcraft.blockentity.InkMixerBlockEntity;
 import com.tbd.mystcraft.blockentity.WritingDeskBlockEntity;
+import com.tbd.mystcraft.item.InkVialItem;
 import com.tbd.mystcraft.item.PageItem;
 import com.tbd.mystcraft.knowledge.SymbolKnowledge;
 import com.tbd.mystcraft.util.MystIds;
@@ -14,51 +15,42 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.testframework.annotation.ForEachTest;
 import net.neoforged.testframework.annotation.TestHolder;
 import net.neoforged.testframework.gametest.EmptyTemplate;
 import net.neoforged.testframework.gametest.ExtendedGameTestHelper;
 import net.neoforged.testframework.gametest.GameTest;
 
-/** Writing desk and ink mixer: ink containers drain into the tank / basin and leave their empty form in the output slot. */
+/** Writing desk and ink mixer: ink vials drain into the tank / basin one at a time and leave a glass bottle in the output slot. */
 @ForEachTest(groups = "workstations")
 public class WorkstationTests {
 
     @GameTest(timeoutTicks = 100)
     @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "A bucket of black ink in the desk's container slot fills the inkwell and leaves an empty bucket")
-    static void deskAcceptsInkBucket(ExtendedGameTestHelper helper) {
+    @TestHolder(description = "Ink vials: one vial fills a quarter of the inkwell and leaves a glass bottle; a stack drains one vial per tick into a partly filled well and stops when the next whole vial would not fit; a bottle is filled with one vial's worth")
+    static void deskAcceptsInkVials(ExtendedGameTestHelper helper) {
         WritingDeskBlockEntity desk = placeDesk(helper);
-        desk.main.setStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN, new ItemStack(ModItems.BLACK_INK_BUCKET.get()));
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertValueEqual(desk.getInkAmount(), FluidType.BUCKET_VOLUME, "inkwell filled from bucket"))
-                .thenExecute(() -> helper.assertTrue(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT).is(Items.BUCKET), "empty bucket in output slot"))
-                .thenSucceed();
-    }
-
-    @GameTest(timeoutTicks = 100)
-    @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "An ink vial in the desk's container slot fills the inkwell and leaves a glass bottle")
-    static void deskAcceptsInkVial(ExtendedGameTestHelper helper) {
-        WritingDeskBlockEntity desk = placeDesk(helper);
+        helper.assertValueEqual(InkVialItem.VOLUME * 4, WritingDeskBlockEntity.TANK_CAPACITY, "four vials per inkwell");
         desk.main.setStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN, new ItemStack(ModItems.INK_VIAL.get()));
         helper.startSequence()
-                .thenWaitUntil(() -> helper.assertValueEqual(desk.getInkAmount(), FluidType.BUCKET_VOLUME, "inkwell filled from vial"))
-                .thenExecute(() -> helper.assertTrue(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT).is(Items.GLASS_BOTTLE), "glass bottle in output slot"))
-                .thenSucceed();
-    }
-
-    @GameTest(timeoutTicks = 100)
-    @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "A bucket of black ink in the ink mixer fills the basin")
-    static void mixerAcceptsInkBucket(ExtendedGameTestHelper helper) {
-        helper.setBlock(1, 1, 1, ModBlocks.INK_MIXER.get());
-        InkMixerBlockEntity mixer = helper.getBlockEntity(1, 1, 1, InkMixerBlockEntity.class);
-        mixer.inventory.setStack(InkMixerBlockEntity.SLOT_INK_IN, new ItemStack(ModItems.BLACK_INK_BUCKET.get()));
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertTrue(mixer.hasInk(), "basin has ink"))
-                .thenExecute(() -> helper.assertTrue(mixer.inventory.getStack(InkMixerBlockEntity.SLOT_INK_OUT).is(Items.BUCKET), "empty bucket in output slot"))
+                .thenWaitUntil(() -> helper.assertValueEqual(desk.getInkAmount(), InkVialItem.VOLUME, "inkwell a quarter full from one vial"))
+                .thenExecute(() -> {
+                    helper.assertTrue(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN).isEmpty(), "vial consumed");
+                    helper.assertTrue(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT).is(Items.GLASS_BOTTLE), "glass bottle in output slot");
+                    // the playtest case: a partly filled well (not a multiple of a vial) and a whole stack of vials
+                    desk.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 400));
+                    desk.main.setStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN, new ItemStack(ModItems.INK_VIAL.get(), 16));
+                })
+                .thenWaitUntil(() -> helper.assertValueEqual(desk.getInkAmount(), 900, "two more vials fit (400 + 2 x 250), the third does not"))
+                .thenExecuteAfter(5, () -> {
+                    helper.assertValueEqual(desk.getInkAmount(), 900, "no partial vial is poured");
+                    helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN).getCount(), 14, "14 vials left");
+                    helper.assertValueEqual(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT).getCount(), 3, "three bottles out");
+                    desk.main.setStack(WritingDeskBlockEntity.SLOT_CONTAINER_IN, new ItemStack(Items.GLASS_BOTTLE, 2));
+                    desk.main.setStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT, ItemStack.EMPTY);
+                })
+                .thenWaitUntil(() -> helper.assertValueEqual(desk.getInkAmount(), 650, "one bottle took one vial's worth"))
+                .thenExecute(() -> helper.assertTrue(desk.main.getStack(WritingDeskBlockEntity.SLOT_CONTAINER_OUT).is(ModItems.INK_VIAL.get()), "a vial came out"))
                 .thenSucceed();
     }
 
@@ -78,7 +70,7 @@ public class WorkstationTests {
     @EmptyTemplate(value = "3x3x3", floor = true)
     @TestHolder(description = "Diagnostics: ink containers expose a fluid handler and report their contents")
     static void inkContainersReportContents(ExtendedGameTestHelper helper) {
-        for (ItemStack stack : new ItemStack[] {new ItemStack(ModItems.BLACK_INK_BUCKET.get()), new ItemStack(ModItems.INK_VIAL.get())}) {
+        for (ItemStack stack : new ItemStack[] {new ItemStack(ModItems.INK_VIAL.get()), new ItemStack(ModItems.INK_VIAL.get(), 4)}) {
             var access = net.neoforged.neoforge.transfer.access.ItemAccess.forStack(stack.copy());
             var handler = access.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Fluid.ITEM);
             var contained = net.neoforged.neoforge.transfer.fluid.FluidUtil.getFirstStackContained(stack);
@@ -87,6 +79,7 @@ public class WorkstationTests {
                     com.tbd.mystcraft.blockentity.BookUtil.isInkContainer(stack));
             helper.assertNotNull(handler, stack.getItem() + " has a fluid handler");
             helper.assertTrue(!contained.isEmpty(), stack.getItem() + " reports contained fluid");
+            helper.assertValueEqual(contained.getAmount(), InkVialItem.VOLUME, "one vial reported per item, whatever the stack size");
         }
         helper.succeed();
     }
@@ -157,38 +150,6 @@ public class WorkstationTests {
                     helper.assertTrue(dye.isEmpty() && mixer.getEffects().isEmpty(), "black dye clears the effects");
                 }))
                 .thenSucceed();
-    }
-
-    @GameTest
-    @EmptyTemplate(value = "3x3x3", floor = true)
-    @TestHolder(description = "Ink pools are collectable: an empty bucket picks up a Black Ink Bucket, a glass bottle scoops an Ink Vial, a flowing block yields nothing")
-    static void inkCanBeScooped(ExtendedGameTestHelper helper) {
-        var player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
-        var level = helper.getLevel();
-
-        // bucket: vanilla BucketPickup on the fluid block
-        helper.setBlock(0, 1, 0, ModBlocks.BLACK_INK.get());
-        var pos = helper.absolutePos(new net.minecraft.core.BlockPos(0, 1, 0));
-        ItemStack picked = ModBlocks.BLACK_INK.get().pickupBlock(player, level, pos, level.getBlockState(pos));
-        helper.assertTrue(picked.is(ModItems.BLACK_INK_BUCKET.get()), "bucket pickup gives a Black Ink Bucket (got " + picked + ")");
-        helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR, 0, 1, 0);
-
-        // bottle: the mod's scoop turns a glass bottle into an Ink Vial and removes the source block
-        helper.setBlock(2, 1, 2, ModBlocks.BLACK_INK.get());
-        var pos2 = helper.absolutePos(new net.minecraft.core.BlockPos(2, 1, 2));
-        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.GLASS_BOTTLE));
-        helper.assertTrue(com.tbd.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos2), "bottle scoops ink");
-        helper.assertTrue(player.getMainHandItem().is(ModItems.INK_VIAL.get()), "bottle became an Ink Vial (got " + player.getMainHandItem() + ")");
-        helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR, 2, 1, 2);
-
-        // flowing ink is not a whole block's worth: neither container collects it
-        helper.setBlock(1, 1, 1, ModBlocks.BLACK_INK.get().defaultBlockState().setValue(net.minecraft.world.level.block.LiquidBlock.LEVEL, 3));
-        var pos3 = helper.absolutePos(new net.minecraft.core.BlockPos(1, 1, 1));
-        helper.assertTrue(ModBlocks.BLACK_INK.get().pickupBlock(player, level, pos3, level.getBlockState(pos3)).isEmpty(), "flowing ink gives no bucket");
-        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.GLASS_BOTTLE));
-        helper.assertFalse(com.tbd.mystcraft.event.CommonEvents.scoopIntoVial(level, player, net.minecraft.world.InteractionHand.MAIN_HAND, pos3), "flowing ink gives no vial");
-        com.tbd.mystcraft.Mystcraft.LOGGER.info("[gametest] ink scooping: bucket={} vial={}", picked.getItem(), ModItems.INK_VIAL.get());
-        helper.succeed();
     }
 
     @GameTest

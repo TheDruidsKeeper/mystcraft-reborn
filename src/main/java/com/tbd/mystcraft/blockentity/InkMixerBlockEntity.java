@@ -3,6 +3,7 @@ package com.tbd.mystcraft.blockentity;
 import com.mojang.serialization.Codec;
 import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.api.linking.LinkProperty;
+import com.tbd.mystcraft.item.InkVialItem;
 import com.tbd.mystcraft.item.PageItem;
 import com.tbd.mystcraft.linking.InkEffects;
 import com.tbd.mystcraft.menu.InkMixerMenu;
@@ -19,15 +20,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -91,18 +87,18 @@ public class InkMixerBlockEntity extends MystBlockEntity implements MenuProvider
 
     // --- ticking ----------------------------------------------------------------------------------------------------
 
-    /** Drains exactly one bucket of ink from the container in slot 0 when the basin is empty. */
+    /** Drains exactly one vial of ink from the container in slot 0 when the basin is empty. */
     public void serverTick() {
         if (hasInk) return;
         ItemStack container = inventory.getStack(SLOT_INK_IN);
         if (container.isEmpty()) return;
         FluidStack contained = FluidUtil.getFirstStackContained(container);
-        if (contained.isEmpty() || !ModFluids.isInk(contained.getFluid()) || contained.getAmount() != FluidType.BUCKET_VOLUME) return;
+        if (contained.isEmpty() || !ModFluids.isInk(contained.getFluid()) || contained.getAmount() != InkVialItem.VOLUME) return;
 
         // Drain into a throw-away tank: the basin is a boolean, the container exchange is what matters.
-        net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler sink = new net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler(1, FluidType.BUCKET_VOLUME);
+        net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler sink = new net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler(1, InkVialItem.VOLUME);
         ItemStack out = inventory.getStack(SLOT_INK_OUT);
-        InkContainers.Result moved = InkContainers.drainInto(container, FluidResource.of(contained), FluidType.BUCKET_VOLUME, sink, 0);
+        InkContainers.Result moved = InkContainers.drainInto(container, FluidResource.of(contained), InkVialItem.VOLUME, sink, 0);
         if (moved == null) return;
         ItemStack emptied = moved.container();
         if (!emptied.isEmpty() && !out.isEmpty()

@@ -10,9 +10,9 @@ public final class ItemCapabilities {
     private ItemCapabilities() {}
 
     public static void register(RegisterCapabilitiesEvent event) {
-        // Vial: exposes 1000 mB of black ink; draining turns it into a glass bottle.
+        // Vial: exposes one vial of black ink; draining turns it into a glass bottle.
         event.registerItem(Capabilities.Fluid.ITEM, (stack, access) -> new InkVialItem.Handler(access), ModItems.INK_VIAL.get());
-        // Glass bottle: accepts 1000 mB of black ink and becomes a vial (the original vial handler also handled this).
+        // Glass bottle: accepts one vial of black ink and becomes a vial.
         // Other mods may register their own bottle handler; NeoForge queries providers in registration order.
         event.registerItem(Capabilities.Fluid.ITEM, (stack, access) -> new InkVialItem.Handler(access), Items.GLASS_BOTTLE);
     }

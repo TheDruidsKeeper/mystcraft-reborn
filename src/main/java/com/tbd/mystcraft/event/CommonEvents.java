@@ -19,8 +19,6 @@ import com.tbd.mystcraft.linking.LinkController;
 import com.tbd.mystcraft.knowledge.SymbolKnowledge;
 import com.tbd.mystcraft.network.ServerConfigPayload;
 import com.tbd.mystcraft.registry.ModAttachments;
-import com.tbd.mystcraft.registry.ModFluids;
-import com.tbd.mystcraft.registry.ModItems;
 import com.tbd.mystcraft.registry.ModCriteria;
 import com.tbd.mystcraft.symbol.BiomeSymbols;
 import com.tbd.mystcraft.symbol.FluidSymbols;
@@ -28,36 +26,21 @@ import com.tbd.mystcraft.world.AgeSpawn;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerRespawnPositionEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -255,40 +238,6 @@ public final class CommonEvents {
         if (controller != null && !controller.isPvPEnabled()) {
             event.setCanceled(true);
         }
-    }
-
-    /**
-     * Ink pools are collectable (original spec §3.12, revised): an empty bucket uses vanilla pickup (the fluid's
-     * bucket is the Black Ink Bucket), and a glass bottle scoops a whole source block into an Ink Vial, which holds
-     * exactly one block's worth. Vanilla's bottle only fills from water, so the bottle case is handled here.
-     */
-    @SubscribeEvent
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (!event.getItemStack().is(Items.GLASS_BOTTLE)) return;
-        Level level = event.getLevel();
-        Player player = event.getEntity();
-        BlockHitResult hit = Item.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-        if (hit.getType() != HitResult.Type.BLOCK || !isInkSource(level, hit.getBlockPos())) return;
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.SUCCESS);
-        if (!level.isClientSide()) scoopIntoVial(level, player, event.getHand(), hit.getBlockPos());
-    }
-
-    public static boolean isInkSource(Level level, BlockPos pos) {
-        return level.getFluidState(pos).isSourceOfType(ModFluids.BLACK_INK.get());
-    }
-
-    /** Server side: removes the ink source block at {@code pos} and turns the glass bottle in {@code hand} into an Ink Vial. */
-    public static boolean scoopIntoVial(Level level, Player player, InteractionHand hand, BlockPos pos) {
-        ItemStack bottle = player.getItemInHand(hand);
-        if (!bottle.is(Items.GLASS_BOTTLE) || !isInkSource(level, pos)) return false;
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
-        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-        level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0f, 1.0f);
-        player.awardStat(Stats.ITEM_USED.get(Items.GLASS_BOTTLE));
-        player.setItemInHand(hand, ItemUtils.createFilledResult(bottle, player, new ItemStack(ModItems.INK_VIAL.get())));
-        Mystcraft.LOGGER.debug("[ink] {} scooped ink at {} into a vial", player.getPlainTextName(), pos.toShortString());
-        return true;
     }
 
     // --- entities / levels ---------------------------------------------------------------------------------------

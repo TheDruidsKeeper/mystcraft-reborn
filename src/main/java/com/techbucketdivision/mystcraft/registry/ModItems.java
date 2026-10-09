@@ -43,11 +43,9 @@ public final class ModItems {
             p -> p.stacksTo(16).craftRemainder(Items.GLASS_BOTTLE));
     public static final DeferredItem<WritingDeskItem> WRITING_DESK = ITEMS.registerItem("writing_desk",
             p -> new WritingDeskItem(false, p), p -> p.stacksTo(64));
-    public static final DeferredItem<WritingDeskItem> WRITING_DESK_BACKBOARD = ITEMS.registerItem("writing_desk_backboard",
-            p -> new WritingDeskItem(true, p), p -> p.stacksTo(64));
     /** Creative only (no recipe): places a desk that offers every registered symbol. */
     public static final DeferredItem<WritingDeskItem> SCHOLARS_WRITING_DESK = ITEMS.registerItem("scholars_writing_desk",
-            p -> new WritingDeskItem(false, true, p), p -> p.stacksTo(64).rarity(Rarity.EPIC));
+            p -> new WritingDeskItem(true, p), p -> p.stacksTo(64).rarity(Rarity.EPIC));
     public static final DeferredItem<BucketItem> BLACK_INK_BUCKET = ITEMS.registerItem("black_ink_bucket",
             p -> new BucketItem(ModFluids.BLACK_INK.get(), p), p -> p.stacksTo(1).craftRemainder(Items.BUCKET));
 

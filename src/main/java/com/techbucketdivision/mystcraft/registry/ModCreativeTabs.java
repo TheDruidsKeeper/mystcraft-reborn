@@ -38,7 +38,6 @@ public final class ModCreativeTabs {
                 out.accept(ModItems.INK_VIAL.get());
                 out.accept(ModItems.BLACK_INK_BUCKET.get());
                 out.accept(ModItems.WRITING_DESK.get());
-                out.accept(ModItems.WRITING_DESK_BACKBOARD.get());
                 out.accept(ModItems.SCHOLARS_WRITING_DESK.get());
                 out.accept(ModItems.INK_MIXER.get());
                 out.accept(ModItems.BOOK_BINDER.get());

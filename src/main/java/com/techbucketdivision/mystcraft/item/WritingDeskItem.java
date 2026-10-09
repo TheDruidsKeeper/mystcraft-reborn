@@ -14,32 +14,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Writing Desk item (original spec §2.8). {@code backboard == false} places the two-block desk (head + foot);
- * {@code backboard == true} extends an existing desk upwards with the two backboard blocks.
- * <p>
- * The foot block lies in the desk's facing direction: offsets (0,0,+1)/(−1,0,0)/(0,0,−1)/(+1,0,0) for horizontal
- * indices 0..3 are exactly {@code Direction#getUnitVec3i()} of SOUTH/WEST/NORTH/EAST.
- * <p>
- * Block state properties come from package C2 per IMPLEMENTATION_CONTRACTS: {@code WritingDeskBlock.FACING}
- * (DirectionProperty-like {@code EnumProperty<Direction>}), {@code TOP}, {@code FOOT} (BooleanProperty).
+ * Writing Desk item (original spec §2.8, Reborn: the desk always comes with its backboard). Places the complete
+ * four-block desk (head + foot and the two backboard blocks above) on the clicked top face; the foot lies to the
+ * placer's right, so the desk faces them. The Scholar's variant marks the block entity scholar (creative only).
  */
 public class WritingDeskItem extends Item {
-    private final boolean backboard;
     private final boolean scholar;
 
-    public WritingDeskItem(boolean backboard, Item.Properties properties) {
-        this(backboard, false, properties);
-    }
-
     /** @param scholar places a Scholar's desk: the block entity offers every registered symbol (creative) */
-    public WritingDeskItem(boolean backboard, boolean scholar, Item.Properties properties) {
+    public WritingDeskItem(boolean scholar, Item.Properties properties) {
         super(properties);
-        this.backboard = backboard;
         this.scholar = scholar;
-    }
-
-    public boolean isBackboard() {
-        return backboard;
     }
 
     public boolean isScholar() {
@@ -54,12 +39,8 @@ public class WritingDeskItem extends Item {
         if (player == null) return InteractionResult.FAIL;
         ItemStack held = context.getItemInHand();
         if (held.isEmpty()) return InteractionResult.FAIL;
-        return backboard
-                ? extendDesk(held, player, level, context.getClickedPos(), context.getClickedFace())
-                : placeDesk(held, player, level, context.getClickedPos(), context.getClickedFace());
-    }
-
-    private InteractionResult placeDesk(ItemStack stack, Player player, Level level, BlockPos pos, Direction face) {
+        BlockPos pos = context.getClickedPos();
+        Direction face = context.getClickedFace();
         if (isReplaceable(level, pos)) {
             pos = pos.below();
             face = Direction.UP;
@@ -67,48 +48,14 @@ public class WritingDeskItem extends Item {
         if (face != Direction.UP) return InteractionResult.PASS;
         Direction facing = player.getDirection().getClockWise();
         BlockPos head = pos.above();
-        BlockPos foot = head.relative(facing);
-        if (!player.mayUseItemAt(head, face, stack) || !player.mayUseItemAt(foot, face, stack)) {
-            return InteractionResult.PASS;
+        for (BlockPos spot : WritingDeskBlock.deskBlocks(head, facing)) {
+            if (!player.mayUseItemAt(spot, face, held)) return InteractionResult.PASS;
         }
-        if (!isReplaceable(level, head) || !isReplaceable(level, foot)) return InteractionResult.PASS;
+        if (!WritingDeskBlock.canPlaceDesk(level, head, facing)) return InteractionResult.PASS;
 
-        BlockState base = ModBlocks.WRITING_DESK.get().defaultBlockState()
-                .setValue(WritingDeskBlock.FACING, facing)
-                .setValue(WritingDeskBlock.TOP, false)
-                .setValue(WritingDeskBlock.FOOT, false);
-        level.setBlockAndUpdate(head, base);
-        if (level.getBlockState(head).is(ModBlocks.WRITING_DESK.get())) {
-            level.setBlockAndUpdate(foot, base.setValue(WritingDeskBlock.FOOT, true));
-            if (scholar && level.getBlockEntity(head) instanceof WritingDeskBlockEntity desk) desk.setScholar(true);
-        }
-        if (!player.hasInfiniteMaterials()) stack.shrink(1);
-        return InteractionResult.SUCCESS_SERVER;
-    }
-
-    private InteractionResult extendDesk(ItemStack stack, Player player, Level level, BlockPos pos, Direction face) {
-        BlockState at = level.getBlockState(pos);
-        if (!at.is(ModBlocks.WRITING_DESK.get())) return InteractionResult.PASS;
-        if (at.getValue(WritingDeskBlock.TOP)) return InteractionResult.PASS;
-        Direction facing = at.getValue(WritingDeskBlock.FACING);
-        BlockPos head = at.getValue(WritingDeskBlock.FOOT) ? pos.relative(facing.getOpposite()) : pos;
-
-        BlockPos up = head.above();
-        BlockPos upFoot = up.relative(facing);
-        if (!player.mayUseItemAt(up, face, stack) || !player.mayUseItemAt(upFoot, face, stack)) {
-            return InteractionResult.PASS;
-        }
-        if (!isReplaceable(level, up) || !isReplaceable(level, upFoot)) return InteractionResult.PASS;
-
-        BlockState top = ModBlocks.WRITING_DESK.get().defaultBlockState()
-                .setValue(WritingDeskBlock.FACING, facing)
-                .setValue(WritingDeskBlock.TOP, true)
-                .setValue(WritingDeskBlock.FOOT, false);
-        level.setBlockAndUpdate(up, top);
-        if (level.getBlockState(up).is(ModBlocks.WRITING_DESK.get())) {
-            level.setBlockAndUpdate(upFoot, top.setValue(WritingDeskBlock.FOOT, true));
-        }
-        if (!player.hasInfiniteMaterials()) stack.shrink(1);
+        WritingDeskBlock.placeDesk(level, head, facing, ModBlocks.WRITING_DESK.get());
+        if (scholar && level.getBlockEntity(head) instanceof WritingDeskBlockEntity desk) desk.setScholar(true);
+        if (!player.hasInfiniteMaterials()) held.shrink(1);
         return InteractionResult.SUCCESS_SERVER;
     }
 

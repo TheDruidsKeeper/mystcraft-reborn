@@ -34,9 +34,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Writing Desk (original spec §3.10). A desk is two base blocks (head + foot, the foot lies at
- * {@code head.relative(FACING)}) optionally covered by two {@code TOP} backboard blocks. Only the head block has the
- * block entity; every desk block opens the menu of the head. Rendered by a BER ({@link RenderShape#INVISIBLE}).
+ * Writing Desk (original spec §3.10, Reborn: always with its backboard). A desk is four blocks: head + foot (the foot
+ * lies at {@code head.relative(FACING)}) and the two {@code TOP} backboard blocks above them. Only the head block has
+ * the block entity; every desk block opens the menu of the head; breaking any of the four removes the whole desk
+ * (one desk item drops). Rendered by a BER ({@link RenderShape#INVISIBLE}).
  */
 public class WritingDeskBlock extends Block implements EntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -84,27 +85,47 @@ public class WritingDeskBlock extends Block implements EntityBlock {
         return level.getBlockEntity(headPos(pos, state)) instanceof WritingDeskBlockEntity be ? be : null;
     }
 
-    /**
-     * Places the two backboard ({@code TOP}) blocks above a desk whose head is at {@code headPos}. Used by the
-     * backboard item.
-     *
-     * @return false if the desk is incomplete or the space above is occupied
-     */
-    public static boolean placeBackboard(Level level, BlockPos headPos) {
-        BlockState head = level.getBlockState(headPos);
-        if (!isHead(head)) return false;
-        Direction facing = head.getValue(FACING);
-        BlockPos footPos = headPos.relative(facing);
-        BlockState foot = level.getBlockState(footPos);
-        if (!isFoot(foot) || foot.getValue(TOP) || foot.getValue(FACING) != facing) return false;
-        if (!level.getBlockState(headPos.above()).isAir() || !level.getBlockState(footPos.above()).isAir()) return false;
-        level.setBlock(headPos.above(), head.setValue(TOP, true), Block.UPDATE_ALL);
-        level.setBlock(footPos.above(), foot.setValue(TOP, true), Block.UPDATE_ALL);
+    /** The four positions of a desk whose head is at {@code head}: head, foot, head top, foot top. */
+    public static BlockPos[] deskBlocks(BlockPos head, Direction facing) {
+        BlockPos foot = head.relative(facing);
+        return new BlockPos[] {head, foot, head.above(), foot.above()};
+    }
+
+    /** Whether all four spots of a desk at {@code head} facing {@code facing} are free (air or replaceable). */
+    public static boolean canPlaceDesk(Level level, BlockPos head, Direction facing) {
+        for (BlockPos pos : deskBlocks(head, facing)) {
+            if (!level.isInsideBuildHeight(pos)) return false;
+            BlockState state = level.getBlockState(pos);
+            if (!state.isAir() && !state.canBeReplaced()) return false;
+        }
         return true;
     }
 
-    public static boolean hasBackboard(Level level, BlockPos headPos) {
-        return isTop(level.getBlockState(headPos.above()));
+    /**
+     * Places a complete desk (head, foot and the two backboard blocks). The blocks are set without neighbour
+     * notifications until the last one, because every desk block removes itself as soon as a sibling is missing.
+     */
+    public static void placeDesk(Level level, BlockPos head, Direction facing, Block desk) {
+        BlockState base = desk.defaultBlockState().setValue(FACING, facing);
+        BlockPos[] blocks = deskBlocks(head, facing);
+        BlockState[] states = {base, base.setValue(FOOT, true), base.setValue(TOP, true), base.setValue(TOP, true).setValue(FOOT, true)};
+        for (int i = 0; i < blocks.length; i++) {
+            level.setBlock(blocks[i], states[i], i == blocks.length - 1 ? Block.UPDATE_ALL : Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Whether every block of the desk that {@code state} at {@code pos} belongs to is in place. */
+    private static boolean isComplete(Level level, BlockPos pos, BlockState state) {
+        Direction facing = state.getValue(FACING);
+        BlockPos head = headPos(pos, state);
+        BlockPos[] blocks = deskBlocks(head, facing);
+        boolean[][] flags = {{false, false}, {false, true}, {true, false}, {true, true}}; // TOP, FOOT
+        for (int i = 0; i < blocks.length; i++) {
+            BlockState other = level.getBlockState(blocks[i]);
+            if (!isDesk(other) || other.getValue(FACING) != facing
+                    || other.getValue(TOP) != flags[i][0] || other.getValue(FOOT) != flags[i][1]) return false;
+        }
+        return true;
     }
 
     // --- placement / shape -----------------------------------------------------------------------------------------
@@ -112,25 +133,16 @@ public class WritingDeskBlock extends Block implements EntityBlock {
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection();
-        BlockPos foot = context.getClickedPos().relative(facing);
-        BlockState footState = context.getLevel().getBlockState(foot);
-        if (!footState.canBeReplaced(context) && !isFoot(footState)) return null;
+        if (!canPlaceDesk(context.getLevel(), context.getClickedPos(), facing)) return null;
         return defaultBlockState().setValue(FACING, facing);
     }
 
+    /** Placement through a plain block item / command places the head: complete the other three here. */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (!isHead(state) || level.isClientSide()) return;
-        Direction facing = state.getValue(FACING);
-        BlockPos footPos = pos.relative(facing);
-        BlockState existing = level.getBlockState(footPos);
-        if (isFoot(existing) && existing.getValue(FACING) == facing) return; // the item already placed it
-        if (existing.isAir() || existing.canBeReplaced()) {
-            level.setBlock(footPos, state.setValue(FOOT, true), Block.UPDATE_ALL);
-        } else {
-            level.removeBlock(pos, false);
-        }
+        if (!isHead(state) || level.isClientSide() || isComplete(level, pos, state)) return;
+        placeDesk(level, pos, state.getValue(FACING), this);
     }
 
     @Override
@@ -163,62 +175,30 @@ public class WritingDeskBlock extends Block implements EntityBlock {
 
     // --- structure integrity ---------------------------------------------------------------------------------------
 
+    /** A desk block without one of its three siblings removes itself (no drops): the whole desk goes together. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
         if (level.isClientSide()) return;
-        Direction facing = state.getValue(FACING);
-        if (state.getValue(TOP) && !state.getValue(FOOT)) {
-            if (!isDesk(level.getBlockState(pos.below()))) {
-                Block.popResource(level, pos, new ItemStack(ModItems.WRITING_DESK_BACKBOARD.get()));
-                level.removeBlock(pos, false);
-                return;
-            }
-        }
-        if (state.getValue(FOOT)) {
-            if (!isDesk(level.getBlockState(pos.relative(facing.getOpposite())))) {
-                level.removeBlock(pos, false);
-            }
-        } else if (!isDesk(level.getBlockState(pos.relative(facing)))) {
-            level.removeBlock(pos, false);
-        }
+        if (!isComplete(level, pos, state)) level.removeBlock(pos, false);
     }
 
+    /** The desk item drops once, from the block the player broke, while the head's block entity still exists. */
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && player.hasInfiniteMaterials() && !state.getValue(TOP)) {
-            BlockPos above = pos.above();
-            if (isTop(level.getBlockState(above))) {
-                level.removeBlock(above, false);
-                Direction facing = state.getValue(FACING);
-                BlockPos otherTop = state.getValue(FOOT) ? pos.relative(facing.getOpposite()).above() : pos.relative(facing).above();
-                if (isTop(level.getBlockState(otherTop))) level.removeBlock(otherTop, false);
-            }
+        if (!level.isClientSide() && !player.hasInfiniteMaterials()) {
+            Block.popResource(level, pos, deskItem(level, pos, state));
         }
         return super.playerWillDestroy(level, pos, state, player);
     }
 
-    @Override
-    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
-        super.playerDestroy(level, player, pos, state, blockEntity, tool);
-        if (!level.isClientSide() && !player.hasInfiniteMaterials()) {
-            Block.popResource(level, pos, dropFor(state, blockEntity instanceof WritingDeskBlockEntity desk && desk.isScholar()));
-        }
-    }
-
-    private static ItemStack dropFor(BlockState state, boolean scholar) {
-        if (state.getValue(TOP)) return new ItemStack(ModItems.WRITING_DESK_BACKBOARD.get());
+    private static ItemStack deskItem(LevelReader level, BlockPos pos, BlockState state) {
+        boolean scholar = level.getBlockEntity(headPos(pos, state)) instanceof WritingDeskBlockEntity desk && desk.isScholar();
         return new ItemStack(scholar ? ModItems.SCHOLARS_WRITING_DESK.get() : ModItems.WRITING_DESK.get());
     }
 
     @Override
     protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
-        boolean scholar = false;
-        if (!state.getValue(TOP)) {
-            Direction facing = state.getValue(FACING);
-            BlockPos head = state.getValue(FOOT) ? pos.relative(facing.getOpposite()) : pos;
-            scholar = level.getBlockEntity(head) instanceof WritingDeskBlockEntity desk && desk.isScholar();
-        }
-        return dropFor(state, scholar);
+        return deskItem(level, pos, state);
     }
 
     // --- block entity ------------------------------------------------------------------------------------------------

@@ -322,11 +322,6 @@ public class WritingDeskBlockEntity extends MystBlockEntity implements MenuProvi
         return main.getStack(SLOT_PAPER).getCount();
     }
 
-    public boolean hasBackboard() {
-        Level level = getLevel();
-        return level != null && WritingDeskBlock.hasBackboard(level, getBlockPos());
-    }
-
     /** The current display name of the target ("" when none / not renameable). */
     public String getTargetString() {
         ItemStack target = getTarget();

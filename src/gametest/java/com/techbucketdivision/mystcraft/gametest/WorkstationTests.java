@@ -10,6 +10,7 @@ import com.tbd.mystcraft.util.MystIds;
 import com.tbd.mystcraft.linking.InkEffects;
 import com.tbd.mystcraft.registry.ModBlocks;
 import com.tbd.mystcraft.registry.ModItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -304,9 +305,8 @@ public class WorkstationTests {
     }
 
     private static WritingDeskBlockEntity placeDesk(ExtendedGameTestHelper helper) {
-        var head = ModBlocks.WRITING_DESK.get().defaultBlockState().setValue(WritingDeskBlock.FACING, Direction.EAST);
-        helper.setBlock(0, 1, 1, head);
-        helper.setBlock(1, 1, 1, head.setValue(WritingDeskBlock.FOOT, true));
+        // the whole four-block desk: a desk block without its siblings removes itself
+        WritingDeskBlock.placeDesk(helper.getLevel(), helper.absolutePos(new BlockPos(0, 1, 1)), Direction.EAST, ModBlocks.WRITING_DESK.get());
         return helper.getBlockEntity(0, 1, 1, WritingDeskBlockEntity.class);
     }
 }

@@ -140,10 +140,11 @@ public class BookElement extends GuiElement {
                 int sx = 171, sy = 25, size = 140;
                 boolean draft = container.isDraftPage(page);
                 // drafts are pencilled in grey; the ink only dries once the book leaves the desk
+                // (a discovered page is told apart by its ink colour alone)
                 SymbolGlyphs.drawSymbolPage(g, symbolPage, sx, sy, size, draft ? SymbolGlyphs.DRAFT : SymbolGlyphs.DEFAULT);
-                if (draft || symbolPage.discovered()) {
-                    Component note = Component.translatable(draft ? "gui.mystcraft.book.draft" : "gui.mystcraft.book.discovered");
-                    g.text(font, note, 240 - font.width(note) / 2, 170, draft ? 0xFF8A4A1A : SymbolGlyphs.DISCOVERED, false);
+                if (draft) {
+                    Component note = Component.translatable("gui.mystcraft.book.draft");
+                    g.text(font, note, 240 - font.width(note) / 2, 170, 0xFF8A4A1A, false);
                 }
                 // left page: the symbol's name and what it does (the glyph stays on the right)
                 if (symbol != null) {
@@ -233,7 +234,7 @@ public class BookElement extends GuiElement {
 
     /**
      * The summary (plan §2 rule 7) spread over both pages: left - seed, instability (base + symbols, the live score
-     * when the Age is loaded), discovered count and authors; right - the instability effects active in the Age.
+     * when the Age is loaded) and authors; right - the instability effects active in the Age.
      */
     private void drawSummary(GuiGraphicsExtractor g, Font font, AgeSummary summary) {
         int lx = 24, ly = 28, lw = 118;
@@ -247,10 +248,8 @@ public class BookElement extends GuiElement {
             y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.score", summary.score()), lx, y, lw, summary.score() > 0 ? 0xFF7A1A1A : 0xFF3A3A3A);
         }
         if (summary.dead()) y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.dead"), lx, y, lw, 0xFF7A1A1A);
-        y += 4;
-        y = drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.discovered", summary.discovered(), summary.total()), lx, y, lw, 0xFF3A3A3A);
         if (!summary.authors().isEmpty()) {
-            y += 2;
+            y += 4;
             drawWrapped(g, font, Component.translatable("gui.mystcraft.book.summary.authors", String.join(", ", summary.authors())), lx, y, lw, 0xFF3A3A3A);
         }
 
@@ -294,6 +293,15 @@ public class BookElement extends GuiElement {
             container.onLink();
             return true;
         }
+        // the cover trim (the gold-edged borders of a Descriptive Book) jumps to the first / last page
+        if (lx < TRIM_W && ly >= 7) {
+            jumpTo(0);
+            return true;
+        }
+        if (lx > DESIGN_W - TRIM_W && ly >= 7) {
+            jumpTo(lastPage());
+            return true;
+        }
         if (lx <= 156 && ly <= 195) {
             pageLeft();
             return true;
@@ -320,14 +328,24 @@ public class BookElement extends GuiElement {
         return false;
     }
 
+    /** Width of the cover trim on either side of the open book (design units). */
+    private static final int TRIM_W = 34;
+
     private void pageLeft() {
-        int p = Math.max(0, container.getCurrentPageIndex() - 1);
-        if (p != container.getCurrentPageIndex()) container.setCurrentPageIndex(p);
+        jumpTo(Math.max(0, container.getCurrentPageIndex() - 1));
     }
 
     private void pageRight() {
-        int p = Math.min(container.getPageCount(), container.getCurrentPageIndex() + 1);
-        if (p != container.getCurrentPageIndex()) container.setCurrentPageIndex(p);
+        jumpTo(Math.min(lastPage(), container.getCurrentPageIndex() + 1));
+    }
+
+    /** The last turnable page: the one after the page items (the summary of a bound Descriptive Book). */
+    private int lastPage() {
+        return container.getPageCount();
+    }
+
+    private void jumpTo(int page) {
+        if (page != container.getCurrentPageIndex()) container.setCurrentPageIndex(page);
     }
 
     @Override

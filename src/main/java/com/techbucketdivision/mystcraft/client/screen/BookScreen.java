@@ -74,4 +74,11 @@ public class BookScreen extends AbstractMystcraftScreen<BookMenu> {
     public void jumpToPage(int index) {
         container.setCurrentPageIndex(index);
     }
+
+    /** Test hook (client self-check): clicks the left or right cover trim (first / last page). */
+    public boolean clickTrim(boolean right) {
+        if (bookElement == null) return false;
+        int x = leftPos + (right ? BookElement.DESIGN_W - 10 : 10);
+        return bookElement.mouseClicked(x, topPos + 100, 0);
+    }
 }

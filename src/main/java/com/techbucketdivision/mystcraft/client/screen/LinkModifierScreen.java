@@ -30,6 +30,11 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
     private static final int BASE_W = 176, BASE_H = 166;
     private static final int PANEL_X = 173, PANEL_W = 118; // side panel extends the base window to the right
     private static final int ROW_H = 12;
+    private static final int ROWS_TOP = 18;
+    /** The Age block (Target caption, dimension, kill button) starts under the last effect row. */
+    private static int ageTop() {
+        return ROWS_TOP + InkEffects.getProperties().size() * ROW_H + 6;
+    }
 
     private @Nullable EditBox seedBox;
     private @Nullable EditBox nameBox;
@@ -50,7 +55,7 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
         flagRows.clear();
 
         // --- left: book slot (80,35 from the texture), title + seed below it
-        hintSlot(LinkModifierMenu.SLOT_BOOK, ModItems.LINKING_BOOK.get(), "gui.mystcraft.link_modifier.slot.book");
+        hintSlot(LinkModifierMenu.SLOT_BOOK, "gui.mystcraft.link_modifier.slot.book", ModItems.LINKING_BOOK.get(), ModItems.DESCRIPTIVE_BOOK.get());
         nameBox = addEditBox(new EditBox(font, gx + 40, gy + 17, 128, 12, Component.translatable("gui.mystcraft.link_modifier.item_name")));
         nameBox.setMaxLength(LinkModifierMenu.MAX_TITLE);
         nameBox.setHint(Component.translatable("gui.mystcraft.link_modifier.item_name.hint"));
@@ -71,7 +76,7 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
         });
 
         // --- right panel: link effects check list
-        int px = gx + PANEL_X + 7, py = gy + 18;
+        int px = gx + PANEL_X + 7, py = gy + ROWS_TOP;
         for (LinkProperty property : InkEffects.getProperties()) {
             List<Component> tip = new ArrayList<>();
             tip.add(Component.translatable(property.descriptionId()));
@@ -82,7 +87,7 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
         }
 
         // --- right panel: Age controls (only for descriptive books)
-        int by = gy + 118;
+        int by = gy + ageTop() + 22;
         armButton = addElement(new ToggleButton(px, by, PANEL_W - 14, 14, null, () -> false, () -> armed = true)
                 .label(Component.translatable("gui.mystcraft.link_modifier.kill"))
                 .tooltip(List.of(Component.translatable("gui.mystcraft.link_modifier.kill.tooltip"),
@@ -155,16 +160,17 @@ public class LinkModifierScreen extends AbstractMystcraftScreen<LinkModifierMenu
 
         int px = leftPos + PANEL_X + 7;
         caption(g, "gui.mystcraft.link_modifier.effects", px, topPos + 6);
-        caption(g, "gui.mystcraft.link_modifier.age", px, topPos + 96);
+        int ageTop = topPos + ageTop();
+        caption(g, "gui.mystcraft.link_modifier.age", px, ageTop);
         boolean hasBook = !menu.getBook().isEmpty();
         Component target = hasBook
                 ? Component.literal(shorten(menu.getLinkDimensionId(), PANEL_W - 14))
                 : Component.translatable("gui.mystcraft.link_modifier.no_book");
-        g.text(font, target, px, topPos + 106, hasBook ? 0xFF202020 : 0xFF8A8A8A, false);
+        g.text(font, target, px, ageTop + 10, hasBook ? 0xFF202020 : 0xFF8A8A8A, false);
         if (menu.isLinkDead()) {
-            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.dead"), px, topPos + 136, 0xFFAA0000);
+            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.dead"), px, ageTop + 40, 0xFFAA0000);
         } else if (hasBook && !menu.hasItemSeed()) {
-            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.linking_book_note"), px, topPos + 118, 0xFF8A8A8A);
+            wrapped(g, Component.translatable("gui.mystcraft.link_modifier.linking_book_note"), px, ageTop + 22, 0xFF8A8A8A);
         }
     }
 

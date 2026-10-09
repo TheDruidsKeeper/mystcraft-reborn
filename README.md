@@ -21,9 +21,14 @@ For Prism / MultiMC instance packs and one-click install, use the
 built-in data pack that can be disabled in the world's data pack screen.
 
 ## Play
-Learn the symbols of The Art, write Descriptive Books, link into Ages — and always keep a way home. The
-**[Player Guide](docs/guide/README.md)** is an Archivist’s primer: recipes, progression, linking, instability, and
-Facilities. Inspired by the spirit of *Myst* and classic Mystcraft; not affiliated with or endorsed by Cyan Worlds.
+
+<a href="docs/guide/README.md"><img src="docs/guide/images/age-scene.png" alt="Player Guide" width="100%"></a>
+
+<h3 align="center"><a href="docs/guide/README.md">📖 Read the Player Guide</a></h3>
+<p align="center">An Archivist’s primer: recipes, progression, linking, instability and Facilities.</p>
+
+Learn the symbols of The Art, write Descriptive Books, link into Ages — and always keep a way home.
+Inspired by the spirit of *Myst* and classic Mystcraft; not affiliated with or endorsed by Cyan Worlds.
 
 Short version: find pages → study them → write at a Writing Desk → mix a Link Panel → bind a Descriptive Book → link
 with a Linking Book ready. Unstable Ages decay; Vault Ages hide a Facility with a reward book home.

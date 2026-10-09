@@ -117,10 +117,12 @@ public class BookDisplayRenderer<T extends BookDisplayBlockEntity> implements Bl
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         if (state.kind == 1) {
             // Original RenderBookstand: translate(x+.5, y+.5, z+.5), rotate 180 about Z, rotate 45*index about Y.
+            // The extra 180 about Y turns the stand so the low edge of its pitched arms faces the reader, the side
+            // the book's open pages face (the original stand model was authored the other way round).
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
-            poseStack.mulPose(Axis.YP.rotationDegrees(45f * state.rotationIndex));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180f + 45f * state.rotationIndex));
             collector.submitModel(bookstand, Unit.INSTANCE, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
                     LegacyModels.BOOKSTAND_TEXTURE, sprites, 0, state.breakProgress);
             poseStack.popPose();

@@ -2,6 +2,7 @@ package com.tbd.mystcraft.command;
 
 import com.tbd.mystcraft.Mystcraft;
 import com.tbd.mystcraft.age.AgeData;
+import com.tbd.mystcraft.block.BookstandBlock;
 import com.tbd.mystcraft.block.LecternBlock;
 import com.tbd.mystcraft.blockentity.BookDisplayBlockEntity;
 import com.tbd.mystcraft.item.DescriptiveBookItem;
@@ -16,6 +17,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -126,9 +128,13 @@ public final class QaShelf {
     }
 
     // Layout (in blocks): a section row is 3 deep (walkway, lectern line, walkway) on its coloured floor, then a
-    // stone-brick path; lecterns 2 apart on 1-high pedestals; the section sign stands at the row's left end.
+    // stone-brick path; lecterns 2 apart on 1-high pedestals; the section sign stands at the row's left end. Row A
+    // starts with the home Linking Book on a bookstand, then A1. A stone-brick walkway with an oak fence rings the
+    // whole floor (open on the player's side), glowstone hangs in a grid above so the shelf reads at night too.
     private static final int ROW_PITCH = 4;
     private static final int LECTERN_PITCH = 2;
+    private static final int LIGHT_HEIGHT = 4;
+    private static final int LIGHT_PITCH = 4;
 
     /**
      * Builds the shelf in front of the player: sections as rows going away from the player, lecterns left to right.
@@ -139,15 +145,37 @@ public final class QaShelf {
         Direction facing = player.getDirection();
         Direction right = facing.getClockWise();
         List<Section> sections = sections();
-        int widest = Math.max(2, sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1));
+        int widest = Math.max(2, sections.stream().mapToInt(s -> s.cases().size()).max().orElse(1) + 1); // +1: the home stand in row A
         int width = (widest - 1) * LECTERN_PITCH + 3;          // floor: one block each side of the outer lecterns
         int depth = sections.size() * ROW_PITCH;
         BlockPos origin = player.blockPosition().relative(facing, 2).relative(right, -1); // front-left floor corner
-        BlockPos farCorner = origin.relative(facing, depth - 1).relative(right, width);
+        // Floor columns are w = -1 .. width-1; the fenced walkway ring adds one more column/row on every side.
+        int ringLeft = -2, ringRight = width, ringFront = -1, ringBack = depth;
+        BlockPos nearCorner = origin.relative(facing, ringFront).relative(right, ringLeft);
+        BlockPos farCorner = origin.relative(facing, ringBack).relative(right, ringRight);
         int y = origin.getY();
         DebugScene.clearWithoutDrops(level,
-                new BlockPos(Math.min(origin.getX(), farCorner.getX()), y - 1, Math.min(origin.getZ(), farCorner.getZ())),
-                new BlockPos(Math.max(origin.getX(), farCorner.getX()), y + 3, Math.max(origin.getZ(), farCorner.getZ())));
+                new BlockPos(Math.min(nearCorner.getX(), farCorner.getX()), y - 1, Math.min(nearCorner.getZ(), farCorner.getZ())),
+                new BlockPos(Math.max(nearCorner.getX(), farCorner.getX()), y + LIGHT_HEIGHT + 1, Math.max(nearCorner.getZ(), farCorner.getZ())));
+
+        // Walkway ring: stone bricks with a fence on top; the front side stays open except for its corners.
+        int gateFrom = width / 2 - 1, gateTo = width / 2 + 1; // three blocks in front of the player
+        for (int d = ringFront; d <= ringBack; d++) {
+            for (int w = ringLeft; w <= ringRight; w++) {
+                boolean ring = d == ringFront || d == ringBack || w == ringLeft || w == ringRight;
+                if (!ring) continue;
+                BlockPos pos = origin.relative(facing, d).relative(right, w);
+                level.setBlock(pos.below(), Blocks.STONE_BRICKS.defaultBlockState(), 3);
+                boolean gate = d == ringFront && w >= gateFrom && w <= gateTo;
+                if (!gate) level.setBlock(pos, Blocks.OAK_FENCE.defaultBlockState(), 3);
+            }
+        }
+        // Lights: a glowstone grid over the floor.
+        for (int d = 1; d < depth; d += LIGHT_PITCH) {
+            for (int w = 0; w < width; w += LIGHT_PITCH) {
+                level.setBlock(origin.relative(facing, d).relative(right, w).above(LIGHT_HEIGHT), Blocks.GLOWSTONE.defaultBlockState(), 3);
+            }
+        }
 
         int placed = 0;
         for (int s = 0; s < sections.size(); s++) {
@@ -164,9 +192,26 @@ public final class QaShelf {
             // Section sign at the left end of the lectern line, facing the player.
             placeStandingSign(level, lecternLine.relative(right, -1), facing.getOpposite(),
                     "Section " + section.id(), section.name(), "", "");
+            int first = 0;
+            if (s == 0) {
+                // First in row A: a Linking Book back to the shelf (intra-linking + following) on a bookstand.
+                BlockPos pedestal = lecternLine.relative(right, 1);
+                level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
+                BlockPos stand = pedestal.above();
+                int rotation = Mth.floor(facing.toYRot() * 8.0F / 360.0F + 0.5) & 7; // as placed by a player facing the same way
+                level.setBlock(stand, ModBlocks.BOOKSTAND.get().defaultBlockState().setValue(BookstandBlock.ROTATION, rotation), 3);
+                if (level.getBlockEntity(stand) instanceof BookDisplayBlockEntity display) {
+                    display.setYaw(rotation * 45);
+                    display.setBook(DebugScene.homeBook(player, "Back to the shelf"));
+                    display.setChanged();
+                    level.sendBlockUpdated(stand, level.getBlockState(stand), level.getBlockState(stand), Block.UPDATE_ALL);
+                }
+                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), "HOME", "Linking Book", "back to the", "shelf");
+                first = 1;
+            }
             for (int i = 0; i < section.cases().size(); i++) {
                 Case qa = section.cases().get(i);
-                BlockPos pedestal = lecternLine.relative(right, 1 + i * LECTERN_PITCH);
+                BlockPos pedestal = lecternLine.relative(right, 1 + (first + i) * LECTERN_PITCH);
                 level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
                 BlockPos lectern = pedestal.above();
                 level.setBlock(lectern, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, facing.getOpposite()), 3);
@@ -183,19 +228,6 @@ public final class QaShelf {
                 Mystcraft.LOGGER.info("[qa] {} '{}' seed {} -> {} ({} symbols): look for {}", qa.id(), qa.title(), qa.seed(),
                         data == null ? "?" : data.levelKey().identifier(), data == null ? 0 : data.symbols().size(), qa.lookFor());
                 placed++;
-            }
-            if (s == 0) {
-                // Next to the baseline: a Linking Book back to the shelf (intra-linking + following) for the return trip.
-                BlockPos pedestal = lecternLine.relative(right, 1 + section.cases().size() * LECTERN_PITCH);
-                level.setBlock(pedestal, Blocks.POLISHED_ANDESITE.defaultBlockState(), 3);
-                BlockPos lectern = pedestal.above();
-                level.setBlock(lectern, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, facing.getOpposite()), 3);
-                if (level.getBlockEntity(lectern) instanceof BookDisplayBlockEntity display) {
-                    display.setBook(DebugScene.homeBook(player, "Back to the shelf"));
-                    display.setChanged();
-                    level.sendBlockUpdated(lectern, level.getBlockState(lectern), level.getBlockState(lectern), Block.UPDATE_ALL);
-                }
-                placeWallSign(level, pedestal.relative(facing, -1), facing.getOpposite(), "HOME", "Linking Book", "back to the", "shelf");
             }
         }
         return placed;

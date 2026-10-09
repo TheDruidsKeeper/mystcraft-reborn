@@ -132,22 +132,27 @@ public final class LegacyModels {
     }
 
     /**
-     * The inkwell on the desk top: a hollow 4x4x4 glass cup (half-unit bottom and walls, open at the top) holding an
-     * ink column {@code inkHeight} units tall (0 = empty, up to 4). One translucent model: the ink cube is emitted
-     * first so the glass blends over it and the far wall hides behind it, whatever the render pass order.
+     * The inkwell on the desk top: a hollow {@link #INKWELL_WIDTH} wide, 4 tall glass cup (half-unit bottom and
+     * walls, open at the top) holding an ink column {@code inkHeight} units tall (0 = empty, up to 4). One translucent
+     * model: the ink cube is emitted first so the glass blends over it and the far wall hides behind it, whatever the
+     * render pass order.
      */
+    public static final float INKWELL_WIDTH = 3f;
+
     public static Model.Simple inkwell(int inkHeight) {
         float t = 0.5f;
+        float half = INKWELL_WIDTH / 2f, w = INKWELL_WIDTH;
         List<ModelPart.Cube> cubes = new java.util.ArrayList<>();
         if (inkHeight > 0) {
             float h = Math.min(4, inkHeight) - 0.5f;
-            cubes.add(new ModelPart.Cube(0, 8, -1.45f, t, -1.45f, 2.9f, h, 2.9f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
+            float ink = w - 2 * t - 0.1f;
+            cubes.add(new ModelPart.Cube(0, 8, -ink / 2f, t, -ink / 2f, ink, h, ink, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));
         }
-        cubes.add(new ModelPart.Cube(0, 0, -2f, 0f, -2f, 4f, t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));    // bottom
-        cubes.add(new ModelPart.Cube(0, 0, -2f, t, -2f, t, 4f - t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));  // -x wall
-        cubes.add(new ModelPart.Cube(0, 0, 2f - t, t, -2f, t, 4f - t, 4f, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +x wall
-        cubes.add(new ModelPart.Cube(0, 0, -2f + t, t, -2f, 4f - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // -z wall
-        cubes.add(new ModelPart.Cube(0, 0, -2f + t, t, 2f - t, 4f - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +z wall
+        cubes.add(new ModelPart.Cube(0, 0, -half, 0f, -half, w, t, w, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));    // bottom
+        cubes.add(new ModelPart.Cube(0, 0, -half, t, -half, t, 4f - t, w, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class)));  // -x wall
+        cubes.add(new ModelPart.Cube(0, 0, half - t, t, -half, t, 4f - t, w, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +x wall
+        cubes.add(new ModelPart.Cube(0, 0, -half + t, t, -half, w - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // -z wall
+        cubes.add(new ModelPart.Cube(0, 0, -half + t, t, half - t, w - 2 * t, 4f - t, t, 0f, 0f, 0f, false, 16f, 16f, EnumSet.allOf(Direction.class))); // +z wall
         return new Model.Simple(new ModelPart(List.copyOf(cubes), Map.of()), RenderTypes::entityTranslucent);
     }
 }

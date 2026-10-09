@@ -105,8 +105,8 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         hintSlot(WritingDeskMenu.SLOT_TARGET, "gui.mystcraft.writing_desk.slot.target", ModItems.COLLATION_FOLDER.get());
         hintSlot(WritingDeskMenu.SLOT_PAPER, "gui.mystcraft.writing_desk.slot.paper", Items.PAPER);
         hintSlot(WritingDeskMenu.SLOT_CONTAINER_IN, "gui.mystcraft.writing_desk.slot.ink",
-                ModItems.INK_VIAL.get(), ModItems.BLACK_INK_BUCKET.get(), Items.GLASS_BOTTLE, Items.BUCKET); // ink in, or an empty to fill
-        hintSlot(WritingDeskMenu.SLOT_CONTAINER_OUT, "gui.mystcraft.writing_desk.slot.empty", Items.GLASS_BOTTLE, Items.BUCKET);
+                ModItems.INK_VIAL.get(), Items.GLASS_BOTTLE); // ink in, or an empty bottle to fill
+        hintSlot(WritingDeskMenu.SLOT_CONTAINER_OUT, "gui.mystcraft.writing_desk.slot.empty", Items.GLASS_BOTTLE);
         // the empty surface explains itself (no symbols known yet, or none in this tab)
         addElement(new HintText(gx, gy + LEFT_TOP, LEFT_W - SymbolSurface.SCROLLBAR_W, imageHeight - LEFT_TOP,
                 () -> Component.translatable(SymbolKnowledge.known(player()).isEmpty() && !menu.isScholar()
@@ -143,11 +143,16 @@ public class WritingDeskScreen extends AbstractMystcraftScreen<WritingDeskMenu> 
         }
     }
 
+    /**
+     * Mirrors the target's name into the name box. A focused box keeps what the player is typing - except when the
+     * folder has just left the slot: then the box is cleared whatever has focus (the stale name used to stay).
+     */
     private void syncName(boolean force) {
         if (nameBox == null) return;
-        nameBox.setEditable(!menu.getTarget().isEmpty());
+        boolean noTarget = menu.getTarget().isEmpty();
+        nameBox.setEditable(!noTarget);
         String name = menu.getTargetName();
-        if ((force || !nameBox.isFocused()) && !nameBox.getValue().equals(name)) {
+        if ((force || noTarget || !nameBox.isFocused()) && !nameBox.getValue().equals(name)) {
             syncingName = true;
             nameBox.setValue(name);
             syncingName = false;

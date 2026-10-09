@@ -151,11 +151,12 @@ public class WritingDeskRenderer implements BlockEntityRenderer<WritingDeskBlock
             poseStack.popPose();
         }
         // Inkwell on the desk top (surface y = 1.0): on the foot half, centred between the red writing pad (model x
-        // 1..15 -> local z up to 0.94) and the right side panel (local z 1.44), just behind the paper stack so the
-        // two never overlap. Glass and ink column are one translucent model per fill height.
+        // 1..15 -> local z up to 0.94) and the right side panel (local z 1.44), in the strip between the paper stack
+        // (local x up to 0.0) and the right cupboard of the hutch (local x from 0.1875): the cup is 3 px wide and
+        // stands one pixel clear of the cupboard. Glass and ink column are one translucent model per fill height.
         if (state.inkLevel >= 0f) {
             poseStack.pushPose();
-            poseStack.translate(0.12, 1.0, 1.19);
+            poseStack.translate(0.03, 1.0, 1.19);
             int height = state.inkLevel <= 0f ? 0 : Math.max(1, Math.min(4, Math.round(state.inkLevel * 4f)));
             collector.submitModel(inkwell[height], Unit.INSTANCE, poseStack, light, OverlayTexture.NO_OVERLAY, -1,
                     LegacyModels.INKWELL_TEXTURE, sprites, 0, state.breakProgress);

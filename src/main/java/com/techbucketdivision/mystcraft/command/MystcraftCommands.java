@@ -96,7 +96,41 @@ public final class MystcraftCommands {
                 .then(scene())
                 .then(qaShelf())
                 .then(qaVisit())
-                .then(facilityTp()));
+                .then(facilityTp())
+                .then(archivist())
+                .then(homeBook()));
+    }
+
+    // --- /myst-dev archivist, /myst-dev home-book -------------------------------------------------------------------
+
+    /** Spawns an Archivist villager (the mod's trader) where the player stands. */
+    private static LiteralArgumentBuilder<CommandSourceStack> archivist() {
+        return Commands.literal("archivist").executes(ctx -> {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            ServerLevel level = serverLevel(ctx, player);
+            net.minecraft.world.entity.npc.villager.Villager villager = net.minecraft.world.entity.EntityType.VILLAGER.create(level,
+                    net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            if (villager == null) return 0;
+            villager.snapTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0f);
+            villager.setVillagerData(villager.getVillagerData().withProfession(level.registryAccess(), com.tbd.mystcraft.registry.ModVillagers.ARCHIVIST_KEY));
+            villager.setPersistenceRequired();
+            level.addFreshEntity(villager);
+            success(ctx.getSource(), "commands.mystcraft.archivist.spawned", player.blockPosition().toShortString());
+            return 1;
+        });
+    }
+
+    /** Gives a Linking Book to the overworld spawn with intra-linking and following (the party's way home). */
+    private static LiteralArgumentBuilder<CommandSourceStack> homeBook() {
+        return Commands.literal("home-book").executes(ctx -> {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            ItemStack book = com.tbd.mystcraft.item.LinkingBookItem.createToSpawn(ctx.getSource().getServer(), "Home");
+            LinkingItem.setLinkInfo(book, LinkingItem.getLinkInfo(book)
+                    .withFlag(LinkProperty.INTRA_LINKING, true).withFlag(LinkProperty.FOLLOWING, true));
+            if (!player.getInventory().add(book)) player.drop(book, false);
+            success(ctx.getSource(), "commands.mystcraft.home_book.given", LinkingItem.getLinkInfo(book).spawn().map(BlockPos::toShortString).orElse("?"));
+            return 1;
+        });
     }
 
     // --- /myst visit [name] --------------------------------------------------------------------------------------
@@ -501,6 +535,14 @@ public final class MystcraftCommands {
                 .then(closeup)
                 .then(open)
                 .then(use)
+                .then(Commands.literal("view").executes(ctx -> {
+                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                    if (!DebugScene.view(serverLevel(ctx, player), player)) {
+                        ctx.getSource().sendFailure(Component.translatable("commands.mystcraft.scene.missing"));
+                        return 0;
+                    }
+                    return 1;
+                }))
                 .executes(ctx -> {
                     ServerPlayer player = ctx.getSource().getPlayerOrException();
                     BlockPos origin = player.blockPosition().offset(-DebugScene.WIDTH / 2, 0, -3);

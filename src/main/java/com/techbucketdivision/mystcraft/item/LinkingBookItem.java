@@ -33,6 +33,16 @@ public class LinkingBookItem extends LinkingItem implements ItemBehaviours.PageP
         return book;
     }
 
+    /** A linking book bound to the overworld's spawn point (the world's respawn data), titled {@code name}. */
+    public static ItemStack createToSpawn(MinecraftServer server, String name) {
+        net.minecraft.world.level.storage.LevelData.RespawnData respawn = server.overworld().getRespawnData();
+        ItemStack book = new ItemStack(ModItems.LINKING_BOOK.get());
+        setLinkInfo(book, new LinkInfo(java.util.Optional.of(respawn.globalPos().dimension()), java.util.Optional.empty(),
+                java.util.Optional.of(respawn.globalPos().pos()), respawn.yaw(), name, java.util.Set.of(), java.util.Map.of()));
+        book.set(ModDataComponents.BOOK_HEALTH.get(), BookHealth.FULL);
+        return book;
+    }
+
     /** Link info for the entity's position: age name (or dimension path) as display name, age UUID as target. */
     public static LinkInfo linkInfoAt(Entity entity) {
         MinecraftServer server = entity.level().getServer();

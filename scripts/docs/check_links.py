@@ -6,7 +6,7 @@ docs cannot drift away from the code silently.
     python scripts/docs/check_links.py          # exit 1 and list the dangling references
 
 Checked: `docs/*.md` links, backticked paths with a slash (`scripts/qa/compare.py`, `src/gametest`, `world/AgeSpawn`
-→ `src/main/java/com/techbucketdivision/mystcraft/world/AgeSpawn.java` or a directory), `ClassName` tokens that look
+→ `src/main/java/com/tbd/mystcraft/world/AgeSpawn.java` or a directory), `ClassName` tokens that look
 like Java classes (`AgeBlueprint.fill` → a class named AgeBlueprint somewhere under src/). Anything else is skipped.
 """
 from __future__ import annotations
@@ -17,8 +17,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 DOCS = [REPO / "CLAUDE.md", REPO / "README.md", *sorted((REPO / "docs").rglob("*.md"))]
-JAVA_ROOTS = [REPO / "src/main/java/com/techbucketdivision/mystcraft", REPO / "src/gametest/java/com/techbucketdivision/mystcraft",
-              REPO / "src/test/java/com/techbucketdivision/mystcraft"]
+JAVA_ROOTS = [REPO / "src/main/java/com/tbd/mystcraft", REPO / "src/gametest/java/com/tbd/mystcraft",
+              REPO / "src/test/java/com/tbd/mystcraft"]
 CLASS_INDEX = {p.stem: p for root in JAVA_ROOTS if root.exists() for p in root.rglob("*.java")}
 
 

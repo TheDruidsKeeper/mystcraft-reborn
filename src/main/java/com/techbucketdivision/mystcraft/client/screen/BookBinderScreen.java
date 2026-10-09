@@ -60,8 +60,9 @@ public class BookBinderScreen extends AbstractMystcraftScreen<BookBinderMenu> {
         addElement(new MissingPanelIcon(gx + 27, gy + 26));
         addElement(new com.tbd.mystcraft.client.screen.gui.HintText(gx + 7, gy + 45, imageWidth - 14, 40,
                 () -> Component.translatable("gui.mystcraft.book_binder.pages.hint"), () -> menu.getPageList().isEmpty(), CAPTION_LIGHT, true));
-        hintSlot(BookBinderMenu.SLOT_COVER, net.minecraft.world.item.Items.LEATHER, "gui.mystcraft.book_binder.slot.cover");
-        hintSlot(BookBinderMenu.SLOT_OUTPUT, com.tbd.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get(), "gui.mystcraft.book_binder.slot.output");
+        hintSlot(BookBinderMenu.SLOT_COVER, "gui.mystcraft.book_binder.slot.cover", net.minecraft.world.item.Items.LEATHER,
+                com.tbd.mystcraft.registry.ModItems.COLLATION_FOLDER.get()); // leather, or an empty folder
+        hintSlot(BookBinderMenu.SLOT_OUTPUT, "gui.mystcraft.book_binder.slot.output", com.tbd.mystcraft.registry.ModItems.DESCRIPTIVE_BOOK.get());
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.recipebook.SlotSelectTime;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -101,11 +102,20 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
 
     /**
      * What an empty slot is for: a faded example item drawn in the slot, a short name and a description shown as a
-     * tooltip while the empty slot is hovered. Makes the workstations self-explanatory without a manual.
+     * tooltip while the empty slot is hovered. Makes the workstations self-explanatory without a manual. A slot
+     * that takes several kinds of item lists them all; the drawn example cycles through the list at the vanilla
+     * recipe-book pace ({@code GhostSlots} / {@link SlotSelectTime}: one step every 30 ticks, shared by the screen).
      */
-    protected record SlotHint(int slot, ItemStack ghost, Component name, List<Component> description) {}
+    protected record SlotHint(int slot, List<ItemStack> ghosts, Component name, List<Component> description) {
+        ItemStack ghost(int index) {
+            return ghosts.isEmpty() ? ItemStack.EMPTY : ghosts.get(index % ghosts.size());
+        }
+    }
 
     protected final List<SlotHint> slotHints = new ArrayList<>();
+    private static final int TICKS_TO_SWAP_HINT = 30;
+    private int hintTicks;
+    private final SlotSelectTime hintSelectTime = () -> hintTicks / TICKS_TO_SWAP_HINT;
 
     /** Caption colour for in-GUI labels (vanilla's dark grey container text). */
     protected static final int CAPTION = 0xFF404040;
@@ -115,24 +125,36 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
      * Registers a hint for a menu slot. {@code key} resolves {@code <key>} (name) and {@code <key>.desc}
      * (description; an optional {@code <key>.desc2} adds a second line).
      */
-    protected void hintSlot(int slot, ItemStack ghost, String key) {
+    protected void hintSlot(int slot, List<ItemStack> ghosts, String key) {
         List<Component> desc = new ArrayList<>();
         desc.add(Component.translatable(key + ".desc"));
         if (net.minecraft.client.resources.language.I18n.exists(key + ".desc2")) desc.add(Component.translatable(key + ".desc2"));
-        slotHints.add(new SlotHint(slot, ghost, Component.translatable(key), desc));
+        slotHints.add(new SlotHint(slot, List.copyOf(ghosts), Component.translatable(key), desc));
     }
 
-    protected void hintSlot(int slot, net.minecraft.world.level.ItemLike ghost, String key) {
-        hintSlot(slot, new ItemStack(ghost), key);
+    /** One example item, or several the slot accepts (drawn in turn). */
+    protected void hintSlot(int slot, String key, net.minecraft.world.level.ItemLike... ghosts) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (net.minecraft.world.level.ItemLike ghost : ghosts) stacks.add(new ItemStack(ghost));
+        hintSlot(slot, stacks, key);
+    }
+
+    /** Test hook: the example currently drawn for a hinted slot (empty when the slot has no hint). */
+    public ItemStack currentSlotHint(int slot) {
+        for (SlotHint hint : slotHints) {
+            if (hint.slot() == slot) return hint.ghost(hintSelectTime.currentIndex());
+        }
+        return ItemStack.EMPTY;
     }
 
     private void drawSlotHints(GuiGraphicsExtractor g) {
         for (SlotHint hint : slotHints) {
             if (hint.slot() >= menu.slots.size()) continue;
             net.minecraft.world.inventory.Slot slot = menu.slots.get(hint.slot());
-            if (!slot.isActive() || slot.hasItem() || hint.ghost().isEmpty()) continue;
+            ItemStack ghost = hint.ghost(hintSelectTime.currentIndex());
+            if (!slot.isActive() || slot.hasItem() || ghost.isEmpty()) continue;
             int sx = leftPos + slot.x, sy = topPos + slot.y;
-            g.item(hint.ghost(), sx, sy);
+            g.item(ghost, sx, sy);
             g.fill(sx, sy, sx + 16, sy + 16, 0xA08B8B8B); // fade the example into the slot background
         }
     }
@@ -199,6 +221,7 @@ public abstract class AbstractMystcraftScreen<T extends AbstractMystcraftMenu> e
     @Override
     protected void containerTick() {
         super.containerTick();
+        hintTicks++;
         for (GuiElement e : elements) e.tick();
     }
 

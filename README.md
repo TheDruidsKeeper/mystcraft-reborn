@@ -13,15 +13,8 @@ survive their instability — and, with the Vault symbol, solve a Facility for t
 
 ## Install
 
-[![Install instance pack](https://img.shields.io/badge/Install-Prism%20%2F%20MultiMC-2ea44f?logo=minecraft&logoColor=white)](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack)
-[![One-click Prism](https://img.shields.io/badge/One--click-Prism%20Launcher-1b2838)](https://thedruidskeeper.github.io/mystcraft-reborn/)
-
-**Easiest (client):** download the [instance pack](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn.mrpack)
-(`.mrpack`) and import it in [Prism Launcher](https://prismlauncher.org/) (Add Instance → Import), or open the
-[one-click install page](https://thedruidskeeper.github.io/mystcraft-reborn/)
-if Prism is installed. MultiMC can import
-[`mystcraft-reborn-multimc.zip`](https://github.com/TheDruidsKeeper/mystcraft-reborn/releases/latest/download/mystcraft-reborn-multimc.zip)
-the same way. Requires **Java 25** (Prism usually installs the matching runtime).
+For Prism / MultiMC instance packs and one-click install, use the
+[install page](https://thedruidskeeper.github.io/mystcraft-reborn/).
 
 **Jar only (client or server):** drop `mystcraft-neoforge-26.1-<version>.jar` into `mods/`. Config files appear in
 `config/` (`mystcraft-common.toml`, `-balance.toml`, `-worldbuilding.toml`, `-client.toml`); the Facility rooms are a

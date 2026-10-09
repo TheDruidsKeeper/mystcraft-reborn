@@ -33,6 +33,8 @@ public final class ClientGameEvents {
         gameBus.addListener(ClientGameEvents::onExtractLevelRenderState);
         gameBus.addListener(ClientGameEvents::onComputeFogColor);
         gameBus.addListener(ClientGameEvents::onClientTickPost);
+        gameBus.addListener(PanelImages::onCameraAngles);
+        gameBus.addListener(PanelImages::onRenderHand);
         gameBus.addListener(ClientGameEvents::onLoggingOut);
         gameBus.addListener(AgeClientEnvironment::onLevelLoad);
     }

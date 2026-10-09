@@ -40,26 +40,28 @@ import java.util.Set;
  * quick visual regression checks (docs/QA.md). Layout (player looks north, x grows to the right):
  *
  * <pre>
- *   row z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | ink pool 3x3 | star fissure 2x2 | item frames
- *   row z-6 : writing desk | bookstand+book | lectern+book | ink mixer | book binder | link modifier
- *   row z-3 : decay blocks (one of each type)        supply chest | plain writing desk
- * The viewer stands on the ground (the pad replaces the surface, nothing floats) 6 blocks south of the pad.
+ *   back row  z-9 : crystal portal (4x5 ring, receptacle on the front at eye height) | star fissure 2x2 | decay blocks (one of each)
+ *   front row z-6 : supply chest + crafting table | writing desk (scholar) | ink mixer | book binder | bookstand+book | lectern+book | link modifier | plain writing desk
+ * The front row reads as the workflow left to right. A fence rings the pad (open towards the viewer), glowstone hangs
+ * in a grid above it. The viewer stands on the ground (the pad replaces the surface, nothing floats) 6 blocks south.
  * </pre>
  */
 public final class DebugScene {
     private DebugScene() {}
 
-    public static final int WIDTH = 23;
+    public static final int WIDTH = 25;
     public static final int DEPTH = 12;
+    private static final int LIGHT_HEIGHT = 7;
+    private static final int LIGHT_PITCH = 4;
 
     /** Last scene origin per level (for {@code /myst-dev scene closeup}). */
     private static final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, BlockPos> ORIGINS = new java.util.HashMap<>();
 
     /** Elements of the scene a close-up can target: offset of the element from the origin. */
     public enum Element {
-        DESK(1.5, 0, -6, 180f, 35f), BOOKSTAND(5, 0, -6, 180f, 35f), LECTERN(8, 0, -6, 180f, 35f), INK_MIXER(11, 0, -6, 180f, 35f),
-        BOOK_BINDER(14, 0, -6, 180f, 35f), LINK_MODIFIER(17, 0, -6, 180f, 35f), PORTAL(5, 1, -9, 180f, 10f), INK(9, -1, -9, 180f, 50f),
-        FISSURE(12.5, -1, -9.5, 180f, 45f), DECAY(12, 0, -3, 180f, 30f), PAGES(18.5, 0.5, -9, 180f, 15f);
+        CHEST(0.5, 0, -6, 180f, 35f), DESK(4.5, 0, -6, 180f, 35f), INK_MIXER(8, 0, -6, 180f, 35f), BOOK_BINDER(11, 0, -6, 180f, 35f),
+        BOOKSTAND(14, 0, -6, 180f, 35f), LECTERN(17, 0, -6, 180f, 35f), LINK_MODIFIER(20, 0, -6, 180f, 35f), PLAIN_DESK(22.5, 0, -6, 180f, 35f),
+        PORTAL(4.5, 1, -9, 180f, 10f), FISSURE(9.5, -1, -9.5, 180f, 45f), DECAY(19, 0, -9, 180f, 30f);
 
         public final double dx, dy, dz;
         public final float yaw, pitch;
@@ -67,6 +69,19 @@ public final class DebugScene {
         Element(double dx, double dy, double dz, float yaw, float pitch) {
             this.dx = dx; this.dy = dy; this.dz = dz; this.yaw = yaw; this.pitch = pitch;
         }
+    }
+
+    /** Puts the viewer back on the scene's viewing spot (where {@link #build} left them). Returns false without a scene. */
+    public static boolean view(ServerLevel level, ServerPlayer viewer) {
+        BlockPos origin = ORIGINS.get(level.dimension());
+        if (origin == null) return false;
+        BlockPos view = viewPos(origin);
+        viewer.teleportTo(level, view.getX() + 0.5, view.getY(), view.getZ() + 0.5, Set.of(), 180f, 12f, true);
+        return true;
+    }
+
+    private static BlockPos viewPos(BlockPos origin) {
+        return new BlockPos(origin.getX() + WIDTH / 2, origin.getY(), origin.getZ() + 6);
     }
 
     /** Teleports the viewer 3 blocks south of and 2 above the element, looking at it. Returns false without a scene. */
@@ -154,44 +169,39 @@ public final class DebugScene {
         int x0 = origin.getX(), y = origin.getY(), z0 = origin.getZ();
 
         // Clear the volume first (top-down, no drops: grass, flowers and seeds would litter the scene), then the pad.
-        clearWithoutDrops(level, new BlockPos(x0, y - 1, z0 - DEPTH + 1), new BlockPos(x0 + WIDTH - 1, y + 6, z0));
-        for (int dx = 0; dx < WIDTH; dx++) {
-            for (int dz = 0; dz < DEPTH; dz++) {
-                level.setBlock(new BlockPos(x0 + dx, y - 1, z0 - dz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+        // The pad is ringed by a one-block walkway with a fence (open towards the viewer), lit by glowstone above.
+        clearWithoutDrops(level, new BlockPos(x0 - 1, y - 1, z0 - DEPTH), new BlockPos(x0 + WIDTH, y + LIGHT_HEIGHT + 1, z0 + 1));
+        for (int dx = -1; dx <= WIDTH; dx++) {
+            for (int dz = -1; dz <= DEPTH; dz++) {
+                boolean ring = dx == -1 || dx == WIDTH || dz == -1 || dz == DEPTH;
+                level.setBlock(new BlockPos(x0 + dx, y - 1, z0 - dz), (ring ? Blocks.STONE_BRICKS : Blocks.SMOOTH_STONE).defaultBlockState(), 3);
+                boolean gate = dz == -1 && Math.abs(dx - WIDTH / 2) <= 2; // the opening in front of the viewer
+                if (ring && !gate) level.setBlock(new BlockPos(x0 + dx, y, z0 - dz), Blocks.OAK_FENCE.defaultBlockState(), 3);
+            }
+        }
+        for (int dx = 2; dx < WIDTH; dx += LIGHT_PITCH) {
+            for (int dz = 2; dz < DEPTH; dz += LIGHT_PITCH) {
+                level.setBlock(new BlockPos(x0 + dx, y + LIGHT_HEIGHT, z0 - dz), Blocks.GLOWSTONE.defaultBlockState(), 3);
             }
         }
 
-        // Row A (z0-3): decay blocks, crystal column.
-        int dx = 6;
-        for (DecayType type : DecayType.values()) {
-            level.setBlock(new BlockPos(x0 + dx, y, z0 - 3), ModBlocks.decay(type).get().defaultBlockState(), 3);
-            dx += 2;
-        }
-        // Right end of row A: a plain (non-scholar) writing desk and a supply chest with every crafting input plus a
-        // Linking Book back to this spot (intra-linking + following), so a tester can build and travel from here.
-        BlockPos plainDesk = new BlockPos(x0 + WIDTH - 4, y, z0 - 3);
-        BlockState plainHead = ModBlocks.WRITING_DESK.get().defaultBlockState().setValue(WritingDeskBlock.FACING, Direction.EAST);
-        level.setBlock(plainDesk, plainHead, 3);
-        level.setBlock(plainDesk.east(), plainHead.setValue(WritingDeskBlock.FOOT, true), 3);
-        level.setBlock(plainDesk.above(), plainHead.setValue(WritingDeskBlock.TOP, true), 3);
-        level.setBlock(plainDesk.east().above(), plainHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
-        BlockPos chest = new BlockPos(x0 + WIDTH - 6, y, z0 - 3);
-        level.setBlock(chest, Blocks.CHEST.defaultBlockState().setValue(net.minecraft.world.level.block.ChestBlock.FACING, Direction.SOUTH), 3);
-        if (level.getBlockEntity(chest) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chestBe) {
-            int slot = 0;
-            for (ItemStack stack : supplies(viewer)) {
-                if (slot < chestBe.getContainerSize()) chestBe.setItem(slot++, stack);
-            }
-            chestBe.setChanged();
-        }
+        // Front row (z0-6), left to right in workflow order. First the supplies: a double chest whose upper half
+        // (the western, "right" chest - the first container of the pair) holds one of every mod item worth looking
+        // at, with a Linking Book back to this spot (intra-linking + following) first, and whose lower half holds
+        // every crafting input; then a crafting table, so a tester can build and travel from here. The client smoke
+        // screenshots the open chest and scripts/docs/crop_icons.py cuts the guide's item icons out of it using the
+        // [scene] "chest slot" log lines below.
+        BlockPos chest = new BlockPos(x0, y, z0 - 6);
+        BlockState chestState = Blocks.CHEST.defaultBlockState().setValue(net.minecraft.world.level.block.ChestBlock.FACING, Direction.SOUTH);
+        level.setBlock(chest, chestState.setValue(net.minecraft.world.level.block.ChestBlock.TYPE, net.minecraft.world.level.block.state.properties.ChestType.RIGHT), 3);
+        level.setBlock(chest.east(), chestState.setValue(net.minecraft.world.level.block.ChestBlock.TYPE, net.minecraft.world.level.block.state.properties.ChestType.LEFT), 3);
+        fillChest(level, chest, showcase(viewer), 0);
+        fillChest(level, chest.east(), supplies(), 27);
+        level.setBlock(chest.east(2), Blocks.CRAFTING_TABLE.defaultBlockState(), 3);
 
-        // Row B (z0-6): workstations, all facing south (towards the player).
-        BlockPos desk = new BlockPos(x0 + 1, y, z0 - 6);
-        BlockState deskHead = ModBlocks.WRITING_DESK.get().defaultBlockState().setValue(WritingDeskBlock.FACING, Direction.EAST);
-        level.setBlock(desk, deskHead, 3);
-        level.setBlock(desk.east(), deskHead.setValue(WritingDeskBlock.FOOT, true), 3);
-        level.setBlock(desk.above(), deskHead.setValue(WritingDeskBlock.TOP, true), 3);
-        level.setBlock(desk.east().above(), deskHead.setValue(WritingDeskBlock.TOP, true).setValue(WritingDeskBlock.FOOT, true), 3);
+        // Workstations, all facing south (towards the player).
+        BlockPos desk = new BlockPos(x0 + 4, y, z0 - 6);
+        WritingDeskBlock.placeDesk(level, desk, Direction.EAST, ModBlocks.WRITING_DESK.get());
         // stock the desk so the renderer's shelf books and inkwell show up in screenshots
         if (level.getBlockEntity(desk) instanceof com.tbd.mystcraft.blockentity.WritingDeskBlockEntity deskBe) {
             // a Scholar's desk (every symbol on the surface, full shelves) with a folder holding a page that carries modifiers
@@ -207,19 +217,29 @@ public final class DebugScene {
             deskBe.markForUpdate();
         }
 
-        BlockPos stand = new BlockPos(x0 + 5, y, z0 - 6);
+        level.setBlock(new BlockPos(x0 + 8, y, z0 - 6), ModBlocks.INK_MIXER.get().defaultBlockState(), 3);
+        level.setBlock(new BlockPos(x0 + 11, y, z0 - 6), ModBlocks.BOOK_BINDER.get().defaultBlockState(), 3);
+
+        BlockPos stand = new BlockPos(x0 + 14, y, z0 - 6);
         level.setBlock(stand, ModBlocks.BOOKSTAND.get().defaultBlockState(), 3);
         putBook(level, stand, LinkingBookItem.createAt(viewer));
 
-        BlockPos lectern = new BlockPos(x0 + 8, y, z0 - 6);
+        BlockPos lectern = new BlockPos(x0 + 17, y, z0 - 6);
         level.setBlock(lectern, ModBlocks.LECTERN.get().defaultBlockState().setValue(LecternBlock.FACING, Direction.SOUTH), 3);
         putBook(level, lectern, descriptiveBook(server, "Lectern"));
 
-        level.setBlock(new BlockPos(x0 + 11, y, z0 - 6), ModBlocks.INK_MIXER.get().defaultBlockState(), 3);
-        level.setBlock(new BlockPos(x0 + 14, y, z0 - 6), ModBlocks.BOOK_BINDER.get().defaultBlockState(), 3);
-        level.setBlock(new BlockPos(x0 + 17, y, z0 - 6), ModBlocks.LINK_MODIFIER.get().defaultBlockState(), 3);
+        level.setBlock(new BlockPos(x0 + 20, y, z0 - 6), ModBlocks.LINK_MODIFIER.get().defaultBlockState(), 3);
 
-        // Row C (z0-9): portal frame in the x/y plane (visible face towards the player) + star fissure.
+        // Right end of the front row: a plain (non-scholar) writing desk with a half-filled ink tank, so the shelf
+        // books track the viewer's own symbol knowledge.
+        BlockPos plainDesk = new BlockPos(x0 + 22, y, z0 - 6);
+        WritingDeskBlock.placeDesk(level, plainDesk, Direction.EAST, ModBlocks.WRITING_DESK.get());
+        if (level.getBlockEntity(plainDesk) instanceof com.tbd.mystcraft.blockentity.WritingDeskBlockEntity plainBe) {
+            plainBe.setInk(new net.neoforged.neoforge.fluids.FluidStack(com.tbd.mystcraft.registry.ModFluids.BLACK_INK.get(), 400));
+            plainBe.markForUpdate();
+        }
+
+        // Back row (z0-9): portal frame in the x/y plane (visible face towards the player), star fissure, decay.
         int px = x0 + 3; // 4 wide x 5 tall ring -> walkable 2x3 field
         for (int fx = 0; fx < 4; fx++) {
             for (int fy = 0; fy < 5; fy++) {
@@ -233,44 +253,21 @@ public final class DebugScene {
         level.setBlock(receptacle, ModBlocks.BOOK_RECEPTACLE.get().defaultBlockState().setValue(BookReceptacleBlock.ROTATION, Direction.SOUTH), 3);
         putBook(level, receptacle, descriptiveBook(server, "Portal Scene")); // fires the portal
 
-        // Ink pool (1 deep, sunk into the pad) between the portal and the star fissure.
-        for (int ix = 8; ix <= 10; ix++) {
-            for (int iz = 8; iz <= 10; iz++) {
-                level.setBlock(new BlockPos(x0 + ix, y - 1, z0 - iz), ModBlocks.BLACK_INK.get().defaultBlockState(), 3);
-            }
-        }
-
         for (int fx = 0; fx < 2; fx++) {
             for (int fz = 0; fz < 2; fz++) {
-                level.setBlock(new BlockPos(x0 + 12 + fx, y - 1, z0 - 9 - fz), ModBlocks.STAR_FISSURE.get().defaultBlockState(), 3);
+                level.setBlock(new BlockPos(x0 + 9 + fx, y - 1, z0 - 9 - fz), ModBlocks.STAR_FISSURE.get().defaultBlockState(), 3);
             }
         }
 
-        // Row C east end: a wall of item frames showing the item icons that are rendered dynamically (pages, books).
-        List<ItemStack> framed = List.of(
-                PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("sun_normal")),
-                // a page with attached modifiers (overlays on the corners) and a discovered page (different ink)
-                PageItem.createSymbolPage(new com.tbd.mystcraft.item.component.SymbolPage(
-                        com.tbd.mystcraft.util.MystIds.id("color_sky"),
-                        List.of(com.tbd.mystcraft.util.MystIds.id("mod_color_red"), com.tbd.mystcraft.util.MystIds.id("mod_gradient"),
-                                com.tbd.mystcraft.util.MystIds.id("mod_color_blue")), false)),
-                PageItem.createDiscoveredPage(com.tbd.mystcraft.util.MystIds.id("terrain_normal"), List.of()),
-                PageItem.createLinkPanel(),
-                PageItem.createBlankPage(),
-                descriptiveBook(server, "Framed"),
-                LinkingBookItem.createAt(viewer));
-        for (int i = 0; i < framed.size(); i++) {
-            BlockPos wall = new BlockPos(x0 + 16 + i, y + 1, z0 - 10);
-            level.setBlock(wall, Blocks.SMOOTH_STONE.defaultBlockState(), 3);
-            net.minecraft.world.entity.decoration.ItemFrame frame =
-                    new net.minecraft.world.entity.decoration.ItemFrame(level, wall.south(), Direction.SOUTH);
-            frame.setItem(framed.get(i), false);
-            level.addFreshEntity(frame);
+        int dx = 13;
+        for (DecayType type : DecayType.values()) {
+            level.setBlock(new BlockPos(x0 + dx, y, z0 - 9), ModBlocks.decay(type).get().defaultBlockState(), 3);
+            dx += 2;
         }
 
         // Viewer: centred, six blocks in front of the pad, standing on the ground (a 3x3 stone patch replaces the
         // surface block under the feet; nothing floats) looking north and slightly down.
-        BlockPos view = new BlockPos(x0 + WIDTH / 2, y, z0 + 6);
+        BlockPos view = viewPos(origin);
         for (int vx = -1; vx <= 1; vx++) {
             for (int vz = -1; vz <= 1; vz++) {
                 level.setBlock(view.offset(vx, -1, vz), Blocks.SMOOTH_STONE.defaultBlockState(), 3);
@@ -284,12 +281,59 @@ public final class DebugScene {
         return view;
     }
 
-    /** Full stacks of every crafting input of the mod's recipes and ink effects, plus a Linking Book back to {@code here}. */
-    public static List<ItemStack> supplies(Entity here) {
+    private static void fillChest(ServerLevel level, BlockPos pos, List<ItemStack> stacks, int firstSlot) {
+        if (!(level.getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chestBe)) return;
+        for (int i = 0; i < stacks.size() && i < chestBe.getContainerSize(); i++) {
+            chestBe.setItem(i, stacks.get(i));
+            Mystcraft.LOGGER.info("[scene] chest slot {} = {}", firstSlot + i, iconName(stacks.get(i)));
+        }
+        chestBe.setChanged();
+    }
+
+    /** Item id of a stack, pages qualified by what they carry (several page kinds share one item id). */
+    private static String iconName(ItemStack stack) {
+        String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        if (!(stack.getItem() instanceof PageItem)) return id;
+        if (PageItem.isLinkPanel(stack)) return id + "/link_panel";
+        var symbol = PageItem.getSymbolId(stack);
+        if (symbol == null) return id + "/blank";
+        return id + (PageItem.isDiscovered(stack) ? "/discovered_" : "/symbol_") + symbol.getPath();
+    }
+
+    /**
+     * The showcase half of the supply chest (27 singles, so no stack count is drawn over the icons): a Linking Book
+     * back to {@code here}, the mod items the guide pictures, then one of every crafting ingredient of the recipes
+     * (the water bottle as the potion the ink recipe takes). scripts/docs/crop_icons.py turns this into the icons.
+     */
+    public static List<ItemStack> showcase(Entity here) {
         List<ItemStack> out = new ArrayList<>();
         out.add(homeBook(here, "Back to the scene"));
-        for (Item item : List.of(Items.PAPER, Items.LEATHER, Items.BOOK, Items.STICK, Items.STRING, Items.STONE, Items.IRON_INGOT,
-                Items.FEATHER, Items.BLACK_DYE, Items.GLASS_BOTTLE, Items.ITEM_FRAME, Items.CLAY_BALL, Items.GUNPOWDER, Items.COMPASS,
+        out.add(descriptiveBook(here.level().getServer(), "Showcase"));
+        out.add(new ItemStack(ModItems.UNLINKED_BOOK.get()));
+        out.add(PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("sun_normal")));
+        out.add(PageItem.createSymbolPage(com.tbd.mystcraft.util.MystIds.id("mod_north")));
+        out.add(PageItem.createLinkPanel());
+        out.add(new ItemStack(ModItems.COLLATION_FOLDER.get()));
+        out.add(new ItemStack(ModItems.INK_VIAL.get()));
+        for (Item item : List.of(ModItems.WRITING_DESK.get(), ModItems.INK_MIXER.get(), ModItems.BOOK_BINDER.get(), ModItems.BOOKSTAND.get(),
+                ModItems.LECTERN.get(), ModItems.BOOK_RECEPTACLE.get(), ModItems.CRYSTAL.get(),
+                Items.OAK_PLANKS, Items.STONE, Items.IRON_INGOT, Items.STICK, Items.PAPER, Items.LEATHER, Items.STRING, Items.FEATHER,
+                Items.BLACK_DYE, Items.GLASS_BOTTLE)) {
+            out.add(new ItemStack(item));
+        }
+        out.add(net.minecraft.world.item.alchemy.PotionContents.createItemStack(Items.POTION, net.minecraft.world.item.alchemy.Potions.WATER));
+        out.add(new ItemStack(Items.WATER_BUCKET));
+        return out;
+    }
+
+    /**
+     * The supply half of the chest: full stacks of every crafting input of the mod's recipes and ink effects, a
+     * stack of Unlinked Books, and the remaining mod items (singles) for a tester to try.
+     */
+    public static List<ItemStack> supplies() {
+        List<ItemStack> out = new ArrayList<>();
+        for (Item item : List.of(Items.OAK_PLANKS, Items.STONE, Items.IRON_INGOT, Items.STICK, Items.PAPER, Items.LEATHER, Items.STRING,
+                Items.FEATHER, Items.BLACK_DYE, Items.GLASS_BOTTLE, Items.BOOK, Items.CLAY_BALL, Items.GUNPOWDER, Items.COMPASS,
                 Items.ENDER_PEARL, Items.AMETHYST_SHARD, Items.ENDER_EYE, Items.GLOWSTONE_DUST, Items.REDSTONE, Items.GOLD_INGOT, Items.DIAMOND)) {
             out.add(new ItemStack(item, item.getDefaultMaxStackSize()));
         }
@@ -297,6 +341,9 @@ public final class DebugScene {
         out.add(new ItemStack(ModItems.BLACK_INK_BUCKET.get()));
         out.add(new ItemStack(ModItems.INK_VIAL.get(), 16));
         out.add(new ItemStack(ModBlocks.CRYSTAL.get(), 64));
+        out.add(new ItemStack(ModItems.UNLINKED_BOOK.get(), 16));
+        out.add(new ItemStack(ModItems.SCHOLARS_WRITING_DESK.get()));
+        out.add(new ItemStack(ModItems.LINK_MODIFIER.get()));
         return out;
     }
 

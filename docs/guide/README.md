@@ -66,11 +66,9 @@ The materials of The Art are ordinary enough until they are joined. Crafted in a
 
 <h3 id="recipe-ink-vial">Ink Vial</h3>
 
-Shapeless craft (crafting table), two ways — 2× Black Dye + Water Bottle, or 2× Black Dye + Glass Bottle + Water Bucket:
+Shapeless craft (crafting table): 2× Black Dye + Water Bottle. One vial fills a quarter of a Writing Desk's ink well.
 
-![Ink Vial recipe](images/recipe-ink-vial.png) ![Ink Vial recipe with a water bucket](images/recipe-ink-vial-bucket.png)
-
-You can also fill a glass bottle from black ink fluid in the world.
+![Ink Vial recipe](images/recipe-ink-vial.png)
 
 <h3 id="recipe-ink-mixer">Ink Mixer</h3>
 
@@ -148,7 +146,7 @@ Browse symbols you know by category, write copies into a **Collation Folder**, a
 
 Ink alone opens the way. Ingredients tune *how* the link behaves — choose them with care.
 
-1. Pour **Ink** (vial or bucket) into the mixer.
+1. Pour an **Ink Vial** into the mixer.
 2. Click the basin while holding an ingredient to switch on **one link effect** per ingredient (see table below).
 3. Insert **paper** to pull out a [Link Panel](#link-panel) with those effects.
 4. Refilling ink clears effects. **Black Dye** clears the basin without pouring more ink.
@@ -281,16 +279,18 @@ The terminal **Facility Cache** gives each player a **Linking Book home**. Until
 
 ## Advancements
 
-Milestones along the path — wry titles for hard-earned lessons.
+Milestones along the path, in order; each is awarded by doing the thing, not by holding the item. Two more stay
+hidden until you earn them.
 
 | Advancement | Goal |
 |---|---|
-| **Small Step of the Journey** | Find a symbol |
-| **The Art: A Primer** | Copy a symbol at a desk |
-| **One Way Ticket** | Craft a Descriptive Book (remember: one way without a Linking Book) |
-| **Tie a String** | Craft an Unlinked / Linking Book |
-| **The Way Back** | Travel while carrying a Linking Book |
-| **Call Me Quinn** *(hidden)* | Travel to a dimension without a Linking Book |
+| **Small Step of the Journey** | Learn a symbol |
+| **First Ink** | Craft an Ink Vial |
+| **The Art: A Primer** | Copy a symbol at a Writing Desk |
+| **Bound for Elsewhere** | Bind a Descriptive Book at the Book Binder |
+| **Tie a String** | Link an Unlinked Book to where you stand |
+| **The Way Back** | Enter an Age with a Linking Book in your pack |
+| **What Have I Done** | Stand in an Age whose instability has run wild |
 
 ---
 

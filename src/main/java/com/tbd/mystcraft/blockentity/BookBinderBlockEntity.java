@@ -199,6 +199,7 @@ public class BookBinderBlockEntity extends MystBlockEntity implements MenuProvid
         for (ItemStack p : pages) copies.add(p.copy());
         ItemStack book = DescriptiveBookItem.create(player, copies, pendingTitle);
         result.applyComponents(book.getComponentsPatch());
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp) com.tbd.mystcraft.registry.ModCriteria.BOOK_BOUND.get().trigger(sp);
         pages.clear();
         pendingTitle = "";
         ItemStack cover = inventory.getStack(SLOT_COVER);

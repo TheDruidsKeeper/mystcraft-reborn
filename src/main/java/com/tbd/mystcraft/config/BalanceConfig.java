@@ -12,6 +12,9 @@ public final class BalanceConfig {
             .define("instability.global.enabled", true);
     public static final ModConfigSpec.IntValue INSTABILITY_DIFFICULTY = B.comment("0..3 -> score multiplier 0.25 / 0.5 / 1.0 / 1.75")
             .defineInRange("instability.global.difficulty", 2, 0, 3);
+    public static final ModConfigSpec.IntValue UNSTABLE_ADVANCEMENT_SCORE = B.comment(
+            "Instability score at which standing in an Age awards 'What Have I Done' (the destructive deck opens at 10000)")
+            .defineInRange("instability.advancement.unstableScore", 10000, 0, 1_000_000);
 
     public static final ModConfigSpec.IntValue BASE_COAL = B.defineInRange("baselining.coal_ore", 300, 0, 1_000_000);
     public static final ModConfigSpec.IntValue BASE_DIAMOND = B.defineInRange("baselining.diamond_ore", 1000, 0, 1_000_000);

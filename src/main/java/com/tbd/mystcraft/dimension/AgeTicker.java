@@ -113,6 +113,7 @@ public final class AgeTicker {
             tickChunks(level, controller, weather, players);
             handleSleep(level, controller, data, players);
             CreatureEvents.extraSpawns(level, controller);
+            if (level.getGameTime() % UNSTABLE_CHECK_TICKS == 0) awardUnstable(level, players);
         }
 
         // Periodic / on-change resend.
@@ -127,6 +128,16 @@ public final class AgeTicker {
         } else if (players.isEmpty()) {
             state.lastRevision = data.revision();
         }
+    }
+
+    public static final int UNSTABLE_CHECK_TICKS = 100;
+
+    /** "What Have I Done": everyone inside once the Age's instability score reaches the configured threshold. */
+    public static void awardUnstable(ServerLevel level, List<ServerPlayer> players) {
+        com.tbd.mystcraft.instability.InstabilityController instability = com.tbd.mystcraft.instability.InstabilityController.get(level);
+        if (instability == null || !instability.isEnabled()) return;
+        if (instability.getInstabilityScore() < com.tbd.mystcraft.config.BalanceConfig.UNSTABLE_ADVANCEMENT_SCORE.get()) return;
+        for (ServerPlayer player : players) com.tbd.mystcraft.registry.ModCriteria.AGE_UNSTABLE.get().trigger(player);
     }
 
     private static void tickChunks(ServerLevel level, AgeController controller, @Nullable WeatherController weather, List<ServerPlayer> players) {

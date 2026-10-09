@@ -1,0 +1,28 @@
+{
+  "parent": "mystcraft:symbol",
+  "display": {
+    "icon": {
+      "id": "mystcraft:ink_vial"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.ink.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.ink.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "crafted": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "mystcraft:ink_vial"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "crafted"
+    ]
+  ]
+}

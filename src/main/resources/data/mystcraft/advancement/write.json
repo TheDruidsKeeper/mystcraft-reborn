@@ -1,5 +1,5 @@
 {
-  "parent": "mystcraft:symbol",
+  "parent": "mystcraft:ink",
   "display": {
     "icon": {
       "id": "mystcraft:collation_folder"

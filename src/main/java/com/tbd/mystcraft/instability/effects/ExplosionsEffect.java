@@ -18,6 +18,7 @@ public final class ExplosionsEffect implements EnvironmentalEffect {
         int x = chunk.getPos().getMinBlockX() + ChunkLcg.localX(coords);
         int z = chunk.getPos().getMinBlockZ() + ChunkLcg.localZ(coords);
         int y = ChunkLcg.y255(coords) + level.getMinY() + 1;
-        level.explode(null, x + 0.5, y, z + 0.5, 3.0f, true, Level.ExplosionInteraction.TNT);
+        level.explode(null, com.tbd.mystcraft.registry.ModDamageTypes.source(level, com.tbd.mystcraft.registry.ModDamageTypes.INSTABILITY_EXPLOSION, null),
+                null, x + 0.5, y, z + 0.5, 3.0f, true, Level.ExplosionInteraction.TNT);
     }
 }

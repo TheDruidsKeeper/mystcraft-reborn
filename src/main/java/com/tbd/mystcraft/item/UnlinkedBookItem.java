@@ -54,6 +54,7 @@ public class UnlinkedBookItem extends Item {
         ItemStack book = LinkingBookItem.createAt(player);
         LinkingItem.setLinkInfo(book, LinkingItem.getLinkInfo(book).withFlags(getProperties(held)));
         player.setItemInHand(hand, book);
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp) com.tbd.mystcraft.registry.ModCriteria.BOOK_LINKED.get().trigger(sp);
         return InteractionResult.SUCCESS_SERVER;
     }
 }

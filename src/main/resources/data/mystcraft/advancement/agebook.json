@@ -13,20 +13,13 @@
     "frame": "task"
   },
   "criteria": {
-    "has_agebook": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": "mystcraft:descriptive_book"
-          }
-        ]
-      }
+    "bound": {
+      "trigger": "mystcraft:book_bound"
     }
   },
   "requirements": [
     [
-      "has_agebook"
+      "bound"
     ]
   ]
 }

@@ -1,0 +1,26 @@
+{
+  "parent": "mystcraft:unstable",
+  "display": {
+    "icon": {
+      "id": "mystcraft:decay_red"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.instability_death.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.instability_death.description"
+    },
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "killed": {
+      "trigger": "mystcraft:killed_by_instability"
+    }
+  },
+  "requirements": [
+    [
+      "killed"
+    ]
+  ]
+}

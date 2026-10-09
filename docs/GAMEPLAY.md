@@ -104,10 +104,18 @@ scorched, extra ticks — `instability/InstabilityController`, `effects/`, `deca
 
 ## Content
 Blocks: ink mixer, book binder, book receptacle, bookstand, lectern, link modifier, crystal, link portal, writing desk,
-star fissure, black ink (fluid), decay variants — `registry/ModBlocks`. Items: page, descriptive / linking / unlinked
-book, sealed notebook, collation folder, ink vial, writing desks (incl. Scholar's desk that knows everything),
-black ink bucket — `registry/ModItems`. Entities: dropped linkbook, falling block, meteor, coloured lightning —
+star fissure, decay variants — `registry/ModBlocks`. Items: page, descriptive / linking / unlinked book, sealed
+notebook, collation folder, ink vial (the only ink carrier; black ink is a tank-only fluid, `registry/ModFluids`),
+writing desks (incl. Scholar's desk that knows everything) — `registry/ModItems`. Entities: dropped linkbook (never despawns; picked up on touch), falling block, meteor, coloured lightning —
 `registry/ModEntities`. Recipes, loot and trades: `src/main/resources/data/mystcraft`.
+
+## Advancements
+One chain, awarded by actions only (`registry/ModCriteria`, triggers fired from the code that does the thing; never by
+inventory contents): learn a symbol → craft ink → write at a desk → bind a book → link an Unlinked Book → enter an Age
+carrying a Linking Book → stand in an Age past the configured instability score (`instability.advancement.unstableScore`,
+`dimension/AgeTicker.awardUnstable`). Hidden: entering an Age without a Linking Book, and dying to instability
+(`instability/InstabilityDeaths`: decay, meteor and instability-explosion damage types in `data/mystcraft/damage_type`,
+tagged `mystcraft:instability`, or a strike by the lightning effect). Definitions: `data/mystcraft/advancement`.
 
 ## Configuration
 | File | Class | Covers |

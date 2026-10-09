@@ -65,7 +65,10 @@ public final class SymbolKnowledge {
         }
         if (learned.isEmpty()) return learned;
         player.setData(ModAttachments.KNOWLEDGE.get(), Set.copyOf(set));
-        if (player instanceof ServerPlayer serverPlayer) sync(serverPlayer);
+        if (player instanceof ServerPlayer serverPlayer) {
+            sync(serverPlayer);
+            com.tbd.mystcraft.registry.ModCriteria.SYMBOL_LEARNED.get().trigger(serverPlayer);
+        }
         Mystcraft.LOGGER.info("[knowledge] {} learned {} symbol(s) from {}: {} ({} known)", player.getPlainTextName(), learned.size(), source,
                 learned, set.size());
         if (player instanceof ServerPlayer serverPlayer) {

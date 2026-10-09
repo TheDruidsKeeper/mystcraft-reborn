@@ -100,6 +100,14 @@ public final class AdvancedExplosion {
     private final List<BlockPos> blocks = new ArrayList<>();
     private final Map<Player, Vec3> hitPlayers = new HashMap<>();
 
+    private @Nullable DamageSource damageSource;
+
+    /** Damage source for hurt entities (default: a plain explosion by the exploder). */
+    public AdvancedExplosion withDamageSource(DamageSource source) {
+        this.damageSource = source;
+        return this;
+    }
+
     public AdvancedExplosion(ServerLevel level, @Nullable Entity exploder, double x, double y, double z, float size) {
         this.level = level;
         this.exploder = exploder;
@@ -187,7 +195,7 @@ public final class AdvancedExplosion {
         AABB box = new AABB(Mth.floor(x - reach - 1), Mth.floor(y - reach - 1), Mth.floor(z - reach - 1),
                 Mth.floor(x + reach + 1), Mth.floor(y + reach + 1), Mth.floor(z + reach + 1));
         Vec3 center = new Vec3(x, y, z);
-        DamageSource source = level.damageSources().explosion(exploder, exploder);
+        DamageSource source = damageSource != null ? damageSource : level.damageSources().explosion(exploder, exploder);
         for (Entity entity : level.getEntities(exploder, box)) {
             double dist = Math.sqrt(entity.distanceToSqr(x, y, z)) / reach;
             if (dist >= 1.0) continue;

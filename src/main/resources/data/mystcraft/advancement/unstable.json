@@ -1,0 +1,25 @@
+{
+  "parent": "mystcraft:dimension",
+  "display": {
+    "icon": {
+      "id": "mystcraft:decay_black"
+    },
+    "title": {
+      "translate": "advancements.mystcraft.unstable.title"
+    },
+    "description": {
+      "translate": "advancements.mystcraft.unstable.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "unstable": {
+      "trigger": "mystcraft:age_unstable"
+    }
+  },
+  "requirements": [
+    [
+      "unstable"
+    ]
+  ]
+}

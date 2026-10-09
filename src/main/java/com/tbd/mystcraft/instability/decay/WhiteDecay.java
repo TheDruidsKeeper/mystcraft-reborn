@@ -22,7 +22,7 @@ public final class WhiteDecay extends SpreadingDecay {
     @Override
     public void onEntityContact(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level instanceof ServerLevel server) {
-            entity.hurtServer(server, level.damageSources().magic(), 1f);
+            entity.hurtServer(server, com.tbd.mystcraft.registry.ModDamageTypes.source(server, com.tbd.mystcraft.registry.ModDamageTypes.DECAY, null), 1f);
         }
     }
 }

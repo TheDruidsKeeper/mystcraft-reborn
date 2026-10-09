@@ -175,6 +175,7 @@ public final class MeteorEntity extends Entity {
 
     private void explode(ServerLevel level, double x, double y, double z, float power, boolean flaming, boolean ores) {
         AdvancedExplosion explosion = new AdvancedExplosion(level, this, x, y, z, power)
+                .withDamageSource(com.tbd.mystcraft.registry.ModDamageTypes.source(level, com.tbd.mystcraft.registry.ModDamageTypes.METEOR, this))
                 .addEffect(AdvancedExplosion.BASIC)
                 .addEffect(AdvancedExplosion.BREAK_NO_DROP);
         if (flaming) explosion.addEffect(AdvancedExplosion.FIRE);
